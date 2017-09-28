@@ -1,0 +1,9 @@
+e:\documents\visual studio 2017\Projects\TwitchNet\TwitchNet\bin\Debug\TwitchNet.dll
+e:\documents\visual studio 2017\Projects\TwitchNet\TwitchNet\bin\Debug\TwitchNet.pdb
+e:\documents\visual studio 2017\Projects\TwitchNet\TwitchNet\bin\Debug\Newtonsoft.Json.dll
+e:\documents\visual studio 2017\Projects\TwitchNet\TwitchNet\bin\Debug\RestSharp.dll
+e:\documents\visual studio 2017\Projects\TwitchNet\TwitchNet\bin\Debug\Newtonsoft.Json.xml
+e:\documents\visual studio 2017\Projects\TwitchNet\TwitchNet\bin\Debug\RestSharp.xml
+e:\documents\visual studio 2017\Projects\TwitchNet\TwitchNet\obj\Debug\TwitchNet.csprojResolveAssemblyReference.cache
+e:\documents\visual studio 2017\Projects\TwitchNet\TwitchNet\obj\Debug\TwitchNet.dll
+e:\documents\visual studio 2017\Projects\TwitchNet\TwitchNet\obj\Debug\TwitchNet.pdb

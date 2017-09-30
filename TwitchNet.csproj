@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\TwitchApiOauth.Sync.cs" />
     <Compile Include="Api\TwitchApiOauth.Async.cs" />
     <Compile Include="Debug\Error.cs" />
     <Compile Include="Debug\Log.cs" />
@@ -61,7 +62,7 @@
     <Compile Include="Helpers\Paging\PagingPropertyAttribute.cs" />
     <Compile Include="Helpers\Paging\Users\FollowsParameters.cs" />
     <Compile Include="Models\Api\Pagination.cs" />
-    <Compile Include="Models\Api\Users\Follower.cs" />
+    <Compile Include="Models\Api\Users\Follow.cs" />
     <Compile Include="Models\Api\Users\Follows.cs" />
     <Compile Include="Models\Api\Users\User.cs" />
     <Compile Include="Models\Api\Users\Users.cs" />

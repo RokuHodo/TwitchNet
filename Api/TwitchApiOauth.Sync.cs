@@ -1,11 +1,7 @@
 ﻿// standard namespaces
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 // project namespaces
-using TwitchNet.Api.Internal;
-using TwitchNet.Enums.Api;
-using TwitchNet.Extensions;
 using TwitchNet.Helpers.Paging.Users;
 using TwitchNet.Models.Api.Users;
 
@@ -16,113 +12,113 @@ namespace TwitchNet.Api
         #region Users
 
         /// <summary>
-        /// Asynchronously gets a user's information by their id.
+        /// Gets a user's information by their id.
         /// Optional Scope: 'user:read:email'
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="ids">The id(s) of the user(s).</param>
         /// <returns></returns>
-        public static async Task<Users> GetUsersByIdAsync(string oauth_token, params string[] ids)
+        public static Users GetUsersById(string oauth_token, params string[] ids)
         {
-            Users users = await TwitchApiInternal.GetUsersAsync(Authentication.Authorization, oauth_token, "id", ids);
+            Users users = GetUsersByIdAsync(oauth_token, ids).Result;
 
             return users;
         }
 
         /// <summary>
-        /// Asynchronously gets a user's information by their login name.
+        /// Gets a user's information by their login name.
         /// Optional Scope: 'user:read:email'
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="logins">The name(s) of the user(s).</param>
         /// <returns></returns>
-        public static async Task<Users> GetUsersByLoginAsync(string oauth_token, params string[] logins)
+        public static Users GetUsersByLogin(string oauth_token, params string[] logins)
         {
-            Users users = await TwitchApiInternal.GetUsersAsync(Authentication.Authorization, oauth_token, "login", logins);
+            Users users = GetUsersByLoginAsync(oauth_token, logins).Result;
 
             return users;
         }
 
         /// <summary>
-        /// Asynchronously gets the relationship between two users.
+        /// Gets the relationship between two users.
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="to_id">The user to compare to.</param>
         /// <param name="from_id">The user to compare from.</param>
         /// <returns></returns>
-        public static async Task<Follows> GetUserRelationshipAsync(string oauth_token, string to_id, string from_id)
+        public static Follows GetUserRelationship(string oauth_token, string to_id, string from_id)
         {
-            Follows relationship = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Authorization, oauth_token, to_id, from_id);
+            Follows relationship = GetUserRelationshipAsync(oauth_token, to_id, from_id).Result;
 
             return relationship;
         }
 
         /// <summary>
-        /// Asynchronously gets a single paged of a user's followers list.
+        /// Gets a single paged of a user's followers list.
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="to_id">The user to get the followers for.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <returns></returns>
-        public static async Task<Follows> GetUserFollowersPageAsync(string oauth_token, string to_id, FollowsParameters parameters = null)
+        public static Follows GetUserFollowersPage(string oauth_token, string to_id, FollowsParameters parameters = null)
         {
-            Follows followers = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Authorization, oauth_token, to_id, string.Empty, parameters);
+            Follows followers = GetUserFollowersPageAsync(oauth_token, to_id, parameters).Result;
 
             return followers;
         }
 
         /// <summary>
-        /// Asynchronously gets a user's followers list.
+        /// Gets a user's followers list.
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="to_id">The user to get the followers for.</param>
         /// <returns></returns>
-        public static async Task<List<Follow>> GetUserFollowersAsync(string oauth_token, string to_id)
+        public static List<Follow> GetUserFollowers(string oauth_token, string to_id)
         {
-            List<Follow> followers = await TwitchApiInternal.GetUserRelationshipAsync(Authentication.Authorization, oauth_token, to_id, string.Empty);
+            List<Follow> followers = GetUserFollowersAsync(oauth_token, to_id).Result;
 
             return followers;
         }
 
         /// <summary>
-        /// Asynchronously gets a single page of a user's following list.
+        /// Gets a single page of a user's following list.
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="from_id">The user to get the following list from.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <returns></returns>
-        public static async Task<Follows> GetUserFollowingPageAsync(string oauth_token, string from_id, FollowsParameters parameters = null)
+        public static Follows GetUserFollowingPage(string oauth_token, string from_id, FollowsParameters parameters = null)
         {
-            Follows following = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Authorization, oauth_token, string.Empty, from_id, parameters);
+            Follows following = GetUserFollowingPageAsync(oauth_token, from_id, parameters).Result;
 
             return following;
         }
 
         /// <summary>
-        /// Asynchronously gets a user's following list.
+        /// Gets a user's following list.
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="from_id">The user to get the following list from.</param>
         /// <returns></returns>
-        public static async Task<List<Follow>> GetUserFollowingAsync(string oauth_token, string from_id)
+        public static List<Follow> GetUserFollowing(string oauth_token, string from_id)
         {
-            List<Follow> following = await TwitchApiInternal.GetUserRelationshipAsync(Authentication.Authorization, oauth_token, string.Empty, from_id);
+            List<Follow> following = GetUserFollowingAsync(oauth_token, from_id).Result;
 
             return following;
         }
 
         /// <summary>
-        /// Asynchronously checks to see if a user (from_id) is following another user (to_id).
+        /// Checks to see if a user (from_id) is following another user (to_id).
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="to_id">The user to compare to.</param>
         /// <param name="from_id">The user to compare from.</param>
         /// <returns></returns>
-        public static async Task<bool> IsUserFollowingAsync(string oauth_token, string to_id, string from_id)
+        public static bool IsUserFollowing(string oauth_token, string to_id, string from_id)
         {
-            Follows relationship = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Authorization, oauth_token, to_id, from_id);
+            bool is_following = IsUserFollowingAsync(oauth_token, to_id, from_id).Result;
 
-            return relationship.data.isValid();
+            return is_following;
         }
 
         #endregion

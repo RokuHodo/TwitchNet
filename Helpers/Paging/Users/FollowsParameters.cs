@@ -27,6 +27,12 @@ namespace TwitchNet.Helpers.Paging.Users
 
         #region Properties
 
+        /// <summary>
+        /// Maximum number of objects to return.
+        /// Minimum: 1;
+        /// Maximum: 100.
+        /// Default: 20.
+        /// </summary>
         [PagingProperty("first")]
         public ushort first
         {
@@ -40,6 +46,9 @@ namespace TwitchNet.Helpers.Paging.Users
             }
         }
 
+        /// <summary>
+        /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
+        /// </summary>
         [PagingProperty("after")]
         public string after
         {
@@ -53,6 +62,9 @@ namespace TwitchNet.Helpers.Paging.Users
             }
         }
 
+        /// <summary>
+        /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
+        /// </summary>
         [PagingProperty("before")]
         public string before
         {
@@ -66,6 +78,10 @@ namespace TwitchNet.Helpers.Paging.Users
             }
         }
 
+        /// <summary>
+        /// A user's id.
+        /// The request returns information about users who are being followed by the this user
+        /// </summary>
         [PagingProperty("from_id")]
         public string from_id
         {
@@ -79,6 +95,10 @@ namespace TwitchNet.Helpers.Paging.Users
             }
         }
 
+        /// <summary>
+        /// A user's id.
+        /// The request returns information about users who are following this user
+        /// </summary>
         [PagingProperty("to_id")]
         public string to_id
         {

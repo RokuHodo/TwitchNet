@@ -20,16 +20,16 @@ namespace TwitchNet.Utilities
         /// <summary>
         /// Adds a set optional of query string parameters to a <see cref="RestRequest"/> to customize the request.
         /// </summary>
-        /// <typeparam name="paging_parameters_class">The object type of the parameters class</typeparam>
+        /// <typeparam name="parameters_type">The object type of the parameters class</typeparam>
         /// <param name="request">The rest request to be executed.</param>
         /// <param name="parameters">The optional query string parameters to be added to the request.</param>
         /// <returns></returns>
-        public static RestRequest AddPaging<paging_parameters_class>(RestRequest request, paging_parameters_class parameters)
-        where paging_parameters_class : new()
+        public static RestRequest AddPaging<parameters_type>(RestRequest request, parameters_type parameters)
+        where parameters_type : new()
         {
             if (parameters.isNull())
             {
-                parameters = new paging_parameters_class();
+                parameters = new parameters_type();
             }
 
             List<PagingPropertyAttribute> attributes = GetPagingAttributes(parameters);
@@ -43,13 +43,12 @@ namespace TwitchNet.Utilities
                 }
 
                 string property_string = property_object.ToString();
-
                 if (!property_string.isValid())
                 {
                     continue;
                 }
 
-                request.AddQueryParameter(attribute.query_name, property_string.ToLower());
+                request.AddQueryParameter(attribute.query_name, property_string);
             }
 
 
@@ -59,11 +58,11 @@ namespace TwitchNet.Utilities
         /// <summary>
         /// Gets the object properties marked by <see cref="PagingPropertyAttribute"/> to signify that they should be added to the <see cref="RestRequest"/> as optional query string parameters.
         /// </summary>
-        /// <typeparam name="paging_parameters_class">The object type of the parameters class</typeparam>
+        /// <typeparam name="parameters_type">The object type of the parameters class</typeparam>
         /// <param name="parameters">The optional query string parameters to be added to the request.</param>
         /// <returns></returns>
-        private static List<PagingPropertyAttribute> GetPagingAttributes<paging_parameters_class>(paging_parameters_class parameters)
-        where paging_parameters_class : new()
+        private static List<PagingPropertyAttribute> GetPagingAttributes<parameters_type>(parameters_type parameters)
+        where parameters_type : new()
         {
             List<PagingPropertyAttribute> attributes = new List<PagingPropertyAttribute>();
 
@@ -76,12 +75,10 @@ namespace TwitchNet.Utilities
                 }
 
                 PagingPropertyAttribute attribute = (PagingPropertyAttribute)Attribute.GetCustomAttribute(property, typeof(PagingPropertyAttribute));
-
                 if (attribute.isNull() || attribute.isDefault())
                 {
                     continue;
                 }
-
                 attribute.property = property;
 
                 attributes.Add(attribute);
@@ -95,7 +92,7 @@ namespace TwitchNet.Utilities
         /// </summary>
         /// <typeparam name="return_type">The object type that is returned.</typeparam>
         /// <typeparam name="page_return_type">The object type that is returned by the passed request method.</typeparam>
-        /// <typeparam name="paging_parameters_class">The object type of the parameters class</typeparam>
+        /// <typeparam name="parameters_type">The object type of the parameters class</typeparam>
         /// <param name="GetPage">The method to request each page.</param>
         /// <param name="authentication">How to authorize the request.</param>
         /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
@@ -103,10 +100,15 @@ namespace TwitchNet.Utilities
         /// <param name="param_2">A parameter that is passed through to the request method.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
         /// <returns></returns>
-        public static async Task<List<return_type>> GetAllPagesAsync<return_type, page_return_type, paging_parameters_class>(Func<Authentication, string, string, string, paging_parameters_class, Task<page_return_type>> GetPage, Authentication authentication, string token, string param_1, string param_2,  paging_parameters_class parameters)
-        where paging_parameters_class : new()
+        public static async Task<List<return_type>> GetAllPagesAsync<return_type, page_return_type, parameters_type>(Func<Authentication, string, string, string, parameters_type, Task<page_return_type>> GetPage, Authentication authentication, string token, string param_1, string param_2,  parameters_type parameters)
+        where parameters_type : new()
         {
             List<return_type> result = new List<return_type>();
+
+            if (parameters.isNull())
+            {
+                parameters = new parameters_type();
+            }
 
             bool requesting = true;
             do
@@ -125,10 +127,9 @@ namespace TwitchNet.Utilities
                 PropertyInfo page_pagination = page.GetType().GetProperty("pagination");
                 Pagination pagination = (Pagination)page_pagination.GetValue(page);
 
-                requesting = pagination.cursor.isValid();
-                if(requesting)
+                requesting = pagination.cursor.isValid() && page_data_value.isValid();
+                if (requesting)
                 {
-                    // TODO: (PagingUtil.GetAllPagesAsync) - Fix invalid cursor
                     // update the parameter's 'after' property to properly request the next page
                     PropertyInfo parameters_after = parameters.GetType().GetProperty("after");
                     parameters_after.SetValue(parameters, pagination.cursor);

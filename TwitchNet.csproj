@@ -70,7 +70,7 @@
     <Compile Include="Utilities\PagingUtil.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Api\Internal\TwitchApiInternal.Async.cs" />
+    <Compile Include="Api\Internal\TwitchApiInternal.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />

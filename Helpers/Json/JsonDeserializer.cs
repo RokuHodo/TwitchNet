@@ -15,7 +15,7 @@ namespace TwitchNet.Helpers.Json
         /// <summary>
         /// Custom deserializer that utilizies Newtonsoft to handle Json responses with RestSharp
         /// </summary>
-        public type Deserialize<type>(IRestResponse response)
+        public return_type Deserialize<return_type>(IRestResponse response)
         {
             JsonSerializerSettings settings = new JsonSerializerSettings();
             settings.NullValueHandling      = NullValueHandling.Ignore;
@@ -23,9 +23,9 @@ namespace TwitchNet.Helpers.Json
             settings.FloatParseHandling     = FloatParseHandling.Double;
 
             // NOTE: (Helpers.Json) JsonDeserializer - For debugging purposes only, change MissingMemberHandling to 'ignrore' on release build
-            settings.MissingMemberHandling  = MissingMemberHandling.Error;
+            //settings.MissingMemberHandling  = MissingMemberHandling.Error;
 
-            return JsonConvert.DeserializeObject<type>(response.Content, settings);
+            return JsonConvert.DeserializeObject<return_type>(response.Content, settings);
         }
     }
 }

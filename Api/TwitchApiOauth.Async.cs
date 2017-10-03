@@ -117,12 +117,32 @@ namespace TwitchNet.Api
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="to_id">The user to compare to.</param>
         /// <param name="from_id">The user to compare from.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// Returns true if a user (from_id) is following another user (to_id).
+        /// Returns false otherwise.
+        /// </returns>
         public static async Task<bool> IsUserFollowingAsync(string oauth_token, string to_id, string from_id)
         {
             Follows relationship = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Authorization, oauth_token, to_id, from_id);
 
             return relationship.data.isValid();
+        }
+
+        /// <summary>
+        /// Asynchronously sets the description of a user specified by their OAuth token.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="user_oauth_token">The user's OAuth token used to determine which description to update.</param>
+        /// <param name="description">The new description to set.</param>
+        /// <returns>
+        /// Returns true if the description of the user was successfully updated.
+        /// Returns false otherwise.
+        /// </returns>
+        public static async Task<bool> SetUserDescriptionAsync(string oauth_token, string user_oauth_token, string description)
+        {
+            bool success = await TwitchApiInternal.SetUserDescriptionAsync(Authentication.Authorization, oauth_token, user_oauth_token, description);
+
+            return success;
         }
 
         #endregion

@@ -113,12 +113,32 @@ namespace TwitchNet.Api
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="to_id">The user to compare to.</param>
         /// <param name="from_id">The user to compare from.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// Returns true if a user (from_id) is following another user (to_id).
+        /// Returns false otherwise.
+        /// </returns>
         public static bool IsUserFollowing(string oauth_token, string to_id, string from_id)
         {
             bool is_following = IsUserFollowingAsync(oauth_token, to_id, from_id).Result;
 
             return is_following;
+        }
+
+        /// <summary>
+        /// Sets the description of a user specified by their OAuth token.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="user_oauth_token">The user's OAuth token used to determine which description to update.</param>
+        /// <param name="description">The new description to set.</param>
+        /// <returns>
+        /// Returns true if the description of the user was successfully updated.
+        /// Returns false otherwise.
+        /// </returns>
+        public static bool SetUserDescription(string oauth_token, string user_oauth_token, string description)
+        {
+            bool success = SetUserDescriptionAsync(oauth_token, user_oauth_token, description).Result;
+
+            return success;
         }
 
         #endregion

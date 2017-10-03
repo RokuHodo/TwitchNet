@@ -1,5 +1,6 @@
 ﻿// standard namespaces
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 // project namespaces
@@ -20,7 +21,8 @@ namespace TwitchNet.Api.Internal
         #region Users
 
         /// <summary>
-        /// Asynchronously get gets a user's information by their id or login name.
+        /// Asynchronously gets a user's information by their id or login name.
+        /// Optional Scope: 'user:read:email'
         /// </summary>
         /// <param name="authentication">How to authorize the request.</param>
         /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
@@ -42,7 +44,7 @@ namespace TwitchNet.Api.Internal
         }
 
         /// <summary>
-        /// Asynchronously get's the relationship between two users, or a single page of the following/follower lists of one user.
+        /// Asynchronously gets the relationship between two users, or a single page of the following/follower lists of one user.
         /// </summary>
         /// <param name="authentication">How to authorize the request.</param>
         /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
@@ -70,7 +72,7 @@ namespace TwitchNet.Api.Internal
         }
 
         /// <summary>
-        /// Asynchronously get's the relationship between two users, or the complete following/follower lists of one user.
+        /// Asynchronously gets the relationship between two users, or the complete following/follower lists of one user.
         /// </summary>
         /// <param name="authentication">How to authorize the request.</param>
         /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
@@ -83,6 +85,26 @@ namespace TwitchNet.Api.Internal
             List<Follow> follows = await PagingUtil.GetAllPagesAsync<Follow, Follows, FollowsParameters>(GetUserRelationshipPageAsync, authentication, token, to_id, from_id, parameters);
 
             return follows;
+        }
+
+        /// <summary>
+        /// Asynchronously sets the description of a user specified by the OAuth token.
+        /// Required Scope: 'user:read'
+        /// </summary>
+        /// <param name="authentication">How to authorize the request.</param>
+        /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
+        /// <param name="oauth_token">The user's OAuth token used to determine which description to update.</param>
+        /// <param name="description">The new description to set.</param>
+        /// <returns></returns>
+        internal static async Task<bool> SetUserDescriptionAsync(Authentication authentication, string token, string oauth_token, string description)
+        {
+            RestRequest request = Request(authentication, oauth_token, "users", Method.PUT);
+            request.AddQueryParameter("description", description);
+
+            RestClient client = Client();
+            IRestResponse<Users> response = await client.ExecuteTaskAsync<Users>(request);
+
+            return response.StatusCode == HttpStatusCode.OK;
         }
 
         #endregion

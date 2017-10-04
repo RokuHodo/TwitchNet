@@ -31,7 +31,7 @@ namespace TwitchNet.Api.Internal
         /// <returns></returns>
         internal static async Task<Users> GetUsersAsync(Authentication authentication, string token, string query_name, params string[] lookup)
         {
-            RestRequest request = Request(authentication, token, "users", Method.GET);
+            RestRequest request = Request("users", Method.GET, authentication, token);
             foreach (string element in lookup)
             {
                 request.AddQueryParameter(query_name, element);
@@ -54,7 +54,7 @@ namespace TwitchNet.Api.Internal
         /// <returns></returns>
         internal static async Task<Follows> GetUserRelationshipPageAsync(Authentication authentication, string token, string to_id, string from_id, FollowsParameters parameters = null)
         {
-            RestRequest request = Request(authentication, token, "users/follows", Method.GET);
+            RestRequest request = Request("users/follows", Method.GET, authentication, token);
 
             if (parameters.isNull())
             {
@@ -93,12 +93,12 @@ namespace TwitchNet.Api.Internal
         /// </summary>
         /// <param name="authentication">How to authorize the request.</param>
         /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
-        /// <param name="oauth_token">The user's OAuth token used to determine which description to update.</param>
+        /// <param name="user_oauth_token">The user's OAuth token used to determine which description to update.</param>
         /// <param name="description">The new description to set.</param>
         /// <returns></returns>
-        internal static async Task<bool> SetUserDescriptionAsync(Authentication authentication, string token, string oauth_token, string description)
+        internal static async Task<bool> SetUserDescriptionAsync(Authentication authentication, string user_oauth_token, string supplementary_token, string description)
         {
-            RestRequest request = Request(authentication, oauth_token, "users", Method.PUT);
+            RestRequest request = Request("users", Method.PUT, authentication, user_oauth_token, supplementary_token);
             request.AddQueryParameter("description", description);
 
             RestClient client = Client();
@@ -113,13 +113,14 @@ namespace TwitchNet.Api.Internal
 
         /// <summary>
         /// Creates a new instance of a <see cref="RestRequest"/> which holds the information to request.
-        /// </summary>
-        /// <param name="authentication">How to authorize the request.</param>
-        /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
+        /// </summary>        
         /// <param name="endpoint">The endpoint URL.</param>
         /// <param name="method">The HTTP method used when making the request.</param>
+        /// <param name="authentication">How to authorize the request.</param>
+        /// <param name="token">The OAuth token or Client Id to authorize the request when only either is provided. If both are being provided, this is assumed to be the OAuth token.</param>
+        /// <param name="supplementary_token">The Client Id if both the OAuth token and Client Id are being provided.</param>
         /// <returns></returns>
-        private static RestRequest Request(Authentication authentication, string token, string endpoint, Method method)
+        private static RestRequest Request(string endpoint, Method method, Authentication authentication, string token, string supplementary_token = "")
         {
             RestRequest request = new RestRequest(endpoint, method);
             switch (authentication)
@@ -133,6 +134,13 @@ namespace TwitchNet.Api.Internal
                 case Authentication.Client_ID:
                 {
                     request.AddHeader("Client-ID", token);
+                }
+                break;
+
+                case Authentication.Both:
+                {
+                    request.AddHeader("Authorization", "Bearer " + token);
+                    request.AddHeader("Client-ID", supplementary_token);
                 }
                 break;
             }

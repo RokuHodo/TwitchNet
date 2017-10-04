@@ -125,18 +125,35 @@ namespace TwitchNet.Api
         }
 
         /// <summary>
-        /// Sets the description of a user specified by their OAuth token.
+        /// Asynchronously sets the description of a user specified by their OAuth token.
         /// </summary>
-        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
-        /// <param name="user_oauth_token">The user's OAuth token used to determine which description to update.</param>
+        /// <param name="user_oauth_token">The user's OAuth token used to validate the request and determine which description to update.</param>
         /// <param name="description">The new description to set.</param>
         /// <returns>
         /// Returns true if the description of the user was successfully updated.
         /// Returns false otherwise.
         /// </returns>
-        public static bool SetUserDescription(string oauth_token, string user_oauth_token, string description)
+        public static bool SetUserDescription(string user_oauth_token, string description)
         {
-            bool success = SetUserDescriptionAsync(oauth_token, user_oauth_token, description).Result;
+            bool success = SetUserDescriptionAsync(user_oauth_token, description).Result;
+
+            return success;
+        }
+
+        /// <summary>
+        /// Asynchronously sets the description of a user specified by their OAuth token.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="user_oauth_token">The user's OAuth token used to determine which description to update.</param>
+        /// <param name="supplementary_token">The Client Id of the application to validate the request.</param>
+        /// <param name="description">The new description to set.</param>
+        /// <returns>
+        /// Returns true if the description of the user was successfully updated.
+        /// Returns false otherwise.
+        /// </returns>
+        public static bool SetUserDescription(string user_oauth_token, string supplementary_token, string description)
+        {
+            bool success = SetUserDescriptionAsync(user_oauth_token, supplementary_token, description).Result;
 
             return success;
         }

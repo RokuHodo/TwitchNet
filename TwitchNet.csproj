@@ -47,6 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\TwitchApi.Sync.cs" />
+    <Compile Include="Api\TwitchApi.Async.cs" />
     <Compile Include="Api\TwitchApiOauth.Sync.cs" />
     <Compile Include="Api\TwitchApiOauth.Async.cs" />
     <Compile Include="Debug\Error.cs" />

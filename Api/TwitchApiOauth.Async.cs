@@ -131,16 +131,33 @@ namespace TwitchNet.Api
         /// <summary>
         /// Asynchronously sets the description of a user specified by their OAuth token.
         /// </summary>
-        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
-        /// <param name="user_oauth_token">The user's OAuth token used to determine which description to update.</param>
+        /// <param name="user_oauth_token">The user's OAuth token used to validate the request and determine which description to update.</param>
         /// <param name="description">The new description to set.</param>
         /// <returns>
         /// Returns true if the description of the user was successfully updated.
         /// Returns false otherwise.
         /// </returns>
-        public static async Task<bool> SetUserDescriptionAsync(string oauth_token, string user_oauth_token, string description)
+        public static async Task<bool> SetUserDescriptionAsync(string user_oauth_token, string description)
         {
-            bool success = await TwitchApiInternal.SetUserDescriptionAsync(Authentication.Authorization, oauth_token, user_oauth_token, description);
+            bool success = await TwitchApiInternal.SetUserDescriptionAsync(Authentication.Authorization, user_oauth_token, string.Empty, description);
+
+            return success;
+        }
+
+        /// <summary>
+        /// Asynchronously sets the description of a user specified by their OAuth token.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="user_oauth_token">The user's OAuth token used to determine which description to update.</param>
+        /// <param name="client_id">The Client Id of the application to validate the request.</param>
+        /// <param name="description">The new description to set.</param>
+        /// <returns>
+        /// Returns true if the description of the user was successfully updated.
+        /// Returns false otherwise.
+        /// </returns>
+        public static async Task<bool> SetUserDescriptionAsync(string user_oauth_token, string client_id, string description)
+        {
+            bool success = await TwitchApiInternal.SetUserDescriptionAsync(Authentication.Both, user_oauth_token, client_id, description);
 
             return success;
         }

@@ -1,6 +1,6 @@
 ﻿namespace TwitchNet.Enums.Extensions
 {
-    internal enum Padding
+    public enum Padding
     {
         /// <summary>
         /// Remove padding from the left and right sides of a string.

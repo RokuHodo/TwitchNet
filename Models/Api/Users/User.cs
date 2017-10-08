@@ -1,5 +1,5 @@
 ﻿// project namespaces
-using TwitchNet.Enums.Api;
+using TwitchNet.Enums.Api.Users;
 
 // imported .dll's
 using Newtonsoft.Json;
@@ -9,7 +9,7 @@ namespace TwitchNet.Models.Api.Users
     public class User
     {
         /// <summary>
-        /// The user id.
+        /// The id of the user.
         /// </summary>
         [JsonProperty("id")]
         public string           id                  { get; protected set; }

@@ -62,7 +62,7 @@ namespace TwitchNet.Api
         /// <param name="to_id">The user to get the followers for.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <returns></returns>
-        public static async Task<Follows> GetUserFollowersPageAsync(string client_id, string to_id, FollowsParameters parameters = null)
+        public static async Task<Follows> GetUserFollowersPageAsync(string client_id, string to_id, FollowsQueryParameters parameters = null)
         {
             Follows followers = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Client_ID, client_id, to_id, string.Empty, parameters);
 
@@ -89,7 +89,7 @@ namespace TwitchNet.Api
         /// <param name="from_id">The user to get the following list from.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <returns></returns>
-        public static async Task<Follows> GetUserFollowingPageAsync(string client_id, string from_id, FollowsParameters parameters = null)
+        public static async Task<Follows> GetUserFollowingPageAsync(string client_id, string from_id, FollowsQueryParameters parameters = null)
         {
             Follows following = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Client_ID, client_id, string.Empty, from_id, parameters);
 
@@ -123,7 +123,7 @@ namespace TwitchNet.Api
         {
             Follows relationship = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Client_ID, client_id, to_id, from_id);
 
-            return relationship.data.isValid();
+            return relationship.data.IsValid();
         }
 
         #endregion

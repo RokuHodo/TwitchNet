@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using TwitchNet.Enums.Api;
 using TwitchNet.Extensions;
 using TwitchNet.Helpers.Json;
+using TwitchNet.Helpers.Paging.Streams;
 using TwitchNet.Helpers.Paging.Users;
+using TwitchNet.Models.Api.Streams;
 using TwitchNet.Models.Api.Users;
 using TwitchNet.Utilities;
 
@@ -52,18 +54,18 @@ namespace TwitchNet.Api.Internal
         /// <param name="from_id">Optional. The user to compare from. Used to get the following list of a user.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <returns></returns>
-        internal static async Task<Follows> GetUserRelationshipPageAsync(Authentication authentication, string token, string to_id, string from_id, FollowsParameters parameters = null)
+        internal static async Task<Follows> GetUserRelationshipPageAsync(Authentication authentication, string token, string to_id, string from_id, FollowsQueryParameters parameters = null)
         {
             RestRequest request = Request("users/follows", Method.GET, authentication, token);
 
-            if (parameters.isNull())
+            if (parameters.IsNull())
             {
-                parameters = new FollowsParameters();
+                parameters = new FollowsQueryParameters();
             }
             parameters.to_id = to_id;
             parameters.from_id = from_id;
 
-            PagingUtil.AddPaging(request, parameters);
+            request = PagingUtil.AddPaging(request, parameters);
 
             RestClient client = Client();
             IRestResponse<Follows> response = await client.ExecuteTaskAsync<Follows>(request);
@@ -80,9 +82,9 @@ namespace TwitchNet.Api.Internal
         /// <param name="from_id">Optional. The user to compare from. Used to get the following list of a user.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <returns></returns>
-        internal static async Task<List<Follow>> GetUserRelationshipAsync(Authentication authentication, string token, string to_id, string from_id, FollowsParameters parameters = null)
+        internal static async Task<List<Follow>> GetUserRelationshipAsync(Authentication authentication, string token, string to_id, string from_id, FollowsQueryParameters parameters = null)
         {
-            List<Follow> follows = await PagingUtil.GetAllPagesAsync<Follow, Follows, FollowsParameters>(GetUserRelationshipPageAsync, authentication, token, to_id, from_id, parameters);
+            List<Follow> follows = await PagingUtil.GetAllPagesAsync<Follow, Follows, FollowsQueryParameters>(GetUserRelationshipPageAsync, authentication, token, to_id, from_id, parameters);
 
             return follows;
         }
@@ -108,6 +110,23 @@ namespace TwitchNet.Api.Internal
         }
 
         #endregion
+
+        #region Streams
+
+        // TODO: (GetStreamsPageAsync) - Add GetStreamsPageAsync and client_id variants
+        internal static async Task<Streams> GetStreamsPageAsync(Authentication authentication, string token, StreamsQueryParameters parameters = null)
+        {
+            RestRequest request = Request("streams", Method.GET, authentication, token);
+            PagingUtil.AddPaging(request, parameters);
+
+            RestClient client = Client();
+            IRestResponse<Streams> response = await client.ExecuteTaskAsync<Streams>(request);
+
+            return response.Data;
+        }
+
+        #endregion
+
 
         #region Rest Request
 

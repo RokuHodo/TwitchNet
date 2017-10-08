@@ -58,7 +58,7 @@ namespace TwitchNet.Api
         /// <param name="to_id">The user to get the followers for.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <returns></returns>
-        public static Follows GetUserFollowersPage(string client_id, string to_id, FollowsParameters parameters = null)
+        public static Follows GetUserFollowersPage(string client_id, string to_id, FollowsQueryParameters parameters = null)
         {
             Follows followers = GetUserFollowersPageAsync(client_id, to_id, parameters).Result;
 
@@ -85,7 +85,7 @@ namespace TwitchNet.Api
         /// <param name="from_id">The user to get the following list from.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <returns></returns>
-        public static Follows GetUserFollowingPage(string client_id, string from_id, FollowsParameters parameters = null)
+        public static Follows GetUserFollowingPage(string client_id, string from_id, FollowsQueryParameters parameters = null)
         {
             Follows following = GetUserFollowingPageAsync(client_id, from_id, parameters).Result;
 

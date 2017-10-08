@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using TwitchNet.Api.Internal;
 using TwitchNet.Enums.Api;
 using TwitchNet.Extensions;
+using TwitchNet.Helpers.Paging.Streams;
 using TwitchNet.Helpers.Paging.Users;
 using TwitchNet.Models.Api.Users;
 
@@ -64,7 +65,7 @@ namespace TwitchNet.Api
         /// <param name="to_id">The user to get the followers for.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <returns></returns>
-        public static async Task<Follows> GetUserFollowersPageAsync(string oauth_token, string to_id, FollowsParameters parameters = null)
+        public static async Task<Follows> GetUserFollowersPageAsync(string oauth_token, string to_id, FollowsQueryParameters parameters = null)
         {
             Follows followers = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Authorization, oauth_token, to_id, string.Empty, parameters);
 
@@ -91,7 +92,7 @@ namespace TwitchNet.Api
         /// <param name="from_id">The user to get the following list from.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <returns></returns>
-        public static async Task<Follows> GetUserFollowingPageAsync(string oauth_token, string from_id, FollowsParameters parameters = null)
+        public static async Task<Follows> GetUserFollowingPageAsync(string oauth_token, string from_id, FollowsQueryParameters parameters = null)
         {
             Follows following = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Authorization, oauth_token, string.Empty, from_id, parameters);
 
@@ -125,7 +126,7 @@ namespace TwitchNet.Api
         {
             Follows relationship = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Authorization, oauth_token, to_id, from_id);
 
-            return relationship.data.isValid();
+            return relationship.data.IsValid();
         }
 
         /// <summary>
@@ -160,6 +161,17 @@ namespace TwitchNet.Api
             bool success = await TwitchApiInternal.SetUserDescriptionAsync(Authentication.Both, user_oauth_token, client_id, description);
 
             return success;
+        }
+
+        #endregion
+
+        #region Streams
+
+        public static async Task<object> GetStreamsPageAsync(string oauth_token, StreamsQueryParameters parameters = null)
+        {
+            object streams = await TwitchApiInternal.GetStreamsPageAsync(Authentication.Authorization, oauth_token, parameters);
+
+            return streams;
         }
 
         #endregion

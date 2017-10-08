@@ -1,8 +1,9 @@
-﻿using TwitchNet.Extensions;
+﻿// project namespaces
+using TwitchNet.Extensions;
 
 namespace TwitchNet.Helpers.Paging.Users
 {
-    public class FollowsParameters
+    public class FollowsQueryParameters
     {
         #region Fields
 
@@ -33,12 +34,12 @@ namespace TwitchNet.Helpers.Paging.Users
         /// Maximum: 100.
         /// Default: 20.
         /// </summary>
-        [PagingProperty("first")]
+        [QueryParameter("first")]
         public ushort first
         {
             get
             {
-                return _first.isDefault() ? _first_default : _first;
+                return _first.IsDefault() ? _first_default : _first;
             }
             set
             {
@@ -49,7 +50,7 @@ namespace TwitchNet.Helpers.Paging.Users
         /// <summary>
         /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
         /// </summary>
-        [PagingProperty("after")]
+        [QueryParameter("after")]
         public string after
         {
             get
@@ -65,7 +66,7 @@ namespace TwitchNet.Helpers.Paging.Users
         /// <summary>
         /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
         /// </summary>
-        [PagingProperty("before")]
+        [QueryParameter("before")]
         public string before
         {
             get
@@ -82,7 +83,7 @@ namespace TwitchNet.Helpers.Paging.Users
         /// A user's id.
         /// The request returns information about users who are being followed by the this user
         /// </summary>
-        [PagingProperty("from_id")]
+        [QueryParameter("from_id")]
         public string from_id
         {
             get
@@ -99,7 +100,7 @@ namespace TwitchNet.Helpers.Paging.Users
         /// A user's id.
         /// The request returns information about users who are following this user
         /// </summary>
-        [PagingProperty("to_id")]
+        [QueryParameter("to_id")]
         public string to_id
         {
             get
@@ -116,7 +117,7 @@ namespace TwitchNet.Helpers.Paging.Users
 
         #region Contstructor
 
-        public FollowsParameters()
+        public FollowsQueryParameters()
         {
 
         }

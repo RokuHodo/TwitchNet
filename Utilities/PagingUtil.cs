@@ -1,11 +1,13 @@
 ﻿// standard namespaces
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 
 // project namespaces
 using TwitchNet.Enums.Api;
+using TwitchNet.Enums.Helpers.Paging;
 using TwitchNet.Extensions;
 using TwitchNet.Helpers.Paging;
 using TwitchNet.Models.Api;
@@ -21,71 +23,111 @@ namespace TwitchNet.Utilities
         /// Adds a set optional of query string parameters to a <see cref="RestRequest"/> to customize the request.
         /// </summary>
         /// <typeparam name="parameters_type">The object type of the parameters class</typeparam>
-        /// <param name="request">The rest request to be executed.</param>
+        /// <param name="request">The rest request to add the query parameters to.</param>
         /// <param name="parameters">The optional query string parameters to be added to the request.</param>
         /// <returns></returns>
         public static RestRequest AddPaging<parameters_type>(RestRequest request, parameters_type parameters)
         where parameters_type : new()
         {
-            if (parameters.isNull())
+            if (parameters.IsNull())
             {
                 parameters = new parameters_type();
             }
 
-            List<PagingPropertyAttribute> attributes = GetPagingAttributes(parameters);
-
-            foreach (PagingPropertyAttribute attribute in attributes)
-            {
-                object property_object = attribute.property.GetValue(parameters);
-                if (property_object.isNull())
+            PropertyInfo[] properties = parameters.GetType().GetProperties<QueryParameterAttribute>();
+            foreach (PropertyInfo property in properties)
+            {                
+                object value = property.GetValue(parameters);
+                if (value.IsNull())
                 {
                     continue;
                 }
 
-                string property_string = property_object.ToString();
-                if (!property_string.isValid())
-                {
-                    continue;
-                }
+                Type type = property.PropertyType.isNullable() ? Nullable.GetUnderlyingType(property.PropertyType) : property.PropertyType;
+                QueryParameterAttribute attribute = property.GetAttribute<QueryParameterAttribute>();
 
-                request.AddQueryParameter(attribute.query_name, property_string);
+                if (type.isList())
+                {
+                    IList list = value as IList;
+                    if (!list.IsValid())
+                    {
+                        continue;
+                    }
+
+                    // add each element as it's own query parameter since they are longer comma-separated
+                    foreach (object element in list)
+                    {
+                        request = AddQueryParameter(request, attribute, element);
+                    }
+                }
+                else if (type.IsEnum && !type.GetCustomAttribute<FlagsAttribute>().IsNull())
+                {
+                    // enum is a bit field, loop through and add all flags
+                    Enum property_value_enum = (Enum)value;
+                    Array flags = Enum.GetValues(type);
+                    foreach(Enum flag in flags)
+                    {
+                        if (property_value_enum.HasFlag(flag))
+                        {
+                            request = AddQueryParameter(request, attribute, flag);
+                        }
+                    }
+                }
+                else
+                {
+                    // the property is a single value, just add it
+                    request = AddQueryParameter(request, attribute, value);
+                }
             }
-
 
             return request;
         }
 
         /// <summary>
-        /// Gets the object properties marked by <see cref="PagingPropertyAttribute"/> to signify that they should be added to the <see cref="RestRequest"/> as optional query string parameters.
+        /// Adds an object as a query parameter to a <see cref="RestRequest"/>.
         /// </summary>
-        /// <typeparam name="parameters_type">The object type of the parameters class</typeparam>
-        /// <param name="parameters">The optional query string parameters to be added to the request.</param>
+        /// <param name="request">The rest request to add the query parameters to.</param>
+        /// <param name="attribute">The attribute that contains the query name and conversion settings.</param>
+        /// <param name="value">The object value to be added as a query parameter.</param>
         /// <returns></returns>
-        private static List<PagingPropertyAttribute> GetPagingAttributes<parameters_type>(parameters_type parameters)
-        where parameters_type : new()
+        private static RestRequest AddQueryParameter(RestRequest request, QueryParameterAttribute attribute, object value)
         {
-            List<PagingPropertyAttribute> attributes = new List<PagingPropertyAttribute>();
-
-            PropertyInfo[] properties = parameters.GetType().GetProperties();
-            foreach (PropertyInfo property in properties)
+            if (value.IsNull())
             {
-                if (property.isNull())
-                {
-                    continue;
-                }
-
-                PagingPropertyAttribute attribute = (PagingPropertyAttribute)Attribute.GetCustomAttribute(property, typeof(PagingPropertyAttribute));
-                if (attribute.isNull() || attribute.isDefault())
-                {
-                    continue;
-                }
-                attribute.property = property;
-
-                attributes.Add(attribute);
+                return request;
             }
 
-            return attributes;
-        }
+            string query_value = value.ToString();
+            if (!attribute.query_name.isValid() || !query_value.isValid())
+            {
+                return request;
+            }
+
+            if (attribute.to_lower)
+            {
+                query_value = query_value.ToLower();
+            }
+
+            switch (attribute.underscore_handling)
+            {
+                case UnderscoreHandling.Replace_with_Dashes:
+                {
+                    query_value = query_value.Replace('_', '-');
+                }
+                break;
+
+                case UnderscoreHandling.None:
+                default:
+                {
+
+                }
+                break;
+            }
+
+            request.AddQueryParameter(attribute.query_name, query_value);
+
+            return request;
+        }        
 
         /// <summary>
         /// Get the complete list of objects using the passed request method and parameters.
@@ -105,7 +147,7 @@ namespace TwitchNet.Utilities
         {
             List<return_type> result = new List<return_type>();
 
-            if (parameters.isNull())
+            if (parameters.IsNull())
             {
                 parameters = new parameters_type();
             }
@@ -127,7 +169,7 @@ namespace TwitchNet.Utilities
                 PropertyInfo page_pagination = page.GetType().GetProperty("pagination");
                 Pagination pagination = (Pagination)page_pagination.GetValue(page);
 
-                requesting = pagination.cursor.isValid() && page_data_value.isValid();
+                requesting = pagination.cursor.isValid() && page_data_value.IsValid();
                 if (requesting)
                 {
                     // update the parameter's 'after' property to properly request the next page

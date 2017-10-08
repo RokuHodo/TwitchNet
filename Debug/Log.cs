@@ -166,7 +166,7 @@ namespace TwitchNet.Debug
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void PrintBuilder(LogLevel flag, ConsoleColor color, TimeStamp stamp, bool carriage_return, params string[] lines)
         {
-            if (!lines.isValid())
+            if (!lines.IsValid())
             {
                 return;
             }

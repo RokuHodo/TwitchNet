@@ -34,7 +34,7 @@ namespace TwitchNet.Helpers.Paging.Streams
         /// Maximum: 100.
         /// Default: 20.
         /// </summary>
-        [QueryParameter("first", false)]
+        [QueryParameter("first")]
         public ushort first
         {
             get

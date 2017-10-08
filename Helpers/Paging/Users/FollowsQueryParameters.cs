@@ -7,22 +7,12 @@ namespace TwitchNet.Helpers.Paging.Users
     {
         #region Fields
 
-        private ushort _first;
-        private ushort _first_min       = 1;
-        private ushort _first_max       = 100;
-        private ushort _first_default   = 20;
+        private QueryComparable<ushort> _first = new QueryComparable<ushort>(1, 100, 20);
 
-        private string _after;
-        private string _after_default   = string.Empty;
-
-        private string _before;
-        private string _before_default  = string.Empty;
-
-        private string _from_id;
-        private string _from_id_default = string.Empty;
-
-        private string _to_id;
-        private string _to_id_default   = string.Empty;
+        private QueryString _after = new QueryString();
+        private QueryString _before = new QueryString();
+        private QueryString _from_id = new QueryString();
+        private QueryString _to_id = new QueryString();
 
         #endregion
 
@@ -39,43 +29,43 @@ namespace TwitchNet.Helpers.Paging.Users
         {
             get
             {
-                return _first.IsDefault() ? _first_default : _first;
+                return _first.value;
             }
             set
             {
-                _first = value.Clamp(_first_min, _first_max, _first_default);
+                _first.value = value;
             }
         }
 
         /// <summary>
         /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
         /// </summary>
-        [QueryParameter("after")]
+        [QueryParameter("after", false)]
         public string after
         {
             get
             {
-                return _after ?? _after_default;
+                return _after.value;
             }
             set
             {
-                _after = value;
+                _after.value = value;
             }
         }
 
         /// <summary>
         /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
         /// </summary>
-        [QueryParameter("before")]
+        [QueryParameter("before", false)]
         public string before
         {
             get
             {
-                return _before ?? _before_default;
+                return _before.value;
             }
             set
             {
-                _before = value;
+                _before.value = value;
             }
         }
 
@@ -88,11 +78,11 @@ namespace TwitchNet.Helpers.Paging.Users
         {
             get
             {
-                return _from_id ?? _from_id_default;
+                return _from_id.value;
             }
             set
             {
-                _from_id = value;
+                _from_id.value = value;
             }
         }
 
@@ -105,11 +95,11 @@ namespace TwitchNet.Helpers.Paging.Users
         {
             get
             {
-                return _to_id ?? _to_id_default;
+                return _to_id.value;
             }
             set
             {
-                _to_id = value;
+                _to_id.value = value;
             }
         }
 

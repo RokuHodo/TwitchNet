@@ -167,6 +167,7 @@ namespace TwitchNet.Api
 
         #region Streams
 
+        // TODO: (GetStreamsPageAsync) - Implement Sync and client_id variants and comments
         public static async Task<object> GetStreamsPageAsync(string oauth_token, StreamsQueryParameters parameters = null)
         {
             object streams = await TwitchApiInternal.GetStreamsPageAsync(Authentication.Authorization, oauth_token, parameters);

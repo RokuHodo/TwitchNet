@@ -45,7 +45,7 @@ namespace TwitchNet.Enums.Api.Streams
         /// <summary>
         /// Español - Latinoamérica (Spanish - Latin America)
         /// </summary>
-        [EnumMember(Value = "es-ms")]
+        [EnumMember(Value = "es-mx")]
         Es_Mx   = 1 << 5,
 
         /// <summary>

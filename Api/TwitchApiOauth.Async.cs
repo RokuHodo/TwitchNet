@@ -8,6 +8,7 @@ using TwitchNet.Enums.Api;
 using TwitchNet.Extensions;
 using TwitchNet.Helpers.Paging.Streams;
 using TwitchNet.Helpers.Paging.Users;
+using TwitchNet.Models.Api.Streams;
 using TwitchNet.Models.Api.Users;
 
 namespace TwitchNet.Api
@@ -167,10 +168,28 @@ namespace TwitchNet.Api
 
         #region Streams
 
-        // TODO: (GetStreamsPageAsync) - Implement Sync and client_id variants and comments
-        public static async Task<object> GetStreamsPageAsync(string oauth_token, StreamsQueryParameters parameters = null)
+        /// <summary>
+        /// Asynchronously gets a single page of streams.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
+        /// <returns></returns>
+        public static async Task<Streams> GetStreamsPageAsync(string oauth_token, StreamsQueryParameters parameters = null)
         {
-            object streams = await TwitchApiInternal.GetStreamsPageAsync(Authentication.Authorization, oauth_token, parameters);
+            Streams streams = await TwitchApiInternal.GetStreamsPageAsync(Authentication.Authorization, oauth_token, parameters);
+
+            return streams;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a complete list of streams.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
+        /// <returns></returns>
+        public static async Task<List<Stream>> GetStreamsAsync(string oauth_token, StreamsQueryParameters parameters = null)
+        {
+            List<Stream> streams = await TwitchApiInternal.GetStreamsAsync(Authentication.Authorization, oauth_token, parameters);
 
             return streams;
         }

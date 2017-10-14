@@ -34,6 +34,6 @@ namespace TwitchNet.Enums.Api.Streams
         /// The stream is collection of videos or vodcasts.
         /// </summary>
         [EnumMember(Value = "playlist")]
-        Playlist    = 1 << 2
+        Playlist    = 1 << 2,
     }
 }

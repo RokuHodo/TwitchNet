@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 // project namespaces
 using TwitchNet.Enums.Api.Streams;
-using TwitchNet.Enums.Helpers.Paging;
 
 namespace TwitchNet.Helpers.Paging.Streams
 {
@@ -102,7 +101,7 @@ namespace TwitchNet.Helpers.Paging.Streams
         /// <summary>
         /// Returns streams that have the selected stream langages. Bitfield enum.
         /// </summary>
-        [QueryParameter("language", UnderscoreHandling.Replace_with_Dashes)]
+        [QueryParameter("language")]
         public StreamLanguage? language
         {
             get

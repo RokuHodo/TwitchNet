@@ -113,7 +113,13 @@ namespace TwitchNet.Api.Internal
 
         #region Streams
 
-        // TODO: (GetStreamsPageAsync) - Add GetStreamsPageAsync and client_id variants
+        /// <summary>
+        /// Asynchronously gets a single page of streams.
+        /// </summary>
+        /// <param name="authentication">How to authorize the request.</param>
+        /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
+        /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
+        /// <returns></returns>
         internal static async Task<Streams> GetStreamsPageAsync(Authentication authentication, string token, StreamsQueryParameters parameters = null)
         {
             RestRequest request = Request("streams", Method.GET, authentication, token);
@@ -125,8 +131,21 @@ namespace TwitchNet.Api.Internal
             return response.Data;
         }
 
-        #endregion
+        /// <summary>
+        /// Asynchronously gets a complete list of streams.
+        /// </summary>
+        /// <param name="authentication">How to authorize the request.</param>
+        /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
+        /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
+        /// <returns></returns>
+        internal static async Task<List<Stream>> GetStreamsAsync(Authentication authentication, string token, StreamsQueryParameters parameters = null)
+        {
+            List<Stream> streams = await PagingUtil.GetAllPagesAsync<Stream, Streams, StreamsQueryParameters>(GetStreamsPageAsync, authentication, token, parameters);
 
+            return streams;
+        }
+
+        #endregion
 
         #region Rest Request
 

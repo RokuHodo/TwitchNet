@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 
 // project namespaces
+using TwitchNet.Helpers.Paging.Streams;
 using TwitchNet.Helpers.Paging.Users;
+using TwitchNet.Models.Api.Streams;
 using TwitchNet.Models.Api.Users;
 
 namespace TwitchNet.Api
@@ -156,6 +158,36 @@ namespace TwitchNet.Api
             bool success = SetUserDescriptionAsync(user_oauth_token, supplementary_token, description).Result;
 
             return success;
+        }
+
+        #endregion
+
+        #region Streams
+
+        /// <summary>
+        /// Gets a single page of streams.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
+        /// <returns></returns>
+        public static Streams GetStreamsPage(string oauth_token, StreamsQueryParameters parameters = null)
+        {
+            Streams streams = GetStreamsPageAsync(oauth_token, parameters).Result;
+
+            return streams;
+        }
+
+        /// <summary>
+        /// Gets a complete list of streams.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
+        /// <returns></returns>
+        public static List<Stream> GetStreams(string oauth_token, StreamsQueryParameters parameters = null)
+        {
+            List<Stream> streams = GetStreamsAsync(oauth_token, parameters).Result;
+
+            return streams;
         }
 
         #endregion

@@ -1,4 +1,6 @@
-﻿// imported .dll's
+﻿using System;
+
+// imported .dll's
 using Newtonsoft.Json;
 
 using RestSharp;
@@ -25,7 +27,14 @@ namespace TwitchNet.Helpers.Json
             // NOTE: Deserialize - For debugging purposes only, change MissingMemberHandling to 'ignrore' on release build
             settings.MissingMemberHandling  = MissingMemberHandling.Error;
 
-            return JsonConvert.DeserializeObject<return_type>(response.Content, settings);
+            try
+            {
+                return JsonConvert.DeserializeObject<return_type>(response.Content, settings);
+            }
+            catch(Exception exception)
+            {
+                return default(return_type);
+            }            
         }
     }
 }

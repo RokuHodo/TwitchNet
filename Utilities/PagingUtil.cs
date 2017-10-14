@@ -3,11 +3,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
 // project namespaces
 using TwitchNet.Enums.Api;
-using TwitchNet.Enums.Helpers.Paging;
 using TwitchNet.Extensions;
 using TwitchNet.Helpers.Paging;
 using TwitchNet.Models.Api;
@@ -54,28 +54,36 @@ namespace TwitchNet.Utilities
                         continue;
                     }
 
-                    // add each element as it's own query parameter since they are longer comma-separated
                     foreach (object element in list)
                     {
                         request = AddQueryParameter(request, attribute, element);
                     }
                 }
-                else if (type.IsEnum && !type.GetCustomAttribute<FlagsAttribute>().IsNull())
+                else if (type.IsEnum)
                 {
-                    // enum is a bit field, loop through and add all flags
-                    Enum property_value_enum = (Enum)value;
-                    Array flags = Enum.GetValues(type);
-                    foreach(Enum flag in flags)
+                    if (type.HasAttribute<FlagsAttribute>())
                     {
-                        if (property_value_enum.HasFlag(flag))
+                        // enum is a bit field, loop through and add all flags
+                        Enum property_value_enum = (Enum)value;
+                        Array flags = Enum.GetValues(type);
+                        foreach(Enum flag in flags)
                         {
-                            request = AddQueryParameter(request, attribute, flag);
+                            if (property_value_enum.HasFlag(flag))
+                            {
+                                string enum_value = flag.ToEnumString();
+                                request = AddQueryParameter(request, attribute, enum_value);
+                            }
                         }
+                    }
+                    else
+                    {
+                        // enum is a single value
+                        string enum_value = ((Enum)value).ToEnumString();
+                        request = AddQueryParameter(request, attribute, enum_value);
                     }
                 }
                 else
                 {
-                    // the property is a single value, just add it
                     request = AddQueryParameter(request, attribute, value);
                 }
             }
@@ -108,26 +116,10 @@ namespace TwitchNet.Utilities
                 query_value = query_value.ToLower();
             }
 
-            switch (attribute.underscore_handling)
-            {
-                case UnderscoreHandling.Replace_with_Dashes:
-                {
-                    query_value = query_value.Replace('_', '-');
-                }
-                break;
-
-                case UnderscoreHandling.None:
-                default:
-                {
-
-                }
-                break;
-            }
-
             request.AddQueryParameter(attribute.query_name, query_value);
 
             return request;
-        }        
+        }
 
         /// <summary>
         /// Get the complete list of objects using the passed request method and parameters.
@@ -138,11 +130,9 @@ namespace TwitchNet.Utilities
         /// <param name="GetPage">The method to request each page.</param>
         /// <param name="authentication">How to authorize the request.</param>
         /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
-        /// <param name="param_1">A parameter that is passed through to the request method.</param>
-        /// <param name="param_2">A parameter that is passed through to the request method.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
         /// <returns></returns>
-        public static async Task<List<return_type>> GetAllPagesAsync<return_type, page_return_type, parameters_type>(Func<Authentication, string, string, string, parameters_type, Task<page_return_type>> GetPage, Authentication authentication, string token, string param_1, string param_2,  parameters_type parameters)
+        public static async Task<List<return_type>> GetAllPagesAsync<return_type, page_return_type, parameters_type>(Func<Authentication, string, parameters_type, Task<page_return_type>> GetPage, Authentication authentication, string token, parameters_type parameters)
         where parameters_type : new()
         {
             List<return_type> result = new List<return_type>();
@@ -156,7 +146,112 @@ namespace TwitchNet.Utilities
             do
             {
                 // request the page
-                page_return_type page = await GetPage(authentication, token, param_1, param_2, parameters);
+                page_return_type page = await GetPage(authentication, token, parameters);
+                PropertyInfo page_data = page.GetType().GetProperty("data");
+
+                List<return_type> page_data_value = (List<return_type>)page_data.GetValue(page);
+                foreach (return_type element in page_data_value)
+                {
+                    result.Add(element);
+                }
+
+                // check to see if there is a new page to request
+                PropertyInfo page_pagination = page.GetType().GetProperty("pagination");
+                Pagination pagination = (Pagination)page_pagination.GetValue(page);
+
+                requesting = pagination.cursor.isValid() && page_data_value.IsValid();
+                if (requesting)
+                {
+                    // update the parameter's 'after' property to properly request the next page
+                    PropertyInfo parameters_after = parameters.GetType().GetProperty("after");
+                    parameters_after.SetValue(parameters, pagination.cursor);
+                }
+            }
+            while (requesting);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Get the complete list of objects using the passed request method and parameters.
+        /// </summary>
+        /// <typeparam name="return_type">The object type that is returned.</typeparam>
+        /// <typeparam name="page_return_type">The object type that is returned by the passed request method.</typeparam>
+        /// <typeparam name="parameters_type">The object type of the parameters class</typeparam>
+        /// <param name="GetPage">The method to request each page.</param>
+        /// <param name="authentication">How to authorize the request.</param>
+        /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
+        /// <param name="page_arg_1">A parameter that is passed through to the request method as an argument.</param>
+        /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
+        /// <returns></returns>
+        public static async Task<List<return_type>> GetAllPagesAsync<return_type, page_return_type, parameters_type>(Func<Authentication, string, string, parameters_type, Task<page_return_type>> GetPage, Authentication authentication, string token, string page_arg_1, parameters_type parameters)
+        where parameters_type : new()
+        {
+            List<return_type> result = new List<return_type>();
+
+            if (parameters.IsNull())
+            {
+                parameters = new parameters_type();
+            }
+
+            bool requesting = true;
+            do
+            {
+                // request the page
+                page_return_type page = await GetPage(authentication, token, page_arg_1, parameters);
+                PropertyInfo page_data = page.GetType().GetProperty("data");
+
+                List<return_type> page_data_value = (List<return_type>)page_data.GetValue(page);
+                foreach (return_type element in page_data_value)
+                {
+                    result.Add(element);
+                }
+
+                // check to see if there is a new page to request
+                PropertyInfo page_pagination = page.GetType().GetProperty("pagination");
+                Pagination pagination = (Pagination)page_pagination.GetValue(page);
+
+                requesting = pagination.cursor.isValid() && page_data_value.IsValid();
+                if (requesting)
+                {
+                    // update the parameter's 'after' property to properly request the next page
+                    PropertyInfo parameters_after = parameters.GetType().GetProperty("after");
+                    parameters_after.SetValue(parameters, pagination.cursor);
+                }
+            }
+            while (requesting);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Get the complete list of objects using the passed request method and parameters.
+        /// </summary>
+        /// <typeparam name="return_type">The object type that is returned.</typeparam>
+        /// <typeparam name="page_return_type">The object type that is returned by the passed request method.</typeparam>
+        /// <typeparam name="parameters_type">The object type of the parameters class</typeparam>
+        /// <param name="GetPage">The method to request each page.</param>
+        /// <param name="authentication">How to authorize the request.</param>
+        /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
+        /// <param name="page_arg_1">A parameter that is passed through to the request method as an argument.</param>
+        /// <param name="page_arg_2">A parameter that is passed through to the request method as an argument.</param>
+        /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
+        /// <returns></returns>
+        public static async Task<List<return_type>> GetAllPagesAsync<return_type, page_return_type, parameters_type>(Func<Authentication, string, string, string, parameters_type, Task<page_return_type>> GetPage, Authentication authentication, string token, string page_arg_1, string page_arg_2,  parameters_type parameters)
+        where parameters_type : new()
+        {
+            List<return_type> result = new List<return_type>();
+
+            if (parameters.IsNull())
+            {
+                parameters = new parameters_type();
+            }
+
+            bool requesting = true;
+            do
+            {
+                // request the page
+                page_return_type page = await GetPage(authentication, token, page_arg_1, page_arg_2, parameters);
                 PropertyInfo page_data = page.GetType().GetProperty("data");
 
                 List<return_type> page_data_value = (List<return_type>)page_data.GetValue(page);

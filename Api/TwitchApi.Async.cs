@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using TwitchNet.Api.Internal;
 using TwitchNet.Enums.Api;
 using TwitchNet.Extensions;
+using TwitchNet.Helpers.Paging.Streams;
 using TwitchNet.Helpers.Paging.Users;
+using TwitchNet.Models.Api.Streams;
 using TwitchNet.Models.Api.Users;
 
 namespace TwitchNet.Api
@@ -124,6 +126,36 @@ namespace TwitchNet.Api
             Follows relationship = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Client_ID, client_id, to_id, from_id);
 
             return relationship.data.IsValid();
+        }
+
+        #endregion
+
+        #region Streams
+
+        /// <summary>
+        /// Asynchronously gets a single page of streams.
+        /// </summary>
+        /// <param name="client_id">The Client Id to authorize the request.</param>
+        /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
+        /// <returns></returns>
+        public static async Task<Streams> GetStreamsPageAsync(string client_id, StreamsQueryParameters parameters = null)
+        {
+            Streams streams = await TwitchApiInternal.GetStreamsPageAsync(Authentication.Client_ID, client_id, parameters);
+
+            return streams;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a complete list of streams.
+        /// </summary>
+        /// <param name="client_id">The Client Id to authorize the request.</param>
+        /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
+        /// <returns></returns>
+        public static async Task<List<Stream>> GetStreamsAsync(string client_id, StreamsQueryParameters parameters = null)
+        {
+            List<Stream> streams = await TwitchApiInternal.GetStreamsAsync(Authentication.Client_ID, client_id, parameters);
+
+            return streams;
         }
 
         #endregion

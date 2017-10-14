@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 
 // project namespaces
+using TwitchNet.Helpers.Paging.Streams;
 using TwitchNet.Helpers.Paging.Users;
+using TwitchNet.Models.Api.Streams;
 using TwitchNet.Models.Api.Users;
 
 namespace TwitchNet.Api
@@ -120,6 +122,36 @@ namespace TwitchNet.Api
             bool is_following = IsUserFollowingAsync(client_id, to_id, from_id).Result;
 
             return is_following;
+        }
+
+        #endregion
+
+        #region Streams
+
+        /// <summary>
+        /// Gets a single page of streams.
+        /// </summary>
+        /// <param name="client_id">The Client Id to authorize the request.</param>
+        /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
+        /// <returns></returns>
+        public static Streams GetStreamsPage(string client_id, StreamsQueryParameters parameters = null)
+        {
+            Streams streams = GetStreamsPageAsync(client_id, parameters).Result;
+
+            return streams;
+        }
+
+        /// <summary>
+        /// Gets a complete list of streams.
+        /// </summary>
+        /// <param name="client_id">The Client Id to authorize the request.</param>
+        /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
+        /// <returns></returns>
+        public static List<Stream> GetStreams(string oauth_token, StreamsQueryParameters parameters = null)
+        {
+            List<Stream> streams = GetStreamsAsync(oauth_token, parameters).Result;
+
+            return streams;
         }
 
         #endregion

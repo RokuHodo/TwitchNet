@@ -61,8 +61,8 @@
     <Compile Include="Enums\Debug\LogLevel.cs" />
     <Compile Include="Enums\Debug\TimeStamp.cs" />
     <Compile Include="Enums\Extensions\Padding.cs" />
-    <Compile Include="Enums\Helpers\Paging\UnderscoreHandling.cs" />
     <Compile Include="Extensions\MathExtensions .cs" />
+    <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\ReflectionExtensions.cs" />

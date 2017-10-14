@@ -84,6 +84,12 @@ namespace TwitchNet.Api.Internal
         /// <returns></returns>
         internal static async Task<List<Follow>> GetUserRelationshipAsync(Authentication authentication, string token, string to_id, string from_id, FollowsQueryParameters parameters = null)
         {
+            if (parameters.IsNull())
+            {
+                parameters = new FollowsQueryParameters();
+            }
+            parameters.first = 100;
+
             List<Follow> follows = await PagingUtil.GetAllPagesAsync<Follow, Follows, FollowsQueryParameters>(GetUserRelationshipPageAsync, authentication, token, to_id, from_id, parameters);
 
             return follows;
@@ -140,6 +146,12 @@ namespace TwitchNet.Api.Internal
         /// <returns></returns>
         internal static async Task<List<Stream>> GetStreamsAsync(Authentication authentication, string token, StreamsQueryParameters parameters = null)
         {
+            if (parameters.IsNull())
+            {
+                parameters = new StreamsQueryParameters();
+            }
+            parameters.first = 100;
+
             List<Stream> streams = await PagingUtil.GetAllPagesAsync<Stream, Streams, StreamsQueryParameters>(GetStreamsPageAsync, authentication, token, parameters);
 
             return streams;

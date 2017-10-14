@@ -27,14 +27,10 @@ namespace TwitchNet.Helpers.Json
             // NOTE: Deserialize - For debugging purposes only, change MissingMemberHandling to 'ignrore' on release build
             settings.MissingMemberHandling  = MissingMemberHandling.Error;
 
-            try
-            {
-                return JsonConvert.DeserializeObject<return_type>(response.Content, settings);
-            }
-            catch(Exception exception)
-            {
-                return default(return_type);
-            }            
+            // TODO: Deserialize - Implemenent system to handle '429: Too many requests'. This is critical for multi-plaged requests that can easily go over the limit. This will most likely reside in the 'RestRequestUtil', when I make it.
+            return_type result = JsonConvert.DeserializeObject<return_type>(response.Content, settings);
+
+            return result;
         }
     }
 }

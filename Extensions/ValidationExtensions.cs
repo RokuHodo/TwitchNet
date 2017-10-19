@@ -1,13 +1,13 @@
 ﻿// project namespaces
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace TwitchNet.Extensions
 {
-    internal static class ValidationExtensions
+    internal static class
+    ValidationExtensions
     {
         /// <summary>
         /// Verifies that an <see cref="object"/> is null.
@@ -18,7 +18,8 @@ namespace TwitchNet.Extensions
         /// Returns <see cref="false"/> if otherwise.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsNull(this object obj)
+        public static bool
+        IsNull(this object obj)
         {
             bool result = obj == null;
 
@@ -26,7 +27,7 @@ namespace TwitchNet.Extensions
         }
 
         /// <summary>
-        /// Verifies that an <see cref="object"/> of an implided type is equal to its default value.
+        /// Verifies that an <see cref="object"/> of an implided <see cref="Type"/> is equal to its default value.
         /// </summary>
         /// <typeparam name="type">The implied type of the object.</typeparam>
         /// <param name="value">The value of the <see cref="object"/>.</param>
@@ -35,7 +36,8 @@ namespace TwitchNet.Extensions
         /// Returns <see cref="false"/> if otherwise.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsDefault<type>(this type value)
+        public static bool
+        IsDefault<type>(this type value)
         {
             bool result = EqualityComparer<type>.Default.Equals(value, default(type));
 
@@ -43,32 +45,14 @@ namespace TwitchNet.Extensions
         }
 
         /// <summary>
-        /// Verifies that an <see cref="Array"/> is not null and has a length of at least 1.
+        /// Verifies that an <see cref="object"/> that adheres to the <see cref="IList{T}"/> interface is not null and has at least one element.
         /// </summary>
-        /// <param name="array">The <see cref="Array"/> to be validated.</param>
-        /// <returns>
-        /// Returns <see cref="true"/> if the <see cref="Array"/> is not null and has a length of at least 1.
-        /// Returns <see cref="false"/> otherwise.
-        /// </returns>
+        /// <typeparam name="type"></typeparam>
+        /// <param name="list"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsValid(this Array array)
-        {
-            bool result = !array.IsNull() && array.Length > 0;
-
-            return result;
-        }
-
-        /// <summary>
-        /// Verifies that a <see cref="List{T}"/> is not null and has a length of at least 1.
-        /// </summary>
-        /// <typeparam name="type">The type of the list.</typeparam>
-        /// <param name="list">The <see cref="List{T}"/> to be validated.</param>
-        /// <returns>
-        /// Returns <see cref="true"/> if the <see cref="List{T}"/> is not null and has a length of at least 1.
-        /// Returns <see cref="false"/> otherwise.
-        /// </returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsValid(this IList list)
+        public static bool
+        IsValid<type>(this IList<type> list)
         {
             bool result = !list.IsNull() && list.Count > 0;
 
@@ -84,7 +68,8 @@ namespace TwitchNet.Extensions
         /// Returns <see cref="false"/> otherwise.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool isValid(this string str)
+        public static bool
+        IsValid(this string str)
         {
             bool result = !string.IsNullOrEmpty(str) && !string.IsNullOrWhiteSpace(str);
 
@@ -101,7 +86,8 @@ namespace TwitchNet.Extensions
         /// Returns <see cref="false"/> otherwise.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool CanCovertTo(this object obj, Type type)
+        public static bool
+        CanCovertTo(this object obj, Type type)
         {
             bool result = TypeDescriptor.GetConverter(type).IsValid(obj);
 

@@ -6,7 +6,8 @@ using Newtonsoft.Json;
 
 namespace TwitchNet.Models.Api.Users
 {
-    public class Follow
+    public class
+    Follow
     {
         /// <summary>
         /// A user's id.

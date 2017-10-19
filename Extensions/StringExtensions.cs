@@ -3,7 +3,8 @@ using System;
 
 namespace TwitchNet.Extensions
 {
-    public static class StringExtensions
+    internal static class
+    StringExtensions
     {
         #region String parsing
 
@@ -19,7 +20,8 @@ namespace TwitchNet.Extensions
         /// </returns>
         /// <exception cref="ArgumentException">Thrown when the start index is less than 0.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown is the start index is less than 0 or greater than the length of the string minus the length of the sub string.</exception>
-        public static string TextAfter(this string str, char sub_char_from, int start_index = 0)
+        public static string
+        TextAfter(this string str, char sub_char_from, int start_index = 0)
         {
             string result = str.TextAfter(sub_char_from.ToString(), start_index);
 
@@ -39,11 +41,12 @@ namespace TwitchNet.Extensions
         /// </returns>
         /// <exception cref="ArgumentException">Thrown when the start index is less than 0.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown is the start index is less than 0 or greater than the length of the string minus the length of the sub string.</exception>
-        public static string TextAfter(this string str, string sub_str_from, int start_index = 0)
+        public static string
+        TextAfter(this string str, string sub_str_from, int start_index = 0)
         {
             string result = string.Empty;
 
-            if (!str.isValid() || !sub_str_from.isValid())
+            if (!str.IsValid() || !sub_str_from.IsValid())
             {
                 return result;
             }
@@ -83,7 +86,8 @@ namespace TwitchNet.Extensions
         /// </returns>
         /// <exception cref="ArgumentException">Thrown when the start index is less than 0.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown is the start index is less than 0 or greater than the length of the string minus the length of the sub string.</exception>
-        public static string TextBefore(this string str, char sub_char, int start_index = 0)
+        public static string
+        TextBefore(this string str, char sub_char, int start_index = 0)
         {
             string result = str.TextBefore(sub_char.ToString(), start_index);
 
@@ -102,11 +106,12 @@ namespace TwitchNet.Extensions
         /// </returns>
         /// <exception cref="ArgumentException">Thrown when the start index is less than 0.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown is the start index is less than 0 or greater than the length of the string minus the length of the sub string.</exception>
-        public static string TextBefore(this string str, string sub_str, int start_index = 0)
+        public static string
+        TextBefore(this string str, string sub_str, int start_index = 0)
         {
             string result = string.Empty;
 
-            if (!str.isValid() || !sub_str.isValid())
+            if (!str.IsValid() || !sub_str.IsValid())
             {
                 return result;
             }
@@ -146,7 +151,8 @@ namespace TwitchNet.Extensions
         /// </returns>
         /// <exception cref="ArgumentException">Thrown when the start index is less than 0.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown is the start index is less than 0 or greater than the length of the string minus the length of the sub string.</exception>
-        public static string TextBetween(this string str, char sub_char_from, char sub_char_to, int start_index = 0)
+        public static string
+        TextBetween(this string str, char sub_char_from, char sub_char_to, int start_index = 0)
         {
             string result = str.TextBetween(sub_char_from.ToString(), sub_char_to.ToString(), start_index);
 
@@ -166,7 +172,8 @@ namespace TwitchNet.Extensions
         /// </returns>
         /// <exception cref="ArgumentException">Thrown when the start index is less than 0.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown is the start index is less than 0 or greater than the length of the string minus the length of the sub string.</exception>
-        public static string TextBetween(this string str, char sub_char_from, string sub_str_to, int start_index = 0)
+        public static string
+        TextBetween(this string str, char sub_char_from, string sub_str_to, int start_index = 0)
         {
             string result = str.TextBetween(sub_char_from.ToString(), sub_str_to, start_index);
 
@@ -186,7 +193,8 @@ namespace TwitchNet.Extensions
         /// </returns>
         /// <exception cref="ArgumentException">Thrown when the start index is less than 0.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown is the start index is less than 0 or greater than the length of the string minus the length of the sub string.</exception>
-        public static string TextBetween(this string str, string sub_str_from, char sub_char_to, int start_index = 0)
+        public static string
+        TextBetween(this string str, string sub_str_from, char sub_char_to, int start_index = 0)
         {
             string result = str.TextBetween(sub_str_from, sub_char_to.ToString(), start_index);
 
@@ -206,11 +214,12 @@ namespace TwitchNet.Extensions
         /// </returns>
         /// <exception cref="ArgumentException">Thrown when the start index is less than 0.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown is the start index is less than 0 or greater than the length of the string minus the length of the sub string.</exception>
-        public static string TextBetween(this string str, string sub_str_from, string sub_str_to, int start_index = 0)
+        public static string
+        TextBetween(this string str, string sub_str_from, string sub_str_to, int start_index = 0)
         {
             string result = string.Empty;
 
-            if (!str.isValid() || !sub_str_from.isValid() || !sub_str_to.isValid())
+            if (!str.IsValid() || !sub_str_from.IsValid() || !sub_str_to.IsValid())
             {
                 return result;
             }

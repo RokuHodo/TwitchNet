@@ -4,12 +4,14 @@ using System.Collections.Generic;
 // project namespaces
 using TwitchNet.Helpers.Paging.Streams;
 using TwitchNet.Helpers.Paging.Users;
+using TwitchNet.Interfaces.Api;
 using TwitchNet.Models.Api.Streams;
 using TwitchNet.Models.Api.Users;
 
 namespace TwitchNet.Api
 {
-    public static partial class TwitchApiOauth
+    public static partial class
+    TwitchApiOauth
     {
         #region Users
 
@@ -20,9 +22,10 @@ namespace TwitchNet.Api
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="ids">The id(s) of the user(s).</param>
         /// <returns></returns>
-        public static Users GetUsersById(string oauth_token, params string[] ids)
+        public static ITwitchResponse<Users>
+        GetUsersById(string oauth_token, params string[] ids)
         {
-            Users users = GetUsersByIdAsync(oauth_token, ids).Result;
+            ITwitchResponse<Users> users = GetUsersByIdAsync(oauth_token, ids).Result;
 
             return users;
         }
@@ -34,9 +37,10 @@ namespace TwitchNet.Api
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="logins">The name(s) of the user(s).</param>
         /// <returns></returns>
-        public static Users GetUsersByLogin(string oauth_token, params string[] logins)
+        public static ITwitchResponse<Users>
+        GetUsersByLogin(string oauth_token, params string[] logins)
         {
-            Users users = GetUsersByLoginAsync(oauth_token, logins).Result;
+            ITwitchResponse<Users> users = GetUsersByLoginAsync(oauth_token, logins).Result;
 
             return users;
         }
@@ -48,9 +52,10 @@ namespace TwitchNet.Api
         /// <param name="to_id">The user to compare to.</param>
         /// <param name="from_id">The user to compare from.</param>
         /// <returns></returns>
-        public static Follows GetUserRelationship(string oauth_token, string to_id, string from_id)
+        public static ITwitchResponse<Follows>
+        GetUserRelationship(string oauth_token, string to_id, string from_id)
         {
-            Follows relationship = GetUserRelationshipAsync(oauth_token, to_id, from_id).Result;
+            ITwitchResponse<Follows> relationship = GetUserRelationshipAsync(oauth_token, to_id, from_id).Result;
 
             return relationship;
         }
@@ -62,9 +67,10 @@ namespace TwitchNet.Api
         /// <param name="to_id">The user to get the followers for.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <returns></returns>
-        public static Follows GetUserFollowersPage(string oauth_token, string to_id, FollowsQueryParameters parameters = null)
+        public static ITwitchResponse<Follows>
+        GetUserFollowersPage(string oauth_token, string to_id, FollowsQueryParameters parameters = null)
         {
-            Follows followers = GetUserFollowersPageAsync(oauth_token, to_id, parameters).Result;
+            ITwitchResponse<Follows> followers = GetUserFollowersPageAsync(oauth_token, to_id, parameters).Result;
 
             return followers;
         }
@@ -75,9 +81,10 @@ namespace TwitchNet.Api
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="to_id">The user to get the followers for.</param>
         /// <returns></returns>
-        public static List<Follow> GetUserFollowers(string oauth_token, string to_id)
+        public static ITwitchResponse<IList<Follow>>
+        GetUserFollowers(string oauth_token, string to_id)
         {
-            List<Follow> followers = GetUserFollowersAsync(oauth_token, to_id).Result;
+            ITwitchResponse<IList<Follow>> followers = GetUserFollowersAsync(oauth_token, to_id).Result;
 
             return followers;
         }
@@ -89,9 +96,10 @@ namespace TwitchNet.Api
         /// <param name="from_id">The user to get the following list from.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <returns></returns>
-        public static Follows GetUserFollowingPage(string oauth_token, string from_id, FollowsQueryParameters parameters = null)
+        public static ITwitchResponse<Follows>
+        GetUserFollowingPage(string oauth_token, string from_id, FollowsQueryParameters parameters = null)
         {
-            Follows following = GetUserFollowingPageAsync(oauth_token, from_id, parameters).Result;
+            ITwitchResponse<Follows> following = GetUserFollowingPageAsync(oauth_token, from_id, parameters).Result;
 
             return following;
         }
@@ -102,9 +110,10 @@ namespace TwitchNet.Api
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="from_id">The user to get the following list from.</param>
         /// <returns></returns>
-        public static List<Follow> GetUserFollowing(string oauth_token, string from_id)
+        public static ITwitchResponse<IList<Follow>>
+        GetUserFollowing(string oauth_token, string from_id)
         {
-            List<Follow> following = GetUserFollowingAsync(oauth_token, from_id).Result;
+            ITwitchResponse<IList<Follow>> following = GetUserFollowingAsync(oauth_token, from_id).Result;
 
             return following;
         }
@@ -119,9 +128,10 @@ namespace TwitchNet.Api
         /// Returns true if a user (from_id) is following another user (to_id).
         /// Returns false otherwise.
         /// </returns>
-        public static bool IsUserFollowing(string oauth_token, string to_id, string from_id)
+        public static ITwitchResponse<bool>
+        IsUserFollowing(string oauth_token, string to_id, string from_id)
         {
-            bool is_following = IsUserFollowingAsync(oauth_token, to_id, from_id).Result;
+            ITwitchResponse<bool> is_following = IsUserFollowingAsync(oauth_token, to_id, from_id).Result;
 
             return is_following;
         }
@@ -135,9 +145,10 @@ namespace TwitchNet.Api
         /// Returns true if the description of the user was successfully updated.
         /// Returns false otherwise.
         /// </returns>
-        public static bool SetUserDescription(string user_oauth_token, string description)
+        public static ITwitchResponse<bool>
+        SetUserDescription(string user_oauth_token, string description)
         {
-            bool success = SetUserDescriptionAsync(user_oauth_token, description).Result;
+            ITwitchResponse<bool> success = SetUserDescriptionAsync(user_oauth_token, description).Result;
 
             return success;
         }
@@ -147,15 +158,16 @@ namespace TwitchNet.Api
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="user_oauth_token">The user's OAuth token used to determine which description to update.</param>
-        /// <param name="supplementary_token">The Client Id of the application to validate the request.</param>
+        /// <param name="client_id">The Client Id of the application to validate the request.</param>
         /// <param name="description">The new description to set.</param>
         /// <returns>
         /// Returns true if the description of the user was successfully updated.
         /// Returns false otherwise.
         /// </returns>
-        public static bool SetUserDescription(string user_oauth_token, string supplementary_token, string description)
+        public static ITwitchResponse<bool>
+        SetUserDescription(string user_oauth_token, string client_id, string description)
         {
-            bool success = SetUserDescriptionAsync(user_oauth_token, supplementary_token, description).Result;
+            ITwitchResponse<bool> success = SetUserDescriptionAsync(user_oauth_token, client_id, description).Result;
 
             return success;
         }
@@ -170,9 +182,10 @@ namespace TwitchNet.Api
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
         /// <returns></returns>
-        public static Streams GetStreamsPage(string oauth_token, StreamsQueryParameters parameters = null)
+        public static ITwitchResponse<Streams>
+        GetStreamsPage(string oauth_token, StreamsQueryParameters parameters = null)
         {
-            Streams streams = GetStreamsPageAsync(oauth_token, parameters).Result;
+            ITwitchResponse<Streams> streams = GetStreamsPageAsync(oauth_token, parameters).Result;
 
             return streams;
         }
@@ -183,9 +196,10 @@ namespace TwitchNet.Api
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
         /// <returns></returns>
-        public static List<Stream> GetStreams(string oauth_token, StreamsQueryParameters parameters = null)
+        public static ITwitchResponse<IList<Stream>>
+        GetStreams(string oauth_token, StreamsQueryParameters parameters = null)
         {
-            List<Stream> streams = GetStreamsAsync(oauth_token, parameters).Result;
+            ITwitchResponse<IList<Stream>> streams = GetStreamsAsync(oauth_token, parameters).Result;
 
             return streams;
         }

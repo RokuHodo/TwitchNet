@@ -2,22 +2,18 @@
 using System.Collections.Generic;
 
 // project namespaces
-using TwitchNet.Interfaces.Helpers.Paging;
-
-// project namespaces
 using TwitchNet.Enums.Api.Streams;
 
 namespace TwitchNet.Helpers.Paging.Streams
 {
     //TODO: Test to see if these paging parameters function properly
-    public class
-    StreamsQueryParameters : ITwitchQueryParameters
+    public class StreamsQueryParameters
     {
         #region Fields
 
         private QueryComparable<ushort>     _first          = new QueryComparable<ushort>(1, 100, 20);
 
-        private QueryParameter              _after          = new QueryParameter();
+        private QueryString                 _after          = new QueryString();
 
         private QueryList                   _community_ids  = new QueryList();
         private QueryList                   _game_ids       = new QueryList();

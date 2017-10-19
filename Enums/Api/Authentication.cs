@@ -1,7 +1,6 @@
-﻿namespace TwitchNet.Enums.Utilities
+﻿namespace TwitchNet.Enums.Api
 {
-    internal enum
-    Authentication
+    internal enum Authentication
     {
         /// <summary>
         /// Specifies that an OAuth token is being used for authentication.

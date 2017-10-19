@@ -5,8 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace TwitchNet.Extensions
 {
-    internal static class
-    TypeExtensions
+    internal static class TypeExtensions
     {
         /// <summary>
         /// Checks to see if an object's type is nullable.
@@ -17,8 +16,7 @@ namespace TwitchNet.Extensions
         /// Returns <see cref="false"/> otherwise.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool
-        IsNullable(this Type type)
+        public static bool isNullable(this Type type)
         {
             bool result = type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
 
@@ -34,8 +32,7 @@ namespace TwitchNet.Extensions
         /// Returns <see cref="false"/> otherwise.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool
-        IsList(this Type type)
+        public static bool isList(this Type type)
         {
             bool result = type.IsGenericType && type.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
 

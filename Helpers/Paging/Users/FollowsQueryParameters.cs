@@ -1,19 +1,18 @@
 ﻿// project namespaces
-using TwitchNet.Interfaces.Helpers.Paging;
+using TwitchNet.Extensions;
 
 namespace TwitchNet.Helpers.Paging.Users
 {
-    public class
-    FollowsQueryParameters : ITwitchQueryParameters
+    public class FollowsQueryParameters
     {
         #region Fields
 
         private QueryComparable<ushort> _first = new QueryComparable<ushort>(1, 100, 20);
 
-        private QueryParameter _after = new QueryParameter();
-        private QueryParameter _before = new QueryParameter();
-        private QueryParameter _from_id = new QueryParameter();
-        private QueryParameter _to_id = new QueryParameter();
+        private QueryString _after = new QueryString();
+        private QueryString _before = new QueryString();
+        private QueryString _from_id = new QueryString();
+        private QueryString _to_id = new QueryString();
 
         #endregion
 

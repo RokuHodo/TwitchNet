@@ -10,8 +10,7 @@ namespace TwitchNet.Enums.Api.Streams
 {
     [Flags]
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum
-    StreamType
+    public enum StreamType
     {
         /// <summary>
         /// The stream is not live, a vodcast, or a playlist.

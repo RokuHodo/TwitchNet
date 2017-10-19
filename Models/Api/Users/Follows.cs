@@ -1,22 +1,18 @@
 ﻿// standard namespaces
 using System.Collections.Generic;
 
-// project namespaces
-using TwitchNet.Interfaces.Helpers.Paging;
-
 // imported .dll's
 using Newtonsoft.Json;
 
 namespace TwitchNet.Models.Api.Users
 {
-    public class
-    Follows : ITwitchPage<Follow>
+    public class Follows
     {
         /// <summary>
         /// Contains the retured paged follow data.
         /// </summary>
         [JsonProperty("data")]
-        public IList<Follow>    data        { get; protected set; }
+        public List<Follow>   data        { get; protected set; }
 
         /// <summary>
         /// Contains information used when makling multi-pages requests.

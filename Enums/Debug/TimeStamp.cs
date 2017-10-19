@@ -1,7 +1,6 @@
 ﻿namespace TwitchNet.Enums.Debug
 {
-    internal enum
-    TimeStamp
+    internal enum TimeStamp
     {
         /// <summary>
         /// Print no time stamp.

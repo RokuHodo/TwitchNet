@@ -6,9 +6,7 @@ using TwitchNet.Extensions;
 
 namespace TwitchNet.Helpers.Paging
 {
-    internal class
-    QueryComparable<type>
-    where type : IComparable<type>
+    internal class QueryComparable<type> where type : IComparable<type>
     {
         private type _value;
         private type _value_min;

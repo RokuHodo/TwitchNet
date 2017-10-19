@@ -1,4 +1,6 @@
-﻿// imported .dll's
+﻿using System;
+
+// imported .dll's
 using Newtonsoft.Json;
 
 using RestSharp;
@@ -6,8 +8,7 @@ using RestSharp.Deserializers;
 
 namespace TwitchNet.Helpers.Json
 {
-    internal class
-    JsonDeserializer : IDeserializer
+    internal class JsonDeserializer : IDeserializer
     {
         public string RootElement   { get; set; }
         public string Namespace     { get; set; }
@@ -16,8 +17,7 @@ namespace TwitchNet.Helpers.Json
         /// <summary>
         /// Custom deserializer that utilizies Newtonsoft to handle Json responses with RestSharp
         /// </summary>
-        public return_type
-        Deserialize<return_type>(IRestResponse response)
+        public return_type Deserialize<return_type>(IRestResponse response)
         {
             JsonSerializerSettings settings = new JsonSerializerSettings();
             settings.NullValueHandling      = NullValueHandling.Ignore;
@@ -32,6 +32,5 @@ namespace TwitchNet.Helpers.Json
 
             return result;
         }
-        
     }
 }

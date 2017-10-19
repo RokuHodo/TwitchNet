@@ -1,15 +1,14 @@
 ﻿// standard namespaces
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 // project namespaces
-using TwitchNet.Enums.Utilities;
+using TwitchNet.Enums.Api;
 using TwitchNet.Extensions;
-using TwitchNet.Helpers.Paging;
+using TwitchNet.Helpers.Json;
 using TwitchNet.Helpers.Paging.Streams;
 using TwitchNet.Helpers.Paging.Users;
-using TwitchNet.Interfaces.Api;
-using TwitchNet.Models.Api;
 using TwitchNet.Models.Api.Streams;
 using TwitchNet.Models.Api.Users;
 using TwitchNet.Utilities;
@@ -19,40 +18,31 @@ using RestSharp;
 
 namespace TwitchNet.Api.Internal
 {
-    //TODO: Implement Exceptions wherever a user can wrongly pass through data
-    //TODO: Re-test all end points to make sure nothing is broken after all RestRequestUtil changes are implemented
-    internal static partial class
-    TwitchApiInternal
+    internal static partial class TwitchApiInternal
     {
         #region Users
 
         /// <summary>
-        /// <para>Asynchronously gets a user's information by their id or login name.</para>
-        /// <para>Optional Scope: 'user:read:email'</para>
+        /// Asynchronously gets a user's information by their id or login name.
+        /// Optional Scope: 'user:read:email'
         /// </summary>
         /// <param name="authentication">How to authorize the request.</param>
         /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
         /// <param name="query_name">How to get the user's information, by 'id' or by 'login'.</param>
         /// <param name="lookup">The id(s) or login(s) to get the information for.</param>
         /// <returns></returns>
-        internal static async Task<ITwitchResponse<Users>>
-        GetUsersAsync(Authentication authentication, string token, string query_name, params string[] lookup)
+        internal static async Task<Users> GetUsersAsync(Authentication authentication, string token, string query_name, params string[] lookup)
         {
-            List<QueryParameter> query_parameters = new List<QueryParameter>();
-
-            foreach (string query_value in lookup)
+            RestRequest request = Request("users", Method.GET, authentication, token);
+            foreach (string element in lookup)
             {
-                QueryParameter query_parameter = new QueryParameter(query_name, query_value);
-                query_parameters.Add(new QueryParameter()
-                {
-                    name = query_name,
-                    value = query_value
-                });
+                request.AddQueryParameter(query_name, element);
             }
 
-            ITwitchResponse<Users> users = await RestRequestUtil.ExecuteRequestAsync<Users>("users", Method.GET, authentication, token, query_parameters.ToArray());
+            RestClient client = Client();
+            IRestResponse<Users> response = await client.ExecuteTaskAsync<Users>(request);
 
-            return users;
+            return response.Data;
         }
 
         /// <summary>
@@ -64,9 +54,10 @@ namespace TwitchNet.Api.Internal
         /// <param name="from_id">Optional. The user to compare from. Used to get the following list of a user.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <returns></returns>
-        internal static async Task<ITwitchResponse<Follows>>
-        GetUserRelationshipPageAsync(Authentication authentication, string token, string to_id, string from_id, FollowsQueryParameters parameters = null)
+        internal static async Task<Follows> GetUserRelationshipPageAsync(Authentication authentication, string token, string to_id, string from_id, FollowsQueryParameters parameters = null)
         {
+            RestRequest request = Request("users/follows", Method.GET, authentication, token);
+
             if (parameters.IsNull())
             {
                 parameters = new FollowsQueryParameters();
@@ -74,20 +65,12 @@ namespace TwitchNet.Api.Internal
             parameters.to_id = to_id;
             parameters.from_id = from_id;
 
-            ITwitchResponse<Follows> follows = await RestRequestUtil.ExecuteRequestPageAsync<Follows, Follow, FollowsQueryParameters>("users/follows", Method.GET, authentication, token, parameters);
+            request = PagingUtil.AddPaging(request, parameters);
 
-            return follows;
-        }
+            RestClient client = Client();
+            IRestResponse<Follows> response = await client.ExecuteTaskAsync<Follows>(request);
 
-        internal static async Task<ITwitchResponse<bool>>
-        IsUserFollowingAsync(Authentication authentication, string token, string to_id, string from_id)
-        {
-            ITwitchResponse<Follows> relationship = await GetUserRelationshipPageAsync(authentication, token, to_id, from_id);
-
-            TwitchResponse<bool> is_following = new TwitchResponse<bool>(relationship);
-            is_following.result = relationship.result.data.IsValid();
-
-            return is_following;
+            return response.Data;
         }
 
         /// <summary>
@@ -99,42 +82,37 @@ namespace TwitchNet.Api.Internal
         /// <param name="from_id">Optional. The user to compare from. Used to get the following list of a user.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <returns></returns>
-        internal static async Task<ITwitchResponse<IList<Follow>>>
-        GetUserRelationshipAsync(Authentication authentication, string token, string to_id, string from_id, FollowsQueryParameters parameters = null)
+        internal static async Task<List<Follow>> GetUserRelationshipAsync(Authentication authentication, string token, string to_id, string from_id, FollowsQueryParameters parameters = null)
         {
             if (parameters.IsNull())
             {
                 parameters = new FollowsQueryParameters();
-            }            
-            parameters.to_id = to_id;
-            parameters.from_id = from_id;
+            }
             parameters.first = 100;
 
-            ITwitchResponse<IList<Follow>> follows = await RestRequestUtil.ExecuteRequestAllPagesAsync<Follow, Follows, FollowsQueryParameters>("users/follows", Method.GET, authentication, token, parameters);
+            List<Follow> follows = await PagingUtil.GetAllPagesAsync<Follow, Follows, FollowsQueryParameters>(GetUserRelationshipPageAsync, authentication, token, to_id, from_id, parameters);
 
             return follows;
         }
 
         /// <summary>
-        /// <para>Asynchronously sets the description of a user specified by the OAuth token.</para>
-        /// <para>Required Scope: 'user:read'</para>
+        /// Asynchronously sets the description of a user specified by the OAuth token.
+        /// Required Scope: 'user:read'
         /// </summary>
         /// <param name="authentication">How to authorize the request.</param>
         /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
         /// <param name="user_oauth_token">The user's OAuth token used to determine which description to update.</param>
         /// <param name="description">The new description to set.</param>
         /// <returns></returns>
-        internal static async Task<ITwitchResponse<bool>>
-        SetUserDescriptionAsync(Authentication authentication, string user_oauth_token, string client_id, string description)
+        internal static async Task<bool> SetUserDescriptionAsync(Authentication authentication, string user_oauth_token, string supplementary_token, string description)
         {
-            QueryParameter query_parameter = new QueryParameter("description", description);
+            RestRequest request = Request("users", Method.PUT, authentication, user_oauth_token, supplementary_token);
+            request.AddQueryParameter("description", description);
 
-            ITwitchResponse<Users> users = await RestRequestUtil.ExecuteRequestAsync<Users>("users", Method.PUT, user_oauth_token, client_id, query_parameter);
+            RestClient client = Client();
+            IRestResponse<Users> response = await client.ExecuteTaskAsync<Users>(request);
 
-            TwitchResponse<bool> response = new TwitchResponse<bool>(users);
-            response.result = users.result.data.IsValid();
-
-            return response;
+            return response.StatusCode == HttpStatusCode.OK;
         }
 
         #endregion
@@ -148,12 +126,15 @@ namespace TwitchNet.Api.Internal
         /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
         /// <returns></returns>
-        internal static async Task<ITwitchResponse<Streams>>
-        GetStreamsPageAsync(Authentication authentication, string token, StreamsQueryParameters parameters = null)
+        internal static async Task<Streams> GetStreamsPageAsync(Authentication authentication, string token, StreamsQueryParameters parameters = null)
         {
-            ITwitchResponse<Streams> streams = await RestRequestUtil.ExecuteRequestPageAsync<Streams, Stream, StreamsQueryParameters>("streams", Method.GET, authentication, token, parameters);
+            RestRequest request = Request("streams", Method.GET, authentication, token);
+            PagingUtil.AddPaging(request, parameters);
 
-            return streams;
+            RestClient client = Client();
+            IRestResponse<Streams> response = await client.ExecuteTaskAsync<Streams>(request);
+
+            return response.Data;
         }
 
         /// <summary>
@@ -163,8 +144,7 @@ namespace TwitchNet.Api.Internal
         /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
         /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
         /// <returns></returns>
-        internal static async Task<ITwitchResponse<IList<Stream>>>
-        GetStreamsAsync(Authentication authentication, string token, StreamsQueryParameters parameters = null)
+        internal static async Task<List<Stream>> GetStreamsAsync(Authentication authentication, string token, StreamsQueryParameters parameters = null)
         {
             if (parameters.IsNull())
             {
@@ -172,7 +152,7 @@ namespace TwitchNet.Api.Internal
             }
             parameters.first = 100;
 
-            ITwitchResponse<IList<Stream>> streams = await RestRequestUtil.ExecuteRequestAllPagesAsync<Stream, Streams, StreamsQueryParameters>("streams", Method.GET, authentication, token, parameters);
+            List<Stream> streams = await PagingUtil.GetAllPagesAsync<Stream, Streams, StreamsQueryParameters>(GetStreamsPageAsync, authentication, token, parameters);
 
             return streams;
         }
@@ -181,7 +161,55 @@ namespace TwitchNet.Api.Internal
 
         #region Rest Request
 
-        
+        /// <summary>
+        /// Creates a new instance of a <see cref="RestRequest"/> which holds the information to request.
+        /// </summary>        
+        /// <param name="endpoint">The endpoint URL.</param>
+        /// <param name="method">The HTTP method used when making the request.</param>
+        /// <param name="authentication">How to authorize the request.</param>
+        /// <param name="token">The OAuth token or Client Id to authorize the request when only either is provided. If both are being provided, this is assumed to be the OAuth token.</param>
+        /// <param name="supplementary_token">The Client Id if both the OAuth token and Client Id are being provided.</param>
+        /// <returns></returns>
+        private static RestRequest Request(string endpoint, Method method, Authentication authentication, string token, string supplementary_token = "")
+        {
+            RestRequest request = new RestRequest(endpoint, method);
+            switch (authentication)
+            {
+                case Authentication.Authorization:
+                {
+                    request.AddHeader("Authorization", "Bearer " + token);
+                }
+                break;
+
+                case Authentication.Client_ID:
+                {
+                    request.AddHeader("Client-ID", token);
+                }
+                break;
+
+                case Authentication.Both:
+                {
+                    request.AddHeader("Authorization", "Bearer " + token);
+                    request.AddHeader("Client-ID", supplementary_token);
+                }
+                break;
+            }
+
+            return request;
+        }
+
+        /// <summary>
+        /// Creates a new instance of a <see cref="RestClient"/> to execute the rest request to the Twitch API.
+        /// </summary>
+        /// <returns></returns>
+        private static RestClient Client()
+        {
+            RestClient client = new RestClient("https://api.twitch.tv/helix");
+            client.AddHandler("application/json", new JsonDeserializer());
+            client.AddHandler("application/xml", new JsonDeserializer());
+
+            return client;
+        }
 
 		#endregion
     }

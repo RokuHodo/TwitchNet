@@ -6,8 +6,7 @@ using TwitchNet.Extensions;
 
 namespace TwitchNet.Helpers.Paging
 {
-    internal class
-    QueryList
+    internal class QueryList
     {
         private ushort          _range_start            = 0;
         private ushort          _range_count            = 100;

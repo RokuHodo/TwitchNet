@@ -7,7 +7,7 @@ using TwitchNet.Interfaces.Helpers.Paging;
 // project namespaces
 using TwitchNet.Enums.Api.Streams;
 
-namespace TwitchNet.Helpers.Paging.Streams
+namespace TwitchNet.Models.Paging.Streams
 {
     //TODO: Test to see if these paging parameters function properly
     public class

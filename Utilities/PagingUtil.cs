@@ -5,7 +5,7 @@ using System.Reflection;
 
 // project namespaces
 using TwitchNet.Extensions;
-using TwitchNet.Helpers.Paging;
+using TwitchNet.Models.Paging;
 using TwitchNet.Interfaces.Helpers.Paging;
 
 // imported .dll's
@@ -70,9 +70,9 @@ namespace TwitchNet.Utilities
                     continue;
                 }
 
-                Type type = property.PropertyType.IsNullable() ? Nullable.GetUnderlyingType(property.PropertyType) : property.PropertyType;
                 QueryParameterAttribute attribute = property.GetAttribute<QueryParameterAttribute>();
 
+                Type type = property.PropertyType.IsNullable() ? Nullable.GetUnderlyingType(property.PropertyType) : property.PropertyType;
                 if (type.IsList())
                 {
                     IList list = value as IList;

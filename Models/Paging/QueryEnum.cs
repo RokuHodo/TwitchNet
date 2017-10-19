@@ -1,7 +1,7 @@
 ﻿// standard namespaces
 using System;
 
-namespace TwitchNet.Helpers.Paging
+namespace TwitchNet.Models.Paging
 {
     internal class
     QueryEnum<type>

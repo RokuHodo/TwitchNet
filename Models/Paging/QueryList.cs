@@ -4,7 +4,7 @@ using System.Collections.Generic;
 // project namespaces
 using TwitchNet.Extensions;
 
-namespace TwitchNet.Helpers.Paging
+namespace TwitchNet.Models.Paging
 {
     internal class
     QueryList

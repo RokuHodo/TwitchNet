@@ -4,7 +4,7 @@ using System;
 // project namespaces
 using TwitchNet.Extensions;
 
-namespace TwitchNet.Helpers.Paging
+namespace TwitchNet.Models.Paging
 {
     internal class
     QueryComparable<type>
@@ -32,10 +32,10 @@ namespace TwitchNet.Helpers.Paging
 
         public QueryComparable(type value_default)
         {
-            _value_min = value_default;
-            _value_max = value_default;
-            _value_default = value_default;
-            _value = _value_default;
+            _value_min      = value_default;
+            _value_max      = value_default;
+            _value_default  = value_default;
+            _value          = _value_default;
         }
 
         public QueryComparable(type value_min, type value_max, type value_default)
@@ -43,7 +43,7 @@ namespace TwitchNet.Helpers.Paging
             _value_min      = value_min;
             _value_max      = value_max.ClampMin(_value_min);
             _value_default  = value_default.Clamp(_value_min, _value_max);
-            _value = _value_default;
+            _value          = _value_default;
         }
     }
 }

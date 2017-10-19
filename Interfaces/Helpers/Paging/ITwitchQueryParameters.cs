@@ -1,5 +1,5 @@
 ﻿// project namespaces
-using TwitchNet.Helpers.Paging;
+using TwitchNet.Models.Paging;
 
 namespace TwitchNet.Interfaces.Helpers.Paging
 {

@@ -65,7 +65,7 @@ namespace TwitchNet.Models.Api.Users
 
         /// <summary>
         /// The user's email adress listed on their profile.
-        /// This email is returned only if the 'user:read:email' scope is passed when the request is executed requested.
+        /// This email is included only if the 'user:read:email' scope was specified when the OAuth token was created.
         /// Required Scope: 'user:read:email'
         /// </summary>
         [JsonProperty("email")]

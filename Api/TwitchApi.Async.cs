@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 // project namespaces
 using TwitchNet.Api.Internal;
 using TwitchNet.Enums.Utilities;
-using TwitchNet.Helpers.Paging.Streams;
-using TwitchNet.Helpers.Paging.Users;
 using TwitchNet.Interfaces.Api;
 using TwitchNet.Models.Api.Streams;
 using TwitchNet.Models.Api.Users;
+using TwitchNet.Models.Paging.Streams;
+using TwitchNet.Models.Paging.Users;
 
 namespace TwitchNet.Api
 {

@@ -1,7 +1,7 @@
 ﻿// project namespaces
 using TwitchNet.Extensions;
 
-namespace TwitchNet.Helpers.Paging
+namespace TwitchNet.Models.Paging
 {
     public class
     QueryParameter

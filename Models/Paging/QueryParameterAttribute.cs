@@ -1,9 +1,9 @@
 ﻿// standard namespaces
 using System;
 
-namespace TwitchNet.Helpers.Paging
+namespace TwitchNet.Models.Paging
 {
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
     internal sealed class
     QueryParameterAttribute : Attribute
     {

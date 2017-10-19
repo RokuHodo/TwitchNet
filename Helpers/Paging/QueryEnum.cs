@@ -3,7 +3,9 @@ using System;
 
 namespace TwitchNet.Helpers.Paging
 {
-    internal class QueryEnum<type> where type : struct, IConvertible
+    internal class
+    QueryEnum<type>
+    where type : struct, IConvertible
     {
         private type? _value;
         private type? _value_default;

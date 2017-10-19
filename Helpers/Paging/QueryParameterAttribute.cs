@@ -3,8 +3,9 @@ using System;
 
 namespace TwitchNet.Helpers.Paging
 {
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
-    internal sealed class QueryParameterAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    internal sealed class
+    QueryParameterAttribute : Attribute
     {
         /// <summary>
         /// Whether or not to make the query parameter value lower case.

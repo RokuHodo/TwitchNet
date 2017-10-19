@@ -4,7 +4,8 @@ using System;
 namespace TwitchNet.Enums.Debug
 {
     [Flags]
-    internal enum LogLevel
+    internal enum
+    LogLevel
     {
         /// <summary>
         /// Print no debug information. Overrides all other bitfields if set.

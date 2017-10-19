@@ -189,7 +189,7 @@ namespace TwitchNet.Debug
 
             foreach (string line in lines)
             {
-                if (!line.isValid())
+                if (!line.IsValid())
                 {
                     continue;
                 }

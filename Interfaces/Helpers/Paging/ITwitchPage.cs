@@ -1,27 +1,28 @@
 ﻿// standard namespaces
 using System.Collections.Generic;
 
-// project namespaces
-using TwitchNet.Interfaces.Helpers.Paging;
+// project namepspaces
+using TwitchNet.Models.Api;
 
 // imported .dll's
 using Newtonsoft.Json;
 
-namespace TwitchNet.Models.Api.Users
+namespace TwitchNet.Interfaces.Helpers.Paging
 {
-    public class
-    Follows : ITwitchPage<Follow>
+    public interface
+    ITwitchPage<type>
+    where type : class, new()
     {
         /// <summary>
-        /// Contains the retured paged follow data.
+        /// Contains the retured paged data.
         /// </summary>
         [JsonProperty("data")]
-        public IList<Follow>    data        { get; protected set; }
+        IList<type> data        { get; }
 
         /// <summary>
         /// Contains information used when makling multi-pages requests.
         /// </summary>
         [JsonProperty("pagination")]
-        public Pagination       pagination  { get; protected set; }
+        Pagination  pagination  { get; }
     }
 }

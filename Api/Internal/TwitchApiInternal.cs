@@ -37,13 +37,14 @@ namespace TwitchNet.Api.Internal
         /// </para>
         /// </summary>
         /// <param name="authentication">How to authorize the request.</param>
-        /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
         /// <param name="query_parameters">The users to look up either by id or by login.</param>
         /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        internal static async Task<ITwitchResponse<Users>>
-        GetUsersAsync(Authentication authentication, string token, params QueryParameter[] query_parameters)
+        internal static async Task<ITwitchResponse<UserPage>>
+        GetUsersAsync(Authentication authentication, string oauth_token, string client_id, IList<QueryParameter> query_parameters)
         {
-            ITwitchResponse<Users> users = await RestRequestUtil.ExecuteRequestAsync<Users>("users", Method.GET, authentication, token, query_parameters);
+            ITwitchResponse<UserPage> users = await RestRequestUtil.ExecuteRequestAsync<UserPage>("users", Method.GET, authentication, oauth_token, client_id, query_parameters);
 
             return users;
         }
@@ -51,7 +52,7 @@ namespace TwitchNet.Api.Internal
         /// <summary>
         /// <para>
         /// Asynchronously gets the information of one or more users by their id or login.
-        /// If no <paramref name="query_parameters"/> are specified, the user is looked up by the token provided if it is an OAuth token.
+        /// If no <paramref name="lookup"/>s are specified, the user is looked up by the token provided if it is an OAuth token.
         /// </para>
         /// <para>
         /// Optional Scope: 'user:read:email'.
@@ -59,12 +60,13 @@ namespace TwitchNet.Api.Internal
         /// </para>
         /// </summary>
         /// <param name="authentication">How to authorize the request.</param>
-        /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
         /// <param name="query_name">How to get the user's information, by 'id' or by 'login'.</param>
         /// <param name="lookup">The id(s) or login(s) to get the information for.</param>
         /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        internal static async Task<ITwitchResponse<Users>>
-        GetUsersAsync(Authentication authentication, string token, string query_name, params string[] lookup)
+        internal static async Task<ITwitchResponse<UserPage>>
+        GetUsersAsync(Authentication authentication, string oauth_token, string client_id, string query_name, IList<string> lookup)
         {
             List<QueryParameter> query_parameters = new List<QueryParameter>();
             foreach (string query_value in lookup)
@@ -76,44 +78,26 @@ namespace TwitchNet.Api.Internal
                 });
             }
 
-            ITwitchResponse<Users> users = await GetUsersAsync(authentication, token, query_parameters.ToArray());
+            ITwitchResponse<UserPage> users = await GetUsersAsync(authentication, oauth_token, client_id, query_parameters.ToArray());
 
             return users;
-        }
-
-        /// <summary>
-        /// Asynchronously checks to see if <paramref name="from_id"/> is following <paramref name="to_id"/>.
-        /// </summary>
-        /// <param name="authentication">How to authorize the request.</param>
-        /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
-        /// <param name="from_id">The user to compare from.</param>
-        /// <param name="to_id">The user to compare to.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        internal static async Task<ITwitchResponse<bool>>
-        IsUserFollowingAsync(Authentication authentication, string token, string from_id, string to_id)
-        {
-            ITwitchResponse<Follows> relationship = await GetUserRelationshipPageAsync(authentication, token, from_id, to_id);
-
-            TwitchResponse<bool> is_following = new TwitchResponse<bool>(relationship);
-            is_following.result = relationship.result.data.IsValid();
-
-            return is_following;
         }
 
         /// <summary>
         /// Asynchronously gets the relationship between two users, or a single page of the following/follower lists of one user.
         /// </summary>
         /// <param name="authentication">How to authorize the request.</param>
-        /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
         /// <param name="from_id">The user to compare from.</param>
         /// <param name="to_id">The user to compare to.</param>
         /// <param name="query_parameters">
-        /// A set of parameters to customize the requests.
+        /// A set of query parameters to customize the request.
         /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="query_parameters"/> are ignored if specified.
         /// </param>
         /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        internal static async Task<ITwitchResponse<Follows>>
-        GetUserRelationshipPageAsync(Authentication authentication, string token, string from_id, string to_id, FollowsQueryParameters query_parameters = null)
+        internal static async Task<ITwitchResponse<FollowPage>>
+        GetUserRelationshipPageAsync(Authentication authentication, string oauth_token, string client_id, string from_id, string to_id, FollowsQueryParameters query_parameters = null)
         {
             if (query_parameters.IsNull())
             {
@@ -122,7 +106,7 @@ namespace TwitchNet.Api.Internal
             query_parameters.from_id = from_id;
             query_parameters.to_id = to_id;
 
-            ITwitchResponse<Follows> follows = await RestRequestUtil.ExecuteRequestPageAsync<Follows, Follow, FollowsQueryParameters>("users/follows", Method.GET, authentication, token, query_parameters);
+            ITwitchResponse<FollowPage> follows = await RestRequestUtil.ExecuteRequestPageAsync<FollowPage, Follow, FollowsQueryParameters>("users/follows", Method.GET, authentication, oauth_token, client_id, query_parameters);
 
             return follows;
         }
@@ -131,25 +115,46 @@ namespace TwitchNet.Api.Internal
         /// Asynchronously gets the relationship between two users, or the complete following/follower lists of one user.
         /// </summary>
         /// <param name="authentication">How to authorize the request.</param>
-        /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
-        /// <param name="to_id">Optional. The user to compare to. Used to get a user's follower list.</param>
-        /// <param name="from_id">Optional. The user to compare from. Used to get the following list of a user.</param>
-        /// <param name="parameters">Optional. A set of parameters to customize the requests. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
+        /// <param name="from_id">The user to compare from. Used to get the following list of a user.</param>
+        /// <param name="to_id">The user to compare to. Used to get a user's follower list.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
         internal static async Task<ITwitchResponse<IList<Follow>>>
-        GetUserRelationshipAsync(Authentication authentication, string token, string from_id, string to_id, FollowsQueryParameters parameters = null)
+        GetUserRelationshipAsync(Authentication authentication, string oauth_token, string client_id, string from_id, string to_id, FollowsQueryParameters query_parameters = null)
         {
-            if (parameters.IsNull())
+            if (query_parameters.IsNull())
             {
-                parameters = new FollowsQueryParameters();
+                query_parameters = new FollowsQueryParameters();
             }            
-            parameters.from_id = from_id;
-            parameters.to_id = to_id;
-            parameters.first = 100;
+            query_parameters.from_id = from_id;
+            query_parameters.to_id = to_id;
+            query_parameters.first = 100;
 
-            ITwitchResponse<IList<Follow>> follows = await RestRequestUtil.ExecuteRequestAllPagesAsync<Follow, Follows, FollowsQueryParameters>("users/follows", Method.GET, authentication, token, parameters);
+            ITwitchResponse<IList<Follow>> follows = await RestRequestUtil.ExecuteRequestAllPagesAsync<Follow, FollowPage, FollowsQueryParameters>("users/follows", Method.GET, authentication, oauth_token, client_id, query_parameters);
 
             return follows;
+        }
+
+        /// <summary>
+        /// Asynchronously checks to see if <paramref name="from_id"/> is following <paramref name="to_id"/>.
+        /// </summary>
+        /// <param name="authentication">How to authorize the request.</param>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
+        /// <param name="from_id">The user to compare from.</param>
+        /// <param name="to_id">The user to compare to.</param>
+        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
+        internal static async Task<ITwitchResponse<bool>>
+        IsUserFollowingAsync(Authentication authentication, string oauth_token, string client_id, string from_id, string to_id)
+        {
+            ITwitchResponse<FollowPage> relationship = await GetUserRelationshipPageAsync(authentication, oauth_token, client_id, from_id, to_id);
+
+            TwitchResponse<bool> is_following = new TwitchResponse<bool>(relationship);
+            is_following.result = relationship.result.data.IsValid();
+
+            return is_following;
         }
 
         /// <summary>
@@ -157,20 +162,25 @@ namespace TwitchNet.Api.Internal
         /// <para>Required Scope: 'user:read'</para>
         /// </summary>
         /// <param name="authentication">How to authorize the request.</param>
-        /// <param name="oauth_token">The OAuth token used to determine whose description to update and authorize the request if no <paramref name="client_id"/> is provided.</param>
-        /// <param name="client_id">The Client Id of the application to validate the request.</param>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
         /// <param name="description">The new description to set.</param>
         /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
         internal static async Task<ITwitchResponse<bool>>
         SetUserDescriptionAsync(Authentication authentication, string oauth_token, string client_id, string description)
         {
-            QueryParameter query_parameter = new QueryParameter("description", description);
+            QueryParameter[] query_parameters = new QueryParameter[]
+            {
+                new QueryParameter
+                {
+                    name = "description",
+                    value = description
+                },
+            };
 
-            // TODO: SetUserDescriptionAsync - Test to see if providing an oauth token and a client id is even worth doing.
-            // Providing an client id and an oauth token created using the same client id does nothing. The client if is essnetially ignored in the request.
-            // What about providing a client id and an oauth token that was made using a different client id?
-            ITwitchResponse<Users> users = await RestRequestUtil.ExecuteRequestAsync<Users>("users", Method.PUT, oauth_token, client_id, query_parameter);
+            ITwitchResponse<UserPage> users = await RestRequestUtil.ExecuteRequestAsync<UserPage>("users", Method.PUT, authentication, oauth_token, client_id, query_parameters);
 
+            // TODO: SetUserDescriptionAsync - Test to see if this is a valid check to see if the description was actually updated.
             TwitchResponse<bool> response = new TwitchResponse<bool>(users);
             response.result = users.result.data.IsValid();
 
@@ -185,13 +195,14 @@ namespace TwitchNet.Api.Internal
         /// Asynchronously gets a single page of streams.
         /// </summary>
         /// <param name="authentication">How to authorize the request.</param>
-        /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
-        /// <param name="parameters">A set of parameters to customize the requests.</param>
-        /// <returns></returns>
-        internal static async Task<ITwitchResponse<Streams>>
-        GetStreamsPageAsync(Authentication authentication, string token, StreamsQueryParameters parameters = null)
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
+        internal static async Task<ITwitchResponse<StreamPage>>
+        GetStreamsPageAsync(Authentication authentication, string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
         {
-            ITwitchResponse<Streams> streams = await RestRequestUtil.ExecuteRequestPageAsync<Streams, Stream, StreamsQueryParameters>("streams", Method.GET, authentication, token, parameters);
+            ITwitchResponse<StreamPage> streams = await RestRequestUtil.ExecuteRequestPageAsync<StreamPage, Stream, StreamsQueryParameters>("streams", Method.GET, authentication, oauth_token, client_id, query_parameters);
 
             return streams;
         }
@@ -200,29 +211,56 @@ namespace TwitchNet.Api.Internal
         /// Asynchronously gets a complete list of streams.
         /// </summary>
         /// <param name="authentication">How to authorize the request.</param>
-        /// <param name="token">The OAuth token or Client Id to authorize the request.</param>
-        /// <param name="parameters">A set of parameters to customize the requests.</param>
-        /// <returns></returns>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
         internal static async Task<ITwitchResponse<IList<Stream>>>
-        GetStreamsAsync(Authentication authentication, string token, StreamsQueryParameters parameters = null)
+        GetStreamsAsync(Authentication authentication, string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
         {
-            if (parameters.IsNull())
+            if (query_parameters.IsNull())
             {
-                parameters = new StreamsQueryParameters();
+                query_parameters = new StreamsQueryParameters();
             }
-            parameters.first = 100;
+            query_parameters.first = 100;
 
-            ITwitchResponse<IList<Stream>> streams = await RestRequestUtil.ExecuteRequestAllPagesAsync<Stream, Streams, StreamsQueryParameters>("streams", Method.GET, authentication, token, parameters);
+            ITwitchResponse<IList<Stream>> streams = await RestRequestUtil.ExecuteRequestAllPagesAsync<Stream, StreamPage, StreamsQueryParameters>("streams", Method.GET, authentication, oauth_token, client_id, query_parameters);
 
             return streams;
         }
 
+        /// <summary>
+        /// Asynchronously gets a single page of metadata about streams playing either Overwatch or Hearthstone.
+        /// </summary>
+        /// <param name="authentication">How to authorize the request.</param>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
+        internal static async Task<ITwitchResponse<MetadataPage>>
+        GetStreamsMetadataPageAsync(Authentication authentication, string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
+        {
+            ITwitchResponse<MetadataPage> metadata = await RestRequestUtil.ExecuteRequestPageAsync<MetadataPage, Metadata, StreamsQueryParameters>("streams/metadata", Method.GET, authentication, oauth_token, client_id, query_parameters);
+
+            return metadata;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
+        /// </summary>
+        /// <param name="authentication">How to authorize the request.</param>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
+        internal static async Task<ITwitchResponse<IList<Metadata>>>
+        GetStreamsMetadataAsync(Authentication authentication, string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
+        {
+            ITwitchResponse<IList<Metadata>> metadata = await RestRequestUtil.ExecuteRequestAllPagesAsync<Metadata, MetadataPage, StreamsQueryParameters>("streams/metadata", Method.GET, authentication, oauth_token, client_id, query_parameters);
+
+            return metadata;
+        }
+
         #endregion
-
-        #region Rest Request
-
-        
-
-		#endregion
     }
 }

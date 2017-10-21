@@ -1,6 +1,7 @@
 ﻿// standard namespaces
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 
 // project namespaces
@@ -22,8 +23,8 @@ namespace TwitchNet.Utilities
         /// <param name="request">The rest request to add the query parameters to.</param>
         /// <param name="query_parameters">The optional query string parameters to be added to the request.</param>
         /// <returns></returns>
-        public static IRestRequest
-        AddPaging(IRestRequest request, params QueryParameter[] query_parameters)
+        public static RestRequest
+        AddPaging(RestRequest request, IList<QueryParameter> query_parameters)
         {
             if (!query_parameters.IsValid())
             {
@@ -34,7 +35,7 @@ namespace TwitchNet.Utilities
             {
                 if (!query_parameter.name.IsValid() || !query_parameter.value.IsValid())
                 {
-                    continue; ;
+                    continue;
                 }
 
                 request.AddQueryParameter(query_parameter.name, query_parameter.value);
@@ -52,8 +53,8 @@ namespace TwitchNet.Utilities
         /// <param name="request">The rest request to add the query parameters to.</param>
         /// <param name="query_parameters">The optional query string parameters to be added to the request.</param>
         /// <returns></returns>
-        public static IRestRequest
-        AddPaging<parameters_type>(IRestRequest request, parameters_type query_parameters)
+        public static RestRequest
+        AddPaging<parameters_type>(RestRequest request, parameters_type query_parameters)
         where parameters_type : ITwitchQueryParameters, new()
         {
             if (query_parameters.IsNull())
@@ -125,8 +126,8 @@ namespace TwitchNet.Utilities
         /// <param name="attribute">The attribute that contains the query name and conversion settings.</param>
         /// <param name="value">The object value to be added as a query parameter.</param>
         /// <returns></returns>
-        private static IRestRequest
-        AddQueryParameter(IRestRequest request, QueryParameterAttribute attribute, object value)
+        private static RestRequest
+        AddQueryParameter(RestRequest request, QueryParameterAttribute attribute, object value)
         {
             if (value.IsNull())
             {

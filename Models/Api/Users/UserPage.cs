@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 namespace TwitchNet.Models.Api.Users
 {
     public class
-    Users
+    UserPage
     {
         /// <summary>
         /// Contains the retured paged user data.

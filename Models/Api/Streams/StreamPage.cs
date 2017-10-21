@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 namespace TwitchNet.Models.Api.Streams
 {
     public class
-    Streams : ITwitchPage<Stream>
+    StreamPage : ITwitchPage<Stream>
     {
         /// <summary>
         /// Contains the retured paged follow data.
@@ -23,10 +23,5 @@ namespace TwitchNet.Models.Api.Streams
         /// </summary>
         [JsonProperty("pagination")]
         public Pagination       pagination  { get; protected set; }
-
-        /// <summary>
-        /// Contains information for the rate limit count, limit, and when it resets.
-        /// </summary>
-        public RateLimit        rate_limit  { get; protected set; }
     }
 }

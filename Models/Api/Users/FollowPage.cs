@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 namespace TwitchNet.Models.Api.Users
 {
     public class
-    Follows : ITwitchPage<Follow>
+    FollowPage : ITwitchPage<Follow>
     {
         /// <summary>
         /// Contains the retured paged follow data.

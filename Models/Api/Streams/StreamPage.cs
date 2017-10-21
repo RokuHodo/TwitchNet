@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 // project namespaces
-using TwitchNet.Interfaces.Helpers.Paging;
+using TwitchNet.Interfaces.Models.Paging;
 
 // imported .dll's
 using Newtonsoft.Json;

@@ -84,8 +84,8 @@
     <Compile Include="Models\Paging\Streams\StreamsQueryParameters.cs" />
     <Compile Include="Models\Paging\Users\FollowsQueryParameters.cs" />
     <Compile Include="Interfaces\Api\ITwitchResponse.cs" />
-    <Compile Include="Interfaces\Helpers\Paging\ITwitchQueryParameters.cs" />
-    <Compile Include="Interfaces\Helpers\Paging\ITwitchPage.cs" />
+    <Compile Include="Interfaces\Models\Paging\ITwitchQueryParameters.cs" />
+    <Compile Include="Interfaces\Models\Paging\ITwitchPage.cs" />
     <Compile Include="Models\Api\Pagination.cs" />
     <Compile Include="Models\Api\TwitchError.cs" />
     <Compile Include="Models\Api\TwitchResponse.cs" />

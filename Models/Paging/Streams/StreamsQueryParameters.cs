@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 // project namespaces
-using TwitchNet.Interfaces.Helpers.Paging;
+using TwitchNet.Interfaces.Models.Paging;
 
 // project namespaces
 using TwitchNet.Enums.Api.Streams;

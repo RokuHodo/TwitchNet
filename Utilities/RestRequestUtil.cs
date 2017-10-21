@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using TwitchNet.Enums.Utilities;
 using TwitchNet.Extensions;
 using TwitchNet.Helpers.Json;
-using TwitchNet.Interfaces.Helpers.Paging;
+using TwitchNet.Interfaces.Models.Paging;
 using TwitchNet.Models.Api;
 using TwitchNet.Models.Paging;
 

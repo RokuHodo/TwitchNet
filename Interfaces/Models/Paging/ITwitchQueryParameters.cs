@@ -1,7 +1,7 @@
 ﻿// project namespaces
 using TwitchNet.Models.Paging;
 
-namespace TwitchNet.Interfaces.Helpers.Paging
+namespace TwitchNet.Interfaces.Models.Paging
 {
     public interface
     ITwitchQueryParameters

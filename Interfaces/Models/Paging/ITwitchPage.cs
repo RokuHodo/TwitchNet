@@ -7,7 +7,7 @@ using TwitchNet.Models.Api;
 // imported .dll's
 using Newtonsoft.Json;
 
-namespace TwitchNet.Interfaces.Helpers.Paging
+namespace TwitchNet.Interfaces.Models.Paging
 {
     public interface
     ITwitchPage<type>

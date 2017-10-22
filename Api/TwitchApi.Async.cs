@@ -4,41 +4,59 @@ using System.Threading.Tasks;
 
 // project namespaces
 using TwitchNet.Api.Internal;
-using TwitchNet.Enums.Api;
-using TwitchNet.Extensions;
-using TwitchNet.Helpers.Paging.Streams;
-using TwitchNet.Helpers.Paging.Users;
+using TwitchNet.Enums.Utilities;
+using TwitchNet.Interfaces.Api;
 using TwitchNet.Models.Api.Streams;
 using TwitchNet.Models.Api.Users;
+using TwitchNet.Models.Paging;
+using TwitchNet.Models.Paging.Streams;
+using TwitchNet.Models.Paging.Users;
 
 namespace TwitchNet.Api
 {
-    public static partial class TwitchApi
+    public static partial class
+    TwitchApi
     {
         #region Users
 
         /// <summary>
-        /// Asynchronously gets a user's information by their id.
+        /// Asynchronously gets the information of one or more users by their id or login.
         /// </summary>
-        /// <param name="client_id">The Client Id to authorize the request.</param>
-        /// <param name="ids">The id(s) of the user(s).</param>
-        /// <returns></returns>
-        public static async Task<Users> GetUsersByIdAsync(string client_id, params string[] ids)
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">The users to look up either by id or by login.</param>
+        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
+        public static async Task<ITwitchResponse<UserPage>>
+        GetUsersAsync(string client_id, IList<QueryParameter> query_parameters)
         {
-            Users users = await TwitchApiInternal.GetUsersAsync(Authentication.Client_ID, client_id, "id", ids);
+            ITwitchResponse<UserPage> users = await TwitchApiInternal.GetUsersAsync(Authentication.Client_ID, string.Empty, client_id, query_parameters);
 
             return users;
         }
 
         /// <summary>
-        /// Asynchronously gets a user's information by their login name.
+        /// Asynchronously gets the information of one or more users by their id.
         /// </summary>
-        /// <param name="client_id">The Client Id to authorize the request.</param>
-        /// <param name="logins">The name(s) of the user(s).</param>
-        /// <returns></returns>
-        public static async Task<Users> GetUsersByLoginAsync(string client_id, params string[] logins)
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="ids">The id(s) of the user(s).</param>
+        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
+        public static async Task<ITwitchResponse<UserPage>>
+        GetUsersByIdAsync(string client_id, IList<string> ids)
         {
-            Users users = await TwitchApiInternal.GetUsersAsync(Authentication.Client_ID, client_id, "login", logins);
+            ITwitchResponse<UserPage> users = await TwitchApiInternal.GetUsersAsync(Authentication.Client_ID, string.Empty, client_id, "id", ids);
+
+            return users;
+        }
+
+        /// <summary>
+        /// Asynchronously gets the information of one or more users by their login.
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="logins">The name(s) of the user(s).</param>
+        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
+        public static async Task<ITwitchResponse<UserPage>>
+        GetUsersByLoginAsync(string client_id, IList<string> logins)
+        {
+            ITwitchResponse<UserPage> users = await TwitchApiInternal.GetUsersAsync(Authentication.Client_ID, string.Empty, client_id, "login", logins);
 
             return users;
         }
@@ -46,54 +64,47 @@ namespace TwitchNet.Api
         /// <summary>
         /// Asynchronously gets the relationship between two users.
         /// </summary>
-        /// <param name="client_id">The Client Id to authorize the request.</param>
-        /// <param name="to_id">The user to compare to.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="from_id">The user to compare from.</param>
-        /// <returns></returns>
-        public static async Task<Follows> GetUserRelationshipAsync(string client_id, string to_id, string from_id)
+        /// <param name="to_id">The user to compare to.</param>
+        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
+        public static async Task<ITwitchResponse<FollowPage>>
+        GetUserRelationshipAsync(string client_id, string from_id, string to_id)
         {
-            Follows relationship = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Client_ID, client_id, to_id, from_id);
+            ITwitchResponse<FollowPage> relationship = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Client_ID, string.Empty, client_id, from_id, to_id);
 
             return relationship;
         }
 
         /// <summary>
-        /// Asynchronously gets a single paged of a user's followers list.
+        /// Asynchronously checks to see if <paramref name="from_id"/> is following <paramref name="to_id"/>.
         /// </summary>
-        /// <param name="client_id">The Client Id to authorize the request.</param>
-        /// <param name="to_id">The user to get the followers for.</param>
-        /// <param name="parameters">Optional. A set of parameters to customize the requests. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
-        /// <returns></returns>
-        public static async Task<Follows> GetUserFollowersPageAsync(string client_id, string to_id, FollowsQueryParameters parameters = null)
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="from_id">The user to compare from.</param>
+        /// <param name="to_id">The user to compare to.</param>
+        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
+        public static async Task<ITwitchResponse<bool>>
+        IsUserFollowingAsync(string client_id, string from_id, string to_id)
         {
-            Follows followers = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Client_ID, client_id, to_id, string.Empty, parameters);
+            ITwitchResponse<bool> is_following = await TwitchApiInternal.IsUserFollowingAsync(Authentication.Client_ID, string.Empty, client_id, from_id, to_id);
 
-            return followers;
-        }
-
-        /// <summary>
-        /// Asynchronously gets a user's followers list.
-        /// </summary>
-        /// <param name="client_id">The Client Id to authorize the request.</param>
-        /// <param name="to_id">The user to get the followers for.</param>
-        /// <returns></returns>
-        public static async Task<List<Follow>> GetUserFollowersAsync(string client_id, string to_id)
-        {
-            List<Follow> followers = await TwitchApiInternal.GetUserRelationshipAsync(Authentication.Client_ID, client_id, to_id, string.Empty);
-
-            return followers;
+            return is_following;
         }
 
         /// <summary>
         /// Asynchronously gets a single page of a user's following list.
         /// </summary>
-        /// <param name="client_id">The Client Id to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="from_id">The user to get the following list from.</param>
-        /// <param name="parameters">Optional. A set of parameters to customize the requests. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
-        /// <returns></returns>
-        public static async Task<Follows> GetUserFollowingPageAsync(string client_id, string from_id, FollowsQueryParameters parameters = null)
+        /// <param name="query_parameters">
+        /// A set of query parameters to customize the request.
+        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="query_parameters"/> are ignored if specified.
+        /// </param>
+        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
+        public static async Task<ITwitchResponse<FollowPage>>
+        GetUserFollowingPageAsync(string client_id, string from_id, FollowsQueryParameters query_parameters = null)
         {
-            Follows following = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Client_ID, client_id, string.Empty, from_id, parameters);
+            ITwitchResponse<FollowPage> following = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Client_ID, string.Empty, client_id, from_id, string.Empty, query_parameters);
 
             return following;
         }
@@ -101,31 +112,47 @@ namespace TwitchNet.Api
         /// <summary>
         /// Asynchronously gets a user's following list.
         /// </summary>
-        /// <param name="client_id">The Client Id to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="from_id">The user to get the following list from.</param>
-        /// <returns></returns>
-        public static async Task<List<Follow>> GetUserFollowingAsync(string client_id, string from_id)
+        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
+        public static async Task<ITwitchResponse<IList<Follow>>>
+        GetUserFollowingAsync(string client_id, string from_id)
         {
-            List<Follow> following = await TwitchApiInternal.GetUserRelationshipAsync(Authentication.Client_ID, client_id, string.Empty, from_id);
+            ITwitchResponse<IList<Follow>> following = await TwitchApiInternal.GetUserRelationshipAsync(Authentication.Client_ID, string.Empty, client_id, from_id, string.Empty);
 
             return following;
         }
 
         /// <summary>
-        /// Asynchronously checks to see if a user (from_id) is following another user (to_id).
+        /// Asynchronously gets a single paged of a user's followers list.
         /// </summary>
-        /// <param name="client_id">The Client Id to authorize the request.</param>
-        /// <param name="to_id">The user to compare to.</param>
-        /// <param name="from_id">The user to compare from.</param>
-        /// <returns>
-        /// Returns true if a user (from_id) is following another user (to_id).
-        /// Returns false otherwise.
-        /// </returns>
-        public static async Task<bool> IsUserFollowingAsync(string client_id, string to_id, string from_id)
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="to_id">The user to get the followers for.</param>
+        /// <param name="query_parameters">
+        /// A set of query parameters to customize the request.
+        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="query_parameters"/> are ignored if specified.
+        /// </param>
+        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
+        public static async Task<ITwitchResponse<FollowPage>>
+        GetUserFollowersPageAsync(string client_id, string to_id, FollowsQueryParameters query_parameters = null)
         {
-            Follows relationship = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Client_ID, client_id, to_id, from_id);
+            ITwitchResponse<FollowPage> followers = await TwitchApiInternal.GetUserRelationshipPageAsync(Authentication.Client_ID, string.Empty, client_id, string.Empty, to_id, query_parameters);
 
-            return relationship.data.IsValid();
+            return followers;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a user's followers list.
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="to_id">The user to get the followers for.</param>
+        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
+        public static async Task<ITwitchResponse<IList<Follow>>>
+        GetUserFollowersAsync(string client_id, string to_id)
+        {
+            ITwitchResponse<IList<Follow>> followers = await TwitchApiInternal.GetUserRelationshipAsync(Authentication.Client_ID, string.Empty, client_id, string.Empty, to_id);
+
+            return followers;
         }
 
         #endregion
@@ -135,12 +162,13 @@ namespace TwitchNet.Api
         /// <summary>
         /// Asynchronously gets a single page of streams.
         /// </summary>
-        /// <param name="client_id">The Client Id to authorize the request.</param>
-        /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
-        /// <returns></returns>
-        public static async Task<Streams> GetStreamsPageAsync(string client_id, StreamsQueryParameters parameters = null)
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
+        public static async Task<ITwitchResponse<StreamPage>>
+        GetStreamsPageAsync(string client_id, StreamsQueryParameters query_parameters = null)
         {
-            Streams streams = await TwitchApiInternal.GetStreamsPageAsync(Authentication.Client_ID, client_id, parameters);
+            ITwitchResponse<StreamPage> streams = await TwitchApiInternal.GetStreamsPageAsync(Authentication.Client_ID, string.Empty, client_id, query_parameters);
 
             return streams;
         }
@@ -148,14 +176,43 @@ namespace TwitchNet.Api
         /// <summary>
         /// Asynchronously gets a complete list of streams.
         /// </summary>
-        /// <param name="client_id">The Client Id to authorize the request.</param>
-        /// <param name="parameters">Optional. A set of parameters to customize the requests.</param>
-        /// <returns></returns>
-        public static async Task<List<Stream>> GetStreamsAsync(string client_id, StreamsQueryParameters parameters = null)
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
+        public static async Task<ITwitchResponse<IList<Stream>>>
+        GetStreamsAsync(string client_id, StreamsQueryParameters query_parameters = null)
         {
-            List<Stream> streams = await TwitchApiInternal.GetStreamsAsync(Authentication.Client_ID, client_id, parameters);
+            ITwitchResponse<IList<Stream>> streams = await TwitchApiInternal.GetStreamsAsync(Authentication.Client_ID, string.Empty, client_id, query_parameters);
 
             return streams;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a single page of metadata about streams playing either Overwatch or Hearthstone.
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
+        public static async Task<ITwitchResponse<MetadataPage>>
+        GetStreamsMetadataPageAsync(string client_id, StreamsQueryParameters query_parameters = null)
+        {
+            ITwitchResponse<MetadataPage> metadata = await TwitchApiInternal.GetStreamsMetadataPageAsync(Authentication.Client_ID, string.Empty, client_id, query_parameters);
+
+            return metadata;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
+        public static async Task<ITwitchResponse<IList<Metadata>>>
+        GetStreamsMetadataAsync(string client_id, StreamsQueryParameters query_parameters = null)
+        {
+            ITwitchResponse<IList<Metadata>> metadata = await TwitchApiInternal.GetStreamsMetadataAsync(Authentication.Client_ID, string.Empty, client_id, query_parameters);
+
+            return metadata;
         }
 
         #endregion

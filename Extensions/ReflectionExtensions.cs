@@ -5,7 +5,8 @@ using System.Reflection;
 
 namespace TwitchNet.Extensions
 {
-    internal static class ReflectionExtensions
+    internal static class
+    ReflectionExtensions
     {
         /// <summary>
         /// Checks to see if a <see cref="Type"/> has a custom attribute.
@@ -13,10 +14,11 @@ namespace TwitchNet.Extensions
         /// <typeparam name="attribute_type">The <see cref="Attribute"/> type.</typeparam>
         /// <param name="type">The <see cref="Type"/> of the object</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the object <see cref="Type"/> has the attribute.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true if the object <see cref="Type"/> has the attribute.
+        /// Returns false otherwise.
         /// </returns>
-        public static bool HasAttribute<attribute_type>(this Type type)
+        public static bool
+        HasAttribute<attribute_type>(this Type type)
         where attribute_type : Attribute
         {
             bool result = !type.GetCustomAttribute<attribute_type>().IsNull();
@@ -33,7 +35,8 @@ namespace TwitchNet.Extensions
         /// Returns an array of all public properties of a <see cref="Type"/> with a specified <see cref="Attribute"/>.
         /// Returns an empty property array otherwise.
         /// </returns>
-        public static PropertyInfo[] GetProperties<attribute_type>(this Type type)
+        public static PropertyInfo[]
+        GetProperties<attribute_type>(this Type type)
         where attribute_type : Attribute
         {
             List<PropertyInfo> result = new List<PropertyInfo>();
@@ -69,7 +72,8 @@ namespace TwitchNet.Extensions
         /// Returns the custom <see cref="Attribute"/> if the property has it.
         /// Returns the default <see cref="Attribute"/> otherwise.
         /// </returns>
-        public static attribute_type GetAttribute<attribute_type>(this PropertyInfo property)
+        public static attribute_type
+        GetAttribute<attribute_type>(this PropertyInfo property)
         where attribute_type : Attribute
         {
             attribute_type attribute = default(attribute_type);
@@ -93,7 +97,8 @@ namespace TwitchNet.Extensions
         /// Returns the custom <see cref="Attribute"/> if the property has it.
         /// Returns the default <see cref="Attribute"/> otherwise.
         /// </returns>
-        public static attribute_type GetAttribute<attribute_type>(this FieldInfo field)
+        public static attribute_type
+        GetAttribute<attribute_type>(this FieldInfo field)
         where attribute_type : Attribute
         {
             attribute_type attribute = default(attribute_type);
@@ -117,10 +122,11 @@ namespace TwitchNet.Extensions
         /// The object value of <see cref="Enum"/> if the <see cref="Attribute"/> is successfully found.
         /// If the <see cref="Attribute"/> is not found, the value is <see cref="null"/>.</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the <see cref="Enum"/> value has the custom <see cref="Attribute"/> property.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true if the <see cref="Enum"/> value has the custom <see cref="Attribute"/> property.
+        /// Returns false otherwise.
         /// </returns>
-        public static bool TryGetAttribute<attribute_type>(this Enum value, out attribute_type attribute)
+        public static bool
+        TryGetAttribute<attribute_type>(this Enum value, out attribute_type attribute)
         where attribute_type : Attribute
         {
             Type enum_type = value.GetType();

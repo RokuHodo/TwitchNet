@@ -10,7 +10,8 @@ namespace TwitchNet.Enums.Api.Streams
 {
     [Flags]
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum StreamLanguage
+    public enum
+    StreamLanguage
     {        
         /// <summary>
         /// Dansk (Danish)

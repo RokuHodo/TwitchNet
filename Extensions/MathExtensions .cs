@@ -3,7 +3,8 @@ using System;
 
 namespace TwitchNet.Extensions
 {
-    internal static class MathExtensions
+    internal static class
+    MathExtensions
     {
         /// <summary>
         /// Clamps a comparable value to a minimum value.
@@ -15,7 +16,8 @@ namespace TwitchNet.Extensions
         /// Returns the minimum value when the clamped value is less than the minimum.
         /// Returns the original value otherwise.
         /// </returns>
-        public static type ClampMin<type>(this type value, type minimum)
+        public static type
+        ClampMin<type>(this type value, type minimum)
         where type : IComparable<type>
         {
             if (value.CompareTo(minimum) < 0)
@@ -38,7 +40,8 @@ namespace TwitchNet.Extensions
         /// Returns the original value otherwise.
         /// </returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the default value is less than the minimum.</exception>
-        public static type ClampMin<type>(this type value, type minimum, type default_value)
+        public static type
+        ClampMin<type>(this type value, type minimum, type default_value)
         where type : IComparable<type>
         {
             if (default_value.IsLessThan(minimum))
@@ -64,7 +67,8 @@ namespace TwitchNet.Extensions
         /// Returns the maximum value when the clamped value is greater than the minimum.
         /// Returns the original value otherwise.
         /// </returns>
-        public static type ClampMax<type>(this type value, type maximum)
+        public static type
+        ClampMax<type>(this type value, type maximum)
         where type : IComparable<type>
         {
             if (value.CompareTo(maximum) > 0)
@@ -87,7 +91,8 @@ namespace TwitchNet.Extensions
         /// Returns the original value otherwise.
         /// </returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the default value is greater than the maximum.</exception>
-        public static type ClampMax<type>(this type value, type maximum, type default_value)
+        public static type
+        ClampMax<type>(this type value, type maximum, type default_value)
         where type : IComparable<type>
         {
             if (default_value.IsGreaterThan(maximum))
@@ -116,7 +121,8 @@ namespace TwitchNet.Extensions
         /// Returns the original value otherwise.
         /// </returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the maximum value is less than the minimum.</exception>
-        public static type Clamp<type>(this type value, type minimum, type maximum)
+        public static type
+        Clamp<type>(this type value, type minimum, type maximum)
         where type : IComparable<type>
         {
             if (maximum.IsLessThan(minimum))
@@ -144,7 +150,8 @@ namespace TwitchNet.Extensions
         /// Returns the original value otherwise.
         /// </returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the default value is less than the minimum or greater than the maximum.</exception>
-        public static type Clamp<type>(this type value, type minimum, type maximum, type default_value)
+        public static type
+        Clamp<type>(this type value, type minimum, type maximum, type default_value)
         where type : IComparable<type>
         {
             if (maximum.IsLessThan(minimum))
@@ -166,11 +173,12 @@ namespace TwitchNet.Extensions
         /// <param name="minimum">The smallest allowable value.</param>
         /// <param name="maximum">The largest allowable value.</param>
         /// <returns>
-        /// Returns <see cref="true"/> is the value is between or equal to the minimum and maximum.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true is the value is between or equal to the minimum and maximum.
+        /// Returns false otherwise.
         /// </returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the maximum value is less than the minimum.</exception>
-        public static bool IsInRange<type>(this type value, type minimum, type maximum)
+        public static bool
+        IsInRange<type>(this type value, type minimum, type maximum)
         where type : IComparable<type>
         {
             bool result = false;
@@ -205,10 +213,11 @@ namespace TwitchNet.Extensions
         /// <param name="value">The value to be checked.</param>
         /// <param name="compare_to">The value to compare against.</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the value is equal to the other value.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true if the value is equal to the other value.
+        /// Returns false otherwise.
         /// </returns>
-        public static bool IsEqualTo<type>(this type value, type compare_to)
+        public static bool
+        IsEqualTo<type>(this type value, type compare_to)
         where type : IComparable<type>
         {
             bool result = false;
@@ -225,10 +234,11 @@ namespace TwitchNet.Extensions
         /// <param name="value">The value to be checked.</param>
         /// <param name="compare_to">The value to compare against.</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the value is less than the other value.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true if the value is less than the other value.
+        /// Returns false otherwise.
         /// </returns>
-        public static bool IsLessThan<type>(this type value, type compare_to)
+        public static bool
+        IsLessThan<type>(this type value, type compare_to)
         where type : IComparable<type>
         {
             bool result = false;
@@ -245,10 +255,11 @@ namespace TwitchNet.Extensions
         /// <param name="value">The value to be checked.</param>
         /// <param name="compare_to">The value to compare against.</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the value is less than or equal to the other value.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true if the value is less than or equal to the other value.
+        /// Returns false otherwise.
         /// </returns>
-        public static bool IsLessOrEqualTo<type>(this type value, type compare_to)
+        public static bool
+        IsLessOrEqualTo<type>(this type value, type compare_to)
         where type : IComparable<type>
         {
             bool result = false;
@@ -265,10 +276,11 @@ namespace TwitchNet.Extensions
         /// <param name="value">The value to be checked.</param>
         /// <param name="compare_to">The value to compare against.</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the value is greater than the other value.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true if the value is greater than the other value.
+        /// Returns false otherwise.
         /// </returns>
-        public static bool IsGreaterThan<type>(this type value, type compare_to)
+        public static bool
+        IsGreaterThan<type>(this type value, type compare_to)
         where type : IComparable<type>
         {
             bool result = false;
@@ -285,10 +297,11 @@ namespace TwitchNet.Extensions
         /// <param name="value">The value to be checked.</param>
         /// <param name="compare_to">The value to compare against.</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the value is greater than or equal to the other value.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true if the value is greater than or equal to the other value.
+        /// Returns false otherwise.
         /// </returns>
-        public static bool IsGreaterOrEqualTo<type>(this type value, type compare_to)
+        public static bool
+        IsGreaterOrEqualTo<type>(this type value, type compare_to)
         where type : IComparable<type>
         {
             bool result = false;

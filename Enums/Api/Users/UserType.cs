@@ -8,7 +8,8 @@ using Newtonsoft.Json.Converters;
 namespace TwitchNet.Enums.Api.Users
 {
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum UserType
+    public enum
+    UserType
     {
         /// <summary>
         /// The user is a normal user.

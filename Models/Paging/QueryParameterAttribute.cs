@@ -1,10 +1,11 @@
 ﻿// standard namespaces
 using System;
 
-namespace TwitchNet.Helpers.Paging
+namespace TwitchNet.Models.Paging
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
-    internal sealed class QueryParameterAttribute : Attribute
+    internal sealed class
+    QueryParameterAttribute : Attribute
     {
         /// <summary>
         /// Whether or not to make the query parameter value lower case.

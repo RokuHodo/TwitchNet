@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-//project namespaces
+// project namespaces
 using TwitchNet.Enums.Debug;
 using TwitchNet.Extensions;
 
@@ -189,7 +189,7 @@ namespace TwitchNet.Debug
 
             foreach (string line in lines)
             {
-                if (!line.isValid())
+                if (!line.IsValid())
                 {
                     continue;
                 }

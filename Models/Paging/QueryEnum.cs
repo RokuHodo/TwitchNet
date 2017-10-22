@@ -1,9 +1,11 @@
 ﻿// standard namespaces
 using System;
 
-namespace TwitchNet.Helpers.Paging
+namespace TwitchNet.Models.Paging
 {
-    internal class QueryEnum<type> where type : struct, IConvertible
+    internal class
+    QueryEnum<type>
+    where type : struct, IConvertible
     {
         private type? _value;
         private type? _value_default;

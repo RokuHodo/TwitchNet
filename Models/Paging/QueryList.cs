@@ -4,9 +4,10 @@ using System.Collections.Generic;
 // project namespaces
 using TwitchNet.Extensions;
 
-namespace TwitchNet.Helpers.Paging
+namespace TwitchNet.Models.Paging
 {
-    internal class QueryList
+    internal class
+    QueryList
     {
         private ushort          _range_start            = 0;
         private ushort          _range_count            = 100;

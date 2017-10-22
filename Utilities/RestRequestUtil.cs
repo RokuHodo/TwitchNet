@@ -34,9 +34,7 @@ namespace TwitchNet.Utilities
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
         /// <param name="query_parameters">A set of parameters to customize the requests.</param>
-        /// <returns>
-        /// Returns an instance of the <see cref="TwitchResponse{type}"/> model.
-        /// </returns>
+        /// <returns>Returns an instance of the <see cref="TwitchResponse{type}"/> model.</returns>
         public static async Task<TwitchResponse<return_type>>
         ExecuteRequestAsync<return_type>(string endpoint, Method method, Authentication authentication, string oauth_token, string client_id, IList<QueryParameter> query_parameters)
         where return_type : class, new()
@@ -70,9 +68,7 @@ namespace TwitchNet.Utilities
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
         /// <param name="query_parameters">A set of parameters to customize the requests.</param>
-        /// <returns>
-        /// Returns an instance of the <see cref="TwitchResponse{type}"/> model.
-        /// </returns>
+        /// <returns>Returns an instance of the <see cref="TwitchResponse{type}"/> model.</returns>
         public static async Task<TwitchResponse<return_type>>
         ExecuteRequestPageAsync<return_type, data_type, query_parameters_type>(string endpoint, Method method, Authentication authentication, string oauth_token, string client_id, query_parameters_type query_parameters)
         where return_type           : class, ITwitchPage<data_type>, new()
@@ -107,9 +103,7 @@ namespace TwitchNet.Utilities
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
         /// <param name="query_parameters">A set of parameters to customize the requests.</param>
-        /// <returns>
-        /// Returns an instance of the <see cref="TwitchResponse{type}"/> model.
-        /// </returns>
+        /// <returns>Returns an instance of the <see cref="TwitchResponse{type}"/> model.</returns>
         public static async Task<TwitchResponse<IList<return_type>>>
         ExecuteRequestAllPagesAsync<return_type, page_type, query_parameters_type>(string endpoint, Method method, Authentication authentication, string oauth_token, string client_id, query_parameters_type query_parameters)
         where return_type           : class, new()
@@ -161,15 +155,14 @@ namespace TwitchNet.Utilities
         /// Restircted to a class.
         /// </typeparam>
         /// <param name="request">The rest request to execute.</param>
-        /// <returns>
-        /// Returns an instance of the <see cref="TwitchResponse{type}"/> model.
-        /// </returns>
+        /// <returns>Returns an instance of the <see cref="TwitchResponse{type}"/> model.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static async Task<TwitchResponse<return_type>>
         ExecuteRequestAsync<return_type>(IRestRequest request)
         where return_type : class, new()
         {
             RestClient client = Client();
+            // TODO: ExecuteRequestAsync - Still need to handle Status '429' one way or another, probably give the user an option in the settings
             IRestResponse<return_type> response = await client.ExecuteTaskAsync<return_type>(request);
 
             // TODO: ExecuteRequestAsync - Implemenet customizable settings for each request that the user can tweak
@@ -191,7 +184,7 @@ namespace TwitchNet.Utilities
         /// <param name="authentication">How to authorize the request.</param>
         /// <param name="token_primiary">The OAuth token or Client Id to authorize the request when only either is provided. If both are being provided, this is assumed to be the OAuth token.</param>
         /// <param name="token_supplementary">The Client Id if both the OAuth token and Client Id are being provided.</param>
-        /// <returns></returns>
+        /// <returns>Returns in instance of the <see cref="RestRequest"/> with the added oauth_token, client id, or both.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static RestRequest
         Request(string endpoint, Method method, Authentication authentication, string token_primiary, string token_supplementary = "")
@@ -225,7 +218,7 @@ namespace TwitchNet.Utilities
         /// <summary>
         /// Creates a new instance of a <see cref="RestClient"/> to execute the rest request to the Twitch API.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns an instance of the <see cref="RestClient"/> configured to make requests to the Twitch API.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static RestClient
         Client()

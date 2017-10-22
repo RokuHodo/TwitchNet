@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿// standrad namespaces
+using System.Net;
 
 // project namepspaces
 using TwitchNet.Models.Api;

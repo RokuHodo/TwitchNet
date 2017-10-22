@@ -14,8 +14,8 @@ namespace TwitchNet.Extensions
         /// </summary>  
         /// <param name="obj">The object to be checked.</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the <see cref="object"/> is null.
-        /// Returns <see cref="false"/> if otherwise.
+        /// Returns true if the <see cref="object"/> is null.
+        /// Returns false otherwise.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool
@@ -32,8 +32,8 @@ namespace TwitchNet.Extensions
         /// <typeparam name="type">The implied type of the object.</typeparam>
         /// <param name="value">The value of the <see cref="object"/>.</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the value of the <see cref="object"/> is equal to the type's default value.
-        /// Returns <see cref="false"/> if otherwise.
+        /// Returns true if the value of the <see cref="object"/> is equal to the type's default value.
+        /// Returns false otherwise.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool
@@ -49,7 +49,10 @@ namespace TwitchNet.Extensions
         /// </summary>
         /// <typeparam name="type"></typeparam>
         /// <param name="list"></param>
-        /// <returns></returns>
+        /// <returns>
+        /// Returns true if the <see cref="IList{T}"/> is not null and has at least one element.
+        /// Returns false otherwise.
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool
         IsValid<type>(this IList<type> list)
@@ -64,8 +67,8 @@ namespace TwitchNet.Extensions
         /// </summary>
         /// <param name="str">The <see cref="string"/> to be validated.</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the string is not not, not whitespace, and not empty.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true if the string is not not, not whitespace, and not empty.
+        /// Returns false otherwise.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool
@@ -82,8 +85,8 @@ namespace TwitchNet.Extensions
         /// <param name="obj">The <see cref="object"/> to be checked.</param>
         /// <param name="type">The type </param>
         /// <returns>
-        /// Returns <see cref="true"/> if the <see cref="object"/> can be converted to the specified type.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true if the <see cref="object"/> can be converted to the specified type.
+        /// Returns false otherwise.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool

@@ -13,8 +13,8 @@ namespace TwitchNet.Extensions
         /// </summary>
         /// <param name="type">The object type to check.</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the type is <see cref="Nullable{T}"/>.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true if the type is <see cref="Nullable{T}"/>.
+        /// Returns false otherwise.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool
@@ -30,8 +30,8 @@ namespace TwitchNet.Extensions
         /// </summary>
         /// <param name="type">The object type to check.</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the type is a <see cref="List{T}"/>.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true if the type is a <see cref="List{T}"/>.
+        /// Returns false otherwise.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool

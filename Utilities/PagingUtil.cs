@@ -22,7 +22,7 @@ namespace TwitchNet.Utilities
         /// </summary>
         /// <param name="request">The rest request to add the query parameters to.</param>
         /// <param name="query_parameters">The optional query string parameters to be added to the request.</param>
-        /// <returns></returns>
+        /// <returns>Returns a <see cref="RestRequest"/> instance with the added <paramref name="query_parameters"/>.</returns>
         public static RestRequest
         AddPaging(RestRequest request, IList<QueryParameter> query_parameters)
         {
@@ -44,15 +44,13 @@ namespace TwitchNet.Utilities
             return request;
         }
 
-        // TODO: AddPaging - Find a better way to implement endpoint paging by using QueryParameter or something similar?
-
         /// <summary>
         /// Adds a set optional of query string parameters to a customize the <see cref="RestRequest"/>.
         /// </summary>
         /// <typeparam name="parameters_type">The object type of the parameters class</typeparam>
         /// <param name="request">The rest request to add the query parameters to.</param>
         /// <param name="query_parameters">The optional query string parameters to be added to the request.</param>
-        /// <returns></returns>
+        /// <returns>Returns a <see cref="RestRequest"/> instance with the added <paramref name="query_parameters"/>.</returns>
         public static RestRequest
         AddPaging<parameters_type>(RestRequest request, parameters_type query_parameters)
         where parameters_type : ITwitchQueryParameters, new()
@@ -125,7 +123,7 @@ namespace TwitchNet.Utilities
         /// <param name="request">The rest request to add the query parameters to.</param>
         /// <param name="attribute">The attribute that contains the query name and conversion settings.</param>
         /// <param name="value">The object value to be added as a query parameter.</param>
-        /// <returns></returns>
+        /// <returns>Returns a <see cref="RestRequest"/> instance with the added query parameter.</returns>
         private static RestRequest
         AddQueryParameter(RestRequest request, QueryParameterAttribute attribute, object value)
         {

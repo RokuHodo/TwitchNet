@@ -173,8 +173,8 @@ namespace TwitchNet.Extensions
         /// <param name="minimum">The smallest allowable value.</param>
         /// <param name="maximum">The largest allowable value.</param>
         /// <returns>
-        /// Returns <see cref="true"/> is the value is between or equal to the minimum and maximum.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true is the value is between or equal to the minimum and maximum.
+        /// Returns false otherwise.
         /// </returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the maximum value is less than the minimum.</exception>
         public static bool
@@ -213,8 +213,8 @@ namespace TwitchNet.Extensions
         /// <param name="value">The value to be checked.</param>
         /// <param name="compare_to">The value to compare against.</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the value is equal to the other value.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true if the value is equal to the other value.
+        /// Returns false otherwise.
         /// </returns>
         public static bool
         IsEqualTo<type>(this type value, type compare_to)
@@ -234,8 +234,8 @@ namespace TwitchNet.Extensions
         /// <param name="value">The value to be checked.</param>
         /// <param name="compare_to">The value to compare against.</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the value is less than the other value.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true if the value is less than the other value.
+        /// Returns false otherwise.
         /// </returns>
         public static bool
         IsLessThan<type>(this type value, type compare_to)
@@ -255,8 +255,8 @@ namespace TwitchNet.Extensions
         /// <param name="value">The value to be checked.</param>
         /// <param name="compare_to">The value to compare against.</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the value is less than or equal to the other value.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true if the value is less than or equal to the other value.
+        /// Returns false otherwise.
         /// </returns>
         public static bool
         IsLessOrEqualTo<type>(this type value, type compare_to)
@@ -276,8 +276,8 @@ namespace TwitchNet.Extensions
         /// <param name="value">The value to be checked.</param>
         /// <param name="compare_to">The value to compare against.</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the value is greater than the other value.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true if the value is greater than the other value.
+        /// Returns false otherwise.
         /// </returns>
         public static bool
         IsGreaterThan<type>(this type value, type compare_to)
@@ -297,8 +297,8 @@ namespace TwitchNet.Extensions
         /// <param name="value">The value to be checked.</param>
         /// <param name="compare_to">The value to compare against.</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the value is greater than or equal to the other value.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true if the value is greater than or equal to the other value.
+        /// Returns false otherwise.
         /// </returns>
         public static bool
         IsGreaterOrEqualTo<type>(this type value, type compare_to)

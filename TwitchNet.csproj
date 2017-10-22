@@ -60,7 +60,6 @@
     <Compile Include="Enums\Api\Users\UserType.cs" />
     <Compile Include="Enums\Debug\LogLevel.cs" />
     <Compile Include="Enums\Debug\TimeStamp.cs" />
-    <Compile Include="Enums\Extensions\Padding.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\MathExtensions .cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />

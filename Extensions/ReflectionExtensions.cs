@@ -14,8 +14,8 @@ namespace TwitchNet.Extensions
         /// <typeparam name="attribute_type">The <see cref="Attribute"/> type.</typeparam>
         /// <param name="type">The <see cref="Type"/> of the object</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the object <see cref="Type"/> has the attribute.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true if the object <see cref="Type"/> has the attribute.
+        /// Returns false otherwise.
         /// </returns>
         public static bool
         HasAttribute<attribute_type>(this Type type)
@@ -122,8 +122,8 @@ namespace TwitchNet.Extensions
         /// The object value of <see cref="Enum"/> if the <see cref="Attribute"/> is successfully found.
         /// If the <see cref="Attribute"/> is not found, the value is <see cref="null"/>.</param>
         /// <returns>
-        /// Returns <see cref="true"/> if the <see cref="Enum"/> value has the custom <see cref="Attribute"/> property.
-        /// Returns <see cref="false"/> otherwise.
+        /// Returns true if the <see cref="Enum"/> value has the custom <see cref="Attribute"/> property.
+        /// Returns false otherwise.
         /// </returns>
         public static bool
         TryGetAttribute<attribute_type>(this Enum value, out attribute_type attribute)

@@ -21,6 +21,10 @@ namespace TwitchNet.Api
 
         /// <summary>
         /// <para>Asynchronously gets the information of the user looked up by the provided OAuth token.</para>
+        /// <para>
+        /// Optional Scope: 'user:read:email'.
+        /// If provided, the user's email is included in the response.
+        /// </para>
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
@@ -34,6 +38,10 @@ namespace TwitchNet.Api
 
         /// <summary>
         /// <para>Asynchronously gets the information of the user looked up by the provided OAuth token.</para>
+        /// <para>
+        /// Optional Scope: 'user:read:email'.
+        /// If provided, the user's email is included in the response.
+        /// </para>
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
@@ -47,8 +55,12 @@ namespace TwitchNet.Api
         }
 
         /// <summary>
-        /// <para>Asynchronously gets the information of one or more users by their id or login.</para>
-        /// <para>Optional Scope: 'user:read:email'.
+        /// <para>
+        /// Asynchronously gets the information of one or more users by their id or login.
+        /// If no <paramref name="ids"/> are specified, the user is looked up by if the OAuth token provided.
+        /// </para>
+        /// <para>
+        /// Optional Scope: 'user:read:email'.
         /// If provided, the user's email is included in the response.
         /// </para>
         /// </summary>
@@ -64,7 +76,10 @@ namespace TwitchNet.Api
         }
 
         /// <summary>
-        /// <para>Asynchronously gets the information of one or more users by their id or login.</para>
+        /// <para>
+        /// Asynchronously gets the information of one or more users by their id or login.
+        /// If no <paramref name="ids"/> are specified, the user is looked up by if the OAuth token provided.
+        /// </para>
         /// <para>
         /// Optional Scope: 'user:read:email'.
         /// If provided, the user's email is included in the response.
@@ -363,7 +378,8 @@ namespace TwitchNet.Api
         }
 
         /// <summary>
-        /// Asynchronously sets the description of a user specified by the OAuth token provided.
+        /// <para>synchronously sets the description of a user specified by the OAuth token provided.</para>
+        /// <para>Required Scope: 'user:edit'</para>
         /// </summary>
         /// <param name="oauth_token">The OAuth token used to determine whose description to update and authorize the request.</param>
         /// <param name="description">The new description to set.</param>
@@ -377,7 +393,8 @@ namespace TwitchNet.Api
         }
 
         /// <summary>
-        /// Asynchronously sets the description of a user specified by the OAuth token provided.
+        /// <para>synchronously sets the description of a user specified by the OAuth token provided.</para>
+        /// <para>Required Scope: 'user:edit'</para>
         /// </summary>
         /// <param name="oauth_token">The OAuth token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>

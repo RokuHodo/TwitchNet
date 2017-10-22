@@ -16,6 +16,6 @@
         /// <summary>
         /// Specifies that a OAuth token and Client Id are being used for authentication.
         /// </summary>
-        Both = 2
+        Both            = 2
     }
 }

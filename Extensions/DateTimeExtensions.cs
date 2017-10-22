@@ -7,10 +7,10 @@ namespace TwitchNet.Extensions
     DateTimeExtensions
     {
         /// <summary>
-        /// Converts a unix epoch time stamp to a <see cref="DateTime"/> value.
+        /// Converts a unix epoch time stamp to a local <see cref="DateTime"/> value.
         /// </summary>
         /// <param name="time">The unix time stamp to convert.</param>
-        /// <returns></returns>
+        /// <returns>Returns a <seealso cref="DateTime"/> equivalent of a unix timestamp converted to local time..</returns>
         public static DateTime
         ToDateTimeFromUnixEpoch(this double time)
         {

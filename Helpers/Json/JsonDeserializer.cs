@@ -30,7 +30,7 @@ namespace TwitchNet.Helpers.Json
             settings.DateTimeZoneHandling   = DateTimeZoneHandling.Local;
             settings.FloatParseHandling     = FloatParseHandling.Double;
             // NOTE: Deserialize - For debugging purposes only, change MissingMemberHandling to 'ignrore' on release build
-            settings.MissingMemberHandling  = MissingMemberHandling.Error;
+            // settings.MissingMemberHandling  = MissingMemberHandling.Error;
 
             return_type result = JsonConvert.DeserializeObject<return_type>(response.Content, settings);
 

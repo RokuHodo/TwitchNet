@@ -5,6 +5,8 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 // project namespaces
+using TwitchNet.Debug;
+using TwitchNet.Enums.Debug;
 using TwitchNet.Enums.Utilities;
 using TwitchNet.Extensions;
 using TwitchNet.Helpers.Json;
@@ -162,12 +164,40 @@ namespace TwitchNet.Utilities
         where return_type : class, new()
         {
             RestClient client = Client();
-            // TODO: ExecuteRequestAsync - Still need to handle Status '429' one way or another, probably give the user an option in the settings
-            IRestResponse<return_type> response = await client.ExecuteTaskAsync<return_type>(request);
+            
+            IRestResponse<return_type> response = await client.ExecuteTaskAsync<return_type>(request);            
 
             // TODO: ExecuteRequestAsync - Implemenet customizable settings for each request that the user can tweak
             // TODO: ExecuteRequestAsync - Handle any settings here since this is where all execute paths lead to
             TwitchResponse<return_type> twitch_response = new TwitchResponse<return_type>(response);
+
+            // TODO: ExecuteRequestAsync - Handle these in some sort of settings class or something
+            switch ((ushort)twitch_response.status_code)
+            {
+                case 429:
+                {
+                    TimeSpan time = twitch_response.rate_limit.reset - DateTime.Now;
+                    if(time.TotalMilliseconds < 0)
+                    {
+                        Log.Warning(TimeStamp.TimeLong, "Status '429' receieved from Twitch. Time to reset, " + time.TotalMilliseconds + "ms, was negative.");
+                    }
+                    else
+                    {
+                        Log.Warning(TimeStamp.TimeLong, "Status '429' receieved from Twitch. Waiting " + time.TotalMilliseconds + "ms to execute request again.");
+                        await Task.Delay(time);                            
+                    }
+
+                    Log.Warning(TimeStamp.TimeLong, "Resuming request.");
+                    twitch_response = await ExecuteRequestAsync<return_type>(request);
+                }
+                break;
+
+                default:
+                {
+
+                }
+                break;
+            }
 
             return twitch_response;
         }

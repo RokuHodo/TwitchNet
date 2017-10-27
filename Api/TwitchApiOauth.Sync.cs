@@ -14,6 +14,126 @@ namespace TwitchNet.Api
     public static partial class
     TwitchApiOauth
     {
+        #region Streams
+
+        /// <summary>
+        /// Gets a single page of streams.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponsePage<Stream>
+        GetStreamsPage(string oauth_token, StreamsQueryParameters query_parameters = null)
+        {
+            IApiResponsePage<Stream> streams = GetStreamsPageAsync(oauth_token, query_parameters).Result;
+
+            return streams;
+        }
+
+        /// <summary>
+        /// Gets a single page of streams.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponsePage<Stream>
+        GetStreamsPage(string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
+        {
+            IApiResponsePage<Stream> streams = GetStreamsPageAsync(oauth_token, client_id, query_parameters).Result;
+
+            return streams;
+        }
+
+        /// <summary>
+        /// Gets a complete list of streams.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<Stream>
+        GetStreams(string oauth_token, StreamsQueryParameters query_parameters = null)
+        {
+            IApiResponse<Stream> streams = GetStreamsAsync(oauth_token, query_parameters).Result;
+
+            return streams;
+        }
+
+        /// <summary>
+        /// Gets a complete list of streams.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<Stream>
+        GetStreams(string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
+        {
+            IApiResponse<Stream> streams = GetStreamsAsync(oauth_token, client_id, query_parameters).Result;
+
+            return streams;
+        }
+
+        /// <summary>
+        /// Gets a single page of metadata about streams playing either Overwatch or Hearthstone.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponsePage<Metadata>
+        GetStreamsMetadataPage(string oauth_token, StreamsQueryParameters query_parameters = null)
+        {
+            IApiResponsePage<Metadata> metadata = GetStreamsMetadataPageAsync(oauth_token, query_parameters).Result;
+
+            return metadata;
+        }
+
+        /// <summary>
+        /// Gets a single page of metadata about streams playing either Overwatch or Hearthstone.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponsePage<Metadata>
+        GetStreamsMetadataPage(string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
+        {
+            IApiResponsePage<Metadata> metadata = GetStreamsMetadataPageAsync(oauth_token, client_id, query_parameters).Result;
+
+            return metadata;
+        }
+
+        /// <summary>
+        /// Gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<Metadata>
+        GetStreamsMetadata(string oauth_token, StreamsQueryParameters query_parameters = null)
+        {
+            IApiResponse<Metadata> metadata = GetStreamsMetadataAsync(oauth_token, query_parameters).Result;
+
+            return metadata;
+        }
+
+        /// <summary>
+        /// Gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<Metadata>
+        GetStreamsMetadat(string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
+        {
+            IApiResponse<Metadata> metadata = GetStreamsMetadataAsync(oauth_token, client_id, query_parameters).Result;
+
+            return metadata;
+        }
+
+        #endregion
+
         #region Users
 
         /// <summary>
@@ -24,11 +144,11 @@ namespace TwitchNet.Api
         /// </para>
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<UserPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<User>
         GetUser(string oauth_token)
         {
-            ITwitchResponse<UserPage> users = GetUserAsync(oauth_token).Result;
+            IApiResponse<User> users = GetUserAsync(oauth_token).Result;
 
             return users;
         }
@@ -42,11 +162,11 @@ namespace TwitchNet.Api
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<UserPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<User>
         GetUser(string oauth_token, string client_id)
         {
-            ITwitchResponse<UserPage> users = GetUserAsync(oauth_token, client_id).Result;
+            IApiResponse<User> users = GetUserAsync(oauth_token, client_id).Result;
 
             return users;
         }
@@ -63,11 +183,11 @@ namespace TwitchNet.Api
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="query_parameters">The users to look up either by id or by login.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<UserPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<User>
         GetUsers(string oauth_token, IList<QueryParameter> query_parameters)
         {
-            ITwitchResponse<UserPage> users = GetUsersAsync(oauth_token, query_parameters).Result;
+            IApiResponse<User> users = GetUsersAsync(oauth_token, query_parameters).Result;
 
             return users;
         }
@@ -85,11 +205,11 @@ namespace TwitchNet.Api
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="query_parameters">The users to look up either by id or by login.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<UserPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<User>
         GetUsers(string oauth_token, string client_id, IList<QueryParameter> query_parameters)
         {
-            ITwitchResponse<UserPage> users = GetUsersAsync(oauth_token, client_id, query_parameters).Result;
+            IApiResponse<User> users = GetUsersAsync(oauth_token, client_id, query_parameters).Result;
 
             return users;
         }
@@ -106,11 +226,11 @@ namespace TwitchNet.Api
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="ids">The id(s) of the user(s).</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<UserPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<User>
         GetUsersById(string oauth_token, IList<string> ids)
         {
-            ITwitchResponse<UserPage> users = GetUsersByIdAsync(oauth_token, ids).Result;
+            IApiResponse<User> users = GetUsersByIdAsync(oauth_token, ids).Result;
 
             return users;
         }
@@ -128,11 +248,11 @@ namespace TwitchNet.Api
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="ids">The id(s) of the user(s).</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<UserPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<User>
         GetUsersById(string oauth_token, string client_id, IList<string> ids)
         {
-            ITwitchResponse<UserPage> users = GetUsersByIdAsync(oauth_token, client_id, ids).Result;
+            IApiResponse<User> users = GetUsersByIdAsync(oauth_token, client_id, ids).Result;
 
             return users;
         }
@@ -149,11 +269,11 @@ namespace TwitchNet.Api
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="logins">The name(s) of the user(s).</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<UserPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<User>
         GetUsersByLogin(string oauth_token, IList<string> logins)
         {
-            ITwitchResponse<UserPage> users = GetUsersByLoginAsync(oauth_token, logins).Result;
+            IApiResponse<User> users = GetUsersByLoginAsync(oauth_token, logins).Result;
 
             return users;
         }
@@ -171,11 +291,11 @@ namespace TwitchNet.Api
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="logins">The name(s) of the user(s).</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<UserPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<User>
         GetUsersByLogin(string oauth_token, string client_id, IList<string> logins)
         {
-            ITwitchResponse<UserPage> users = GetUsersByLoginAsync(oauth_token, client_id, logins).Result;
+            IApiResponse<User> users = GetUsersByLoginAsync(oauth_token, client_id, logins).Result;
 
             return users;
         }
@@ -186,11 +306,11 @@ namespace TwitchNet.Api
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="from_id">The user to compare from.</param>
         /// <param name="to_id">The user to compare to.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<FollowPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponsePage<Follow>
         GetUserRelationship(string oauth_token, string from_id, string to_id)
         {
-            ITwitchResponse<FollowPage> relationship = GetUserRelationshipAsync(oauth_token, from_id, to_id).Result;
+            IApiResponsePage<Follow> relationship = GetUserRelationshipAsync(oauth_token, from_id, to_id).Result;
 
             return relationship;
         }
@@ -202,11 +322,11 @@ namespace TwitchNet.Api
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="from_id">The user to compare from.</param>
         /// <param name="to_id">The user to compare to.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<FollowPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponsePage<Follow>
         GetUserRelationship(string oauth_token, string client_id, string from_id, string to_id)
         {
-            ITwitchResponse<FollowPage> relationship = GetUserRelationshipAsync(oauth_token, client_id, from_id, to_id).Result;
+            IApiResponsePage<Follow> relationship = GetUserRelationshipAsync(oauth_token, client_id, from_id, to_id).Result;
 
             return relationship;
         }
@@ -217,11 +337,11 @@ namespace TwitchNet.Api
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="from_id">The user to compare from.</param>
         /// <param name="to_id">The user to compare to.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<bool>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponseValue<bool>
         IsUserFollowing(string oauth_token, string from_id, string to_id)
         {
-            ITwitchResponse<bool> is_following = IsUserFollowingAsync(oauth_token, from_id, to_id).Result;
+            IApiResponseValue<bool> is_following = IsUserFollowingAsync(oauth_token, from_id, to_id).Result;
 
             return is_following;
         }
@@ -233,11 +353,11 @@ namespace TwitchNet.Api
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="from_id">The user to compare from.</param>
         /// <param name="to_id">The user to compare to.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<bool>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponseValue<bool>
         IsUserFollowing(string oauth_token, string client_id, string from_id, string to_id)
         {
-            ITwitchResponse<bool> is_following = IsUserFollowingAsync(oauth_token, client_id, from_id, to_id).Result;
+            IApiResponseValue<bool> is_following = IsUserFollowingAsync(oauth_token, client_id, from_id, to_id).Result;
 
             return is_following;
         }
@@ -251,11 +371,11 @@ namespace TwitchNet.Api
         /// A set of query parameters to customize the request.
         /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="query_parameters"/> are ignored if specified.
         /// </param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<FollowPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponsePage<Follow>
         GetUserFollowingPage(string oauth_token, string from_id, FollowsQueryParameters query_parameters = null)
         {
-            ITwitchResponse<FollowPage> following = GetUserFollowingPageAsync(oauth_token, from_id, query_parameters).Result;
+            IApiResponsePage<Follow> following = GetUserFollowingPageAsync(oauth_token, from_id, query_parameters).Result;
 
             return following;
         }
@@ -270,11 +390,11 @@ namespace TwitchNet.Api
         /// A set of query parameters to customize the request.
         /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="query_parameters"/> are ignored if specified.
         /// </param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<FollowPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponsePage<Follow>
         GetUserFollowingPage(string oauth_token, string client_id, string from_id, FollowsQueryParameters query_parameters = null)
         {
-            ITwitchResponse<FollowPage> following = GetUserFollowingPageAsync(oauth_token, client_id, from_id, query_parameters).Result;
+            IApiResponsePage<Follow> following = GetUserFollowingPageAsync(oauth_token, client_id, from_id, query_parameters).Result;
 
             return following;
         }
@@ -284,11 +404,11 @@ namespace TwitchNet.Api
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="from_id">The user to get the following list from.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<IList<Follow>>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<Follow>
         GetUserFollowing(string oauth_token, string from_id)
         {
-            ITwitchResponse<IList<Follow>> following = GetUserFollowingAsync(oauth_token, from_id).Result;
+            IApiResponse<Follow> following = GetUserFollowingAsync(oauth_token, from_id).Result;
 
             return following;
         }
@@ -299,11 +419,11 @@ namespace TwitchNet.Api
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="from_id">The user to get the following list from.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<IList<Follow>>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<Follow>
         GetUserFollowing(string oauth_token, string client_id, string from_id)
         {
-            ITwitchResponse<IList<Follow>> following = GetUserFollowingAsync(oauth_token, client_id, from_id).Result;
+            IApiResponse<Follow> following = GetUserFollowingAsync(oauth_token, client_id, from_id).Result;
 
             return following;
         }
@@ -317,11 +437,11 @@ namespace TwitchNet.Api
         /// A set of query parameters to customize the request.
         /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="query_parameters"/> are ignored if specified.
         /// </param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<FollowPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponsePage<Follow>
         GetUserFollowersPage(string oauth_token, string to_id, FollowsQueryParameters query_parameters = null)
         {
-            ITwitchResponse<FollowPage> followers = GetUserFollowersPageAsync(oauth_token, to_id, query_parameters).Result;
+            IApiResponsePage<Follow> followers = GetUserFollowersPageAsync(oauth_token, to_id, query_parameters).Result;
 
             return followers;
         }
@@ -336,11 +456,11 @@ namespace TwitchNet.Api
         /// A set of query parameters to customize the request.
         /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="query_parameters"/> are ignored if specified.
         /// </param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<FollowPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponsePage<Follow>
         GetUserFollowersPage(string oauth_token, string client_id, string to_id, FollowsQueryParameters query_parameters = null)
         {
-            ITwitchResponse<FollowPage> followers = GetUserFollowersPageAsync(oauth_token, client_id, to_id, query_parameters).Result;
+            IApiResponsePage<Follow> followers = GetUserFollowersPageAsync(oauth_token, client_id, to_id, query_parameters).Result;
 
             return followers;
         }
@@ -350,11 +470,11 @@ namespace TwitchNet.Api
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="to_id">The user to get the followers for.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<IList<Follow>>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<Follow>
         GetUserFollowers(string oauth_token, string to_id)
         {
-            ITwitchResponse<IList<Follow>> followers = GetUserFollowersAsync(oauth_token, to_id).Result;
+            IApiResponse<Follow> followers = GetUserFollowersAsync(oauth_token, to_id).Result;
 
             return followers;
         }
@@ -365,11 +485,11 @@ namespace TwitchNet.Api
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="to_id">The user to get the followers for.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<IList<Follow>>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<Follow>
         GetUserFollowers(string oauth_token, string client_id, string to_id)
         {
-            ITwitchResponse<IList<Follow>> followers = GetUserFollowersAsync(oauth_token, client_id, to_id).Result;
+            IApiResponse<Follow> followers = GetUserFollowersAsync(oauth_token, client_id, to_id).Result;
 
             return followers;
         }
@@ -380,11 +500,11 @@ namespace TwitchNet.Api
         /// </summary>
         /// <param name="oauth_token">The OAuth token used to determine whose description to update and authorize the request.</param>
         /// <param name="description">The new description to set.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<bool>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponseValue<bool>
         SetUserDescription(string oauth_token, string description)
         {
-            ITwitchResponse<bool> success = SetUserDescriptionAsync(oauth_token, description).Result;
+            IApiResponseValue<bool> success = SetUserDescriptionAsync(oauth_token, description).Result;
 
             return success;
         }
@@ -396,135 +516,16 @@ namespace TwitchNet.Api
         /// <param name="oauth_token">The OAuth token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="description">The new description to set.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<bool>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponseValue<bool>
         SetUserDescription(string oauth_token, string client_id, string description)
         {
-            ITwitchResponse<bool> success = SetUserDescriptionAsync(oauth_token, client_id, description).Result;
+            IApiResponseValue<bool> success = SetUserDescriptionAsync(oauth_token, client_id, description).Result;
 
             return success;
         }
 
         #endregion
 
-        #region Streams
-
-        /// <summary>
-        /// Gets a single page of streams.
-        /// </summary>
-        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<StreamPage>
-        GetStreamsPage(string oauth_token, StreamsQueryParameters query_parameters = null)
-        {
-            ITwitchResponse<StreamPage> streams = GetStreamsPageAsync(oauth_token, query_parameters).Result;
-
-            return streams;
-        }
-
-        /// <summary>
-        /// Gets a single page of streams.
-        /// </summary>
-        /// <param name="oauth_token">The OAuth token used to determine whose description to update and authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<StreamPage>
-        GetStreamsPage(string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
-        {
-            ITwitchResponse<StreamPage> streams = GetStreamsPageAsync(oauth_token, client_id, query_parameters).Result;
-
-            return streams;
-        }
-
-        /// <summary>
-        /// Gets a complete list of streams.
-        /// </summary>
-        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<IList<Stream>>
-        GetStreams(string oauth_token, StreamsQueryParameters query_parameters = null)
-        {
-            ITwitchResponse<IList<Stream>> streams = GetStreamsAsync(oauth_token, query_parameters).Result;
-
-            return streams;
-        }
-
-        /// <summary>
-        /// Gets a complete list of streams.
-        /// </summary>
-        /// <param name="oauth_token">The OAuth token used to determine whose description to update and authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<IList<Stream>>
-        GetStreams(string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
-        {
-            ITwitchResponse<IList<Stream>> streams = GetStreamsAsync(oauth_token, client_id, query_parameters).Result;
-
-            return streams;
-        }
-
-        /// <summary>
-        /// Gets a single page of metadata about streams playing either Overwatch or Hearthstone.
-        /// </summary>
-        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<MetadataPage>
-        GetStreamsMetadataPage(string oauth_token, StreamsQueryParameters query_parameters = null)
-        {
-            ITwitchResponse<MetadataPage> metadata = GetStreamsMetadataPageAsync(oauth_token, query_parameters).Result;
-
-            return metadata;
-        }
-
-        /// <summary>
-        /// Gets a single page of metadata about streams playing either Overwatch or Hearthstone.
-        /// </summary>
-        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<MetadataPage>
-        GetStreamsMetadataPage(string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
-        {
-            ITwitchResponse<MetadataPage> metadata = GetStreamsMetadataPageAsync(oauth_token, client_id, query_parameters).Result;
-
-            return metadata;
-        }
-
-        /// <summary>
-        /// Gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
-        /// </summary>
-        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<IList<Metadata>>
-        GetStreamsMetadata(string oauth_token, StreamsQueryParameters query_parameters = null)
-        {
-            ITwitchResponse<IList<Metadata>> metadata = GetStreamsMetadataAsync(oauth_token, query_parameters).Result;
-
-            return metadata;
-        }
-
-        /// <summary>
-        /// Gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
-        /// </summary>
-        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<IList<Metadata>>
-        GetStreamsMetadat(string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
-        {
-            ITwitchResponse<IList<Metadata>> metadata = GetStreamsMetadataAsync(oauth_token, client_id, query_parameters).Result;
-
-            return metadata;
-        }
-
-        #endregion
     }
 }

@@ -36,5 +36,11 @@ namespace TwitchNet.Enums.Api.Streams
         /// </summary>
         [EnumMember(Value = "playlist")]
         Playlist    = 1 << 2,
+
+        /// <summary>
+        /// Specifies to return all stream types and is only applicable when specifying query parameters.
+        /// </summary>
+        [EnumMember(Value = "all")]
+        All         = Live | Vodcast | Playlist
     }
 }

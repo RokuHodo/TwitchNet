@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace TwitchNet.Models.Api
 {
     public class
-    TwitchError
+    ApiError
     {
         /// <summary>
         /// The error associated with the status code, i.e., the status description.

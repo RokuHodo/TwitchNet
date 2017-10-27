@@ -4,7 +4,7 @@ using TwitchNet.Models.Paging;
 namespace TwitchNet.Interfaces.Models.Paging
 {
     public interface
-    ITwitchQueryParameters
+    IQueryParametersPage
     {
         /// <summary>
         /// Maximum number of objects to return.

@@ -11,13 +11,9 @@ namespace TwitchNet.Models.Paging.Streams
 {
     //TODO: Test to see if these paging parameters function properly
     public class
-    StreamsQueryParameters : ITwitchQueryParameters
+    StreamsQueryParameters : QueryParametersPage, IQueryParametersPage
     {
-        #region Fields
-
-        private QueryComparable<ushort>     _first          = new QueryComparable<ushort>(1, 100, 20);
-
-        private QueryParameter              _after          = new QueryParameter();
+        #region Fields        
 
         private QueryList                   _community_ids  = new QueryList();
         private QueryList                   _game_ids       = new QueryList();
@@ -30,41 +26,6 @@ namespace TwitchNet.Models.Paging.Streams
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Maximum number of objects to return.
-        /// Minimum: 1;
-        /// Maximum: 100.
-        /// Default: 20.
-        /// </summary>
-        [QueryParameter("first")]
-        public ushort first
-        {
-            get
-            {
-                return _first.value;
-            }
-            set
-            {
-                _first.value = value;
-            }
-        }
-
-        /// <summary>
-        /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
-        /// </summary>
-        [QueryParameter("after", false)]
-        public string after
-        {
-            get
-            {
-                return _after.value;
-            }
-            set
-            {
-                _after.value = value;
-            }
-        }
 
         /// <summary>
         /// Returns streams that are part of part of the specified communities.

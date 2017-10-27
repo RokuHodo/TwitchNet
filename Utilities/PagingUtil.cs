@@ -53,7 +53,7 @@ namespace TwitchNet.Utilities
         /// <returns>Returns a <see cref="RestRequest"/> instance with the added <paramref name="query_parameters"/>.</returns>
         public static RestRequest
         AddPaging<parameters_type>(RestRequest request, parameters_type query_parameters)
-        where parameters_type : ITwitchQueryParameters, new()
+        where parameters_type : class, new()
         {
             if (query_parameters.IsNull())
             {

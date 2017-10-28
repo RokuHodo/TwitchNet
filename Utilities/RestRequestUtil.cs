@@ -199,47 +199,62 @@ namespace TwitchNet.Utilities
             RestClient client = Client();
             IRestResponse<return_type> response = await client.ExecuteTaskAsync<return_type>(request);
 
-            // TODO: ExecuteRequestAsync - Implemenet customizable settings for each request that the user can tweak
-            // TODO: ExecuteRequestAsync - Handle any settings here since this is where all execute paths lead to
-
             RateLimit rate_limit = new RateLimit(response);
 
-            // TODO: ExecuteRequestAsync - Handle these in some sort of settings class or something
+            // TODO: ExecuteRequestAsync - Implemenet customizable settings for each request that the user can tweak
             switch ((ushort)response.StatusCode)
             {
                 case 429:
                 {
-                    // TODO: ExecuteRequestAsync - Find a much mroe graceful way to handle handling cases
-                    if (settings.too_many_request_handling == TooManyRequestHandling.Error)
-                    {
-                        throw new Exception("Status Code: " + response.StatusCode + " - " + response.StatusDescription);
-                    }
-                    else if(settings.too_many_request_handling == TooManyRequestHandling.Wait)
-                    {
-                        TimeSpan time = rate_limit.reset - DateTime.Now;
-                        if (time.TotalMilliseconds < 0)
-                        {
-                            Log.Warning(TimeStamp.TimeLong, "Status '429' receieved from Twitch. Time to reset, " + time.TotalMilliseconds + "ms, was negative.");
-                        }
-                        else
-                        {
-                            Log.Warning(TimeStamp.TimeLong, "Status '429' receieved from Twitch. Waiting " + time.TotalMilliseconds + "ms to execute request again.");
-                            await Task.Delay(time);
-                        }
-
-                        Log.Warning(TimeStamp.TimeLong, "Resuming request.");
-                        response = await ExecuteRequestAsync<return_type>(request);
-                    }
-                    else
-                    {
-                        return response;
-                    }
+                    // TODO: ExecuteRequestAsync - Find out a way to make this delegate compatible with dictionary so suers can set their own handler if they want
+                    // As of now it can't be done because the delegate contains generics which dictionaries don't support
+                    // Make a wrapper class for dictionaries?
+                    response = await ErrorHandling_TooManyRequest(request, response, rate_limit, settings);
                 }
                 break;
 
                 default:
                 {
                     Log.PrintLine(((ushort)response.StatusCode).ToString());
+                }
+                break;
+            }
+            return response;
+        }
+
+        private static async Task<IRestResponse<return_type>>
+        ErrorHandling_TooManyRequest<return_type>(IRestRequest request, IRestResponse<return_type> response, RateLimit rate_limit, TwitchRequestSettings settings)
+        where return_type : class, new()
+        {
+            switch (settings.too_many_request_handling)
+            {
+                case TooManyRequestHandling.Error:
+                {
+                    throw new Exception("Status Code: " + response.StatusCode + " - " + response.StatusDescription);
+                }
+
+                case TooManyRequestHandling.Wait:
+                {
+                    TimeSpan time = rate_limit.reset - DateTime.Now;
+                    if (time.TotalMilliseconds < 0)
+                    {
+                        Log.Warning(TimeStamp.TimeLong, "Status '429' receieved from Twitch. Time to reset, " + time.TotalMilliseconds + "ms, was negative.");
+                    }
+                    else
+                    {
+                        Log.Warning(TimeStamp.TimeLong, "Status '429' receieved from Twitch. Waiting " + time.TotalMilliseconds + "ms to execute request again.");
+                        await Task.Delay(time);
+                    }
+
+                    Log.Warning(TimeStamp.TimeLong, "Resuming request.");
+                    response = await ExecuteRequestAsync<return_type>(request);
+                }
+                break;
+
+                case TooManyRequestHandling.Ignore:
+                default:
+                {
+
                 }
                 break;
             }

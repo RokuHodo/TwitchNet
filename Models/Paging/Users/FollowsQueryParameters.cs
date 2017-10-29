@@ -8,9 +8,9 @@ namespace TwitchNet.Models.Paging.Users
     {
         #region Fields
 
-        private QueryParameter _before = new QueryParameter();
-        private QueryParameter _from_id = new QueryParameter();
-        private QueryParameter _to_id = new QueryParameter();
+        private string _before;
+        private string _from_id;
+        private string _to_id;
 
         #endregion
 
@@ -24,11 +24,11 @@ namespace TwitchNet.Models.Paging.Users
         {
             get
             {
-                return _before.value;
+                return _before;
             }
             set
             {
-                _before.value = value;
+                _before = value;
             }
         }
 
@@ -41,11 +41,11 @@ namespace TwitchNet.Models.Paging.Users
         {
             get
             {
-                return _from_id.value;
+                return _from_id;
             }
             set
             {
-                _from_id.value = value;
+                _from_id = value;
             }
         }
 
@@ -58,11 +58,11 @@ namespace TwitchNet.Models.Paging.Users
         {
             get
             {
-                return _to_id.value;
+                return _to_id;
             }
             set
             {
-                _to_id.value = value;
+                _to_id = value;
             }
         }
 

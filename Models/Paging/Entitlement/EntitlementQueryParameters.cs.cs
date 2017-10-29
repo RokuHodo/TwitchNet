@@ -14,9 +14,9 @@ namespace TwitchNet.Models.Paging.Entitlement
     {
         #region Fields
 
-        private QueryParameter _manifest_id = new QueryParameter();
+        private string              _manifest_id;
 
-        private QueryEnum<EntitlementType> _type = new QueryEnum<EntitlementType>();
+        private EntitlementType?    _type;
 
         #endregion
 
@@ -30,7 +30,7 @@ namespace TwitchNet.Models.Paging.Entitlement
         {
             get
             {
-                return _manifest_id.value;
+                return _manifest_id;
             }
             set
             {
@@ -39,7 +39,7 @@ namespace TwitchNet.Models.Paging.Entitlement
                     throw new ArgumentOutOfRangeException(nameof(manifest_id), value, nameof(manifest_id) + " must be between 1 and 64 characters, inclusive.");
                 }
 
-                _manifest_id.value = value;
+                _manifest_id = value;
             }
         }
 
@@ -51,11 +51,11 @@ namespace TwitchNet.Models.Paging.Entitlement
         {
             get
             {
-                return _type.value;
+                return _type;
             }
             set
             {
-                _type.value = value;
+                _type = value;
             }
         }
 

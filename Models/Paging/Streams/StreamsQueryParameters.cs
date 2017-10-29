@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 // project namespaces
+using TwitchNet.Helpers;
 using TwitchNet.Interfaces.Models.Paging;
 
 // project namespaces
@@ -15,13 +16,13 @@ namespace TwitchNet.Models.Paging.Streams
     {
         #region Fields        
 
-        private QueryList                   _community_ids  = new QueryList();
-        private QueryList                   _game_ids       = new QueryList();
-        private QueryList                   _user_ids       = new QueryList();
-        private QueryList                   _user_logins    = new QueryList();
+        private StreamLanguage? _language;
+        private StreamType?     _type;
 
-        private QueryEnum<StreamLanguage>   _language       = new QueryEnum<StreamLanguage>();
-        private QueryEnum<StreamType>       _type           = new QueryEnum<StreamType>();
+        private ClampedList<string> _community_ids  = new ClampedList<string>();
+        private ClampedList<string> _game_ids       = new ClampedList<string>();
+        private ClampedList<string> _user_ids       = new ClampedList<string>();
+        private ClampedList<string> _user_logins    = new ClampedList<string>();
 
         #endregion
 
@@ -71,11 +72,11 @@ namespace TwitchNet.Models.Paging.Streams
         {
             get
             {
-                return _language.value;
+                return _language;
             }
             set
             {
-                _language.value = value;
+                _language = value;
             }
         }
 
@@ -87,11 +88,11 @@ namespace TwitchNet.Models.Paging.Streams
         {
             get
             {
-                return _type.value;
+                return _type;
             }
             set
             {
-                _type.value = value;
+                _type = value;
             }
         }
 

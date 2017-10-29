@@ -1,13 +1,14 @@
-﻿using TwitchNet.Interfaces.Models.Paging;
+﻿using TwitchNet.Helpers;
+using TwitchNet.Interfaces.Models.Paging;
 
 namespace TwitchNet.Models.Paging
 {
     public class
     QueryParametersPage : IQueryParametersPage
     {
-        private QueryComparable<ushort> _first = new QueryComparable<ushort>(1, 100, 20);
+        private ClampedNumber<ushort> _first = new ClampedNumber<ushort>(1, 100, 20);
 
-        private QueryParameter _after = new QueryParameter();
+        private string _after;
 
         /// <summary>
         /// Maximum number of objects to return.
@@ -36,11 +37,11 @@ namespace TwitchNet.Models.Paging
         {
             get
             {
-                return _after.value;
+                return _after;
             }
             set
             {
-                _after.value = value;
+                _after = value;
             }
         }
     }

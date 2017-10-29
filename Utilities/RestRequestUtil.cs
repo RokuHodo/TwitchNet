@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 // project namespaces
 using TwitchNet.Debug;
 using TwitchNet.Enums.Debug;
+using TwitchNet.Enums.Helpers.Api;
 using TwitchNet.Enums.Utilities;
 using TwitchNet.Extensions;
+using TwitchNet.Helpers.Api;
 using TwitchNet.Helpers.Json;
 using TwitchNet.Models.Api;
 using TwitchNet.Models.Paging;
-using TwitchNet.Models.Utilities;
 
 // imported .dll's
 using RestSharp;
@@ -187,13 +188,13 @@ namespace TwitchNet.Utilities
         /// <param name="request">The rest request to execute.</param>
         /// <returns>Returns an instance of the <see cref="ApiResponse{type}"/> model.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static async Task<IRestResponse<return_type>>
-        ExecuteRequestAsync<return_type>(IRestRequest request, TwitchRequestSettings settings = null)
+        internal static async Task<IRestResponse<return_type>>
+        ExecuteRequestAsync<return_type>(IRestRequest request, ApiRequestSettings settings = null)
         where return_type : class, new()
         {
             if (settings.IsNull())
             {
-                settings = new TwitchRequestSettings();
+                settings = new ApiRequestSettings();
             }
 
             RestClient client = Client();
@@ -213,17 +214,30 @@ namespace TwitchNet.Utilities
                 }
                 break;
 
+                case 500:
+                {
+                    response = await ErrorHandling_IntenralServerError(request, response, rate_limit, settings);
+                }
+                break;
+
                 default:
                 {
                     Log.PrintLine(((ushort)response.StatusCode).ToString());
                 }
                 break;
             }
+
+            
+
             return response;
         }
 
+        #endregion
+
+        #region Status handlers
+
         private static async Task<IRestResponse<return_type>>
-        ErrorHandling_TooManyRequest<return_type>(IRestRequest request, IRestResponse<return_type> response, RateLimit rate_limit, TwitchRequestSettings settings)
+        ErrorHandling_TooManyRequest<return_type>(IRestRequest request, IRestResponse<return_type> response, RateLimit rate_limit, ApiRequestSettings settings)
         where return_type : class, new()
         {
             switch (settings.too_many_request_handling)
@@ -235,12 +249,20 @@ namespace TwitchNet.Utilities
 
                 case TooManyRequestHandling.Wait:
                 {
-                    TimeSpan time = rate_limit.reset - DateTime.Now;
-                    if (time.TotalMilliseconds < 0)
+                    lock (settings)
                     {
-                        Log.Warning(TimeStamp.TimeLong, "Status '429' receieved from Twitch. Time to reset, " + time.TotalMilliseconds + "ms, was negative.");
+                        ++settings._too_many_request_retry_count;
+                        if(settings._too_many_request_retry_count > settings.too_many_request_retry_limit)
+                        {
+                            Log.Warning(TimeStamp.TimeLong, "Status '429' receieved from Twitch. Wait count " + settings._too_many_request_retry_count + " reached. Cancelling request.");
+                            settings._too_many_request_retry_count = 0;
+
+                            break;
+                        }
                     }
-                    else
+
+                    TimeSpan time = rate_limit.reset - DateTime.Now;
+                    if (time.TotalMilliseconds > 0)
                     {
                         Log.Warning(TimeStamp.TimeLong, "Status '429' receieved from Twitch. Waiting " + time.TotalMilliseconds + "ms to execute request again.");
                         await Task.Delay(time);
@@ -262,19 +284,60 @@ namespace TwitchNet.Utilities
             return response;
         }
 
+        private static async Task<IRestResponse<return_type>>
+        ErrorHandling_IntenralServerError<return_type>(IRestRequest request, IRestResponse<return_type> response, RateLimit rate_limit, ApiRequestSettings settings)
+        where return_type : class, new()
+        {
+            switch (settings.internal_server_error_handling)
+            {
+                case InternalServerErrorHandling.Error:
+                {
+                    throw new Exception("Status Code: " + response.StatusCode + " - " + response.StatusDescription);
+                }
+
+                case InternalServerErrorHandling.Retry:
+                {
+                    lock (settings)
+                    {
+                        ++settings._internal_server_error_retry_count;
+                        if (settings._internal_server_error_retry_count > settings.internal_server_error_retry_limit)
+                        {
+                            Log.Warning(TimeStamp.TimeLong, "Status '500' receieved from Twitch. Retry count " + settings._internal_server_error_retry_count + " reached. Cancelling request.");
+                            settings._internal_server_error_retry_count = 0;
+
+                            break;
+                        }
+                    }
+
+                    Log.Warning(TimeStamp.TimeLong, "Status '500' receieved from Twitch. Retrying, count = " + settings._internal_server_error_retry_count);
+                    response = await ExecuteRequestAsync<return_type>(request);
+                }
+                break;
+
+                case InternalServerErrorHandling.Ignore:
+                default:
+                {
+
+                }
+                break;
+            }
+
+            return response;
+        }
+
         #endregion
 
-        #region Helper methods
+            #region Helper methods
 
-        /// <summary>
-        /// Creates a new instance of a <see cref="RestRequest"/> which holds the information to request.
-        /// </summary>        
-        /// <param name="endpoint">The endpoint URL.</param>
-        /// <param name="method">The HTTP method used when making the request.</param>
-        /// <param name="authentication">How to authorize the request.</param>
-        /// <param name="token_primiary">The OAuth token or Client Id to authorize the request when only either is provided. If both are being provided, this is assumed to be the OAuth token.</param>
-        /// <param name="token_supplementary">The Client Id if both the OAuth token and Client Id are being provided.</param>
-        /// <returns>Returns in instance of the <see cref="RestRequest"/> with the added oauth_token, client id, or both.</returns>
+            /// <summary>
+            /// Creates a new instance of a <see cref="RestRequest"/> which holds the information to request.
+            /// </summary>        
+            /// <param name="endpoint">The endpoint URL.</param>
+            /// <param name="method">The HTTP method used when making the request.</param>
+            /// <param name="authentication">How to authorize the request.</param>
+            /// <param name="token_primiary">The OAuth token or Client Id to authorize the request when only either is provided. If both are being provided, this is assumed to be the OAuth token.</param>
+            /// <param name="token_supplementary">The Client Id if both the OAuth token and Client Id are being provided.</param>
+            /// <returns>Returns in instance of the <see cref="RestRequest"/> with the added oauth_token, client id, or both.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static RestRequest
         Request(string endpoint, Method method, Authentication authentication, string token_primiary, string token_supplementary = "")

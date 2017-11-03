@@ -1,7 +1,8 @@
 ﻿// project namespaces
-using TwitchNet.Enums.Helpers.Api;
+using TwitchNet.Enums.Api;
+using TwitchNet.Helpers;
 
-namespace TwitchNet.Helpers.Api
+namespace TwitchNet.Models.Api
 {
     public class ApiRequestSettings
     {

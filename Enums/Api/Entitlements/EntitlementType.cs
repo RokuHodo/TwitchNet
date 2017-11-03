@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace TwitchNet.Enums.Api.Entitlement
+namespace TwitchNet.Enums.Api.Entitlements
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum

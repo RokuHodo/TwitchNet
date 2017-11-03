@@ -14,6 +14,66 @@ namespace TwitchNet.Api
     public static partial class
     TwitchApi
     {
+        #region Streams
+
+        /// <summary>
+        /// Gets a single page of streams.
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponsePage<Stream>
+        GetStreamsPage(string client_id, StreamsQueryParameters query_parameters = null)
+        {
+            IApiResponsePage<Stream> streams = GetStreamsPageAsync(client_id, query_parameters).Result;
+
+            return streams;
+        }
+
+        /// <summary>
+        /// Gets a complete list of streams.
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<Stream>
+        GetStreams(string client_id, StreamsQueryParameters query_parameters = null)
+        {
+            IApiResponse<Stream> streams = GetStreamsAsync(client_id, query_parameters).Result;
+
+            return streams;
+        }
+
+        /// <summary>
+        /// Gets a single page of metadata about streams playing either Overwatch or Hearthstone.
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponsePage<Metadata>
+        GetStreamsMetadataPage(string client_id, StreamsQueryParameters query_parameters = null)
+        {
+            IApiResponsePage<Metadata> metadata = GetStreamsMetadataPageAsync(client_id, query_parameters).Result;
+
+            return metadata;
+        }
+
+        /// <summary>
+        /// Gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<Metadata>
+        GetStreamsMetadata(string client_id, StreamsQueryParameters query_parameters = null)
+        {
+            IApiResponse<Metadata> metadata = GetStreamsMetadataAsync(client_id, query_parameters).Result;
+
+            return metadata;
+        }
+
+        #endregion
+
         #region Users
 
         /// <summary>
@@ -21,11 +81,11 @@ namespace TwitchNet.Api
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="query_parameters">The users to look up either by id or by login.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<UserPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<User>
         GetUsers(string client_id, IList<QueryParameter> query_parameters)
         {
-            ITwitchResponse<UserPage> users = GetUsersAsync(client_id, query_parameters).Result;
+            IApiResponse<User> users = GetUsersAsync(client_id, query_parameters).Result;
 
             return users;
         }
@@ -35,11 +95,11 @@ namespace TwitchNet.Api
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="ids">The id(s) of the user(s).</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<UserPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<User>
         GetUsersById(string client_id, IList<string> ids)
         {
-            ITwitchResponse<UserPage> users = GetUsersByIdAsync(client_id, ids).Result;
+            IApiResponse<User> users = GetUsersByIdAsync(client_id, ids).Result;
 
             return users;
         }
@@ -49,11 +109,11 @@ namespace TwitchNet.Api
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="logins">The name(s) of the user(s).</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<UserPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<User>
         GetUsersByLogin(string client_id, IList<string> logins)
         {
-            ITwitchResponse<UserPage> users = GetUsersByLoginAsync(client_id, logins).Result;
+            IApiResponse<User> users = GetUsersByLoginAsync(client_id, logins).Result;
 
             return users;
         }
@@ -64,11 +124,11 @@ namespace TwitchNet.Api
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="from_id">The user to compare from.</param>
         /// <param name="to_id">The user to compare to.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<FollowPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponsePage<Follow>
         GetUserRelationship(string client_id, string from_id, string to_id)
         {
-            ITwitchResponse<FollowPage> relationship = GetUserRelationshipAsync(client_id, from_id, to_id).Result;
+            IApiResponsePage<Follow> relationship = GetUserRelationshipAsync(client_id, from_id, to_id).Result;
 
             return relationship;
         }
@@ -79,11 +139,11 @@ namespace TwitchNet.Api
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="from_id">The user to compare from.</param>
         /// <param name="to_id">The user to compare to.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<bool>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponseValue<bool>
         IsUserFollowing(string client_id, string from_id, string to_id)
         {
-            ITwitchResponse<bool> is_following = IsUserFollowingAsync(client_id, from_id, to_id).Result;
+            IApiResponseValue<bool> is_following = IsUserFollowingAsync(client_id, from_id, to_id).Result;
 
             return is_following;
         }
@@ -97,11 +157,11 @@ namespace TwitchNet.Api
         /// A set of query parameters to customize the request.
         /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="query_parameters"/> are ignored if specified.
         /// </param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<FollowPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponsePage<Follow>
         GetUserFollowingPage(string client_id, string from_id, FollowsQueryParameters query_parameters = null)
         {
-            ITwitchResponse<FollowPage> following = GetUserFollowingPageAsync(client_id, from_id, query_parameters).Result;
+            IApiResponsePage<Follow> following = GetUserFollowingPageAsync(client_id, from_id, query_parameters).Result;
 
             return following;
         }
@@ -111,11 +171,11 @@ namespace TwitchNet.Api
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="from_id">The user to get the following list from.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<IList<Follow>>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<Follow>
         GetUserFollowing(string client_id, string from_id)
         {
-            ITwitchResponse<IList<Follow>> following = GetUserFollowingAsync(client_id, from_id).Result;
+            IApiResponse<Follow> following = GetUserFollowingAsync(client_id, from_id).Result;
 
             return following;
         }
@@ -129,11 +189,11 @@ namespace TwitchNet.Api
         /// A set of query parameters to customize the request.
         /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="query_parameters"/> are ignored if specified.
         /// </param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<FollowPage>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponsePage<Follow>
         GetUserFollowersPage(string client_id, string to_id, FollowsQueryParameters query_parameters = null)
         {
-            ITwitchResponse<FollowPage> followers = GetUserFollowersPageAsync(client_id, to_id, query_parameters).Result;
+            IApiResponsePage<Follow> followers = GetUserFollowersPageAsync(client_id, to_id, query_parameters).Result;
 
             return followers;
         }
@@ -143,75 +203,16 @@ namespace TwitchNet.Api
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="to_id">The user to get the followers for.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<IList<Follow>>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<Follow>
         GetUserFollowers(string client_id, string to_id)
         {
-            ITwitchResponse<IList<Follow>> followers = GetUserFollowersAsync(client_id, to_id).Result;
+            IApiResponse<Follow> followers = GetUserFollowersAsync(client_id, to_id).Result;
 
             return followers;
         }
 
         #endregion
 
-        #region Streams
-
-        /// <summary>
-        /// Gets a single page of streams.
-        /// </summary>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<StreamPage>
-        GetStreamsPage(string client_id, StreamsQueryParameters query_parameters = null)
-        {
-            ITwitchResponse<StreamPage> streams = GetStreamsPageAsync(client_id, query_parameters).Result;
-
-            return streams;
-        }
-
-        /// <summary>
-        /// Gets a complete list of streams.
-        /// </summary>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<IList<Stream>>
-        GetStreams(string client_id, StreamsQueryParameters query_parameters = null)
-        {
-            ITwitchResponse<IList<Stream>> streams = GetStreamsAsync(client_id, query_parameters).Result;
-
-            return streams;
-        }
-
-        /// <summary>
-        /// Gets a single page of metadata about streams playing either Overwatch or Hearthstone.
-        /// </summary>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<MetadataPage>
-        GetStreamsMetadataPage(string client_id, StreamsQueryParameters query_parameters = null)
-        {
-            ITwitchResponse<MetadataPage> metadata = GetStreamsMetadataPageAsync(client_id, query_parameters).Result;
-
-            return metadata;
-        }
-
-        /// <summary>
-        /// Gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
-        /// </summary>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        public static ITwitchResponse<IList<Metadata>>
-        GetStreamsMetadata(string client_id, StreamsQueryParameters query_parameters = null)
-        {
-            ITwitchResponse<IList<Metadata>> metadata = GetStreamsMetadataAsync(client_id, query_parameters).Result;
-
-            return metadata;
-        }
-
-        #endregion
     }
 }

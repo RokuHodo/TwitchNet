@@ -7,9 +7,11 @@ using TwitchNet.Enums.Utilities;
 using TwitchNet.Extensions;
 using TwitchNet.Interfaces.Api;
 using TwitchNet.Models.Api;
+using TwitchNet.Models.Api.Entitlement;
 using TwitchNet.Models.Api.Streams;
 using TwitchNet.Models.Api.Users;
 using TwitchNet.Models.Paging;
+using TwitchNet.Models.Paging.Entitlement;
 using TwitchNet.Models.Paging.Streams;
 using TwitchNet.Models.Paging.Users;
 using TwitchNet.Utilities;
@@ -20,10 +22,103 @@ using RestSharp;
 namespace TwitchNet.Api.Internal
 {
     //TODO: Implement Exceptions wherever a user can wrongly pass through data
-    //TODO: Re-test all end points to make sure nothing is broken after all RestRequestUtil changes are implemented
     internal static partial class
     TwitchApiInternal
     {
+        #region Entitlements
+
+        /// <summary>
+        /// Asynchronously creates a URL where you can upload a manifest file and notify users that they have an entitlement.
+        /// </summary>
+        /// <param name="authentication">How to authorize the request.</param>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        internal static async Task<IApiResponse<Url>>
+        CreateEntitlementGrantsUploadUrlAsync(Authentication authentication, string oauth_token, string client_id, EntitlementQueryParameters query_parameters)
+        {
+            IApiResponse<Url> url = await RestRequestUtil.ExecuteRequestAsync<Url, EntitlementQueryParameters>("entitlements/upload", Method.POST, authentication, oauth_token, client_id, query_parameters);
+
+            return url;
+        }
+
+        #endregion
+
+        #region Streams
+
+        /// <summary>
+        /// Asynchronously gets a single page of streams.
+        /// </summary>
+        /// <param name="authentication">How to authorize the request.</param>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        internal static async Task<IApiResponsePage<Stream>>
+        GetStreamsPageAsync(Authentication authentication, string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
+        {
+            IApiResponsePage<Stream> streams = await RestRequestUtil.ExecuteRequestPageAsync<Stream>("streams", Method.GET, authentication, oauth_token, client_id, query_parameters);
+
+            return streams;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a complete list of streams.
+        /// </summary>
+        /// <param name="authentication">How to authorize the request.</param>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        internal static async Task<IApiResponse<Stream>>
+        GetStreamsAsync(Authentication authentication, string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
+        {
+            if (query_parameters.IsNull())
+            {
+                query_parameters = new StreamsQueryParameters();
+            }
+            query_parameters.first = 100;
+
+            IApiResponse<Stream> streams = await RestRequestUtil.ExecuteRequestAllPagesAsync<Stream>("streams", Method.GET, authentication, oauth_token, client_id, query_parameters);
+
+            return streams;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a single page of metadata about streams playing either Overwatch or Hearthstone.
+        /// </summary>
+        /// <param name="authentication">How to authorize the request.</param>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        internal static async Task<IApiResponsePage<Metadata>>
+        GetStreamsMetadataPageAsync(Authentication authentication, string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
+        {
+            IApiResponsePage<Metadata> metadata = await RestRequestUtil.ExecuteRequestPageAsync<Metadata>("streams/metadata", Method.GET, authentication, oauth_token, client_id, query_parameters);
+
+            return metadata;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
+        /// </summary>
+        /// <param name="authentication">How to authorize the request.</param>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        internal static async Task<IApiResponse<Metadata>>
+        GetStreamsMetadataAsync(Authentication authentication, string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
+        {
+            IApiResponse<Metadata> metadata = await RestRequestUtil.ExecuteRequestAllPagesAsync<Metadata>("streams/metadata", Method.GET, authentication, oauth_token, client_id, query_parameters);
+
+            return metadata;
+        }
+
+        #endregion
+
         #region Users
 
         /// <summary>
@@ -40,11 +135,11 @@ namespace TwitchNet.Api.Internal
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
         /// <param name="query_parameters">The users to look up either by id or by login.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        internal static async Task<ITwitchResponse<UserPage>>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        internal static async Task<IApiResponse<User>>
         GetUsersAsync(Authentication authentication, string oauth_token, string client_id, IList<QueryParameter> query_parameters)
         {
-            ITwitchResponse<UserPage> users = await RestRequestUtil.ExecuteRequestAsync<UserPage>("users", Method.GET, authentication, oauth_token, client_id, query_parameters);
+            IApiResponse<User> users = await RestRequestUtil.ExecuteRequestAsync<User>("users", Method.GET, authentication, oauth_token, client_id, query_parameters);
 
             return users;
         }
@@ -64,8 +159,8 @@ namespace TwitchNet.Api.Internal
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
         /// <param name="query_name">How to get the user's information, by 'id' or by 'login'.</param>
         /// <param name="lookup">The id(s) or login(s) to get the information for.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        internal static async Task<ITwitchResponse<UserPage>>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        internal static async Task<IApiResponse<User>>
         GetUsersAsync(Authentication authentication, string oauth_token, string client_id, string query_name, IList<string> lookup)
         {
             List<QueryParameter> query_parameters = new List<QueryParameter>();
@@ -78,7 +173,7 @@ namespace TwitchNet.Api.Internal
                 });
             }
 
-            ITwitchResponse<UserPage> users = await GetUsersAsync(authentication, oauth_token, client_id, query_parameters.ToArray());
+            IApiResponse<User> users = await GetUsersAsync(authentication, oauth_token, client_id, query_parameters.ToArray());
 
             return users;
         }
@@ -95,8 +190,8 @@ namespace TwitchNet.Api.Internal
         /// A set of query parameters to customize the request.
         /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="query_parameters"/> are ignored if specified.
         /// </param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        internal static async Task<ITwitchResponse<FollowPage>>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        internal static async Task<IApiResponsePage<Follow>>
         GetUserRelationshipPageAsync(Authentication authentication, string oauth_token, string client_id, string from_id, string to_id, FollowsQueryParameters query_parameters = null)
         {
             if (query_parameters.IsNull())
@@ -106,7 +201,7 @@ namespace TwitchNet.Api.Internal
             query_parameters.from_id = from_id;
             query_parameters.to_id = to_id;
 
-            ITwitchResponse<FollowPage> follows = await RestRequestUtil.ExecuteRequestPageAsync<FollowPage, Follow, FollowsQueryParameters>("users/follows", Method.GET, authentication, oauth_token, client_id, query_parameters);
+            IApiResponsePage<Follow> follows = await RestRequestUtil.ExecuteRequestPageAsync<Follow>("users/follows", Method.GET, authentication, oauth_token, client_id, query_parameters);
 
             return follows;
         }
@@ -120,8 +215,8 @@ namespace TwitchNet.Api.Internal
         /// <param name="from_id">The user to compare from. Used to get the following list of a user.</param>
         /// <param name="to_id">The user to compare to. Used to get a user's follower list.</param>
         /// <param name="query_parameters">A set of query parameters to customize the request. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        internal static async Task<ITwitchResponse<IList<Follow>>>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        internal static async Task<IApiResponse<Follow>>
         GetUserRelationshipAsync(Authentication authentication, string oauth_token, string client_id, string from_id, string to_id, FollowsQueryParameters query_parameters = null)
         {
             if (query_parameters.IsNull())
@@ -132,7 +227,7 @@ namespace TwitchNet.Api.Internal
             query_parameters.to_id = to_id;
             query_parameters.first = 100;
 
-            ITwitchResponse<IList<Follow>> follows = await RestRequestUtil.ExecuteRequestAllPagesAsync<Follow, FollowPage, FollowsQueryParameters>("users/follows", Method.GET, authentication, oauth_token, client_id, query_parameters);
+            IApiResponse<Follow> follows = await RestRequestUtil.ExecuteRequestAllPagesAsync<Follow>("users/follows", Method.GET, authentication, oauth_token, client_id, query_parameters);
 
             return follows;
         }
@@ -145,14 +240,13 @@ namespace TwitchNet.Api.Internal
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
         /// <param name="from_id">The user to compare from.</param>
         /// <param name="to_id">The user to compare to.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        internal static async Task<ITwitchResponse<bool>>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        internal static async Task<IApiResponseValue<bool>>
         IsUserFollowingAsync(Authentication authentication, string oauth_token, string client_id, string from_id, string to_id)
         {
-            ITwitchResponse<FollowPage> relationship = await GetUserRelationshipPageAsync(authentication, oauth_token, client_id, from_id, to_id);
+            IApiResponsePage<Follow> relationship = await GetUserRelationshipPageAsync(authentication, oauth_token, client_id, from_id, to_id);
 
-            TwitchResponse<bool> is_following = new TwitchResponse<bool>(relationship);
-            is_following.result = relationship.result.data.IsValid();
+            ApiResponseValue<bool> is_following = new ApiResponseValue<bool>(relationship, relationship.result.data.IsValid());
 
             return is_following;
         }
@@ -165,8 +259,8 @@ namespace TwitchNet.Api.Internal
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
         /// <param name="description">The new description to set.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        internal static async Task<ITwitchResponse<bool>>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        internal static async Task<IApiResponseValue<bool>>
         SetUserDescriptionAsync(Authentication authentication, string oauth_token, string client_id, string description)
         {
             QueryParameter[] query_parameters = new QueryParameter[]
@@ -178,89 +272,15 @@ namespace TwitchNet.Api.Internal
                 },
             };
 
-            ITwitchResponse<UserPage> users = await RestRequestUtil.ExecuteRequestAsync<UserPage>("users", Method.PUT, authentication, oauth_token, client_id, query_parameters);
+            IApiResponse<User> users = await RestRequestUtil.ExecuteRequestAsync<User>("users", Method.PUT, authentication, oauth_token, client_id, query_parameters);
 
             // TODO: SetUserDescriptionAsync - Test to see if this is a valid check to see if the description was actually updated.
-            TwitchResponse<bool> response = new TwitchResponse<bool>(users);
-            response.result = users.result.data.IsValid();
+            ApiResponseValue<bool> response = new ApiResponseValue<bool>(users, users.result.data.IsValid());
 
             return response;
         }
 
         #endregion
 
-        #region Streams
-
-        /// <summary>
-        /// Asynchronously gets a single page of streams.
-        /// </summary>
-        /// <param name="authentication">How to authorize the request.</param>
-        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        internal static async Task<ITwitchResponse<StreamPage>>
-        GetStreamsPageAsync(Authentication authentication, string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
-        {
-            ITwitchResponse<StreamPage> streams = await RestRequestUtil.ExecuteRequestPageAsync<StreamPage, Stream, StreamsQueryParameters>("streams", Method.GET, authentication, oauth_token, client_id, query_parameters);
-
-            return streams;
-        }
-
-        /// <summary>
-        /// Asynchronously gets a complete list of streams.
-        /// </summary>
-        /// <param name="authentication">How to authorize the request.</param>
-        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        internal static async Task<ITwitchResponse<IList<Stream>>>
-        GetStreamsAsync(Authentication authentication, string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
-        {
-            if (query_parameters.IsNull())
-            {
-                query_parameters = new StreamsQueryParameters();
-            }
-            query_parameters.first = 100;
-
-            ITwitchResponse<IList<Stream>> streams = await RestRequestUtil.ExecuteRequestAllPagesAsync<Stream, StreamPage, StreamsQueryParameters>("streams", Method.GET, authentication, oauth_token, client_id, query_parameters);
-
-            return streams;
-        }
-
-        /// <summary>
-        /// Asynchronously gets a single page of metadata about streams playing either Overwatch or Hearthstone.
-        /// </summary>
-        /// <param name="authentication">How to authorize the request.</param>
-        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        internal static async Task<ITwitchResponse<MetadataPage>>
-        GetStreamsMetadataPageAsync(Authentication authentication, string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
-        {
-            ITwitchResponse<MetadataPage> metadata = await RestRequestUtil.ExecuteRequestPageAsync<MetadataPage, Metadata, StreamsQueryParameters>("streams/metadata", Method.GET, authentication, oauth_token, client_id, query_parameters);
-
-            return metadata;
-        }
-
-        /// <summary>
-        /// Asynchronously gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
-        /// </summary>
-        /// <param name="authentication">How to authorize the request.</param>
-        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="ITwitchResponse{type}"/> interface.</returns>
-        internal static async Task<ITwitchResponse<IList<Metadata>>>
-        GetStreamsMetadataAsync(Authentication authentication, string oauth_token, string client_id, StreamsQueryParameters query_parameters = null)
-        {
-            ITwitchResponse<IList<Metadata>> metadata = await RestRequestUtil.ExecuteRequestAllPagesAsync<Metadata, MetadataPage, StreamsQueryParameters>("streams/metadata", Method.GET, authentication, oauth_token, client_id, query_parameters);
-
-            return metadata;
-        }
-
-        #endregion
     }
 }

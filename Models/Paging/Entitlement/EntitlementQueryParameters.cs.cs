@@ -1,0 +1,73 @@
+﻿//standard namespaces
+using System;
+
+using TwitchNet.Extensions;
+
+// project namespaces
+using TwitchNet.Enums.Api.Entitlement;
+
+namespace TwitchNet.Models.Paging.Entitlement
+{
+    //TODO: Test to see if these paging parameters function properly
+    public class
+    EntitlementQueryParameters
+    {
+        #region Fields
+
+        private string              _manifest_id;
+
+        private EntitlementType?    _type;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Unique identifier of the manifest file to be uploaded. Must be 1-64 characters.
+        /// </summary>
+        [QueryParameter("manifest_id")]
+        public string manifest_id
+        {
+            get
+            {
+                return _manifest_id;
+            }
+            set
+            {
+                if(!value.Length.IsInRange(1, 64))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(manifest_id), value, nameof(manifest_id) + " must be between 1 and 64 characters, inclusive.");
+                }
+
+                _manifest_id = value;
+            }
+        }
+
+        /// <summary>
+        /// Determines the entitlement being dropped.
+        /// </summary>
+        [QueryParameter("type")]
+        public EntitlementType? type
+        {
+            get
+            {
+                return _type;
+            }
+            set
+            {
+                _type = value;
+            }
+        }
+
+        #endregion
+
+        #region Contstructor
+
+        public EntitlementQueryParameters()
+        {
+
+        }
+
+        #endregion
+    }
+}

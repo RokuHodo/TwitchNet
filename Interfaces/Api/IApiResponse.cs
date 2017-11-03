@@ -1,4 +1,4 @@
-﻿// standrad namespaces
+﻿// standad namespaces
 using System.Net;
 
 // project namepspaces
@@ -7,14 +7,14 @@ using TwitchNet.Models.Api;
 namespace TwitchNet.Interfaces.Api
 {
     public interface
-    ITwitchResponse
+    IApiResponse
     {
 
         /// <summary>
         /// The error message returned with the response by Twitch.
         /// This is only valid when an error is encountered.
         /// </summary>
-        string          error_message       { get; }
+        string          status_error       { get; }
 
         /// <summary>
         /// The description of the status code returned.
@@ -33,11 +33,12 @@ namespace TwitchNet.Interfaces.Api
     }
 
     public interface
-    ITwitchResponse<type> : ITwitchResponse
+    IApiResponse<type> : IApiResponse
+    where type : class, new()
     {
         /// <summary>
         /// Contains the deserialized result from the Twitch API.
         /// </summary>
-        type result { get; }
+        ApiData<type> result { get; }
     }
 }

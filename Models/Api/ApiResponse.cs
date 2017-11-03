@@ -12,7 +12,7 @@ using RestSharp;
 namespace TwitchNet.Models.Api
 {
     internal class
-    TwitchResponse : ITwitchResponse
+    ApiResponse : IApiResponse
     {
         #region Public properties
 
@@ -20,7 +20,7 @@ namespace TwitchNet.Models.Api
         /// The error message returned with the response by Twitch.
         /// This is only valid when an error is encountered.
         /// </summary>
-        public string           error_message       { get; internal set; }
+        public string           status_error       { get; internal set; }
 
         /// <summary>
         /// The description of the status code returned.
@@ -42,23 +42,23 @@ namespace TwitchNet.Models.Api
         #region Constructors
 
         /// <summary>
-        /// Creates a new instance of <see cref="TwitchResponse"/> with all properties to be filled out manually.
+        /// Creates a new instance of <see cref="ApiResponse"/> with all properties to be filled out manually.
         /// </summary>
-        public TwitchResponse()
+        public ApiResponse()
         {
 
         }
 
         /// <summary>
-        /// Creates a new instance of <see cref="TwitchResponse"/> and inherits all properties from the <see cref="IRestResponse{type}"/>.
+        /// Creates a new instance of <see cref="ApiResponse"/> and inherits all properties from the <see cref="IRestResponse{type}"/>.
         /// </summary>
         /// <param name="response"></param>
-        public TwitchResponse(IRestResponse response)
+        public ApiResponse(IRestResponse response)
         {
             status_code         = response.StatusCode;
             status_description  = response.StatusDescription;
 
-            error_message       = JsonConvert.DeserializeObject<TwitchError>(response.Content).message;
+            status_error        = JsonConvert.DeserializeObject<ApiError>(response.Content).message;
 
             rate_limit          = new RateLimit(response);
         }
@@ -67,42 +67,43 @@ namespace TwitchNet.Models.Api
     }
 
     internal class
-    TwitchResponse<type> : TwitchResponse, ITwitchResponse<type>
+    ApiResponse<type> : ApiResponse, IApiResponse<type>
+    where type : class, new()
     {
         #region Public properties
 
         /// <summary>
         /// Contains the deserialized result from the Twitch API.
         /// </summary>
-        public type             result              { get; internal set; }
+        public ApiData<type> result { get; internal set; }
 
         #endregion
 
         #region Constructors
 
         /// <summary>
-        /// Creates a new instance of <see cref="TwitchResponse{type}"/> with all properties to be filled out manually.
+        /// Creates a new instance of <see cref="ApiResponse{type}"/> with all properties to be filled out manually.
         /// </summary>
-        public TwitchResponse()
+        public ApiResponse()
         {
 
         }
 
         /// <summary>
-        /// Creates a new instance of <see cref="TwitchResponse{type}"/> and inherits all properties from the <see cref="IRestResponse{type}"/>.
+        /// Creates a new instance of <see cref="ApiResponse{type}"/> and inherits all properties from the <see cref="IRestResponse{type}"/>.
         /// </summary>
         /// <param name="response"></param>
-        public TwitchResponse(IRestResponse<type> response) : base(response)
+        public ApiResponse(IRestResponse<ApiData<type>> response) : base(response)
         {
-            result = response.Data;
+            result = response.Data as ApiData<type>;
         }
 
-        public TwitchResponse(ITwitchResponse response)
+        public ApiResponse(IApiResponse response)
         {
             status_code = response.status_code;
             status_description = response.status_description;
 
-            error_message = response.error_message;
+            status_error = response.status_error;
 
             rate_limit = response.rate_limit;
         }
@@ -112,16 +113,16 @@ namespace TwitchNet.Models.Api
         #region Methods
 
         /// <summary>
-        /// Clones the base properties from a <see cref="TwitchResponse"/> instance to a <see cref="TwitchResponse{type}"/> instance.
+        /// Clones the base properties from a <see cref="ApiResponse"/> instance to a <see cref="ApiResponse{type}"/> instance.
         /// </summary>
         /// <param name="response"></param>
         public void
-        CloneBaseProperties(ITwitchResponse response)
+        CloneBaseProperties(IApiResponse response)
         {
             status_code = response.status_code;
             status_description = response.status_description;
 
-            error_message = response.error_message;
+            status_error = response.status_error;
 
             rate_limit = response.rate_limit;
         }

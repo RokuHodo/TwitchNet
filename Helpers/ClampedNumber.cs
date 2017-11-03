@@ -4,20 +4,18 @@ using System;
 // project namespaces
 using TwitchNet.Extensions;
 
-namespace TwitchNet.Models.Paging
+namespace TwitchNet.Helpers
 {
     internal class
-    QueryComparable<type>
-    where type : IComparable<type>
+    ClampedNumber<type>
+    where type : IComparable, IFormattable, IConvertible, IComparable<type>, IEquatable<type>
     {
         private type _value;
         private type _value_min;
-        private type _value_max;
         private type _value_default;
 
-        /// <summary>
-        /// The comparable value to be added as a query parameter.
-        /// </summary>
+        internal type _value_max;
+
         public type value
         {
             get
@@ -30,7 +28,7 @@ namespace TwitchNet.Models.Paging
             }
         }
 
-        public QueryComparable(type value_default)
+        public ClampedNumber(type value_default)
         {
             _value_min      = value_default;
             _value_max      = value_default;
@@ -38,7 +36,7 @@ namespace TwitchNet.Models.Paging
             _value          = _value_default;
         }
 
-        public QueryComparable(type value_min, type value_max, type value_default)
+        public ClampedNumber(type value_min, type value_max, type value_default)
         {
             _value_min      = value_min;
             _value_max      = value_max.ClampMin(_value_min);

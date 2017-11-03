@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 // project namespaces
+using TwitchNet.Helpers;
 using TwitchNet.Interfaces.Models.Paging;
 
 // project namespaces
@@ -11,60 +12,21 @@ namespace TwitchNet.Models.Paging.Streams
 {
     //TODO: Test to see if these paging parameters function properly
     public class
-    StreamsQueryParameters : ITwitchQueryParameters
+    StreamsQueryParameters : QueryParametersPage, IQueryParametersPage
     {
-        #region Fields
+        #region Fields        
 
-        private QueryComparable<ushort>     _first          = new QueryComparable<ushort>(1, 100, 20);
+        private StreamLanguage? _language;
+        private StreamType?     _type;
 
-        private QueryParameter              _after          = new QueryParameter();
-
-        private QueryList                   _community_ids  = new QueryList();
-        private QueryList                   _game_ids       = new QueryList();
-        private QueryList                   _user_ids       = new QueryList();
-        private QueryList                   _user_logins    = new QueryList();
-
-        private QueryEnum<StreamLanguage>   _language       = new QueryEnum<StreamLanguage>();
-        private QueryEnum<StreamType>       _type           = new QueryEnum<StreamType>();
+        private ClampedList<string> _community_ids  = new ClampedList<string>();
+        private ClampedList<string> _game_ids       = new ClampedList<string>();
+        private ClampedList<string> _user_ids       = new ClampedList<string>();
+        private ClampedList<string> _user_logins    = new ClampedList<string>();
 
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Maximum number of objects to return.
-        /// Minimum: 1;
-        /// Maximum: 100.
-        /// Default: 20.
-        /// </summary>
-        [QueryParameter("first")]
-        public ushort first
-        {
-            get
-            {
-                return _first.value;
-            }
-            set
-            {
-                _first.value = value;
-            }
-        }
-
-        /// <summary>
-        /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
-        /// </summary>
-        [QueryParameter("after", false)]
-        public string after
-        {
-            get
-            {
-                return _after.value;
-            }
-            set
-            {
-                _after.value = value;
-            }
-        }
 
         /// <summary>
         /// Returns streams that are part of part of the specified communities.
@@ -110,11 +72,11 @@ namespace TwitchNet.Models.Paging.Streams
         {
             get
             {
-                return _language.value;
+                return _language;
             }
             set
             {
-                _language.value = value;
+                _language = value;
             }
         }
 
@@ -126,11 +88,11 @@ namespace TwitchNet.Models.Paging.Streams
         {
             get
             {
-                return _type.value;
+                return _type;
             }
             set
             {
-                _type.value = value;
+                _type = value;
             }
         }
 

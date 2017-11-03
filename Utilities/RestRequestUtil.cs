@@ -7,13 +7,10 @@ using System.Threading.Tasks;
 // project namespaces
 using TwitchNet.Debug;
 using TwitchNet.Enums.Debug;
-using TwitchNet.Enums.Helpers.Api;
-using TwitchNet.Enums.Utilities;
+using TwitchNet.Enums.Api;
 using TwitchNet.Extensions;
-using TwitchNet.Helpers.Api;
 using TwitchNet.Helpers.Json;
 using TwitchNet.Models.Api;
-using TwitchNet.Models.Paging;
 
 // imported .dll's
 using RestSharp;
@@ -33,19 +30,18 @@ namespace TwitchNet.Utilities
         /// </typeparam>
         /// <param name="endpoint">The Twitch API endpoint url.</param>
         /// <param name="method">The HTTP method to use when making the request.</param>
-        /// <param name="authentication">How to authorize the request.</param>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
         /// <param name="query_parameters">A set of parameters to customize the requests.</param>
         /// <returns>Returns an instance of the <see cref="ApiResponse{type}"/> model.</returns>
         public static async Task<ApiResponse<return_type>>
-        ExecuteRequestAsync<return_type>(string endpoint, Method method, Authentication authentication, string oauth_token, string client_id, IList<QueryParameter> query_parameters)
+        ExecuteRequestAsync<return_type>(string endpoint, Method method, string oauth_token, string client_id, IList<QueryParameter> query_parameters, ApiRequestSettings settings)
         where return_type : class, new()
         {
-            RestRequest request = Request(endpoint, method, authentication, oauth_token, client_id);
+            RestRequest request = Request(endpoint, method, oauth_token, client_id);
             request = PagingUtil.AddPaging(request, query_parameters);
 
-            IRestResponse<ApiData<return_type>> rest_response = await ExecuteRequestAsync<ApiData<return_type>>(request);
+            IRestResponse<ApiData<return_type>> rest_response = await ExecuteRequestAsync<ApiData<return_type>>(request, settings);
             ApiResponse<return_type> api_response = new ApiResponse<return_type>(rest_response);
 
             return api_response;
@@ -58,22 +54,36 @@ namespace TwitchNet.Utilities
         /// The model <see cref="Type"/> to deserialize the result as.
         /// Restircted to a class.
         /// </typeparam>
+        /// <typeparam name="query_parameters_type">
+        /// The model <see cref="Type"/> of the query parameters.
+        /// Restircted to a class.
+        /// </typeparam>
         /// <param name="endpoint">The Twitch API endpoint url.</param>
         /// <param name="method">The HTTP method to use when making the request.</param>
-        /// <param name="authentication">How to authorize the request.</param>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
         /// <param name="query_parameters">A set of parameters to customize the requests.</param>
         /// <returns>Returns an instance of the <see cref="ApiResponse{type}"/> model.</returns>
         public static async Task<ApiResponse<return_type>>
-        ExecuteRequestAsync<return_type, query_parameters_type>(string endpoint, Method method, Authentication authentication, string oauth_token, string client_id, query_parameters_type query_parameters)
+        ExecuteRequestAsync<return_type, query_parameters_type>(string endpoint, Method method, string oauth_token, string client_id, query_parameters_type query_parameters, ApiRequestSettings settings)
         where return_type           : class, new()
         where query_parameters_type : class, new()
         {
-            RestRequest request = Request(endpoint, method, authentication, oauth_token, client_id);
+            RestRequest request = Request(endpoint, method, oauth_token, client_id);
             request = PagingUtil.AddPaging(request, query_parameters);
+            /*
+            request = Request("oauth2/token", Method.POST, oauth_token, client_id);
+            request.AddQueryParameter("client_id", client_id);
+            request.AddQueryParameter("client_secret", "xcnslrrbt9skl7n04ctzdmmj89dqo5");
+            request.AddQueryParameter("grant_type", "client_credentials");
 
-            IRestResponse<ApiData<return_type>> rest_response = await ExecuteRequestAsync<ApiData<return_type>>(request);
+            RestClient client = new RestClient("https://api.twitch.tv/kraken/");
+            client.AddHandler("application/json", new JsonDeserializer());
+            client.AddHandler("application/xml", new JsonDeserializer());
+
+            object token = client.Execute<object>(request);
+            */
+            IRestResponse<ApiData<return_type>> rest_response = await ExecuteRequestAsync<ApiData<return_type>>(request, settings);
             ApiResponse<return_type> api_response = new ApiResponse<return_type>(rest_response);
 
             return api_response;
@@ -82,33 +92,24 @@ namespace TwitchNet.Utilities
         /// <summary>
         /// Asynchronously executes a paged Twitch API rest request using both an oauth token and a client id for authenticrion.
         /// </summary>
-        /// <typeparam name="return_type">
-        /// The model <see cref="Type"/> to deserialize the result as.
-        /// Restircted to a class and must adhear to the <see cref="ITwitchPage{type}"/> interface.
-        /// </typeparam>
         /// <typeparam name="data_type">
         /// The model <see cref="Type"/> of the <code>data</code> list in the payload.
         /// Restircted to a class.
         /// </typeparam>
-        /// <typeparam name="query_parameters_type">
-        /// The <see cref="Type"/> of the <paramref name="query_parameters"/>.
-        /// Restircted to a class and must adhear to the <see cref="IQueryParametersPage"/> interface.
-        /// </typeparam>
         /// <param name="endpoint">The Twitch API endpoint url.</param>
         /// <param name="method">The HTTP method to use when making the request.</param>
-        /// <param name="authentication">How to authorize the request.</param>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no OAuth token was provided.</param>
         /// <param name="query_parameters">A set of parameters to customize the requests.</param>
         /// <returns>Returns an instance of the <see cref="ApiResponsePage{type}"/> model.</returns>
         public static async Task<ApiResponsePage<data_type>>
-        ExecuteRequestPageAsync<data_type>(string endpoint, Method method, Authentication authentication, string oauth_token, string client_id, QueryParametersPage query_parameters)
+        ExecuteRequestPageAsync<data_type>(string endpoint, Method method, string oauth_token, string client_id, QueryParametersPage query_parameters, ApiRequestSettings settings)
         where data_type : class, new()
         {
-            RestRequest request = Request(endpoint, method, authentication, oauth_token, client_id);
+            RestRequest request = Request(endpoint, method, oauth_token, client_id);
             request = PagingUtil.AddPaging(request, query_parameters);
 
-            IRestResponse<ApiDataPage<data_type>> rest_response = await ExecuteRequestAsync<ApiDataPage<data_type>>(request);
+            IRestResponse<ApiDataPage<data_type>> rest_response = await ExecuteRequestAsync<ApiDataPage<data_type>>(request, settings);
             ApiResponsePage<data_type> api_response = new ApiResponsePage<data_type>(rest_response);
 
             return api_response;
@@ -121,14 +122,6 @@ namespace TwitchNet.Utilities
         /// The model <see cref="Type"/> to deserialize the result as.
         /// Restircted to a class.
         /// </typeparam>
-        /// <typeparam name="page_type">
-        /// The model <see cref="Type"/> to deserialize each paged result as.
-        /// Restircted to a class and must adhear to the <see cref="ITwitchPage{type}"/> interface.
-        /// </typeparam>
-        /// <typeparam name="query_parameters_type">
-        /// The <see cref="Type"/> of the <paramref name="query_parameters"/>.
-        /// Restircted to a class and must adhear to the <see cref="IQueryParametersPage"/> interface.
-        /// </typeparam>
         /// <param name="endpoint">The Twitch API endpoint url.</param>
         /// <param name="method">The HTTP method to use when making the request.</param>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
@@ -136,13 +129,14 @@ namespace TwitchNet.Utilities
         /// <param name="query_parameters">A set of parameters to customize the requests.</param>
         /// <returns>Returns an instance of the <see cref="ApiResponse{type}"/> model.</returns>
         public static async Task<ApiResponse<return_type>>
-        ExecuteRequestAllPagesAsync<return_type>(string endpoint, Method method, Authentication authentication, string oauth_token, string client_id, QueryParametersPage query_parameters)
+        ExecuteRequestAllPagesAsync<return_type>(string endpoint, Method method, string oauth_token, string client_id, QueryParametersPage query_parameters, ApiRequestSettings settings)
         where return_type : class, new()
         {
-            if (query_parameters.IsNull())
+            if (query_parameters.IsNullOrDefault())
             {
                 query_parameters = new QueryParametersPage();
             }
+            query_parameters.first = 100;
 
             ApiResponse<return_type> twitch_response = new ApiResponse<return_type>();
             twitch_response.result = new ApiData<return_type>();
@@ -153,7 +147,7 @@ namespace TwitchNet.Utilities
             {
                 // request the page and add each element to the result
                 // TODO: ExecuteRequestAsync - Need to handle '429' TooManyRequestHandling.Ignore here for multi-page responses
-                ApiResponsePage<return_type> response = await ExecuteRequestPageAsync<return_type>(endpoint, method, authentication, oauth_token, client_id, query_parameters);
+                ApiResponsePage<return_type> response = await ExecuteRequestPageAsync<return_type>(endpoint, method, oauth_token, client_id, query_parameters, settings);
                 foreach (return_type element in response.result.data)
                 {
                     twitch_response.result.data.Add(element);
@@ -189,27 +183,24 @@ namespace TwitchNet.Utilities
         /// <returns>Returns an instance of the <see cref="ApiResponse{type}"/> model.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static async Task<IRestResponse<return_type>>
-        ExecuteRequestAsync<return_type>(IRestRequest request, ApiRequestSettings settings = null)
+        ExecuteRequestAsync<return_type>(IRestRequest request, ApiRequestSettings settings)
         where return_type : class, new()
         {
-            if (settings.IsNull())
+            if (settings.IsNullOrDefault())
             {
                 settings = new ApiRequestSettings();
-            }
+            }            
 
             RestClient client = Client();
             IRestResponse<return_type> response = await client.ExecuteTaskAsync<return_type>(request);
 
             RateLimit rate_limit = new RateLimit(response);
 
-            // TODO: ExecuteRequestAsync - Implemenet customizable settings for each request that the user can tweak
-            switch ((ushort)response.StatusCode)
+            // TODO: ExecuteRequestAsync - Implement more customizable settings for each request that the user can tweak
+            switch ((ushort)response.StatusCode) 
             {
                 case 429:
                 {
-                    // TODO: ExecuteRequestAsync - Find out a way to make this delegate compatible with dictionary so suers can set their own handler if they want
-                    // As of now it can't be done because the delegate contains generics which dictionaries don't support
-                    // Make a wrapper class for dictionaries?
                     response = await ErrorHandling_TooManyRequest(request, response, rate_limit, settings);
                 }
                 break;
@@ -226,8 +217,6 @@ namespace TwitchNet.Utilities
                 }
                 break;
             }
-
-            
 
             return response;
         }
@@ -254,7 +243,7 @@ namespace TwitchNet.Utilities
                         ++settings._too_many_request_retry_count;
                         if(settings._too_many_request_retry_count > settings.too_many_request_retry_limit)
                         {
-                            Log.Warning(TimeStamp.TimeLong, "Status '429' receieved from Twitch. Wait count " + settings._too_many_request_retry_count + " reached. Cancelling request.");
+                            Log.Warning(TimeStamp.TimeLong, "Status '429' receieved from Twitch. Wait limit " + settings.too_many_request_retry_limit + " reached. Cancelling request.");
                             settings._too_many_request_retry_count = 0;
 
                             break;
@@ -265,11 +254,11 @@ namespace TwitchNet.Utilities
                     if (time.TotalMilliseconds > 0)
                     {
                         Log.Warning(TimeStamp.TimeLong, "Status '429' receieved from Twitch. Waiting " + time.TotalMilliseconds + "ms to execute request again.");
-                        await Task.Delay(time);
+                        //await Task.Delay(time);
                     }
 
                     Log.Warning(TimeStamp.TimeLong, "Resuming request.");
-                    response = await ExecuteRequestAsync<return_type>(request);
+                    response = await ExecuteRequestAsync<return_type>(request, settings);
                 }
                 break;
 
@@ -300,9 +289,9 @@ namespace TwitchNet.Utilities
                     lock (settings)
                     {
                         ++settings._internal_server_error_retry_count;
-                        if (settings._internal_server_error_retry_count > settings.internal_server_error_retry_limit)
+                        if (settings._internal_server_error_retry_count > settings.internal_server_error_retry_limit && settings.internal_server_error_retry_limit != -1)
                         {
-                            Log.Warning(TimeStamp.TimeLong, "Status '500' receieved from Twitch. Retry count " + settings._internal_server_error_retry_count + " reached. Cancelling request.");
+                            Log.Warning(TimeStamp.TimeLong, "Status '500' receieved from Twitch. Retry limit " + settings.internal_server_error_retry_limit + " reached. Cancelling request.");
                             settings._internal_server_error_retry_count = 0;
 
                             break;
@@ -310,7 +299,7 @@ namespace TwitchNet.Utilities
                     }
 
                     Log.Warning(TimeStamp.TimeLong, "Status '500' receieved from Twitch. Retrying, count = " + settings._internal_server_error_retry_count);
-                    response = await ExecuteRequestAsync<return_type>(request);
+                    response = await ExecuteRequestAsync<return_type>(request, settings);
                 }
                 break;
 
@@ -329,40 +318,28 @@ namespace TwitchNet.Utilities
 
             #region Helper methods
 
-            /// <summary>
-            /// Creates a new instance of a <see cref="RestRequest"/> which holds the information to request.
-            /// </summary>        
-            /// <param name="endpoint">The endpoint URL.</param>
-            /// <param name="method">The HTTP method used when making the request.</param>
-            /// <param name="authentication">How to authorize the request.</param>
-            /// <param name="token_primiary">The OAuth token or Client Id to authorize the request when only either is provided. If both are being provided, this is assumed to be the OAuth token.</param>
-            /// <param name="token_supplementary">The Client Id if both the OAuth token and Client Id are being provided.</param>
-            /// <returns>Returns in instance of the <see cref="RestRequest"/> with the added oauth_token, client id, or both.</returns>
+        /// <summary>
+        /// Creates a new instance of a <see cref="RestRequest"/> which holds the information to request.
+        /// </summary>        
+        /// <param name="endpoint">The endpoint URL.</param>
+        /// <param name="method">The HTTP method used when making the request.</param>
+        /// <param name="oauth_token">The OAuth token or Client Id to authorize the request when only either is provided. If both are being provided, this is assumed to be the OAuth token.</param>
+        /// <param name="client_id">The Client Id if both the OAuth token and Client Id are being provided.</param>
+        /// <returns>Returns in instance of the <see cref="RestRequest"/> with the added oauth_token, client id, or both.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static RestRequest
-        Request(string endpoint, Method method, Authentication authentication, string token_primiary, string token_supplementary = "")
+        Request(string endpoint, Method method, string oauth_token, string client_id)
         {
             RestRequest request = new RestRequest(endpoint, method);
-            switch (authentication)
+
+            if (oauth_token.IsValid())
             {
-                case Authentication.Authorization:
-                    {
-                        request.AddHeader("Authorization", "Bearer " + token_primiary);
-                    }
-                    break;
+                request.AddHeader("Authorization", "Bearer " + oauth_token);
+            }
 
-                case Authentication.Client_ID:
-                    {
-                        request.AddHeader("Client-ID", token_primiary);
-                    }
-                    break;
-
-                case Authentication.Both:
-                    {
-                        request.AddHeader("Authorization", "Bearer " + token_primiary);
-                        request.AddHeader("Client-ID", token_supplementary);
-                    }
-                    break;
+            if (client_id.IsValid())
+            {
+                request.AddHeader("Client-ID", client_id);
             }
 
             return request;

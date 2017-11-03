@@ -62,13 +62,15 @@ namespace TwitchNet.Models.Api.Streams
         public DateTime         started_at      { get; protected set; }
 
         /// <summary>
-        /// The language of the stream. This is the language selected at the home page, not the language found in the Twitch dashboard.
+        /// The language of the stream.
+        /// This is the language selected at the home page, not the language found in the Twitch dashboard.
         /// </summary>
         [JsonProperty("language")]
         public StreamLanguage   language        { get; protected set; }
 
         /// <summary>
-        /// The URL of the stream thumbnail.
+        /// The template URL for the thumbnail of the stream.
+        /// The {width} amd {height} parameters should be replaced with the desired values before navigating to the url.
         /// </summary>
         [JsonProperty("thumbnail_url")]
         public string           thumbnail_url   { get; protected set; }

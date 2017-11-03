@@ -4,11 +4,10 @@ using System;
 using TwitchNet.Extensions;
 
 // project namespaces
-using TwitchNet.Enums.Api.Entitlement;
+using TwitchNet.Enums.Api.Entitlements;
 
-namespace TwitchNet.Models.Paging.Entitlement
+namespace TwitchNet.Models.Api.Entitlements
 {
-    //TODO: Test to see if these paging parameters function properly
     public class
     EntitlementQueryParameters
     {

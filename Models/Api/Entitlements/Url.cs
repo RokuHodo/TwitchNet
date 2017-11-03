@@ -3,7 +3,7 @@
 // imported .dll's
 using Newtonsoft.Json;
 
-namespace TwitchNet.Models.Api.Entitlement
+namespace TwitchNet.Models.Api.Entitlements
 {
     public class
     Url

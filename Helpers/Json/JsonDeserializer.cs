@@ -33,7 +33,7 @@ namespace TwitchNet.Helpers.Json
             #if DEBUG
 
             // NOTE: Deserialize - For debugging purposes only, change MissingMemberHandling to 'ignrore' on release build
-            // settings.MissingMemberHandling  = MissingMemberHandling.Error;
+            settings.MissingMemberHandling  = MissingMemberHandling.Error;
 
             #endif
 

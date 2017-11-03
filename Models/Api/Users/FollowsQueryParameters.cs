@@ -1,7 +1,7 @@
 ﻿// project namespaces
-using TwitchNet.Interfaces.Models.Paging;
+using TwitchNet.Interfaces.Api;
 
-namespace TwitchNet.Models.Paging.Users
+namespace TwitchNet.Models.Api.Users
 {
     public class
     FollowsQueryParameters : QueryParametersPage, IQueryParametersPage

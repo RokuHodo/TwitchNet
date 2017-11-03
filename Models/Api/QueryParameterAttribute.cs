@@ -1,7 +1,7 @@
 ﻿// standard namespaces
 using System;
 
-namespace TwitchNet.Models.Paging
+namespace TwitchNet.Models.Api
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
     internal sealed class

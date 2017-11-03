@@ -3,14 +3,13 @@ using System.Collections.Generic;
 
 // project namespaces
 using TwitchNet.Helpers;
-using TwitchNet.Interfaces.Models.Paging;
+using TwitchNet.Interfaces.Api;
 
 // project namespaces
 using TwitchNet.Enums.Api.Streams;
 
-namespace TwitchNet.Models.Paging.Streams
+namespace TwitchNet.Models.Api.Streams
 {
-    //TODO: Test to see if these paging parameters function properly
     public class
     StreamsQueryParameters : QueryParametersPage, IQueryParametersPage
     {

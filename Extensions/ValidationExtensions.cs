@@ -45,6 +45,24 @@ namespace TwitchNet.Extensions
         }
 
         /// <summary>
+        /// Verifies that an <see cref="object"/> of an implided <see cref="Type"/> is null or equal to its default value.
+        /// </summary>
+        /// <typeparam name="type">The implied type of the object.</typeparam>
+        /// <param name="value">The value of the <see cref="object"/>.</param>
+        /// <returns>
+        /// Returns true if the value of the <see cref="object"/> is null or equal to the type's default value.
+        /// Returns false otherwise.
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool
+        IsNullOrDefault<type>(this type value)
+        {
+            bool result = value.IsNull() || value.IsDefault();
+
+            return result;
+        }
+
+        /// <summary>
         /// Verifies that an <see cref="object"/> that adheres to the <see cref="IList{T}"/> interface is not null and has at least one element.
         /// </summary>
         /// <typeparam name="type"></typeparam>

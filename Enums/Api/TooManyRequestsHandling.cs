@@ -1,4 +1,4 @@
-﻿namespace TwitchNet.Enums.Helpers.Api
+﻿namespace TwitchNet.Enums.Api
 {
     public enum
     TooManyRequestHandling

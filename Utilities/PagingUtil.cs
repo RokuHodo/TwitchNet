@@ -6,8 +6,7 @@ using System.Reflection;
 
 // project namespaces
 using TwitchNet.Extensions;
-using TwitchNet.Models.Paging;
-using TwitchNet.Interfaces.Models.Paging;
+using TwitchNet.Models.Api;
 
 // imported .dll's
 using RestSharp;

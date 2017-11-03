@@ -1,7 +1,8 @@
-﻿using TwitchNet.Helpers;
-using TwitchNet.Interfaces.Models.Paging;
+﻿// project namespaces
+using TwitchNet.Helpers;
+using TwitchNet.Interfaces.Api;
 
-namespace TwitchNet.Models.Paging
+namespace TwitchNet.Models.Api
 {
     public class
     QueryParametersPage : IQueryParametersPage

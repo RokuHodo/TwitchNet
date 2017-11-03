@@ -58,7 +58,7 @@ namespace TwitchNet.Models.Api
             status_code         = response.StatusCode;
             status_description  = response.StatusDescription;
 
-            status_error        = JsonConvert.DeserializeObject<ApiError>(response.Content).message;
+            status_error        = JsonConvert.DeserializeObject<ApiError>(response.Content).message ?? string.Empty;
 
             rate_limit          = new RateLimit(response);
         }
@@ -95,7 +95,7 @@ namespace TwitchNet.Models.Api
         /// <param name="response"></param>
         public ApiResponse(IRestResponse<ApiData<type>> response) : base(response)
         {
-            result = response.Data as ApiData<type>;
+            result = response.Data;
         }
 
         public ApiResponse(IApiResponse response)

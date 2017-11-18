@@ -74,7 +74,7 @@ namespace TwitchNet.Utilities
             /*
             request = Request("oauth2/token", Method.POST, oauth_token, client_id);
             request.AddQueryParameter("client_id", client_id);
-            request.AddQueryParameter("client_secret", "xcnslrrbt9skl7n04ctzdmmj89dqo5");
+            request.AddQueryParameter("client_secret", "");
             request.AddQueryParameter("grant_type", "client_credentials");
 
             RestClient client = new RestClient("https://api.twitch.tv/kraken/");

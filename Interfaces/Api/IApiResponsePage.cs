@@ -1,6 +1,7 @@
 ﻿using TwitchNet.Models.Api;
 
-namespace TwitchNet.Interfaces.Api
+namespace
+TwitchNet.Interfaces.Api
 {
     public interface
     IApiResponsePage<type> : IApiResponse

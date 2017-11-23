@@ -1,9 +1,8 @@
-﻿using TwitchNet.Models.Api;
-
-// imported .dll's
+﻿// imported .dll's
 using Newtonsoft.Json;
 
-namespace TwitchNet.Models.Api.Entitlements
+namespace
+TwitchNet.Models.Api.Entitlements
 {
     public class
     Url

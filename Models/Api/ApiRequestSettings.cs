@@ -2,19 +2,19 @@
 using TwitchNet.Enums.Api;
 using TwitchNet.Helpers;
 
-namespace TwitchNet.Models.Api
+namespace
+TwitchNet.Models.Api
 {
     public class ApiRequestSettings
     {
         #region Fields
 
         internal ushort                         _too_many_request_retry_count       = 0;
-        internal ushort                         _internal_server_error_retry_count  = 0;
-
         internal ClampedNumber<short>           _too_many_request_retry_limit       = new ClampedNumber<short>(-1, 3, -1);
-        internal ClampedNumber<short>           _internal_server_error_retry_limit  = new ClampedNumber<short>(-1, 3, 1);
-
         internal TooManyRequestHandling         _too_many_request_handling          = TooManyRequestHandling.Wait;
+
+        internal ushort                         _internal_server_error_retry_count  = 0;
+        internal ClampedNumber<short>           _internal_server_error_retry_limit  = new ClampedNumber<short>(-1, 3, 1);
         internal InternalServerErrorHandling    _internal_server_error_handling     = InternalServerErrorHandling.Ignore;
 
         #endregion

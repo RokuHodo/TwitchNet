@@ -4,7 +4,8 @@ using TwitchNet.Enums.Api.Users;
 // imported .dll's
 using Newtonsoft.Json;
 
-namespace TwitchNet.Models.Api.Users
+namespace
+TwitchNet.Models.Api.Users
 {
     public class
     User
@@ -65,7 +66,7 @@ namespace TwitchNet.Models.Api.Users
 
         /// <summary>
         /// The user's email adress listed on their profile.
-        /// This email is included only if the 'user:read:email' scope was specified when the OAuth token was created.
+        /// This email is included only if the 'user:read:email' scope was specified when the Bearer token was created.
         /// Required Scope: 'user:read:email'
         /// </summary>
         [JsonProperty("email")]

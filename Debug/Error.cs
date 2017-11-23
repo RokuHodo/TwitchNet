@@ -1,6 +1,8 @@
-﻿namespace TwitchNet.Debug
+﻿namespace
+TwitchNet.Debug
 {
-    internal static class Error
+    internal static class
+    Error
     {
         #region Normal logging messages
 
@@ -18,7 +20,7 @@
 
         public static string EXCEPTION_ARGUMENT_EMPTY = "Value is empty or whitespace.";
         public static string EXCEPTION_ARGUMENT_TWITCH_NAME = "The Twitch NICK must start with a letter, contain only letters, numbers, or underscores, and must be between 3 and 25 characters (inclusive).";
-        public static string EXCEPTION_ARGUMENT_TWITCH_OAUTH = "The Twitch OAuth token must be prefixed with \"oauth:\".";
+        public static string EXCEPTION_ARGUMENT_TWITCH_Bearer = "The Twitch Bearer token must be prefixed with \"Bearer:\".";
 
         #endregion
     }

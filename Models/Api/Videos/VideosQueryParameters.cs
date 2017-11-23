@@ -8,7 +8,8 @@ using TwitchNet.Enums.Api.Videos;
 // project namespaces
 using TwitchNet.Interfaces.Api;
 
-namespace TwitchNet.Models.Api.Videos
+namespace
+TwitchNet.Models.Api.Videos
 {
     public class
     VideosQueryParameters : QueryParametersPage, IQueryParametersPage
@@ -168,7 +169,7 @@ namespace TwitchNet.Models.Api.Videos
 
         #endregion
 
-        #region Contstructor
+        #region Contstructors
 
         public VideosQueryParameters()
         {

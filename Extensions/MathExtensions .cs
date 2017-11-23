@@ -1,7 +1,8 @@
 ﻿// project namespaces
 using System;
 
-namespace TwitchNet.Extensions
+namespace
+TwitchNet.Extensions
 {
     internal static class
     MathExtensions

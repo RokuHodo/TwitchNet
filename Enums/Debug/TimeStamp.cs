@@ -1,4 +1,5 @@
-﻿namespace TwitchNet.Enums.Debug
+﻿namespace
+TwitchNet.Enums.Debug
 {
     internal enum
     TimeStamp

@@ -9,20 +9,21 @@ using TwitchNet.Models.Api.Streams;
 using TwitchNet.Models.Api.Users;
 using TwitchNet.Models.Api.Videos;
 
-namespace TwitchNet.Api
+namespace
+TwitchNet.Api
 {
     public static partial class
     TwitchApi
     {
         #region Fields
 
-        private static readonly string              oauth_token_default             = string.Empty;
+        private static readonly string              bearer_token_default             = string.Empty;
 
         private const           ApiRequestSettings  api_request_settings_default    = default(ApiRequestSettings);
 
         #endregion
 
-        #region Games
+        #region /games
 
         /// <summary>
         /// Asynchronously gets information about a list of games.
@@ -34,14 +35,14 @@ namespace TwitchNet.Api
         public static async Task<IApiResponse<Game>>
         GetGamesAsync(string client_id, GamesQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<Game> games = await TwitchApiInternal.GetGamesAsync(oauth_token_default, client_id, query_parameters, api_request_settings);
+            IApiResponse<Game> games = await TwitchApiInternal.GetGamesAsync(bearer_token_default, client_id, query_parameters, api_request_settings);
 
             return games;
         }
 
         #endregion
 
-        #region Streams
+        #region /streams
 
         /// <summary>
         /// Asynchronously gets a single page of streams.
@@ -67,7 +68,7 @@ namespace TwitchNet.Api
         public static async Task<IApiResponsePage<Stream>>
         GetStreamsPageAsync(string client_id, StreamsQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponsePage<Stream> streams = await TwitchApiInternal.GetStreamsPageAsync(oauth_token_default, client_id, query_parameters, api_request_settings);
+            IApiResponsePage<Stream> streams = await TwitchApiInternal.GetStreamsPageAsync(bearer_token_default, client_id, query_parameters, api_request_settings);
 
             return streams;
         }
@@ -96,7 +97,7 @@ namespace TwitchNet.Api
         public static async Task<IApiResponse<Stream>>
         GetStreamsAsync(string client_id, StreamsQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<Stream> streams = await TwitchApiInternal.GetStreamsAsync(oauth_token_default, client_id, query_parameters, api_request_settings);
+            IApiResponse<Stream> streams = await TwitchApiInternal.GetStreamsAsync(bearer_token_default, client_id, query_parameters, api_request_settings);
 
             return streams;
         }
@@ -125,7 +126,7 @@ namespace TwitchNet.Api
         public static async Task<IApiResponsePage<Metadata>>
         GetStreamsMetadataPageAsync(string client_id, StreamsQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponsePage<Metadata> metadata = await TwitchApiInternal.GetStreamsMetadataPageAsync(oauth_token_default, client_id, query_parameters, api_request_settings);
+            IApiResponsePage<Metadata> metadata = await TwitchApiInternal.GetStreamsMetadataPageAsync(bearer_token_default, client_id, query_parameters, api_request_settings);
 
             return metadata;
         }
@@ -154,14 +155,14 @@ namespace TwitchNet.Api
         public static async Task<IApiResponse<Metadata>>
         GetStreamsMetadataAsync(string client_id, StreamsQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<Metadata> metadata = await TwitchApiInternal.GetStreamsMetadataAsync(oauth_token_default, client_id, query_parameters, api_request_settings);
+            IApiResponse<Metadata> metadata = await TwitchApiInternal.GetStreamsMetadataAsync(bearer_token_default, client_id, query_parameters, api_request_settings);
 
             return metadata;
         }
 
         #endregion
 
-        #region Users
+        #region /users
 
         /// <summary>
         /// Asynchronously gets the information of one or more users by their id or login.
@@ -173,10 +174,14 @@ namespace TwitchNet.Api
         public static async Task<IApiResponse<User>>
         GetUsersAsync(string client_id, UsersQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<User> users = await TwitchApiInternal.GetUsersAsync(oauth_token_default, client_id, query_parameters, api_request_settings);
+            IApiResponse<User> users = await TwitchApiInternal.GetUsersAsync(bearer_token_default, client_id, query_parameters, api_request_settings);
 
             return users;
         }
+
+        #endregion
+
+        #region /users/follows
 
         /// <summary>
         /// Asynchronously gets the relationship between two users.
@@ -189,7 +194,7 @@ namespace TwitchNet.Api
         public static async Task<IApiResponsePage<Follow>>
         GetUserRelationshipAsync(string client_id, string from_id, string to_id, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponsePage<Follow> relationship = await TwitchApiInternal.GetUserRelationshipPageAsync(oauth_token_default, client_id, from_id, to_id, default(FollowsQueryParameters), api_request_settings);
+            IApiResponsePage<Follow> relationship = await TwitchApiInternal.GetUserRelationshipPageAsync(bearer_token_default, client_id, from_id, to_id, default(FollowsQueryParameters), api_request_settings);
 
             return relationship;
         }
@@ -205,7 +210,7 @@ namespace TwitchNet.Api
         public static async Task<IApiResponseValue<bool>>
         IsUserFollowingAsync(string client_id, string from_id, string to_id, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponseValue<bool> is_following = await TwitchApiInternal.IsUserFollowingAsync(oauth_token_default, client_id, from_id, to_id, api_request_settings);
+            IApiResponseValue<bool> is_following = await TwitchApiInternal.IsUserFollowingAsync(bearer_token_default, client_id, from_id, to_id, api_request_settings);
 
             return is_following;
         }
@@ -239,7 +244,7 @@ namespace TwitchNet.Api
         public static async Task<IApiResponsePage<Follow>>
         GetUserFollowingPageAsync(string client_id, string from_id, FollowsQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponsePage<Follow> following = await TwitchApiInternal.GetUserRelationshipPageAsync(oauth_token_default, client_id, from_id, string.Empty, query_parameters, api_request_settings);
+            IApiResponsePage<Follow> following = await TwitchApiInternal.GetUserRelationshipPageAsync(bearer_token_default, client_id, from_id, string.Empty, query_parameters, api_request_settings);
 
             return following;
         }
@@ -254,7 +259,7 @@ namespace TwitchNet.Api
         public static async Task<IApiResponse<Follow>>
         GetUserFollowingAsync(string client_id, string from_id, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<Follow> following = await TwitchApiInternal.GetUserRelationshipAsync(oauth_token_default, client_id, from_id, string.Empty, default(FollowsQueryParameters), api_request_settings);
+            IApiResponse<Follow> following = await TwitchApiInternal.GetUserRelationshipAsync(bearer_token_default, client_id, from_id, string.Empty, default(FollowsQueryParameters), api_request_settings);
 
             return following;
         }
@@ -288,7 +293,7 @@ namespace TwitchNet.Api
         public static async Task<IApiResponsePage<Follow>>
         GetUserFollowersPageAsync(string client_id, string to_id, FollowsQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponsePage<Follow> followers = await TwitchApiInternal.GetUserRelationshipPageAsync(oauth_token_default, client_id, string.Empty, to_id, query_parameters, api_request_settings);
+            IApiResponsePage<Follow> followers = await TwitchApiInternal.GetUserRelationshipPageAsync(bearer_token_default, client_id, string.Empty, to_id, query_parameters, api_request_settings);
 
             return followers;
         }
@@ -303,14 +308,14 @@ namespace TwitchNet.Api
         public static async Task<IApiResponse<Follow>>
         GetUserFollowersAsync(string client_id, string to_id, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<Follow> followers = await TwitchApiInternal.GetUserRelationshipAsync(oauth_token_default, client_id, string.Empty, to_id, default(FollowsQueryParameters), api_request_settings);
+            IApiResponse<Follow> followers = await TwitchApiInternal.GetUserRelationshipAsync(bearer_token_default, client_id, string.Empty, to_id, default(FollowsQueryParameters), api_request_settings);
 
             return followers;
         }
 
         #endregion
 
-        #region Videos
+        #region /videos
 
         /// <summary>
         /// Asynchronously gets a single page of information on one or more videos.
@@ -322,7 +327,7 @@ namespace TwitchNet.Api
         public static async Task<IApiResponsePage<Video>>
         GetVideosPageAsync(string client_id, VideosQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponsePage<Video> videos = await TwitchApiInternal.GetVideosPageAsync(oauth_token_default, client_id, query_parameters, api_request_settings);
+            IApiResponsePage<Video> videos = await TwitchApiInternal.GetVideosPageAsync(bearer_token_default, client_id, query_parameters, api_request_settings);
 
             return videos;
         }
@@ -337,7 +342,7 @@ namespace TwitchNet.Api
         public static async Task<IApiResponse<Video>>
         GetVideosAsync(string client_id, VideosQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<Video> videos = await TwitchApiInternal.GetVideosAsync(oauth_token_default, client_id, query_parameters, api_request_settings);
+            IApiResponse<Video> videos = await TwitchApiInternal.GetVideosAsync(bearer_token_default, client_id, query_parameters, api_request_settings);
 
             return videos;
         }

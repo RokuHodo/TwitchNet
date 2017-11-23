@@ -8,7 +8,8 @@ using TwitchNet.Interfaces.Api;
 // project namespaces
 using TwitchNet.Enums.Api.Streams;
 
-namespace TwitchNet.Models.Api.Streams
+namespace
+TwitchNet.Models.Api.Streams
 {
     public class
     StreamsQueryParameters : QueryParametersPage, IQueryParametersPage
@@ -133,7 +134,7 @@ namespace TwitchNet.Models.Api.Streams
 
         #endregion
 
-        #region Contstructor
+        #region Contstructors
 
         public StreamsQueryParameters()
         {

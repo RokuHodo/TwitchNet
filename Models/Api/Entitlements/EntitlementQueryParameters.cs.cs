@@ -1,12 +1,14 @@
 ﻿//standard namespaces
 using System;
 
+// project namespaces
 using TwitchNet.Extensions;
 
 // project namespaces
 using TwitchNet.Enums.Api.Entitlements;
 
-namespace TwitchNet.Models.Api.Entitlements
+namespace
+TwitchNet.Models.Api.Entitlements
 {
     public class
     EntitlementQueryParameters
@@ -60,7 +62,7 @@ namespace TwitchNet.Models.Api.Entitlements
 
         #endregion
 
-        #region Contstructor
+        #region Contstructors
 
         public EntitlementQueryParameters()
         {

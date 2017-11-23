@@ -4,7 +4,8 @@ using System.Collections.Generic;
 // project namespaces
 using TwitchNet.Helpers;
 
-namespace TwitchNet.Models.Api.Games
+namespace
+TwitchNet.Models.Api.Games
 {
     public class
     GamesQueryParameters
@@ -63,7 +64,7 @@ namespace TwitchNet.Models.Api.Games
 
         #endregion
 
-        #region Contstructor
+        #region Contstructors
 
         public GamesQueryParameters()
         {

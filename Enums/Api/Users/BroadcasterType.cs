@@ -5,7 +5,8 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace TwitchNet.Enums.Api.Users
+namespace
+TwitchNet.Enums.Api.Users
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum

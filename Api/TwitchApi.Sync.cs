@@ -6,12 +6,13 @@ using TwitchNet.Models.Api.Streams;
 using TwitchNet.Models.Api.Users;
 using TwitchNet.Models.Api.Videos;
 
-namespace TwitchNet.Api
+namespace
+TwitchNet.Api
 {
     public static partial class
     TwitchApi
     {
-        #region Games
+        #region /games
 
         /// <summary>
         /// Gets information about a list of games.
@@ -30,7 +31,7 @@ namespace TwitchNet.Api
 
         #endregion
 
-        #region Streams
+        #region /streams
 
         /// <summary>
         /// Gets a single page of streams.
@@ -150,7 +151,7 @@ namespace TwitchNet.Api
 
         #endregion
 
-        #region Users
+        #region /users
 
         /// <summary>
         /// ets the information of one or more users by their id or login.
@@ -166,6 +167,10 @@ namespace TwitchNet.Api
 
             return users;
         }
+
+        #endregion
+
+        #region /users/follows
 
         /// <summary>
         /// Gets the relationship between two users.
@@ -299,7 +304,7 @@ namespace TwitchNet.Api
 
         #endregion
 
-        #region Videos
+        #region /videos
 
         /// <summary>
         /// Gets a single page of information on one or more videos.

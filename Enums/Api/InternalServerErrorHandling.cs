@@ -1,4 +1,5 @@
-﻿namespace TwitchNet.Enums.Api
+﻿namespace
+TwitchNet.Enums.Api
 {
     public enum
     InternalServerErrorHandling

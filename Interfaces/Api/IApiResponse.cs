@@ -4,7 +4,8 @@ using System.Net;
 // project namepspaces
 using TwitchNet.Models.Api;
 
-namespace TwitchNet.Interfaces.Api
+namespace
+TwitchNet.Interfaces.Api
 {
     public interface
     IApiResponse

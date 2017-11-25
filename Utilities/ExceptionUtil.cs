@@ -10,22 +10,6 @@ namespace TwitchNet.Utilities
     ExceptionUtil
     {
         /// <summary>
-        /// Thros an <see cref="Exception"/> if the conditon is true.
-        /// </summary>
-        /// <param name="condition">The condtion that needs to be true for the exception to be thrown.</param>
-        /// <param name="message">The excpetion message.</param>
-        public static void
-        ThrowIf(bool condition, string message)
-        {
-            if (!condition)
-            {
-                return;
-            }
-
-            throw new Exception(message);
-        }
-
-        /// <summary>
         /// Throws an <see cref="ArgumentException"/> if the string is null, empty, or whitespace
         /// </summary>
         /// <param name="parameter">The parameter to check.</param>

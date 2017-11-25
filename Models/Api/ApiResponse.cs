@@ -68,19 +68,5 @@ TwitchNet.Models.Api
         {
             result = response.Data;
         }
-
-        /// <summary>
-        /// Clones the base properties from a <see cref="ApiResponse"/> instance to a <see cref="ApiResponse{type}"/> instance.
-        /// </summary>
-        /// <param name="response"></param>
-        public void
-        CloneBaseProperties(IApiResponse response)
-        {
-            status_code         = response.status_code;
-            status_description  = response.status_description;
-            status_error        = response.status_error;
-
-            rate_limit          = response.rate_limit;
-        }
     }
 }

@@ -59,6 +59,8 @@
     <Compile Include="Debug\Error.cs" />
     <Compile Include="Debug\Log.cs" />
     <Compile Include="Enums\Api\Entitlements\EntitlementType.cs" />
+    <Compile Include="Enums\InputHandling.cs" />
+    <Compile Include="Enums\ErrorHandling.cs" />
     <Compile Include="Enums\Api\StatusHandling.cs" />
     <Compile Include="Enums\Api\Videos\VideoLanguage.cs" />
     <Compile Include="Enums\Api\Streams\StreamLanguage.cs" />

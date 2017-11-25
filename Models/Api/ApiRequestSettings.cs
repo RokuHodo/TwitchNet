@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 // project namespaces
+using TwitchNet.Enums;
 using TwitchNet.Enums.Api;
 using TwitchNet.Helpers;
 
@@ -12,7 +13,13 @@ TwitchNet.Models.Api
     {
         #region Fields
 
-        internal Dictionary<ushort, StatusHandlingSettings> status_handlers_settings;
+        internal Dictionary<ushort, StatusHandlingSettings> _status_handlers_settings;
+
+        // input checking
+        internal InputHandling                              _input_hanlding;
+
+        // internal error handling
+        internal ErrorHandling                              _internal_error_handling;
 
         // default status handling
         internal ClampedNumber<short>                       _status_default_retry_limit;
@@ -37,6 +44,38 @@ TwitchNet.Models.Api
         #endregion
 
         #region Properties        
+
+        /// <summary>
+        /// <para>Determine whether or not to checkand verify api inputs by the user.</para>
+        /// <para>Default: <see cref="ErrorHandling.Error"/>.</para>
+        /// </summary>
+        public InputHandling input_hanlding
+        {
+            get
+            {
+                return _input_hanlding;
+            }
+            set
+            {
+                _input_hanlding = value;
+            }
+        }
+
+        /// <summary>
+        /// <para>Determine how to handle any exceptions that are encountered internally witin the library.</para>
+        /// <para>Default: <see cref="ErrorHandling.Error"/>.</para>
+        /// </summary>
+        public ErrorHandling internal_error_handling
+        {
+            get
+            {
+                return _internal_error_handling;
+            }
+            set
+            {
+                _internal_error_handling = value;
+            }
+        }
 
         /// <summary>
         /// <para>
@@ -171,6 +210,10 @@ TwitchNet.Models.Api
         public void
         Default()
         {
+            _input_hanlding                     = InputHandling.Error;
+
+            _internal_error_handling            = ErrorHandling.Error;
+
             _status_default_retry_limit         = new ClampedNumber<short>(1, 1, 1);
             _status_default_handling            = StatusHandling.Error;
             _status_default_hanlding_settings   = new StatusHandlingSettings(_status_default_retry_limit, _status_default_handling);
@@ -187,11 +230,11 @@ TwitchNet.Models.Api
             _status_503_handling                = StatusHandling.Retry;
             _status_503_hanlding_settings       = new StatusHandlingSettings(_status_503_retry_limit, _status_503_handling);
 
-            status_handlers_settings = new Dictionary<ushort, StatusHandlingSettings>();
-            status_handlers_settings.Add(000, _status_default_hanlding_settings);
-            status_handlers_settings.Add(429, _status_429_hanlding_settings);
-            status_handlers_settings.Add(500, _status_500_hanlding_settings);
-            status_handlers_settings.Add(503, _status_503_hanlding_settings);
+            _status_handlers_settings = new Dictionary<ushort, StatusHandlingSettings>();
+            _status_handlers_settings.Add(000, _status_default_hanlding_settings);
+            _status_handlers_settings.Add(429, _status_429_hanlding_settings);
+            _status_handlers_settings.Add(500, _status_500_hanlding_settings);
+            _status_handlers_settings.Add(503, _status_503_hanlding_settings);
         }
 
         #endregion

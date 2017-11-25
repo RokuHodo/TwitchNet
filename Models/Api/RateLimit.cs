@@ -19,6 +19,11 @@ TwitchNet.Models.Api
 
         public DateTime reset       { get; protected set; }
 
+        public RateLimit()
+        {
+
+        }
+
         public RateLimit(IRestResponse response)
         {
             object _limit           = GetHeader(response.Headers, "Ratelimit-Limit").Value;

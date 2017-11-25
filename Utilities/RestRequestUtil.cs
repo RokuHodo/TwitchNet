@@ -133,7 +133,7 @@ TwitchNet.Utilities
             ApiResponse<return_type> twitch_response = new ApiResponse<return_type>();
             twitch_response.result = new ApiData<return_type>();
             twitch_response.result.data = new List<return_type>();
-            \
+
             bool requesting = true;
             do
             {

@@ -11,16 +11,10 @@ TwitchNet.Models.Api
     ApiResponsePage<type> : ApiResponse, IApiResponsePage<type>
     where type : class, new()
     {
-        #region Properties
-
         /// <summary>
         /// Contains the deserialized result from the Twitch API.
         /// </summary>
         public ApiDataPage<type> result { get; internal set; }
-
-        #endregion
-
-        #region Constructors
 
         public ApiResponsePage()
         {
@@ -31,7 +25,5 @@ TwitchNet.Models.Api
         {
             result = response.Data;
         }
-
-        #endregion
     }
 }

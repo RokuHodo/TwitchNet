@@ -8,15 +8,9 @@ TwitchNet.Models.Api
     public class
     QueryParametersPage : IQueryParametersPage
     {
-        #region Fields
-
         private ClampedNumber<ushort>   _first  = new ClampedNumber<ushort>(1, 100, 20);
 
         private string                  _after  = string.Empty;
-
-        #endregion
-
-        #region Properties
 
         /// <summary>
         /// Maximum number of objects to return.
@@ -52,7 +46,5 @@ TwitchNet.Models.Api
                 _after = value;
             }
         }
-
-        #endregion
     }
 }

@@ -1,4 +1,7 @@
-﻿// project namespaces
+﻿// standard namespaces
+using System.Collections.Generic;
+
+// project namespaces
 using TwitchNet.Enums.Api;
 using TwitchNet.Helpers;
 
@@ -9,13 +12,27 @@ TwitchNet.Models.Api
     {
         #region Fields
 
-        internal ushort                         _too_many_request_retry_count       = 0;
-        internal ClampedNumber<short>           _too_many_request_retry_limit       = new ClampedNumber<short>(-1, 3, -1);
-        internal TooManyRequestHandling         _too_many_request_handling          = TooManyRequestHandling.Wait;
+        internal Dictionary<ushort, StatusHandlingSettings> status_handlers_settings;
 
-        internal ushort                         _internal_server_error_retry_count  = 0;
-        internal ClampedNumber<short>           _internal_server_error_retry_limit  = new ClampedNumber<short>(-1, 3, 1);
-        internal InternalServerErrorHandling    _internal_server_error_handling     = InternalServerErrorHandling.Ignore;
+        // default status handling
+        internal ClampedNumber<short>                       _status_default_retry_limit;
+        internal StatusHandling                             _status_default_handling;
+        StatusHandlingSettings                              _status_default_hanlding_settings;
+
+        // 429 status handling
+        internal ClampedNumber<short>                       _status_429_retry_limit;
+        internal StatusHandling                             _status_429_handling;
+        StatusHandlingSettings                              _status_429_hanlding_settings;
+
+        // 500 status handling
+        internal ClampedNumber<short>                       _status_500_retry_limit;
+        internal StatusHandling                             _status_500_handling;
+        StatusHandlingSettings                              _status_500_hanlding_settings;
+
+        // 503 status handling
+        internal ClampedNumber<short>                       _status_503_retry_limit;
+        internal StatusHandling                             _status_503_handling;
+        StatusHandlingSettings                              _status_503_hanlding_settings;
 
         #endregion
 
@@ -23,79 +40,158 @@ TwitchNet.Models.Api
 
         /// <summary>
         /// <para>
-        /// How many times to retry making the request if status code '429' - Too Many Requests is returned.
+        /// Determine how to handle any error returned that is returned by the twitchg API.
+        /// This is the fall back handling if an error is not already handled by another handler setting.
+        /// </para>
+        /// <para>Default: <see cref="ApiErrorHandling.Error"/>.</para>
+        /// </summary>
+        public StatusHandling api_error_handling
+        {
+            get
+            {
+                return _status_default_handling;
+            }
+            set
+            {
+                api_error_handling = value;
+            }
+        }
+
+        /// <summary>
+        /// <para>
+        /// How many times to wait and retry making the request if status code '429 - Too Many Requests' is returned.
         /// When set to -1, the request will wait as many times as needed before completing and returning the request(s).
         /// If the limit is reached, any obtained data will be returned upon request cancellation.
         /// </para>
         /// <para>
         /// Min:        -1,
-        /// Max:        3,
+        /// Max:        5,
         /// Default:    -1.
         /// </para>
         /// </summary>
-        public short too_many_request_retry_limit
+        public short status_429_wait_limit
         {
             get
             {
-                return _too_many_request_retry_limit.value;
+                return _status_429_retry_limit.value;
             }
             set
             {
-                _too_many_request_retry_limit.value = value;
+                _status_429_retry_limit.value = value;
             }
         }
 
         /// <summary>
-        /// Determine how to handle the status code '429' - Too Many Requests
+        /// <para>Determine how to handle the status code '429 - Too Many Requests'.</para>
+        /// <para>Default: <see cref="Status429Handling.Wait"/>.</para>
         /// </summary>
-        public TooManyRequestHandling too_many_request_handling
+        public StatusHandling status_429_handling
         {
             get
             {
-                return _too_many_request_handling;
+                return _status_429_handling;
             }
             set
             {
-                _too_many_request_handling = value;
+                _status_429_handling = value;
             }
         }
 
         /// <summary>
-        /// <para>How many times to retry making the request if status code '500' - Internal Server Error is returned.
+        /// <para>How many times to retry making the request if status code '500 - Internal Server Error' is returned.
         /// When set to -1, the request will retry infinitely until the request(s) succeeds.
         /// If the limit is reached, any obtained data will be returned upon request cancellation.
         /// </para>
         /// <para>
         /// Min:        -1,
-        /// Max:        3,
+        /// Max:        1,
         /// Default:    1.
         /// </para>
         /// </summary>
-        public short internal_server_error_retry_limit
+        public short status_500_retry_limit
         {
             get
             {
-                return _internal_server_error_retry_limit.value;
+                return _status_500_retry_limit.value;
             }
             set
             {
-                _internal_server_error_retry_limit.value = value;
+                _status_500_retry_limit.value = value;
             }
         }
 
         /// <summary>
-        /// Determine how to handle the status code '500' - Intenral Server Error
+        /// <para>Determine how to handle the status code '500 - Intenral Server Error'.</para>
+        /// <para>Default: <see cref="Status500Handling.Error"/>.</para>
         /// </summary>
-        public InternalServerErrorHandling internal_server_error_handling
+        public StatusHandling status_500_handling
         {
             get
             {
-                return _internal_server_error_handling;
+                return _status_500_handling;
             }
             set
             {
-                _internal_server_error_handling = value;
+                _status_500_handling = value;
             }
+        }
+
+        /// <summary>
+        /// <para>Determine how to handle the status code '503 - Service Unavailable'.</para>
+        /// <para>Default: <see cref="StatusHandling.Retry"/>.</para>
+        /// </summary>
+        public StatusHandling status_503_handling
+        {
+            get
+            {
+                return _status_503_handling;
+            }
+            set
+            {
+                _status_503_handling = value;
+            }
+        }
+
+        #endregion
+
+        #region Constructors
+
+        public ApiRequestSettings()
+        {
+            Default();
+        }
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Resets all API request settings back to their default values.
+        /// </summary>
+        public void
+        Default()
+        {
+            _status_default_retry_limit         = new ClampedNumber<short>(1, 1, 1);
+            _status_default_handling            = StatusHandling.Error;
+            _status_default_hanlding_settings   = new StatusHandlingSettings(_status_default_retry_limit, _status_default_handling);
+
+            _status_429_retry_limit             = new ClampedNumber<short>(-1, 5, -1);
+            _status_429_handling                = StatusHandling.Retry;
+            _status_429_hanlding_settings       = new StatusHandlingSettings(_status_429_retry_limit, _status_429_handling);
+
+            _status_500_retry_limit             = new ClampedNumber<short>(-1, 1, 1);
+            _status_500_handling                = StatusHandling.Error;
+            _status_500_hanlding_settings       = new StatusHandlingSettings(_status_500_retry_limit, _status_500_handling);
+
+            _status_503_retry_limit             = new ClampedNumber<short>(1, 1, 1);
+            _status_503_handling                = StatusHandling.Retry;
+            _status_503_hanlding_settings       = new StatusHandlingSettings(_status_503_retry_limit, _status_503_handling);
+
+            status_handlers_settings = new Dictionary<ushort, StatusHandlingSettings>();
+            status_handlers_settings.Add(000, _status_default_hanlding_settings);
+            status_handlers_settings.Add(429, _status_429_hanlding_settings);
+            status_handlers_settings.Add(500, _status_500_hanlding_settings);
+            status_handlers_settings.Add(503, _status_503_hanlding_settings);
         }
 
         #endregion

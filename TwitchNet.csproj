@@ -59,9 +59,8 @@
     <Compile Include="Debug\Error.cs" />
     <Compile Include="Debug\Log.cs" />
     <Compile Include="Enums\Api\Entitlements\EntitlementType.cs" />
+    <Compile Include="Enums\Api\StatusHandling.cs" />
     <Compile Include="Enums\Api\Videos\VideoLanguage.cs" />
-    <Compile Include="Enums\Api\InternalServerErrorHandling.cs" />
-    <Compile Include="Enums\Api\TooManyRequestsHandling.cs" />
     <Compile Include="Enums\Api\Streams\StreamLanguage.cs" />
     <Compile Include="Enums\Api\Streams\StreamType.cs" />
     <Compile Include="Enums\Api\Users\BroadcasterType.cs" />
@@ -88,6 +87,7 @@
     <Compile Include="Models\Api\Entitlements\Url.cs" />
     <Compile Include="Models\Api\ApiDataPage.cs" />
     <Compile Include="Models\Api\ApiData.cs" />
+    <Compile Include="Models\Api\StatusHandlingSettings.cs" />
     <Compile Include="Models\Api\Streams\Hearthstone.cs" />
     <Compile Include="Models\Api\Streams\HearthstoneHero.cs" />
     <Compile Include="Models\Api\Streams\Player.cs" />

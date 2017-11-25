@@ -14,8 +14,6 @@ TwitchNet.Models.Api
     internal class
     ApiResponse : IApiResponse
     {
-        #region Properties
-
         /// <summary>
         /// The error message returned with the response by Twitch.
         /// This is only valid when an error is encountered.
@@ -37,10 +35,6 @@ TwitchNet.Models.Api
         /// </summary>
         public RateLimit        rate_limit          { get; internal set; }
 
-        #endregion
-
-        #region Constructors
-
         public ApiResponse()
         {
 
@@ -54,24 +48,16 @@ TwitchNet.Models.Api
 
             this.rate_limit     = rate_limit;
         }
-
-        #endregion       
     }
 
     internal class
     ApiResponse<type> : ApiResponse, IApiResponse<type>
     where type : class, new()
     {
-        #region Properties
-
         /// <summary>
         /// Contains the deserialized result from the Twitch API.
         /// </summary>
         public ApiData<type> result { get; internal set; }
-
-        #endregion
-
-        #region Constructors
 
         public ApiResponse()
         {
@@ -82,10 +68,6 @@ TwitchNet.Models.Api
         {
             result = response.Data;
         }
-
-        #endregion
-
-        #region Methods
 
         /// <summary>
         /// Clones the base properties from a <see cref="ApiResponse"/> instance to a <see cref="ApiResponse{type}"/> instance.
@@ -100,7 +82,5 @@ TwitchNet.Models.Api
 
             rate_limit          = response.rate_limit;
         }
-
-        #endregion
     }
 }

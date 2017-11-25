@@ -133,7 +133,7 @@ TwitchNet.Utilities
             ApiResponse<return_type> twitch_response = new ApiResponse<return_type>();
             twitch_response.result = new ApiData<return_type>();
             twitch_response.result.data = new List<return_type>();
-
+            \
             bool requesting = true;
             do
             {
@@ -171,11 +171,12 @@ TwitchNet.Utilities
         /// The model <see cref="Type"/> to deserialize the result as.
         /// Restircted to a class.
         /// </typeparam>
-        /// <param name="request">The rest request to execute.</param>
+        /// <param name="rest_request">The rest request to execute.</param>
         /// <returns>Returns an instance of the <see cref="ApiResponse{type}"/> model.</returns>
+        /// <exception cref="Exception">Thrown if an error is returned by Twitch after making the request.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static async Task<(IRestResponse<return_type> rest_response, RateLimit rate_limit, ApiError api_error)>
-        ExecuteRequestAsync<return_type>(IRestRequest request, ApiRequestSettings settings)
+        ExecuteRequestAsync<return_type>(IRestRequest rest_request, ApiRequestSettings settings)
         where return_type : class, new()
         {
             if (settings.IsNullOrDefault())
@@ -184,80 +185,92 @@ TwitchNet.Utilities
             }            
 
             RestClient client = Client();
-            IRestResponse<return_type> rest_response = await client.ExecuteTaskAsync<return_type>(request);
+            IRestResponse<return_type> rest_response = await client.ExecuteTaskAsync<return_type>(rest_request);
 
             RateLimit rate_limit = new RateLimit(rest_response);
-
             ApiError api_error = JsonConvert.DeserializeObject<ApiError>(rest_response.Content);
 
-            // TODO: ExecuteRequestAsync - Implement more customizable settings for each request that the user can tweak
-            switch ((ushort)rest_response.StatusCode) 
-            {
-                case 429:
-                {
-                    rest_response = await StatusHandler_TooManyRequest(request, rest_response, rate_limit, settings);
-                }
-                break;
-
-                case 500:
-                {
-                    rest_response = await StatusHandler_IntenralServerError(request, rest_response, rate_limit, settings);
-                }
-                break;
-
-                default:
-                {
-                    ExceptionUtil.ThrowIf(api_error.message.IsValid(), api_error.status + ": " + api_error.error + " - " + api_error.message);
-                }
-                break;
-            }
+            rest_response = await HandleStatus(rest_response, rate_limit, api_error, settings);
 
             return (rest_response, rate_limit, api_error);
         }
 
         #endregion
 
-        #region Status handlers
+        #region Status handler methods
 
+        /// <summary>
+        /// Handles the status code returned witht the rest response.
+        /// </summary>
+        /// <typeparam name="return_type">
+        /// The model <see cref="Type"/> to deserialize the result as when retrying.
+        /// Restircted to a class.
+        /// </typeparam>
+        /// <param name="rest_request">The rest request to execute.</param>
+        /// <param name="rest_response">The rest client to execute the reuest.</param>
+        /// <param name="rate_limit">Contains the request limit, requests remaining, and when the rate limit resets.</param>
+        /// <param name="api_request_settings">A set up customizable settings to handle diferent status codes.</param>
+        /// <returns>Returns the <see cref="IRestResponse{T}"/>.</returns>
         private static async Task<IRestResponse<return_type>>
-        StatusHandler_TooManyRequest<return_type>(IRestRequest request, IRestResponse<return_type> response, RateLimit rate_limit, ApiRequestSettings settings)
+        HandleStatus<return_type>(IRestResponse<return_type> rest_response, RateLimit rate_limit, ApiError api_error, ApiRequestSettings api_request_settings)
         where return_type : class, new()
         {
-            switch (settings.too_many_request_handling)
+            ushort status = (ushort)rest_response.StatusCode;
+            string status_prefix = "'" + status + " " + rest_response.StatusDescription + "'";
+
+            // no error, return the valid response
+            if (!api_error.error.IsValid() || rest_response.IsSuccessful)
             {
-                case TooManyRequestHandling.Error:
+                Log.PrintLine(ConsoleColor.Green, status_prefix);
+
+                return rest_response;
+            }
+
+            // small hack to use the deault handler '000' since it isn't a real status code
+            if (!api_request_settings.status_handlers_settings.ContainsKey(status))
+            {
+                status = 000;
+            }
+
+            // error handling happens here 
+            switch (api_request_settings.status_handlers_settings[status].handling)
+            {
+                case StatusHandling.Error:
                 {
-                    throw new Exception("Status Code: " + response.StatusCode + " - " + response.StatusDescription);
+                    throw new Exception(status_prefix + ": "+ api_error.message);
                 }
 
-                case TooManyRequestHandling.Wait:
+                case StatusHandling.Retry:
                 {
-                    lock (settings)
+                    lock (api_request_settings)
                     {
-                        ++settings._too_many_request_retry_count;
-                        if(settings._too_many_request_retry_count > settings.too_many_request_retry_limit)
+                        ++api_request_settings.status_handlers_settings[status].retry_count;
+                        if(api_request_settings.status_handlers_settings[status].retry_count > api_request_settings.status_handlers_settings[status].retry_limit.value && api_request_settings.status_handlers_settings[status].retry_limit.value != -1)
                         {
-                            Log.Warning(TimeStamp.TimeLong, "Status '429' receieved from Twitch. Wait limit " + settings.too_many_request_retry_limit + " reached. Cancelling request.");
-                            settings._too_many_request_retry_count = 0;
+                            Log.Warning(TimeStamp.TimeLong, status_prefix + " receieved from Twitch. Retry limit " + api_request_settings.status_handlers_settings[status].retry_limit.value + " reached. Cancelling request.");
+                            api_request_settings.status_handlers_settings[status].retry_count = 0;
 
                             break;
                         }
                     }
 
+                    // this should only ever be a concern when '429 - Too Many Requests' is receieved
                     TimeSpan time = rate_limit.reset - DateTime.Now;
                     if (time.TotalMilliseconds > 0)
                     {
-                        Log.Warning(TimeStamp.TimeLong, "Status '429' receieved from Twitch. Waiting " + time.TotalMilliseconds + "ms to execute request again.");
+                        Log.Warning(TimeStamp.TimeLong, "Request rate limit reached. Waiting " + time.TotalMilliseconds + "ms to execute request again.");
                         await Task.Delay(time);
                     }
-
                     Log.Warning(TimeStamp.TimeLong, "Resuming request.");
-                    (IRestResponse<return_type> rest_response, RateLimit rate_limit, ApiError api_error) rest_result = await ExecuteRequestAsync<return_type>(request, settings);
-                    response = rest_result.rest_response;
+
+                    (IRestResponse<return_type> rest_response, RateLimit rate_limit, ApiError api_error) result = await ExecuteRequestAsync<return_type>(rest_response.Request, api_request_settings);
+                    rest_response   = result.rest_response;
+                    rate_limit      = result.rate_limit;
+                    api_error       = result.api_error;
                 }
                 break;
 
-                case TooManyRequestHandling.Ignore:
+                case StatusHandling.Ignore:
                 default:
                 {
 
@@ -265,49 +278,7 @@ TwitchNet.Utilities
                 break;
             }
 
-            return response;
-        }
-
-        private static async Task<IRestResponse<return_type>>
-        StatusHandler_IntenralServerError<return_type>(IRestRequest request, IRestResponse<return_type> response, RateLimit rate_limit, ApiRequestSettings settings)
-        where return_type : class, new()
-        {
-            switch (settings.internal_server_error_handling)
-            {
-                case InternalServerErrorHandling.Error:
-                {
-                    throw new Exception("Status Code: " + response.StatusCode + " - " + response.StatusDescription);
-                }
-
-                case InternalServerErrorHandling.Retry:
-                {
-                    lock (settings)
-                    {
-                        ++settings._internal_server_error_retry_count;
-                        if (settings._internal_server_error_retry_count > settings.internal_server_error_retry_limit && settings.internal_server_error_retry_limit != -1)
-                        {
-                            Log.Warning(TimeStamp.TimeLong, "Status '500' receieved from Twitch. Retry limit " + settings.internal_server_error_retry_limit + " reached. Cancelling request.");
-                            settings._internal_server_error_retry_count = 0;
-
-                            break;
-                        }
-                    }
-
-                    Log.Warning(TimeStamp.TimeLong, "Status '500' receieved from Twitch. Retrying, count = " + settings._internal_server_error_retry_count);
-                    (IRestResponse<return_type> rest_response, RateLimit rate_limit, ApiError api_error) rest_result = await ExecuteRequestAsync<return_type>(request, settings);
-                    response = rest_result.rest_response;
-                }
-                break;
-
-                case InternalServerErrorHandling.Ignore:
-                default:
-                {
-
-                }
-                break;
-            }
-
-            return response;
+            return rest_response;
         }
 
         #endregion

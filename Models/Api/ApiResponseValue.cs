@@ -7,16 +7,10 @@ TwitchNet.Models.Api
     internal class
     ApiResponseValue<type> : ApiResponse, IApiResponseValue<type>
     {
-        #region Properties
-
         /// <summary>
         /// Contains the deserialized result from the Twitch API.
         /// </summary>
         public type result { get; internal set; }
-
-        #endregion
-
-        #region Constructors
 
         public ApiResponseValue(IApiResponse response)
         {
@@ -31,7 +25,5 @@ TwitchNet.Models.Api
         {
             result = value;
         }
-
-        #endregion
     }
 }

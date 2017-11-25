@@ -9,6 +9,11 @@ namespace TwitchNet.Utilities
     internal static class
     ExceptionUtil
     {
+        /// <summary>
+        /// Thros an <see cref="Exception"/> if the conditon is true.
+        /// </summary>
+        /// <param name="condition">The condtion that needs to be true for the exception to be thrown.</param>
+        /// <param name="message">The excpetion message.</param>
         public static void
         ThrowIf(bool condition, string message)
         {
@@ -21,69 +26,31 @@ namespace TwitchNet.Utilities
         }
 
         /// <summary>
-        /// Throws an <see cref="ArgumentNullException"/> if the object is null.
+        /// Throws an <see cref="ArgumentException"/> if the string is null, empty, or whitespace
         /// </summary>
-        /// <param name="parameter_name">The name of the parameter.</param>
         /// <param name="parameter">The parameter to check.</param>
-        public static void
-        ThrowIfNull(object parameter, string parameter_name)
-        {
-            if (!parameter.IsNull())
-            {
-                return;
-            }
-
-            throw new ArgumentNullException(parameter_name, parameter_name + " cannot be null.");
-        }
-
-        /// <summary>
-        /// Throws an <see cref="ArgumentException"/> if the parameter is equal to its default value.
-        /// </summary>
-        /// <typeparam name="type">The parameter's type.</typeparam>
         /// <param name="parameter_name">The name of the parameter.</param>
-        /// <param name="parameter">The parameter to check.</param>
         public static void
-        ThrowIfDefault<type>(type parameter, string parameter_name)
+        ThrowIfInvalid(string parameter, string parameter_name)
         {
-            if (!parameter.IsDefault())
-            {
-                return;
-            }
-
-            throw new ArgumentException(parameter_name + " cannot be the default value, " + default(type), parameter_name);
-        }
-
-        /// <summary>
-        /// Throws an <see cref="ArgumentException"/> if the parameter is null or equal to its default value.
-        /// </summary>
-        /// <typeparam name="type">The parameter's type.</typeparam>
-        /// <param name="parameter_name">The name of the parameter.</param>
-        /// <param name="parameter">The parameter to check.</param>
-        public static void
-        ThrowIfNullOrDefault<type>(type parameter, string parameter_name)
-        {
-            if (parameter.IsNullOrDefault())
-            {
-                return;
-            }
-
-            throw new ArgumentException(parameter_name + " cannot be null or the default value, " + default(type), parameter_name);
+            ThrowIfInvalid(parameter, parameter_name, parameter_name + " cannot be null, empty, or whitspace.");
         }
 
         /// <summary>
         /// Throws an <see cref="ArgumentException"/> if the string is null, empty, or whitespace
         /// </summary>
-        /// <param name="parameter_name">The name of the parameter.</param>
         /// <param name="parameter">The parameter to check.</param>
+        /// <param name="parameter_name">The name of the parameter.</param>
+        /// <param name="message">The excpetion message.</param>
         public static void
-        ThrowIfInvalid(string parameter, string parameter_name)
+        ThrowIfInvalid(string parameter, string parameter_name, string message)
         {
-            if(parameter.IsValid())
+            if (parameter.IsValid())
             {
                 return;
             }
 
-            throw new ArgumentException(parameter_name + " cannot be null, empty, or whitspace.", parameter_name);
-        }        
+            throw new ArgumentException(message, parameter_name);
+        }
     }
 }

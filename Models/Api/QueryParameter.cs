@@ -7,17 +7,11 @@ TwitchNet.Models.Api
     public class
     QueryParameter
     {
-        #region Fields
-
         private string _name;
         private string _name_default = string.Empty;
 
         private string _value;
         private string _value_default = string.Empty;
-
-        #endregion
-
-        #region Properties
 
         /// <summary>
         /// The string value to be added as a query parameter.
@@ -49,10 +43,6 @@ TwitchNet.Models.Api
             }
         }
 
-        #endregion
-
-        #region Constructors
-
         public QueryParameter()
         {
 
@@ -63,7 +53,5 @@ TwitchNet.Models.Api
             this.name = name;
             this.value = value;
         }
-
-        #endregion
     }
 }

@@ -17,7 +17,7 @@ TwitchNet.Debug
     {
         #region Fields
 
-        private static LogLevel _level = LogLevel.None;
+        private static LogLevel _level = LogLevel.All;
 
         #endregion
 

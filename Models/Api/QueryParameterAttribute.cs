@@ -8,8 +8,6 @@ TwitchNet.Models.Api
     internal sealed class
     QueryParameterAttribute : Attribute
     {
-        #region Properties
-
         /// <summary>
         /// Whether or not to make the query parameter value lower case.
         /// </summary>
@@ -20,16 +18,10 @@ TwitchNet.Models.Api
         /// </summary>
         public string               query_name          { get; set; }
 
-        #endregion
-
-        #region Constructors
-
         public QueryParameterAttribute(string query_name, bool to_lower = true)
         {
             this.query_name = query_name;
             this.to_lower = to_lower;
         }
-
-        #endregion
     }
 }

@@ -14,16 +14,10 @@ TwitchNet.Models.Api
     public class
     RateLimit
     {
-        #region Properties
-
         public ushort   limit       { get; protected set; }
         public ushort   remaining   { get; protected set; }
 
         public DateTime reset       { get; protected set; }
-
-        #endregion
-
-        #region Constructors
 
         public RateLimit(IRestResponse response)
         {
@@ -37,10 +31,6 @@ TwitchNet.Models.Api
             double _reset_double    = Convert.ToDouble(_reset);
             reset                   = _reset_double.ToDateTimeFromUnixEpoch();
         }
-
-        #endregion
-
-        #region Methods
 
         private static Parameter GetHeader(IList<Parameter> headers, string name)
         {
@@ -58,7 +48,5 @@ TwitchNet.Models.Api
 
             return _header;
         }
-
-        #endregion
     }
 }

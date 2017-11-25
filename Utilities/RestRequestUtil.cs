@@ -21,15 +21,16 @@ using RestSharp;
 namespace 
 TwitchNet.Utilities
 {    
-    internal static class RestRequestUtil
+    internal static class
+    RestRequestUtil
     {
         #region Execute methods
 
         /// <summary>
         /// Asynchronously executes a Twitch API rest request using both an Bearer token and a client id for authenticrion.
         /// </summary>
-        /// <typeparam name="return_type">
-        /// The model <see cref="Type"/> to deserialize the result as.
+        /// <typeparam name="data_type">
+        /// The <see cref="Type"/> of the JSON data object.
         /// Restircted to a class.
         /// </typeparam>
         /// <param name="endpoint">The Twitch API endpoint url.</param>
@@ -37,10 +38,11 @@ TwitchNet.Utilities
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
         /// <param name="query_parameters">A set of parameters to customize the requests.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns an instance of the <see cref="ApiResponse{type}"/> model.</returns>
-        public static async Task<ApiResponse<return_type>>
-        ExecuteRequestAsync<return_type>(string endpoint, Method method, string bearer_token, string client_id, IList<QueryParameter> query_parameters, ApiRequestSettings api_request_settings)
-        where return_type : class, new()
+        public static async Task<ApiResponse<data_type>>
+        ExecuteRequestAsync<data_type>(string endpoint, Method method, string bearer_token, string client_id, IList<QueryParameter> query_parameters, ApiRequestSettings api_request_settings)
+        where data_type : class, new()
         {
             if (api_request_settings.IsNull())
             {
@@ -50,8 +52,8 @@ TwitchNet.Utilities
             RestRequest request = Request(endpoint, method, bearer_token, client_id, api_request_settings);
             request = PagingUtil.AddPaging(request, query_parameters);
 
-            (IRestResponse<ApiData<return_type>> rest_response, RateLimit rate_limit, ApiError api_error) rest_result = await ExecuteRequestAsync<ApiData<return_type>>(request, api_request_settings);            
-            ApiResponse<return_type> api_response = new ApiResponse<return_type>(rest_result.rest_response, rest_result.rate_limit, rest_result.api_error);
+            (IRestResponse<ApiData<data_type>> rest_response, RateLimit rate_limit, ApiError api_error) rest_result = await ExecuteRequestAsync<ApiData<data_type>>(request, api_request_settings);            
+            ApiResponse<data_type> api_response = new ApiResponse<data_type>(rest_result.rest_response, rest_result.rate_limit, rest_result.api_error);
 
             return api_response;
         }
@@ -59,8 +61,8 @@ TwitchNet.Utilities
         /// <summary>
         /// Asynchronously executes a Twitch API rest request using both an Bearer token and a client id for authenticrion.
         /// </summary>
-        /// <typeparam name="return_type">
-        /// The model <see cref="Type"/> to deserialize the result as.
+        /// <typeparam name="data_type">
+        /// The <see cref="Type"/> of the JSON data object.
         /// Restircted to a class.
         /// </typeparam>
         /// <typeparam name="query_parameters_type">
@@ -72,10 +74,11 @@ TwitchNet.Utilities
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
         /// <param name="query_parameters">A set of parameters to customize the requests.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns an instance of the <see cref="ApiResponse{type}"/> model.</returns>
-        public static async Task<ApiResponse<return_type>>
-        ExecuteRequestAsync<return_type, query_parameters_type>(string endpoint, Method method, string bearer_token, string client_id, query_parameters_type query_parameters, ApiRequestSettings api_request_settings)
-        where return_type           : class, new()
+        public static async Task<ApiResponse<data_type>>
+        ExecuteRequestAsync<data_type, query_parameters_type>(string endpoint, Method method, string bearer_token, string client_id, query_parameters_type query_parameters, ApiRequestSettings api_request_settings)
+        where data_type             : class, new()
         where query_parameters_type : class, new()
         {
             if (api_request_settings.IsNull())
@@ -86,8 +89,8 @@ TwitchNet.Utilities
             RestRequest request = Request(endpoint, method, bearer_token, client_id, api_request_settings);
             request = PagingUtil.AddPaging(request, query_parameters);
 
-            (IRestResponse<ApiData<return_type>> rest_response, RateLimit rate_limit, ApiError api_error) rest_result = await ExecuteRequestAsync<ApiData<return_type>>(request, api_request_settings);
-            ApiResponse<return_type> api_response = new ApiResponse<return_type>(rest_result.rest_response, rest_result.rate_limit, rest_result.api_error);
+            (IRestResponse<ApiData<data_type>> rest_response, RateLimit rate_limit, ApiError api_error) rest_result = await ExecuteRequestAsync<ApiData<data_type>>(request, api_request_settings);
+            ApiResponse<data_type> api_response = new ApiResponse<data_type>(rest_result.rest_response, rest_result.rate_limit, rest_result.api_error);
 
             return api_response;
         }
@@ -96,7 +99,7 @@ TwitchNet.Utilities
         /// Asynchronously executes a paged Twitch API rest request using both an Bearer token and a client id for authenticrion.
         /// </summary>
         /// <typeparam name="data_type">
-        /// The model <see cref="Type"/> of the <code>data</code> list in the payload.
+        /// The <see cref="Type"/> of the JSON data object.
         /// Restircted to a class.
         /// </typeparam>
         /// <param name="endpoint">The Twitch API endpoint url.</param>
@@ -104,6 +107,7 @@ TwitchNet.Utilities
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
         /// <param name="query_parameters">A set of parameters to customize the requests.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns an instance of the <see cref="ApiResponsePage{type}"/> model.</returns>
         public static async Task<ApiResponsePage<data_type>>
         ExecuteRequestPageAsync<data_type>(string endpoint, Method method, string bearer_token, string client_id, QueryParametersPage query_parameters, ApiRequestSettings api_request_settings)
@@ -135,11 +139,15 @@ TwitchNet.Utilities
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
         /// <param name="query_parameters">A set of parameters to customize the requests.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns an instance of the <see cref="ApiResponse{type}"/> model.</returns>
         public static async Task<ApiResponse<return_type>>
         ExecuteRequestAllPagesAsync<return_type>(string endpoint, Method method, string bearer_token, string client_id, QueryParametersPage query_parameters, ApiRequestSettings api_request_settings)
         where return_type : class, new()
         {
+            ApiResponse<return_type> api_response = new ApiResponse<return_type>();
+            List<return_type> data = new List<return_type>();
+
             if (api_request_settings.IsNull())
             {
                 api_request_settings = new ApiRequestSettings();
@@ -151,18 +159,12 @@ TwitchNet.Utilities
             }
             query_parameters.first = 100;
 
-            ApiResponse<return_type> api_response = new ApiResponse<return_type>();
-
-            List<return_type> data = new List<return_type>();
             bool requesting = true;
             do
             {
-                // request the page and add each element to the result
-                // TODO: ExecuteRequestAsync - Need to handle '429' TooManyRequestHandling.Ignore here for multi-page responses
                 ApiResponsePage<return_type> _api_response = await ExecuteRequestPageAsync<return_type>(endpoint, method, bearer_token, client_id, query_parameters, api_request_settings);
                 data.AddRange(_api_response.result.data);
 
-                // check to see if there is a new page to request
                 requesting = _api_response.result.data.IsValid() && _api_response.result.pagination.cursor.IsValid();
                 if (requesting)
                 {
@@ -196,37 +198,40 @@ TwitchNet.Utilities
         /// <summary>
         /// Asynchronously executes a Twitch API rest request.
         /// </summary>
-        /// <typeparam name="return_type">
+        /// <typeparam name="data_type">
         /// The model <see cref="Type"/> to deserialize the result as.
         /// Restircted to a class.
         /// </typeparam>
         /// <param name="rest_request">The rest request to execute.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns a <see cref="Tuple{T1, T2, T3}"/> that contains the <see cref="IRestResponse{T}"/>, <see cref="RateLimit"/>, and <see cref="ApiError"/> respectivley.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static async Task<(IRestResponse<return_type> rest_response, RateLimit rate_limit, ApiError api_error)>
-        ExecuteRequestAsync<return_type>(IRestRequest rest_request, ApiRequestSettings api_request_settings)
-        where return_type : class, new()
+        internal static async Task<(IRestResponse<data_type>, RateLimit, ApiError)>
+        ExecuteRequestAsync<data_type>(IRestRequest rest_request, ApiRequestSettings api_request_settings)
+        where data_type : class, new()
         {
-            IRestResponse<return_type> rest_response = new RestResponse<return_type>();
+            IRestResponse<data_type> rest_response = new RestResponse<data_type>();
             RateLimit rate_limit = new RateLimit();
             ApiError api_error = new ApiError();
 
             try
             {
                 RestClient client = Client();
-                rest_response   = await client.ExecuteTaskAsync<return_type>(rest_request);
-
-                if(api_request_settings.internal_error_handling == ErrorHandling.Error && !rest_response.ErrorException.IsNull())
+                rest_response = await client.ExecuteTaskAsync<data_type>(rest_request);
+                if(api_request_settings.internal_error_handling == ErrorHandling.Error && !rest_response.ErrorException.IsNullOrDefault())
                 {
                     Log.Error(Log.FormatColumns(nameof(rest_response.ErrorException), rest_response.ErrorException.Message));
 
                     throw rest_response.ErrorException;
                 }
 
-                rate_limit      = new RateLimit(rest_response);
-                api_error       = JsonConvert.DeserializeObject<ApiError>(rest_response.Content);
+                rate_limit = new RateLimit(rest_response);
+                api_error = JsonConvert.DeserializeObject<ApiError>(rest_response.Content);
 
-                rest_response   = await HandleStatus(rest_response, rate_limit, api_error, api_request_settings);
+                (IRestResponse<data_type> rest_response, RateLimit rate_limit, ApiError api_error) rest_result = await HandleStatus(rest_response, rate_limit, api_error, api_request_settings);
+                rest_response = rest_result.rest_response;
+                rate_limit = rest_result.rate_limit;
+                api_error = rest_result.api_error;
             }
             catch(Exception exception)
             {
@@ -252,13 +257,13 @@ TwitchNet.Utilities
         /// The model <see cref="Type"/> to deserialize the result as when retrying.
         /// Restircted to a class.
         /// </typeparam>
-        /// <param name="rest_request">The rest request to execute.</param>
         /// <param name="rest_response">The rest client to execute the reuest.</param>
         /// <param name="rate_limit">Contains the request limit, requests remaining, and when the rate limit resets.</param>
-        /// <param name="api_request_settings">A set up customizable settings to handle diferent status codes.</param>
-        /// <returns>Returns the <see cref="IRestResponse{T}"/>.</returns>
+        /// <param name="api_error">The API error that is returned with a bad request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns a <see cref="Tuple{T1, T2, T3}"/> that contains the <see cref="IRestResponse{T}"/>, <see cref="RateLimit"/>, and <see cref="ApiError"/> respectivley.</returns>
         /// <exception cref="Exception">Thrown when an API error is returned by Twitch or when an internal <see cref="Exception"/> is encountered.</exception>
-        private static async Task<IRestResponse<return_type>>
+        private static async Task<(IRestResponse<return_type>, RateLimit, ApiError)>
         HandleStatus<return_type>(IRestResponse<return_type> rest_response, RateLimit rate_limit, ApiError api_error, ApiRequestSettings api_request_settings)
         where return_type : class, new()
         {
@@ -270,7 +275,7 @@ TwitchNet.Utilities
             {
                 Log.PrintLine(status_prefix);
 
-                return rest_response;
+                return (rest_response, rate_limit, api_error);
             }
 
             // small hack to use the deault handler '000' since it isn't a real status code
@@ -307,15 +312,15 @@ TwitchNet.Utilities
                     TimeSpan time = rate_limit.reset - DateTime.Now;
                     if (time.TotalMilliseconds > 0)
                     {
-                        Log.Warning(TimeStamp.TimeLong, "Request rate limit reached. Waiting " + time.TotalMilliseconds + "ms to execute request again.");
+                        Log.Warning(TimeStamp.TimeLong, "Request rate limit reached. Waiting " + time.TotalMilliseconds + "ms to execute the request again.");
                         await Task.Delay(time);
+                        Log.Warning(TimeStamp.TimeLong, "Resuming request.");
                     }
-                    Log.Warning(TimeStamp.TimeLong, "Resuming request.");
 
                     (IRestResponse<return_type> rest_response, RateLimit rate_limit, ApiError api_error) result = await ExecuteRequestAsync<return_type>(rest_response.Request, api_request_settings);
-                    rest_response   = result.rest_response;
-                    rate_limit      = result.rate_limit;
-                    api_error       = result.api_error;
+                    rest_response = result.rest_response;
+                    rate_limit = result.rate_limit;
+                    api_error = result.api_error;
                 }
                 break;
 
@@ -327,7 +332,7 @@ TwitchNet.Utilities
                 break;
             }
 
-            return rest_response;
+            return (rest_response, rate_limit, api_error);
         }
 
         #endregion
@@ -341,6 +346,7 @@ TwitchNet.Utilities
         /// <param name="method">The HTTP method used when making the request.</param>
         /// <param name="bearer_token">The Bearer token or Client Id to authorize the request when only either is provided. If both are being provided, this is assumed to be the Bearer token.</param>
         /// <param name="client_id">The Client Id if both the Bearer token and Client Id are being provided.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns in instance of the <see cref="RestRequest"/> with the added bearer_token, client id, or both.</returns>
         /// <exception cref="ArgumentException">Thrown if both the <paramref name="bearer_token"/> and <paramref name="client_id"/> are invalid.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

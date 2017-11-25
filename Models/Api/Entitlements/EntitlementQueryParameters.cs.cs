@@ -13,15 +13,9 @@ TwitchNet.Models.Api.Entitlements
     public class
     EntitlementQueryParameters
     {
-        #region Fields
-
         private string              _manifest_id;
 
         private EntitlementType?    _type;
-
-        #endregion
-
-        #region Properties
 
         /// <summary>
         /// Unique identifier of the manifest file to be uploaded. Must be 1-64 characters.
@@ -60,15 +54,9 @@ TwitchNet.Models.Api.Entitlements
             }
         }
 
-        #endregion
-
-        #region Contstructors
-
         public EntitlementQueryParameters()
         {
 
         }
-
-        #endregion
     }
 }

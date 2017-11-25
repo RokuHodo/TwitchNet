@@ -9,7 +9,8 @@ using TwitchNet.Helpers;
 namespace
 TwitchNet.Models.Api
 {
-    public class ApiRequestSettings
+    public class
+    ApiRequestSettings
     {
         #region Fields
 
@@ -24,22 +25,22 @@ TwitchNet.Models.Api
         // default status handling
         internal ClampedNumber<short>                       _status_default_retry_limit;
         internal StatusHandling                             _status_default_handling;
-        StatusHandlingSettings                              _status_default_hanlding_settings;
+        internal StatusHandlingSettings                              _status_default_hanlding_settings;
 
         // 429 status handling
         internal ClampedNumber<short>                       _status_429_retry_limit;
         internal StatusHandling                             _status_429_handling;
-        StatusHandlingSettings                              _status_429_hanlding_settings;
+        internal StatusHandlingSettings                     _status_429_hanlding_settings;
 
         // 500 status handling
         internal ClampedNumber<short>                       _status_500_retry_limit;
         internal StatusHandling                             _status_500_handling;
-        StatusHandlingSettings                              _status_500_hanlding_settings;
+        internal StatusHandlingSettings                     _status_500_hanlding_settings;
 
         // 503 status handling
         internal ClampedNumber<short>                       _status_503_retry_limit;
         internal StatusHandling                             _status_503_handling;
-        StatusHandlingSettings                              _status_503_hanlding_settings;
+        internal StatusHandlingSettings                     _status_503_hanlding_settings;
 
         #endregion
 
@@ -82,7 +83,7 @@ TwitchNet.Models.Api
         /// Determine how to handle any error returned that is returned by the twitchg API.
         /// This is the fall back handling if an error is not already handled by another handler setting.
         /// </para>
-        /// <para>Default: <see cref="ApiErrorHandling.Error"/>.</para>
+        /// <para>Default: <see cref="StatusHandling.Error"/>.</para>
         /// </summary>
         public StatusHandling api_error_handling
         {
@@ -108,7 +109,7 @@ TwitchNet.Models.Api
         /// Default:    -1.
         /// </para>
         /// </summary>
-        public short status_429_wait_limit
+        public short status_429_retry_limit
         {
             get
             {
@@ -122,7 +123,7 @@ TwitchNet.Models.Api
 
         /// <summary>
         /// <para>Determine how to handle the status code '429 - Too Many Requests'.</para>
-        /// <para>Default: <see cref="Status429Handling.Wait"/>.</para>
+        /// <para>Default: <see cref="StatusHandling.Wait"/>.</para>
         /// </summary>
         public StatusHandling status_429_handling
         {
@@ -161,7 +162,7 @@ TwitchNet.Models.Api
 
         /// <summary>
         /// <para>Determine how to handle the status code '500 - Intenral Server Error'.</para>
-        /// <para>Default: <see cref="Status500Handling.Error"/>.</para>
+        /// <para>Default: <see cref="StatusHandling.Error"/>.</para>
         /// </summary>
         public StatusHandling status_500_handling
         {

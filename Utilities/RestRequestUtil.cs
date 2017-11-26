@@ -278,7 +278,7 @@ TwitchNet.Utilities
                 return (rest_response, rate_limit, api_error);
             }
 
-            // little hack to use the deault handler '000' since it isn't a real status code
+            // small hack to use the deault handler '000' since it isn't a real status code
             if (!api_request_settings._status_handlers_settings.ContainsKey(status))
             {
                 status = 000;

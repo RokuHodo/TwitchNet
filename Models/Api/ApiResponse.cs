@@ -18,7 +18,7 @@ TwitchNet.Models.Api
         /// The error message returned with the response by Twitch.
         /// This is only valid when an error is encountered.
         /// </summary>
-        public string           status_error       { get; internal set; }
+        public string           status_error        { get; internal set; }
 
         /// <summary>
         /// The description of the status code returned.
@@ -40,13 +40,13 @@ TwitchNet.Models.Api
 
         }
 
-        public ApiResponse(IRestResponse response, RateLimit rate_limit, ApiError api_error)
+        public ApiResponse((IRestResponse rest_response, RateLimit rate_limit, ApiError api_error) rest_result)
         {
-            status_code         = response.StatusCode;
-            status_description  = response.StatusDescription;
-            status_error        = api_error.message.IsValid() ? api_error.message : string.Empty;
+            status_code         = rest_result.rest_response.StatusCode;
+            status_description  = rest_result.rest_response.StatusDescription;
+            status_error        = rest_result.api_error.message.IsValid() ? rest_result.api_error.message : string.Empty;
 
-            this.rate_limit     = rate_limit;
+            rate_limit          = rest_result.rate_limit;
         }
     }
 
@@ -64,9 +64,9 @@ TwitchNet.Models.Api
 
         }
 
-        public ApiResponse(IRestResponse<ApiData<type>> response, RateLimit rate_limit, ApiError api_error) : base(response, rate_limit, api_error)
+        public ApiResponse((IRestResponse<ApiData<type>> rest_response, RateLimit rate_limit, ApiError api_error) rest_result) : base(rest_result)
         {
-            result = response.Data;
+            result = rest_result.rest_response.Data;
         }
     }
 }

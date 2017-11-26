@@ -167,7 +167,7 @@ TwitchNet.Extensions
         }
 
         /// <summary>
-        /// Checks if a comparable value is between two values.
+        /// Checks if a comparable value is between two values, inclusive.
         /// </summary>
         /// <typeparam name="type">The value's implicit type.</typeparam>
         /// <param name="value">The value to be checked.</param>

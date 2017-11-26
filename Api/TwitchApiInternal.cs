@@ -45,6 +45,10 @@ TwitchNet.Api
             {
                 ExceptionUtil.ThrowIfNullOrDefault(query_parameters, nameof(query_parameters));
                 ExceptionUtil.ThrowIfInvalid(query_parameters.manifest_id, nameof(query_parameters.manifest_id));
+                if (!query_parameters.manifest_id.Length.IsInRange(1, 64))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(query_parameters.manifest_id), query_parameters.manifest_id, nameof(query_parameters.manifest_id) + " must be between 1 and 64 characters, inclusive.");
+                }
                 ExceptionUtil.ThrowIfNull(query_parameters.type, nameof(query_parameters.type));
             }
 
@@ -78,8 +82,7 @@ TwitchNet.Api
                 ExceptionUtil.ThrowIfNullOrDefault(query_parameters, nameof(query_parameters));
                 if(!query_parameters.ids.IsValid() && !query_parameters.names.IsValid())
                 {
-                    throw new ArgumentException("At leats one valid game name or ID must be provided.");
-                }
+                    throw new ArgumentException("At least one valid game name or ID must be provided.");                }
             }
 
             IApiResponse<Game> games = await RestRequestUtil.ExecuteRequestAsync<Game, GamesQueryParameters>("games", Method.GET, bearer_token, client_id, query_parameters, api_request_settings);
@@ -244,7 +247,7 @@ TwitchNet.Api
             {
                 if (!from_id.IsValid() && !to_id.IsValid())
                 {
-                    throw new ArgumentException("At least one " + nameof(from_id) + " or " + nameof(to_id) + " must be privided");
+                    throw new ArgumentException("At least one " + nameof(from_id) + " or " + nameof(to_id) + " must be provided");
                 }
             }
 
@@ -282,7 +285,7 @@ TwitchNet.Api
             {
                 if(!from_id.IsValid() && !to_id.IsValid())
                 {
-                    throw new ArgumentException("At least one " + nameof(from_id) + " or " + nameof(to_id) + " must be privided");
+                    throw new ArgumentException("At least one " + nameof(from_id) + " or " + nameof(to_id) + " must be provided");
                 }
             }
 

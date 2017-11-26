@@ -77,7 +77,7 @@ namespace TwitchNet.Utilities
         public static void
         ThrowIfInvalid(string parameter, string parameter_name)
         {
-            ThrowIfInvalid(parameter, parameter_name, parameter_name + " cannot be null, empty, or whitspace.");
+            ThrowIfInvalid(parameter, parameter_name, parameter_name + " cannot be null, empty, or whitespace.");
         }
 
         /// <summary>

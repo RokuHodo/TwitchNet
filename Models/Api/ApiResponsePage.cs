@@ -21,9 +21,9 @@ TwitchNet.Models.Api
 
         }
 
-        public ApiResponsePage(IRestResponse<ApiDataPage<type>> response, RateLimit rate_limit, ApiError api_error) : base(response, rate_limit, api_error)
+        public ApiResponsePage((IRestResponse<ApiDataPage<type>> rest_response, RateLimit rate_limit, ApiError api_error) rest_result) : base(rest_result)
         {
-            result = response.Data;
+            result = rest_result.rest_response.Data;
         }
     }
 }

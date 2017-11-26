@@ -98,7 +98,7 @@
     <Compile Include="Models\Api\Streams\Metadata.cs" />
     <Compile Include="Models\Api\Games\Game.cs" />
     <Compile Include="Models\Api\Videos\Video.cs" />
-    <Compile Include="Models\Api\Entitlements\EntitlementQueryParameters.cs.cs" />
+    <Compile Include="Models\Api\Entitlements\EntitlementQueryParameters.cs" />
     <Compile Include="Helpers\ClampedNumber.cs" />
     <Compile Include="Models\Api\Games\GamesQueryParameters.cs" />
     <Compile Include="Models\Api\QueryParametersPage.cs" />

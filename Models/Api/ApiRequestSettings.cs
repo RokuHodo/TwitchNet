@@ -25,7 +25,7 @@ TwitchNet.Models.Api
         // default status handling
         internal ClampedNumber<short>                       _status_default_retry_limit;
         internal StatusHandling                             _status_default_handling;
-        internal StatusHandlingSettings                              _status_default_hanlding_settings;
+        internal StatusHandlingSettings                     _status_default_hanlding_settings;
 
         // 429 status handling
         internal ClampedNumber<short>                       _status_429_retry_limit;
@@ -47,7 +47,7 @@ TwitchNet.Models.Api
         #region Properties        
 
         /// <summary>
-        /// <para>Determine whether or not to checkand verify api inputs by the user.</para>
+        /// <para>Determine whether or not to check and verify inputs by the user upon request execution.</para>
         /// <para>Default: <see cref="ErrorHandling.Error"/>.</para>
         /// </summary>
         public InputHandling input_hanlding
@@ -80,12 +80,11 @@ TwitchNet.Models.Api
 
         /// <summary>
         /// <para>
-        /// Determine how to handle any error returned that is returned by the twitchg API.
-        /// This is the fall back handling if an error is not already handled by another handler setting.
+        /// Determine how to handle a status code error that does not already have specific handling settings.
         /// </para>
         /// <para>Default: <see cref="StatusHandling.Error"/>.</para>
         /// </summary>
-        public StatusHandling api_error_handling
+        public StatusHandling status_default_handling
         {
             get
             {
@@ -93,7 +92,7 @@ TwitchNet.Models.Api
             }
             set
             {
-                api_error_handling = value;
+                status_default_handling = value;
             }
         }
 

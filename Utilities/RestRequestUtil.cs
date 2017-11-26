@@ -53,7 +53,7 @@ TwitchNet.Utilities
             request = PagingUtil.AddPaging(request, query_parameters);
 
             (IRestResponse<ApiData<data_type>> rest_response, RateLimit rate_limit, ApiError api_error) rest_result = await ExecuteRequestAsync<ApiData<data_type>>(request, api_request_settings);            
-            ApiResponse<data_type> api_response = new ApiResponse<data_type>(rest_result.rest_response, rest_result.rate_limit, rest_result.api_error);
+            ApiResponse<data_type> api_response = new ApiResponse<data_type>(rest_result);
 
             return api_response;
         }
@@ -90,7 +90,7 @@ TwitchNet.Utilities
             request = PagingUtil.AddPaging(request, query_parameters);
 
             (IRestResponse<ApiData<data_type>> rest_response, RateLimit rate_limit, ApiError api_error) rest_result = await ExecuteRequestAsync<ApiData<data_type>>(request, api_request_settings);
-            ApiResponse<data_type> api_response = new ApiResponse<data_type>(rest_result.rest_response, rest_result.rate_limit, rest_result.api_error);
+            ApiResponse<data_type> api_response = new ApiResponse<data_type>(rest_result);
 
             return api_response;
         }
@@ -122,7 +122,7 @@ TwitchNet.Utilities
             request = PagingUtil.AddPaging(request, query_parameters);
 
             (IRestResponse<ApiDataPage<data_type>> rest_response, RateLimit rate_limit, ApiError api_error) rest_result = await ExecuteRequestAsync<ApiDataPage<data_type>>(request, api_request_settings);
-            ApiResponsePage<data_type> api_response = new ApiResponsePage<data_type>(rest_result.rest_response, rest_result.rate_limit, rest_result.api_error);
+            ApiResponsePage<data_type> api_response = new ApiResponsePage<data_type>(rest_result);
 
             return api_response;
         }
@@ -355,7 +355,7 @@ TwitchNet.Utilities
         {
             if(api_request_settings.input_hanlding == InputHandling.Error && !bearer_token.IsValid() && !client_id.IsValid())
             {
-                throw new ArgumentException("A valid " + nameof(bearer_token) + " or token or " + nameof(client_id) + "must be provided.");
+                throw new ArgumentException("A valid " + nameof(bearer_token) + " or " + nameof(client_id) + " must be provided.");
             }
 
             RestRequest request = new RestRequest(endpoint, method);

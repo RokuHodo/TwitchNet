@@ -1,10 +1,4 @@
-﻿//standard namespaces
-using System;
-
-// project namespaces
-using TwitchNet.Extensions;
-
-// project namespaces
+﻿// project namespaces
 using TwitchNet.Enums.Api.Entitlements;
 
 namespace
@@ -29,11 +23,6 @@ TwitchNet.Models.Api.Entitlements
             }
             set
             {
-                if(!value.Length.IsInRange(1, 64))
-                {
-                    throw new ArgumentOutOfRangeException(nameof(manifest_id), value, nameof(manifest_id) + " must be between 1 and 64 characters, inclusive.");
-                }
-
                 _manifest_id = value;
             }
         }

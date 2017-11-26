@@ -3,7 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace TwitchNet.Extensions
+namespace
+TwitchNet.Extensions
 {
     internal static class
     ReflectionExtensions

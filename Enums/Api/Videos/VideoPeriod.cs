@@ -1,12 +1,12 @@
 ﻿// standard namespaces
-// standard namespaces
 using System.Runtime.Serialization;
 
 // imported namespaces
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace TwitchNet.Enums.Api.Videos
+namespace
+TwitchNet.Enums.Api.Videos
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum

@@ -2,7 +2,8 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace TwitchNet.Extensions
+namespace
+TwitchNet.Extensions
 {
     internal static class
     EnumExtensions

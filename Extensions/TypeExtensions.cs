@@ -3,7 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace TwitchNet.Extensions
+namespace
+TwitchNet.Extensions
 {
     internal static class
     TypeExtensions

@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace TwitchNet.Extensions
+namespace
+TwitchNet.Extensions
 {
     internal static class
     ValidationExtensions

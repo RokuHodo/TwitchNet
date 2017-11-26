@@ -1,7 +1,8 @@
 ﻿// standard namespaces
 using System;
 
-namespace TwitchNet.Models.Api
+namespace
+TwitchNet.Models.Api
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
     internal sealed class

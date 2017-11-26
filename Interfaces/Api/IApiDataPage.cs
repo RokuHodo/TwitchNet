@@ -4,7 +4,8 @@ using TwitchNet.Models.Api;
 // imported .dll's
 using Newtonsoft.Json;
 
-namespace TwitchNet.Interfaces.Api
+namespace
+TwitchNet.Interfaces.Api
 {
     public interface
     IApiDataPage<type> : IApiValue<type>

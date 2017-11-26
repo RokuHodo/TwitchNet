@@ -4,7 +4,8 @@ using TwitchNet.Interfaces.Api;
 // project namespaces
 using Newtonsoft.Json;
 
-namespace TwitchNet.Models.Api
+namespace
+TwitchNet.Models.Api
 {
     public class
     ApiDataPage<type> : ApiData<type>, IApiDataPage<type>

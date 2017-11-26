@@ -2,14 +2,15 @@
 using TwitchNet.Helpers;
 using TwitchNet.Interfaces.Api;
 
-namespace TwitchNet.Models.Api
+namespace
+TwitchNet.Models.Api
 {
     public class
     QueryParametersPage : IQueryParametersPage
     {
-        private ClampedNumber<ushort> _first = new ClampedNumber<ushort>(1, 100, 20);
+        private ClampedNumber<ushort>   _first  = new ClampedNumber<ushort>(1, 100, 20);
 
-        private string _after;
+        private string                  _after  = string.Empty;
 
         /// <summary>
         /// Maximum number of objects to return.

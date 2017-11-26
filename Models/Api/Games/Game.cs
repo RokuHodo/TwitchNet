@@ -1,7 +1,8 @@
 ﻿// imported .dll's
 using Newtonsoft.Json;
 
-namespace TwitchNet.Models.Api.Games
+namespace
+TwitchNet.Models.Api.Games
 {
     public class
     Game

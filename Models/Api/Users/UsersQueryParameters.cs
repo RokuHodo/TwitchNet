@@ -4,7 +4,8 @@ using System.Collections.Generic;
 // project namespaces
 using TwitchNet.Helpers;
 
-namespace TwitchNet.Models.Api.Users
+namespace
+TwitchNet.Models.Api.Users
 {
     public class
     UsersQueryParameters
@@ -12,7 +13,7 @@ namespace TwitchNet.Models.Api.Users
         #region Fields
 
         private ClampedList<string> _ids    = new ClampedList<string>();
-        private ClampedList<string> _logins  = new ClampedList<string>();
+        private ClampedList<string> _logins = new ClampedList<string>();
 
         #endregion
 
@@ -60,7 +61,7 @@ namespace TwitchNet.Models.Api.Users
 
         #endregion
 
-        #region Contstructor
+        #region Contstructors
 
         public UsersQueryParameters()
         {

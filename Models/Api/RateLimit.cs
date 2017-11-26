@@ -8,7 +8,8 @@ using TwitchNet.Extensions;
 // imported .dll's
 using RestSharp;
 
-namespace TwitchNet.Models.Api
+namespace
+TwitchNet.Models.Api
 {
     public class
     RateLimit
@@ -17,6 +18,11 @@ namespace TwitchNet.Models.Api
         public ushort   remaining   { get; protected set; }
 
         public DateTime reset       { get; protected set; }
+
+        public RateLimit()
+        {
+
+        }
 
         public RateLimit(IRestResponse response)
         {

@@ -6,7 +6,8 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace TwitchNet.Enums.Api.Streams
+namespace
+TwitchNet.Enums.Api.Streams
 {
     [Flags]
     [JsonConverter(typeof(StringEnumConverter))]

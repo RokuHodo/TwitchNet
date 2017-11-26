@@ -1,7 +1,8 @@
 ﻿// project namespaces
 using TwitchNet.Interfaces.Api;
 
-namespace TwitchNet.Models.Api.Users
+namespace
+TwitchNet.Models.Api.Users
 {
     public class
     FollowsQueryParameters : QueryParametersPage, IQueryParametersPage
@@ -68,7 +69,7 @@ namespace TwitchNet.Models.Api.Users
 
         #endregion
 
-        #region Contstructor
+        #region Contstructors
 
         public FollowsQueryParameters()
         {

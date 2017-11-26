@@ -1,7 +1,8 @@
 ﻿// imported .dll's
 using Newtonsoft.Json;
 
-namespace TwitchNet.Models.Api
+namespace
+TwitchNet.Models.Api
 {
     public class
     Pagination

@@ -9,43 +9,76 @@ using System.Text;
 using TwitchNet.Enums.Debug;
 using TwitchNet.Extensions;
 
-namespace TwitchNet.Debug
+namespace
+TwitchNet.Debug
 {
-    internal static class Log
+    internal static class
+    Log
     {
-        #region Success, error, and warning messages
+        #region Fields
+
+        private static LogLevel _level = LogLevel.All;
+
+        #endregion
+
+        #region Properties
 
         /// <summary>
         /// A bitfield that determines what will be printed out when running.
+        /// If the library is not in debug mode, nothing will be printed out.
         /// </summary>
-        public static LogLevel level = LogLevel.All;
+        public static LogLevel level
+        {
+            get
+            {
+                return _level;
+            }
+            set
+            {
+#if !DEBUG
+                _level = LogLevel.None;
+#else
+                _level = value;
+#endif
+            }
+        }
 
-        public static void Success(params string[] lines)
+        #endregion
+
+        #region Success, error, and warning messages        
+
+        public static void
+        Success(params string[] lines)
         {
             Success(TimeStamp.None, lines);
         }
 
-        public static void Success(TimeStamp stamp, params string[] lines)
+        public static void
+        Success(TimeStamp stamp, params string[] lines)
         {
             DebugHeader(LogLevel.Success, ConsoleColor.Green, stamp, "[ Success ]", lines);
         }
 
-        public static void Error(params string[] lines)
+        public static void
+        Error(params string[] lines)
         {
             Error(TimeStamp.None, lines);
         }
 
-        public static void Error(TimeStamp stamp, params string[] lines)
+        public static void
+        Error(TimeStamp stamp, params string[] lines)
         {
             DebugHeader(LogLevel.Errors, ConsoleColor.Red, stamp, "[ Error ]", lines);
         }
 
-        public static void Warning(params string[] lines)
+        public static void
+        Warning(params string[] lines)
         {
             Warning(TimeStamp.None, lines);
         }
 
-        public static void Warning(TimeStamp stamp, params string[] lines)
+        public static void
+        Warning(TimeStamp stamp, params string[] lines)
         {
             DebugHeader(LogLevel.Warnings, ConsoleColor.Yellow, stamp, "[ Warning ]", lines);
         }
@@ -54,18 +87,21 @@ namespace TwitchNet.Debug
 
         #region Notifies and headers
 
-        public static void Header(string header, params string[] lines)
+        public static void
+        Header(string header, params string[] lines)
         {
             Header(TimeStamp.None, header, lines);
         }
 
-        public static void Header(TimeStamp stamp, string header, params string[] lines)
+        public static void
+        Header(TimeStamp stamp, string header, params string[] lines)
         {
             DebugHeader(LogLevel.Headers, ConsoleColor.Cyan, stamp, header, lines);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void DebugHeader(LogLevel flag, ConsoleColor color, TimeStamp stamp, string header, params string[] lines)
+        private static void
+        DebugHeader(LogLevel flag, ConsoleColor color, TimeStamp stamp, string header, params string[] lines)
         {
             string[] print = new string[lines.Length + 1];
             print[0] = header;
@@ -80,23 +116,27 @@ namespace TwitchNet.Debug
 
         #region No carriage return
 
-        public static void Print(params string[] words)
+        public static void
+        Print(params string[] words)
         {
             Print(ConsoleColor.Gray, TimeStamp.None, words);
         }
 
-        public static void Print(ConsoleColor color, params string[] words)
+        public static void
+        Print(ConsoleColor color, params string[] words)
         {
             Print(color, TimeStamp.None, words);
         }
 
-        public static void Print(TimeStamp stamp, params string[] words)
+        public static void
+        Print(TimeStamp stamp, params string[] words)
         {
             Print(ConsoleColor.Gray, stamp, words);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Print(ConsoleColor color, TimeStamp stamp, params string[] words)
+        public static void
+        Print(ConsoleColor color, TimeStamp stamp, params string[] words)
         {
             DebugPrint(LogLevel.Detailed, color, stamp, words);
         }
@@ -105,44 +145,52 @@ namespace TwitchNet.Debug
 
         #region Carriage return
 
-        public static void PrintLine(params string[] lines)
+        public static void
+        PrintLine(params string[] lines)
         {
             PrintLine(ConsoleColor.Gray, TimeStamp.None, lines);
         }
 
-        public static void PrintLine(ConsoleColor color, params string[] lines)
+        public static void
+        PrintLine(ConsoleColor color, params string[] lines)
         {
             PrintLine(color, TimeStamp.None, lines);
         }
 
-        public static void PrintLine(TimeStamp stamp, params string[] lines)
+        public static void
+        PrintLine(TimeStamp stamp, params string[] lines)
         {
             PrintLine(ConsoleColor.Gray, stamp, lines);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void PrintLine(ConsoleColor color, TimeStamp stamp, params string[] lines)
+        public static void
+        PrintLine(ConsoleColor color, TimeStamp stamp, params string[] lines)
         {
             DebugPrintLine(LogLevel.Detailed, color, stamp, lines);
         }
 
-        public static void PrintLineColumns(string label, string text)
+        public static void
+        PrintLineColumns(string label, string text)
         {
             PrintLineColumns(ConsoleColor.Gray, TimeStamp.None, label, text);
         }
 
-        public static void PrintLineColumns(ConsoleColor color, string label, string text)
+        public static void
+        PrintLineColumns(ConsoleColor color, string label, string text)
         {
             PrintLineColumns(color, TimeStamp.None, label, text);
         }
 
-        public static void PrintLineColumns(TimeStamp stamp, string label, string text)
+        public static void
+        PrintLineColumns(TimeStamp stamp, string label, string text)
         {
             PrintLineColumns(ConsoleColor.Gray, stamp, label, text);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void PrintLineColumns(ConsoleColor color, TimeStamp stamp, string label, string text)
+        public static void
+        PrintLineColumns(ConsoleColor color, TimeStamp stamp, string label, string text)
         {
             string message = string.Format("{0,-20} {1,-20}", label, text);
 
@@ -150,21 +198,24 @@ namespace TwitchNet.Debug
         }
 
         #endregion
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void DebugPrintLine(LogLevel flag, ConsoleColor color, TimeStamp stamp, params string[] lines)
+        private static void
+        DebugPrintLine(LogLevel flag, ConsoleColor color, TimeStamp stamp, params string[] lines)
         {
             PrintBuilder(flag, color, stamp, true, lines);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void DebugPrint(LogLevel flag, ConsoleColor color, TimeStamp stamp, params string[] words)
+        private static void
+        DebugPrint(LogLevel flag, ConsoleColor color, TimeStamp stamp, params string[] words)
         {
             PrintBuilder(flag, color, stamp, false, words);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void PrintBuilder(LogLevel flag, ConsoleColor color, TimeStamp stamp, bool carriage_return, params string[] lines)
+        private static void
+        PrintBuilder(LogLevel flag, ConsoleColor color, TimeStamp stamp, bool carriage_return, params string[] lines)
         {
             if (!lines.IsValid())
             {
@@ -210,7 +261,8 @@ namespace TwitchNet.Debug
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static string GetTimeStampString(TimeStamp stamp)
+        private static string
+        GetTimeStampString(TimeStamp stamp)
         {
             string time = "[ {0} ] ";
 
@@ -256,19 +308,21 @@ namespace TwitchNet.Debug
         /// Prints a blank line to the command line.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void BlankLine()
+        public static void
+        BlankLine()
         {
             Console.WriteLine();
         }
 
-        #endregion        
+        #endregion
 
         #region Object dumping
 
         /// <summary>
         /// Prints all properties and fields of an object and all sub objects.
         /// </summary>        
-        public static void PrintObject(object obj)
+        public static void
+        PrintObject(object obj)
         {
             PrintObject(string.Empty, obj);
         }
@@ -276,7 +330,8 @@ namespace TwitchNet.Debug
         /// <summary>
         /// Prints all properties and fields of an object and all sub objects with a specified prefix.
         /// </summary>
-        public static void PrintObject(string label, object obj)
+        public static void
+        PrintObject(string label, object obj)
         {
             if (obj == null || obj is ValueType || obj is DateTime || obj is string)
             {
@@ -324,7 +379,8 @@ namespace TwitchNet.Debug
             }
         }
 
-        private static string GetObjectValueString(object obj)
+        private static string
+        GetObjectValueString(object obj)
         {
             string value = string.Empty;
 
@@ -346,10 +402,11 @@ namespace TwitchNet.Debug
         }
 
         #endregion
-
+        
         #region Formatting
 
-        public static string FormatColumns(object column_1, object column_2, int column_1_align = -20, int column_2_align = -20)
+        public static string
+        FormatColumns(object column_1, object column_2, int column_1_align = -20, int column_2_align = -20)
         {
             return string.Format("{0," + column_1_align + "} {1," + column_2_align + "}", column_1, column_2);
         }

@@ -1,13 +1,11 @@
-﻿// standard namespaces
-using System;
-
-// imported .dll's
+﻿// imported .dll's
 using Newtonsoft.Json;
 
 using RestSharp;
 using RestSharp.Deserializers;
 
-namespace TwitchNet.Helpers.Json
+namespace
+TwitchNet.Helpers.Json
 {
     internal class
     JsonDeserializer : IDeserializer
@@ -30,12 +28,12 @@ namespace TwitchNet.Helpers.Json
             settings.DateTimeZoneHandling   = DateTimeZoneHandling.Local;
             settings.FloatParseHandling     = FloatParseHandling.Double;
 
-            #if DEBUG
+#if DEBUG
 
             // NOTE: Deserialize - For debugging purposes only, change MissingMemberHandling to 'ignrore' on release build
             // settings.MissingMemberHandling  = MissingMemberHandling.Error;
 
-            #endif
+#endif
 
             return_type result = JsonConvert.DeserializeObject<return_type>(response.Content, settings);
 

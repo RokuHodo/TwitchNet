@@ -4,7 +4,8 @@ using System;
 // imported .dll's
 using Newtonsoft.Json;
 
-namespace TwitchNet.Models.Api.Users
+namespace
+TwitchNet.Models.Api.Users
 {
     public class
     Follow

@@ -1,7 +1,8 @@
 ﻿// project namespaces
 using TwitchNet.Extensions;
 
-namespace TwitchNet.Models.Api
+namespace
+TwitchNet.Models.Api
 {
     public class
     QueryParameter

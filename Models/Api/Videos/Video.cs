@@ -7,7 +7,8 @@ using TwitchNet.Enums.Api.Videos;
 // imported .dll's
 using Newtonsoft.Json;
 
-namespace TwitchNet.Models.Api.Videos
+namespace
+TwitchNet.Models.Api.Videos
 {
     public class
     Video

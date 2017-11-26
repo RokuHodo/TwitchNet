@@ -1,7 +1,8 @@
 ﻿// standard namespaces
 using System;
 
-namespace TwitchNet.Enums.Debug
+namespace
+TwitchNet.Enums.Debug
 {
     [Flags]
     internal enum

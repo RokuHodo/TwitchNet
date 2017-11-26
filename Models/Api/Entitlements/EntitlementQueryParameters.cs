@@ -1,25 +1,15 @@
-﻿//standard namespaces
-using System;
-
-using TwitchNet.Extensions;
-
-// project namespaces
+﻿// project namespaces
 using TwitchNet.Enums.Api.Entitlements;
 
-namespace TwitchNet.Models.Api.Entitlements
+namespace
+TwitchNet.Models.Api.Entitlements
 {
     public class
     EntitlementQueryParameters
     {
-        #region Fields
-
         private string              _manifest_id;
 
         private EntitlementType?    _type;
-
-        #endregion
-
-        #region Properties
 
         /// <summary>
         /// Unique identifier of the manifest file to be uploaded. Must be 1-64 characters.
@@ -33,11 +23,6 @@ namespace TwitchNet.Models.Api.Entitlements
             }
             set
             {
-                if(!value.Length.IsInRange(1, 64))
-                {
-                    throw new ArgumentOutOfRangeException(nameof(manifest_id), value, nameof(manifest_id) + " must be between 1 and 64 characters, inclusive.");
-                }
-
                 _manifest_id = value;
             }
         }
@@ -58,15 +43,9 @@ namespace TwitchNet.Models.Api.Entitlements
             }
         }
 
-        #endregion
-
-        #region Contstructor
-
         public EntitlementQueryParameters()
         {
 
         }
-
-        #endregion
     }
 }

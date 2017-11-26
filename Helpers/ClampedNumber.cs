@@ -4,7 +4,8 @@ using System;
 // project namespaces
 using TwitchNet.Extensions;
 
-namespace TwitchNet.Helpers
+namespace
+TwitchNet.Helpers
 {
     internal class
     ClampedNumber<type>

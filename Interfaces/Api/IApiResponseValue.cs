@@ -1,4 +1,5 @@
-﻿namespace TwitchNet.Interfaces.Api
+﻿namespace
+TwitchNet.Interfaces.Api
 {
     public interface
     IApiResponseValue<type> : IApiResponse

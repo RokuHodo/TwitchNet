@@ -11,7 +11,8 @@ using TwitchNet.Models.Api;
 // imported .dll's
 using RestSharp;
 
-namespace TwitchNet.Utilities
+namespace
+TwitchNet.Utilities
 {
     internal static class
     PagingUtil

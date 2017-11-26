@@ -8,7 +8,8 @@ using TwitchNet.Enums.Api.Streams;
 // imported .dll's
 using Newtonsoft.Json;
 
-namespace TwitchNet.Models.Api.Streams
+namespace
+TwitchNet.Models.Api.Streams
 {
     public class
     Stream

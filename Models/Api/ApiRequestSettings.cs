@@ -17,30 +17,30 @@ TwitchNet.Models.Api
         internal Dictionary<ushort, StatusHandlingSettings> _status_handlers_settings;
 
         // input checking
-        internal InputHandling                              _input_hanlding;
+        private InputHandling                               _input_hanlding;
 
         // internal error handling
-        internal ErrorHandling                              _internal_error_handling;
+        private ErrorHandling                               _internal_error_handling;
 
         // default status handling
-        internal ClampedNumber<short>                       _status_default_retry_limit;
-        internal StatusHandling                             _status_default_handling;
-        internal StatusHandlingSettings                     _status_default_hanlding_settings;
+        private ClampedNumber<short>                        _status_default_retry_limit;
+        private StatusHandling                              _status_default_handling;
+        private StatusHandlingSettings                      _status_default_hanlding_settings;
 
         // 429 status handling
-        internal ClampedNumber<short>                       _status_429_retry_limit;
-        internal StatusHandling                             _status_429_handling;
-        internal StatusHandlingSettings                     _status_429_hanlding_settings;
+        private ClampedNumber<short>                        _status_429_retry_limit;
+        private StatusHandling                              _status_429_handling;
+        private StatusHandlingSettings                      _status_429_hanlding_settings;
 
         // 500 status handling
-        internal ClampedNumber<short>                       _status_500_retry_limit;
-        internal StatusHandling                             _status_500_handling;
-        internal StatusHandlingSettings                     _status_500_hanlding_settings;
+        private ClampedNumber<short>                        _status_500_retry_limit;
+        private StatusHandling                              _status_500_handling;
+        private StatusHandlingSettings                      _status_500_hanlding_settings;
 
         // 503 status handling
-        internal ClampedNumber<short>                       _status_503_retry_limit;
-        internal StatusHandling                             _status_503_handling;
-        internal StatusHandlingSettings                     _status_503_hanlding_settings;
+        private ClampedNumber<short>                        _status_503_retry_limit;
+        private StatusHandling                              _status_503_handling;
+        private StatusHandlingSettings                      _status_503_hanlding_settings;
 
         #endregion
 
@@ -99,13 +99,14 @@ TwitchNet.Models.Api
         /// <summary>
         /// <para>
         /// How many times to wait and retry making the request if status code '429 - Too Many Requests' is returned.
-        /// When set to -1, the request will wait as many times as needed before completing and returning the request(s).
+        /// When set to -1, the request will retry infinitely until the request(s) succeeds/cpmpletes.
         /// If the limit is reached, any obtained data will be returned upon request cancellation.
         /// </para>
         /// <para>
         /// Min:        -1,
-        /// Max:        5,
+        /// Max:        100,
         /// Default:    -1.
+        /// The retry limit is clamped between the minimum and the maximum values.
         /// </para>
         /// </summary>
         public short status_429_retry_limit
@@ -139,12 +140,13 @@ TwitchNet.Models.Api
         /// <summary>
         /// <para>How many times to retry making the request if status code '500 - Internal Server Error' is returned.
         /// When set to -1, the request will retry infinitely until the request(s) succeeds.
-        /// If the limit is reached, any obtained data will be returned upon request cancellation.
+        /// If the limit is reached, any obtained data will be returned upon request cancellation.        
         /// </para>
         /// <para>
         /// Min:        -1,
-        /// Max:        1,
+        /// Max:        100,
         /// Default:    1.
+        /// The retry limit is clamped between the minimum and the maximum values.
         /// </para>
         /// </summary>
         public short status_500_retry_limit
@@ -218,11 +220,11 @@ TwitchNet.Models.Api
             _status_default_handling            = StatusHandling.Error;
             _status_default_hanlding_settings   = new StatusHandlingSettings(_status_default_retry_limit, _status_default_handling);
 
-            _status_429_retry_limit             = new ClampedNumber<short>(-1, 5, -1);
+            _status_429_retry_limit             = new ClampedNumber<short>(-1, 100, -1);
             _status_429_handling                = StatusHandling.Retry;
             _status_429_hanlding_settings       = new StatusHandlingSettings(_status_429_retry_limit, _status_429_handling);
 
-            _status_500_retry_limit             = new ClampedNumber<short>(-1, 1, 1);
+            _status_500_retry_limit             = new ClampedNumber<short>(-1, 100, 1);
             _status_500_handling                = StatusHandling.Error;
             _status_500_hanlding_settings       = new StatusHandlingSettings(_status_500_retry_limit, _status_500_handling);
 

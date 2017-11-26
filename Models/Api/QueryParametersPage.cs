@@ -13,10 +13,13 @@ TwitchNet.Models.Api
         private string                  _after  = string.Empty;
 
         /// <summary>
-        /// Maximum number of objects to return.
-        /// Minimum: 1;
-        /// Maximum: 100.
-        /// Default: 20.
+        /// <para>Maximum number of objects to return.</para>
+        /// <para>
+        /// Min:        1,
+        /// Max:        100,
+        /// Default:    20.
+        /// The value is clamped between the minimum and the maximum values.
+        /// </para>
         /// </summary>
         [QueryParameter("first")]
         public ushort first

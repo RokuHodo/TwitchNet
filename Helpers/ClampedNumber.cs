@@ -25,16 +25,8 @@ TwitchNet.Helpers
             }
             set
             {
-                _value = value.Clamp(_value_min, _value_max, _value_default);
+                _value = value.Clamp(_value_min, _value_max);
             }
-        }
-
-        public ClampedNumber(type value_default)
-        {
-            _value_min      = value_default;
-            _value_max      = value_default;
-            _value_default  = value_default;
-            _value          = _value_default;
         }
 
         public ClampedNumber(type value_min, type value_max, type value_default)

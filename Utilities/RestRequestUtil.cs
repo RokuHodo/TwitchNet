@@ -273,7 +273,7 @@ TwitchNet.Utilities
             // no error, return the valid response
             if (!api_error.error.IsValid() || rest_response.IsSuccessful)
             {
-                Log.PrintLine(status_prefix);
+                Log.PrintLine(status_prefix + ", Requests remaining: " + rate_limit.remaining);
 
                 return (rest_response, rate_limit, api_error);
             }
@@ -310,7 +310,7 @@ TwitchNet.Utilities
 
                     // this should only ever be a concern when '429 - Too Many Requests' is receieved
                     TimeSpan time = rate_limit.reset - DateTime.Now;
-                    if (time.TotalMilliseconds > 0)
+                    if (rate_limit.remaining == 0 && time.TotalMilliseconds > 0)
                     {
                         Log.Warning(TimeStamp.TimeLong, "Request rate limit reached. Waiting " + time.TotalMilliseconds + "ms to execute the request again.");
                         await Task.Delay(time);

@@ -1,4 +1,6 @@
 ﻿// standard namespaces
+using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 // project namespaces
@@ -678,6 +680,7 @@ TwitchNet.Api
         GetUserFollowersPageAsync(string bearer_token, string client_id, string to_id, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
             IApiResponsePage<Follow> followers = await GetUserFollowersPageAsync(bearer_token, client_id, to_id, default(FollowsQueryParameters), api_request_settings);
+
             return followers;
         }
 
@@ -697,6 +700,7 @@ TwitchNet.Api
         GetUserFollowersPageAsync(string bearer_token, string client_id, string to_id, FollowsQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
             IApiResponsePage<Follow> followers = await TwitchApiInternal.GetUserRelationshipPageAsync(bearer_token, client_id, string.Empty, to_id, query_parameters, api_request_settings);
+
             return followers;
         }
 

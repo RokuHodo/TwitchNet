@@ -89,6 +89,7 @@
     <Compile Include="Models\Api\Entitlements\Url.cs" />
     <Compile Include="Models\Api\ApiDataPage.cs" />
     <Compile Include="Models\Api\ApiData.cs" />
+    <Compile Include="Models\Api\Headers.cs" />
     <Compile Include="Models\Api\StatusHandlingSettings.cs" />
     <Compile Include="Models\Api\Streams\Hearthstone.cs" />
     <Compile Include="Models\Api\Streams\HearthstoneHero.cs" />

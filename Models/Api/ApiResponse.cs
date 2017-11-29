@@ -18,28 +18,27 @@ TwitchNet.Models.Api
     ApiResponse : IApiResponse
     {
         /// <summary>
-        /// The error message returned with the response by Twitch.
-        /// This is only valid when an error is encountered.
+        /// The error message, if any, returned with the response.
         /// </summary>
         public string                       status_error        { get; internal set; }
 
         /// <summary>
-        /// The description of the status code returned.
+        /// The description of the status code.
         /// </summary>
         public string                       status_description  { get; internal set; }
 
         /// <summary>
-        /// The HTTP status code of the returned response.
+        /// The HTTP status code of the response.
         /// </summary>
         public HttpStatusCode               status_code         { get; internal set; }
 
         /// <summary>
-        /// The response headers from the requet.
+        /// The response headers from the request.
         /// </summary>
         public Dictionary<string, string>   headers             { get; internal set; }
 
         /// <summary>
-        /// Contains the request limit, requests remaining, and when the rate limit resets.
+        /// The request limit, remaining requests, and when the rate limit resets.
         /// </summary>
         public RateLimit                    rate_limit          { get; internal set; }
 
@@ -76,20 +75,20 @@ TwitchNet.Models.Api
     }
 
     internal class
-    ApiResponse<type> : ApiResponse, IApiResponse<type>
-    where type : class, new()
+    ApiResponse<data_type> : ApiResponse, IApiResponse<data_type>
+    where data_type : class, new()
     {
         /// <summary>
         /// Contains the deserialized result from the Twitch API.
         /// </summary>
-        public ApiData<type> result { get; internal set; }
+        public ApiData<data_type> result { get; internal set; }
 
         public ApiResponse()
         {
 
         }
 
-        public ApiResponse((IRestResponse<ApiData<type>> rest_response, IApiResponse api_response) rest_result) : base(rest_result.api_response)
+        public ApiResponse((IRestResponse<ApiData<data_type>> rest_response, IApiResponse api_response) rest_result) : base(rest_result.api_response)
         {
             result = rest_result.rest_response.Data;
         }

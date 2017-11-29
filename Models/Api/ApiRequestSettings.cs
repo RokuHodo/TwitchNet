@@ -48,7 +48,7 @@ TwitchNet.Models.Api
 
         /// <summary>
         /// <para>Determine whether or not to check and verify inputs by the user upon request execution.</para>
-        /// <para>Default: <see cref="ErrorHandling.Error"/>.</para>
+        /// <para>Default: <see cref="InputHandling.Error"/>.</para>
         /// </summary>
         public InputHandling input_hanlding
         {
@@ -123,7 +123,7 @@ TwitchNet.Models.Api
 
         /// <summary>
         /// <para>Determine how to handle the status code '429 - Too Many Requests'.</para>
-        /// <para>Default: <see cref="StatusHandling.Wait"/>.</para>
+        /// <para>Default: <see cref="StatusHandling.Retry"/>.</para>
         /// </summary>
         public StatusHandling status_429_handling
         {
@@ -138,7 +138,8 @@ TwitchNet.Models.Api
         }
 
         /// <summary>
-        /// <para>How many times to retry making the request if status code '500 - Internal Server Error' is returned.
+        /// <para>
+        /// How many times to retry making the request if status code '500 - Internal Server Error' is returned.
         /// When set to -1, the request will retry infinitely until the request(s) succeeds.
         /// If the limit is reached, any obtained data will be returned upon request cancellation.        
         /// </para>

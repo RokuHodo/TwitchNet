@@ -29,7 +29,7 @@ TwitchNet.Models.Api.Streams
         #region Properties
 
         /// <summary>
-        /// Returns streams that are part of part of the specified communities.
+        /// A list of communities on Twitch.
         /// Maximum: 100 id's.
         /// If more than 100 id's are specified, only the first 100 will be added.
         /// </summary>
@@ -47,7 +47,7 @@ TwitchNet.Models.Api.Streams
         }
 
         /// <summary>
-        /// Returns streams that are playing the specified game.
+        /// A list of game ID's.
         /// Maximum: 100 id's.
         /// If more than 100 id's are specified, only the first 100 will be added.
         /// </summary>
@@ -65,7 +65,9 @@ TwitchNet.Models.Api.Streams
         }
 
         /// <summary>
-        /// Returns streams that have the selected stream langages. Bitfield enum.
+        /// The language of the stream.
+        /// This is the language selected at the home page, not the language found in the Twitch dashboard.
+        /// Bitfield enum.
         /// </summary>
         [QueryParameter("language")]
         public StreamLanguage? language
@@ -81,7 +83,7 @@ TwitchNet.Models.Api.Streams
         }
 
         /// <summary>
-        /// Returns streams that match the selected stream types. Bitfield enum.
+        /// The stream type. Bitfield enum.
         /// </summary>
         [QueryParameter("type")]
         public StreamType? type
@@ -97,7 +99,7 @@ TwitchNet.Models.Api.Streams
         }
 
         /// <summary>
-        /// Returns streams broadcast by one or more specified user id's.
+        /// A list of user ID's.
         /// Maximum: 100 id's.
         /// If more than 100 id's are specified, only the first 100 will be added.
         /// </summary>
@@ -115,12 +117,12 @@ TwitchNet.Models.Api.Streams
         }
 
         /// <summary>
-        /// Returns streams broadcast by one or more specified user login names
+        /// A list of user login names.
         /// Maximum: 100 names.
         /// If more than 100 names are specified, only the first 100 will be added.
         /// </summary>
         [QueryParameter("user_login")]
-        public List<string> user_login
+        public List<string> user_logins
         {
             get
             {

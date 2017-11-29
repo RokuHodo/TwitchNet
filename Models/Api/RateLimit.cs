@@ -14,9 +14,19 @@ TwitchNet.Models.Api
     public class
     RateLimit
     {
+        /// <summary>
+        /// The number of requests you can use for the rate-limit window (60 seconds).
+        /// </summary>
         public ushort   limit       { get; protected set; }
+
+        /// <summary>
+        /// The number of requests left to use for the rate-limit window.
+        /// </summary>
         public ushort   remaining   { get; protected set; }
 
+        /// <summary>A 
+        /// When the rate-limit window will reset.
+        /// </summary>
         public DateTime reset       { get; protected set; }
 
         public RateLimit()
@@ -24,34 +34,23 @@ TwitchNet.Models.Api
 
         }
 
-        public RateLimit(IRestResponse response)
+        public RateLimit(Dictionary<string, string> headers)
         {
-            object _limit           = GetHeader(response.Headers, "Ratelimit-Limit").Value;
-            limit                   = Convert.ToUInt16(_limit);
-
-            object _remaining       = GetHeader(response.Headers, "Ratelimit-Remaining").Value;
-            remaining               = Convert.ToUInt16(_remaining);
-
-            object _reset           = GetHeader(response.Headers, "Ratelimit-Reset").Value;
-            double _reset_double    = Convert.ToDouble(_reset);
-            reset                   = _reset_double.ToDateTimeFromUnixEpoch();
-        }
-
-        private static Parameter GetHeader(IList<Parameter> headers, string name)
-        {
-            Parameter _header = null;
-
-            foreach (Parameter header in headers)
+            if (headers.ContainsKey("Ratelimit-Limit"))
             {
-                if (header.Name == name)
-                {
-                    _header = header;
-
-                    break;
-                }
+                limit = Convert.ToUInt16(headers["Ratelimit-Limit"]);
             }
 
-            return _header;
+            if (headers.ContainsKey("Ratelimit-Remaining"))
+            {
+                remaining = Convert.ToUInt16(headers["Ratelimit-Remaining"]);
+            }
+
+            if (headers.ContainsKey("Ratelimit-Remaining"))
+            {
+                double reset_double = Convert.ToDouble(headers["Ratelimit-Remaining"]);
+                reset = reset_double.ToDateTimeFromUnixEpoch();
+            }
         }
     }
 }

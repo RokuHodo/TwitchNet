@@ -13,9 +13,6 @@ using TwitchNet.Extensions;
 using TwitchNet.Helpers.Json;
 using TwitchNet.Models.Api;
 
-// imported .dll's
-using Newtonsoft.Json;
-
 using RestSharp;
 
 namespace 
@@ -52,7 +49,7 @@ TwitchNet.Utilities
             RestRequest request = Request(endpoint, method, bearer_token, client_id, api_request_settings);
             request = PagingUtil.AddPaging(request, query_parameters);
 
-            (IRestResponse<ApiData<data_type>> rest_response, RateLimit rate_limit, ApiError api_error) rest_result = await ExecuteRequestAsync<ApiData<data_type>>(request, api_request_settings);            
+            (IRestResponse<ApiData<data_type>> rest_response, ApiResponse api_response) rest_result = await ExecuteRequestAsync<ApiData<data_type>>(request, api_request_settings);            
             ApiResponse<data_type> api_response = new ApiResponse<data_type>(rest_result);
 
             return api_response;
@@ -89,7 +86,7 @@ TwitchNet.Utilities
             RestRequest request = Request(endpoint, method, bearer_token, client_id, api_request_settings);
             request = PagingUtil.AddPaging(request, query_parameters);
 
-            (IRestResponse<ApiData<data_type>> rest_response, RateLimit rate_limit, ApiError api_error) rest_result = await ExecuteRequestAsync<ApiData<data_type>>(request, api_request_settings);
+            (IRestResponse<ApiData<data_type>> rest_response, ApiResponse api_response) rest_result = await ExecuteRequestAsync<ApiData<data_type>>(request, api_request_settings);
             ApiResponse<data_type> api_response = new ApiResponse<data_type>(rest_result);
 
             return api_response;
@@ -121,7 +118,7 @@ TwitchNet.Utilities
             RestRequest request = Request(endpoint, method, bearer_token, client_id, api_request_settings);
             request = PagingUtil.AddPaging(request, query_parameters);
 
-            (IRestResponse<ApiDataPage<data_type>> rest_response, RateLimit rate_limit, ApiError api_error) rest_result = await ExecuteRequestAsync<ApiDataPage<data_type>>(request, api_request_settings);
+            (IRestResponse<ApiDataPage<data_type>> rest_response, ApiResponse api_response) rest_result = await ExecuteRequestAsync<ApiDataPage<data_type>>(request, api_request_settings);
             ApiResponsePage<data_type> api_response = new ApiResponsePage<data_type>(rest_result);
 
             return api_response;
@@ -204,15 +201,14 @@ TwitchNet.Utilities
         /// </typeparam>
         /// <param name="rest_request">The rest request to execute.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns a <see cref="Tuple{T1, T2, T3}"/> that contains the <see cref="IRestResponse{T}"/>, <see cref="RateLimit"/>, and <see cref="ApiError"/> respectivley.</returns>
+        /// <returns>Returns a <see cref="Tuple{T1, T2}"/> that contains the <see cref="IRestResponse{T}"/> and <see cref="ApiResponse"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static async Task<(IRestResponse<data_type>, RateLimit, ApiError)>
+        internal static async Task<(IRestResponse<data_type>, ApiResponse)>
         ExecuteRequestAsync<data_type>(IRestRequest rest_request, ApiRequestSettings api_request_settings)
         where data_type : class, new()
         {
             IRestResponse<data_type> rest_response = new RestResponse<data_type>();
-            RateLimit rate_limit = new RateLimit();
-            ApiError api_error = new ApiError();
+            ApiResponse api_response = new ApiResponse();
 
             try
             {
@@ -225,25 +221,23 @@ TwitchNet.Utilities
                     throw rest_response.ErrorException;
                 }
 
-                rate_limit = new RateLimit(rest_response);
-                api_error = JsonConvert.DeserializeObject<ApiError>(rest_response.Content);
+                api_response = new ApiResponse(rest_response);
 
-                (IRestResponse<data_type> rest_response, RateLimit rate_limit, ApiError api_error) rest_result = await HandleStatus(rest_response, rate_limit, api_error, api_request_settings);
+                (IRestResponse<data_type> rest_response, ApiResponse api_response) rest_result = await HandleStatus(rest_response, api_response, api_request_settings);
                 rest_response = rest_result.rest_response;
-                rate_limit = rest_result.rate_limit;
-                api_error = rest_result.api_error;
+                api_response = rest_result.api_response;
             }
             catch(Exception exception)
             {
                 if(api_request_settings.internal_error_handling == ErrorHandling.Error)
                 {
-                    Log.Error(Log.FormatColumns(nameof(exception), exception.Message));
+                    Log.Error("Intenral exception: " + exception.Message);
 
                     throw exception;
                 }
             }
 
-            return (rest_response, rate_limit, api_error);
+            return (rest_response, api_response);
         }
 
         #endregion
@@ -253,7 +247,7 @@ TwitchNet.Utilities
         /// <summary>
         /// Handles the status code returned witht the rest response.
         /// </summary>
-        /// <typeparam name="return_type">
+        /// <typeparam name="data_type">
         /// The model <see cref="Type"/> to deserialize the result as when retrying.
         /// Restircted to a class.
         /// </typeparam>
@@ -261,21 +255,21 @@ TwitchNet.Utilities
         /// <param name="rate_limit">Contains the request limit, requests remaining, and when the rate limit resets.</param>
         /// <param name="api_error">The API error that is returned with a bad request.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns a <see cref="Tuple{T1, T2, T3}"/> that contains the <see cref="IRestResponse{T}"/>, <see cref="RateLimit"/>, and <see cref="ApiError"/> respectivley.</returns>
+        /// <returns>Returns a <see cref="Tuple{T1, T2}"/> that contains the <see cref="IRestResponse{T}"/> and <see cref="ApiResponse"/>.</returns>
         /// <exception cref="Exception">Thrown when an API error is returned by Twitch or when an internal <see cref="Exception"/> is encountered.</exception>
-        private static async Task<(IRestResponse<return_type>, RateLimit, ApiError)>
-        HandleStatus<return_type>(IRestResponse<return_type> rest_response, RateLimit rate_limit, ApiError api_error, ApiRequestSettings api_request_settings)
-        where return_type : class, new()
+        private static async Task<(IRestResponse<data_type>, ApiResponse)>
+        HandleStatus<data_type>(IRestResponse<data_type> rest_response, ApiResponse api_response, ApiRequestSettings api_request_settings)
+        where data_type : class, new()
         {
-            ushort status = (ushort)rest_response.StatusCode;
-            string status_prefix = "'" + status + " " + rest_response.StatusDescription + "'";
+            ushort status = (ushort)api_response.status_code;
+            string status_prefix = "'" + status + " " + api_response.status_description + "'";
 
             // no error, return the valid response
-            if (!api_error.error.IsValid() || rest_response.IsSuccessful)
+            if (!api_response.status_error.IsValid() || rest_response.IsSuccessful)
             {
-                Log.PrintLine(status_prefix + ", Requests remaining: " + rate_limit.remaining);
+                Log.PrintLine(status_prefix + ", Requests remaining: " + api_response.rate_limit.remaining);
 
-                return (rest_response, rate_limit, api_error);
+                return (rest_response, api_response);
             }
 
             // small hack to use the deault handler '000' since it isn't a real status code
@@ -289,9 +283,9 @@ TwitchNet.Utilities
             {
                 case StatusHandling.Error:
                 {
-                    Log.Error(status_prefix + ": " + api_error.message);
+                    Log.Error("API Error: " + status_prefix + ": " + api_response.status_error);
 
-                    throw new Exception(status_prefix + ": "+ api_error.message);
+                    throw new Exception(status_prefix + ": "+ api_response.status_error);
                 }
 
                 case StatusHandling.Retry:
@@ -309,19 +303,18 @@ TwitchNet.Utilities
                     }
 
                     // this should only ever be a concern when '429 - Too Many Requests' is receieved
-                    TimeSpan time = rate_limit.reset - DateTime.Now;
-                    if (rate_limit.remaining == 0 && time.TotalMilliseconds > 0)
+                    TimeSpan time = api_response.rate_limit.reset - DateTime.Now;
+                    if (api_response.rate_limit.remaining == 0 && time.TotalMilliseconds > 0)
                     {
                         Log.Warning(TimeStamp.TimeLong, "Request rate limit reached. Waiting " + time.TotalMilliseconds + "ms to execute the request again.");
                         await Task.Delay(time);
                         Log.Warning(TimeStamp.TimeLong, "Resuming request.");
                     }
 
-                    (IRestResponse<return_type> rest_response, RateLimit rate_limit, ApiError api_error) result = await ExecuteRequestAsync<return_type>(rest_response.Request, api_request_settings);
-                    rest_response = result.rest_response;
-                    rate_limit = result.rate_limit;
-                    api_error = result.api_error;
-                }
+                    (IRestResponse<data_type> rest_response, ApiResponse api_response) rest_result = await ExecuteRequestAsync<data_type>(rest_response.Request, api_request_settings);
+                    rest_response = rest_result.rest_response;
+                    api_response = rest_result.api_response;
+                    }
                 break;
 
                 case StatusHandling.Ignore:
@@ -332,7 +325,7 @@ TwitchNet.Utilities
                 break;
             }
 
-            return (rest_response, rate_limit, api_error);
+            return (rest_response, api_response);
         }
 
         #endregion

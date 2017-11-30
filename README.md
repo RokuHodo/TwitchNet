@@ -1,7 +1,11 @@
 # TwitchNet
 Library for all of the Twitch features, developed for the .NET framework.
 
+<<<<<<< HEAD
 For more information on this library, see the [Wiki](https://github.com/RokuHodo/TwitchNet/wiki). Please note that the Wiki iss still a work in progress and is still being updated.
+=======
+For more information on this library, see the [Wiki](https://github.com/RokuHodo/TwitchNet/wiki). Please note that the Wiki is still a work in progress and is still being updated.
+>>>>>>> refs/remotes/origin/experimental
 
 # Branches
 - **Master**: This branch can also be thought of as the "stable" branch. This branch will be updated once things have been properly tested to work with high reliability.

@@ -4,12 +4,12 @@ namespace
 TwitchNet.Interfaces.Api
 {
     public interface
-    IApiResponsePage<type> : IApiResponse
-    where type : class, new()
+    IApiResponsePage<data_type> : IApiResponse
+    where data_type : class, new()
     {
         /// <summary>
         /// Contains the deserialized result from the Twitch API.
         /// </summary>
-        ApiDataPage<type> result { get; }
+        ApiDataPage<data_type> result { get; }
     }
 }

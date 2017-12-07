@@ -1,5 +1,6 @@
 ﻿// standard namespaces
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 // project namespaces
@@ -124,6 +125,32 @@ TwitchNet.Api
             IApiResponse<Stream> streams = await RestRequestUtil.ExecuteRequestAllPagesAsync<Stream>("streams", Method.GET, bearer_token, client_id, query_parameters, api_request_settings);
 
             return streams;
+        }
+
+        /// <summary>
+        /// Asynchronously checks to see if a user is streaming.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="user_id">The user to check if they are live.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponseValue{type}"/> interface.</returns>
+        internal static async Task<IApiResponseValue<bool>>
+        IsLiveAsync(string bearer_token, string client_id, string user_id, ApiRequestSettings api_request_settings)
+        {
+            StreamsQueryParameters query_parameters = new StreamsQueryParameters()
+            {
+                user_ids = new List<string>()
+                {
+                    user_id
+                }
+            };
+
+            IApiResponsePage<Stream> streams = await GetStreamsPageAsync(bearer_token, client_id, query_parameters, api_request_settings);
+
+            ApiResponseValue<bool> is_live = new ApiResponseValue<bool>(streams, streams.result.data.IsValid());
+
+            return is_live;
         }
 
         #endregion

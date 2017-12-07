@@ -221,6 +221,37 @@ TwitchNet.Api
             return metadata;
         }
 
+        /// <summary>
+        /// Checks to see if a user is streaming.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
+        /// <param name="user_id">The user to check if they are live.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponseValue{type}"/> interface.</returns>
+        public static IApiResponseValue<bool>
+        IsLive(string bearer_token, string user_id, ApiRequestSettings api_request_settings = api_request_settings_default)
+        {
+            IApiResponseValue<bool> is_live = IsLiveAsync(bearer_token, user_id, api_request_settings).Result;
+
+            return is_live;
+        }
+
+        /// <summary>
+        /// Checks to see if a user is streaming.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="user_id">The user to check if they are live.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponseValue{type}"/> interface.</returns>
+        public static IApiResponseValue<bool>
+        IsLive(string bearer_token, string client_id, string user_id, ApiRequestSettings api_request_settings = api_request_settings_default)
+        {
+            IApiResponseValue<bool> is_live = IsLiveAsync(bearer_token, client_id, user_id, api_request_settings).Result;
+
+            return is_live;
+        }
+
         #endregion
 
         #region /streams/metadata

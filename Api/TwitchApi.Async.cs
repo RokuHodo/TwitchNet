@@ -102,6 +102,21 @@ TwitchNet.Api
             return streams;
         }
 
+        /// <summary>
+        /// Asynchronously checks to see if a user is streaming.
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="user_id">The user to check if they are live.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponseValue{type}"/> interface.</returns>
+        public static async Task<IApiResponseValue<bool>>
+        IsLiveAsync(string client_id, string user_id, ApiRequestSettings api_request_settings = api_request_settings_default)
+        {
+            IApiResponseValue<bool> is_live = await TwitchApiInternal.IsLiveAsync(string.Empty, client_id, user_id, api_request_settings);
+
+            return is_live;
+        }
+
         #endregion
 
         #region /streams/metadata

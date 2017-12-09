@@ -89,7 +89,26 @@ TwitchNet.Api
             IApiResponse<Stream> streams = GetStreamsAsync(client_id, query_parameters, api_request_settings).Result;
 
             return streams;
+        }        
+
+        /// <summary>
+        /// Checks to see if a user is streaming.
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="user_id">The user to check if they are live.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponseValue{type}"/> interface.</returns>
+        public static IApiResponseValue<bool>
+        IsLive(string client_id, string user_id, ApiRequestSettings api_request_settings = api_request_settings_default)
+        {
+            IApiResponseValue<bool> is_live = IsLiveAsync(client_id, user_id, api_request_settings).Result;
+
+            return is_live;
         }
+
+        #endregion
+
+        #region /streams/metadata
 
         /// <summary>
         /// Gets a single page of metadata about streams playing either Overwatch or Hearthstone.
@@ -119,25 +138,6 @@ TwitchNet.Api
 
             return metadata;
         }
-
-        /// <summary>
-        /// Checks to see if a user is streaming.
-        /// </summary>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="user_id">The user to check if they are live.</param>
-        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponseValue{type}"/> interface.</returns>
-        public static IApiResponseValue<bool>
-        IsLive(string client_id, string user_id, ApiRequestSettings api_request_settings = api_request_settings_default)
-        {
-            IApiResponseValue<bool> is_live = IsLiveAsync(client_id, user_id, api_request_settings).Result;
-
-            return is_live;
-        }
-
-        #endregion
-
-        #region /streams/metadata
 
         /// <summary>
         /// Gets a complete list of metadata about streams playing either Overwatch or Hearthstone.

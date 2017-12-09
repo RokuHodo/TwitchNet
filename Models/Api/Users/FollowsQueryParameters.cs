@@ -35,7 +35,7 @@ TwitchNet.Models.Api.Users
 
         /// <summary>
         /// A user's id.
-        /// The request returns information about users who are being followed by the this user
+        /// The request returns information about users who are being followed by the this user.
         /// </summary>
         [QueryParameter("from_id")]
         public string from_id
@@ -52,7 +52,7 @@ TwitchNet.Models.Api.Users
 
         /// <summary>
         /// A user's id.
-        /// The request returns information about users who are following this user
+        /// The request returns information about users who are following this user.
         /// </summary>
         [QueryParameter("to_id")]
         public string to_id

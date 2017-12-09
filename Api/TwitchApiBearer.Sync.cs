@@ -205,21 +205,7 @@ TwitchNet.Api
             IApiResponse<Stream> streams = GetStreamsAsync(bearer_token, client_id, query_parameters, api_request_settings).Result;
 
             return streams;
-        }
-
-        /// <summary>
-        /// Gets a single page of metadata about streams playing either Overwatch or Hearthstone.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponsePage{type}"/> interface.</returns>
-        public static IApiResponsePage<Metadata>
-        GetStreamsMetadataPage(string bearer_token, ApiRequestSettings api_request_settings = api_request_settings_default)
-        {
-            IApiResponsePage<Metadata> metadata = GetStreamsMetadataPageAsync(bearer_token, api_request_settings).Result;
-
-            return metadata;
-        }
+        }        
 
         /// <summary>
         /// Checks to see if a user is streaming.
@@ -255,6 +241,20 @@ TwitchNet.Api
         #endregion
 
         #region /streams/metadata
+
+        /// <summary>
+        /// Gets a single page of metadata about streams playing either Overwatch or Hearthstone.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponsePage{type}"/> interface.</returns>
+        public static IApiResponsePage<Metadata>
+        GetStreamsMetadataPage(string bearer_token, ApiRequestSettings api_request_settings = api_request_settings_default)
+        {
+            IApiResponsePage<Metadata> metadata = GetStreamsMetadataPageAsync(bearer_token, api_request_settings).Result;
+
+            return metadata;
+        }
 
         /// <summary>
         /// Gets a single page of metadata about streams playing either Overwatch or Hearthstone.

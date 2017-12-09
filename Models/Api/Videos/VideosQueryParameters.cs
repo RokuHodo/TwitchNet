@@ -45,10 +45,11 @@ TwitchNet.Models.Api.Videos
             {
                 _before = value;
             }
-        }        
+        }
 
         /// <summary>
         /// The ID of a user.
+        /// Only one or more video ID, one user ID, or one game ID can be provided with each request.
         /// </summary>
         [QueryParameter("user_id")]
         public string user_id
@@ -65,6 +66,7 @@ TwitchNet.Models.Api.Videos
 
         /// <summary>
         /// The ID of a game.
+        /// Only one or more video ID, one user ID, or one game ID can be provided with each request.
         /// </summary>
         [QueryParameter("game_id")]
         public string game_id
@@ -82,6 +84,7 @@ TwitchNet.Models.Api.Videos
         /// <summary>
         /// <para>
         /// A list of video ID's.
+        /// Only one or more video ID, one user ID, or one game ID can be provided with each request.
         /// No other query parameters may be provided if a video ID's are provided.
         /// </para>        
         /// <para>

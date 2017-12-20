@@ -8,7 +8,7 @@ namespace
 TwitchNet.Interfaces.Api
 {
     public interface
-    IApiDataPage<type> : IApiValue<type>
+    IDataPage<data_type> : IData<data_type>
     {
         /// <summary>
         /// A string used to tell the server where to start fetching the next set of results, in a multi-page response.

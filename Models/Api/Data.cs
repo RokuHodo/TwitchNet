@@ -11,13 +11,12 @@ namespace
 TwitchNet.Models.Api
 {
     public class
-    ApiData<type> : IApiValue<type>
-    where type : class, new()
+    Data<data_type> : IData<data_type>
     {
         /// <summary>
         /// Contains the response data.
         /// </summary>
         [JsonProperty("data")]
-        public IList<type> data { get; internal set; }
+        public IList<data_type> data { get; internal set; }
     }
 }

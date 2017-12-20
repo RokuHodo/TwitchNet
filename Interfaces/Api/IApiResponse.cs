@@ -40,12 +40,11 @@ TwitchNet.Interfaces.Api
     }
 
     public interface
-    IApiResponse<data_type> : IApiResponse
-    where data_type : class, new()
+    IApiResponse<result_type> : IApiResponse
     {
         /// <summary>
         /// Contains the deserialized result from the Twitch API.
         /// </summary>
-        ApiData<data_type> result { get; }
+        result_type result { get; }
     }
 }

@@ -63,16 +63,16 @@ TwitchNet.Models.Api.Videos
         public string           thumbnail_url   { get; protected set; }
 
         /// <summary>
-        /// The number of times the video has been viewed.
-        /// </summary>
-        [JsonProperty("view_count")]
-        public string           view_count      { get; protected set; }
-
-        /// <summary>
         /// The vieable state of the video.
         /// </summary>
         [JsonProperty("viewable")]
         public string           viewable        { get; protected set; }
+
+        /// <summary>
+        /// The number of times the video has been viewed.
+        /// </summary>
+        [JsonProperty("view_count")]
+        public uint             view_count      { get; protected set; }
 
         /// <summary>
         /// The language of the video.
@@ -80,5 +80,17 @@ TwitchNet.Models.Api.Videos
         /// </summary>
         [JsonProperty("language")]
         public VideoLanguage    language        { get; protected set; }
+
+        /// <summary>
+        /// The type of the video.
+        /// </summary>
+        [JsonProperty("type")]
+        public VideoType        type            { get; protected set; }
+
+        /// <summary>
+        /// The duration of the video.
+        /// </summary>
+        [JsonProperty("duration")]
+        public string           duration        { get; protected set; }
     }
 }

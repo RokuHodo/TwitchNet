@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 
 // project namespaces
-using TwitchNet.Extensions;
 using TwitchNet.Interfaces.Api;
 
 // imported .dll's
@@ -75,20 +74,29 @@ TwitchNet.Models.Api
     }
 
     internal class
-    ApiResponse<data_type> : ApiResponse, IApiResponse<data_type>
-    where data_type : class, new()
+    ApiResponse<result_type> : ApiResponse, IApiResponse<result_type>
     {
         /// <summary>
         /// Contains the deserialized result from the Twitch API.
         /// </summary>
-        public ApiData<data_type> result { get; internal set; }
+        public result_type result { get; internal set; }
 
         public ApiResponse()
         {
 
         }
 
-        public ApiResponse((IRestResponse<ApiData<data_type>> rest_response, IApiResponse api_response) rest_result) : base(rest_result.api_response)
+        public ApiResponse(IApiResponse api_response) : base(api_response)
+        {
+
+        }
+
+        public ApiResponse(IApiResponse<result_type> api_response) : base(api_response)
+        {
+            result = api_response.result;
+        }
+
+        public ApiResponse((IRestResponse<result_type> rest_response, IApiResponse api_response) rest_result) : base(rest_result.api_response)
         {
             result = rest_result.rest_response.Data;
         }

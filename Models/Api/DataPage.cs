@@ -8,8 +8,7 @@ namespace
 TwitchNet.Models.Api
 {
     public class
-    ApiDataPage<type> : ApiData<type>, IApiDataPage<type>
-    where type : class, new()
+    DataPage<data_type> : Data<data_type>, IDataPage<data_type>
     {
         /// <summary>
         /// Contains information used when makling multi-page requests.

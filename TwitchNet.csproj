@@ -94,6 +94,8 @@
     <Compile Include="Models\Api\Streams\Overwatch.cs" />
     <Compile Include="Models\Api\Streams\Metadata.cs" />
     <Compile Include="Models\Api\Games\Game.cs" />
+    <Compile Include="Models\Api\Users\FollowsDataPage.cs" />
+    <Compile Include="Models\Api\Users\FollowsData.cs" />
     <Compile Include="Models\Api\Videos\Video.cs" />
     <Compile Include="Models\Api\Entitlements\EntitlementQueryParameters.cs" />
     <Compile Include="Helpers\ClampedNumber.cs" />

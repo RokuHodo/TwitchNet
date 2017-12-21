@@ -104,7 +104,7 @@ TwitchNet.Utilities
             bool requesting = true;
             do
             {
-                ApiResponse<DataPage<data_type>> _api_response = await ExecuteRequestAsync<DataPage<data_type>>(endpoint, method, bearer_token, client_id, query_parameters, api_request_settings);
+                ApiResponse<page_type> _api_response = await ExecuteRequestAsync<page_type>(endpoint, method, bearer_token, client_id, query_parameters, api_request_settings);
                 data.AddRange(_api_response.result.data);
 
                 requesting = _api_response.result.data.IsValid() && _api_response.result.pagination.cursor.IsValid();
@@ -114,6 +114,8 @@ TwitchNet.Utilities
                 }
                 else
                 {
+                    // TODO: This only copies the JSON list 'data' to the result, and no any other members.
+                    // Clone any similar members between the result and the page result?
                     api_response = new ApiResponse<result_type>(_api_response);
                     api_response.result = new result_type();
                     api_response.result.data = data;

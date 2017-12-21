@@ -46,9 +46,9 @@ TwitchNet.Models.Api
                 remaining = Convert.ToUInt16(headers["Ratelimit-Remaining"]);
             }
 
-            if (headers.ContainsKey("Ratelimit-Remaining"))
+            if (headers.ContainsKey("Ratelimit-Reset"))
             {
-                double reset_double = Convert.ToDouble(headers["Ratelimit-Remaining"]);
+                double reset_double = Convert.ToDouble(headers["Ratelimit-Reset"]);
                 reset = reset_double.ToDateTimeFromUnixEpoch();
             }
         }

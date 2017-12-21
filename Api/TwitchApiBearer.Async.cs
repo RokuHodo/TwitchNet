@@ -506,10 +506,10 @@ TwitchNet.Api
         /// <param name="to_id">The user to compare to.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        public static async Task<IApiResponse<DataPage<Follow>>>
+        public static async Task<IApiResponse<FollowsDataPage<Follow>>>
         GetUserRelationshipAsync(string bearer_token, string from_id, string to_id, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<DataPage<Follow>> relationship = await GetUserRelationshipAsync(bearer_token, client_id_default, from_id, to_id, api_request_settings);
+            IApiResponse<FollowsDataPage<Follow>> relationship = await GetUserRelationshipAsync(bearer_token, client_id_default, from_id, to_id, api_request_settings);
 
             return relationship;
         }
@@ -523,10 +523,10 @@ TwitchNet.Api
         /// <param name="to_id">The user to compare to.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        public static async Task<IApiResponse<DataPage<Follow>>>
+        public static async Task<IApiResponse<FollowsDataPage<Follow>>>
         GetUserRelationshipAsync(string bearer_token, string client_id, string from_id, string to_id, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<DataPage<Follow>> relationship = await TwitchApiInternal.GetUserRelationshipPageAsync(bearer_token, client_id, from_id, to_id, default(FollowsQueryParameters), api_request_settings);
+            IApiResponse<FollowsDataPage<Follow>> relationship = await TwitchApiInternal.GetUserRelationshipPageAsync(bearer_token, client_id, from_id, to_id, default(FollowsQueryParameters), api_request_settings);
 
             return relationship;
         }
@@ -571,10 +571,10 @@ TwitchNet.Api
         /// <param name="from_id">The user to get the following list from.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        public static async Task<IApiResponse<DataPage<Follow>>>
+        public static async Task<IApiResponse<FollowsDataPage<Follow>>>
         GetUserFollowingPageAsync(string bearer_token, string from_id, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<DataPage<Follow>> following = await GetUserFollowingPageAsync(bearer_token, from_id, default(FollowsQueryParameters), api_request_settings);
+            IApiResponse<FollowsDataPage<Follow>> following = await GetUserFollowingPageAsync(bearer_token, from_id, default(FollowsQueryParameters), api_request_settings);
 
             return following;
         }
@@ -590,10 +590,10 @@ TwitchNet.Api
         /// </param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see
-        public static async Task<IApiResponse<DataPage<Follow>>>
+        public static async Task<IApiResponse<FollowsDataPage<Follow>>>
         GetUserFollowingPageAsync(string bearer_token, string from_id, FollowsQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<DataPage<Follow>> following = await GetUserFollowingPageAsync(bearer_token, client_id_default, from_id, query_parameters, api_request_settings);
+            IApiResponse<FollowsDataPage<Follow>> following = await GetUserFollowingPageAsync(bearer_token, client_id_default, from_id, query_parameters, api_request_settings);
 
             return following;
         }
@@ -606,10 +606,10 @@ TwitchNet.Api
         /// <param name="from_id">The user to get the following list from.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        public static async Task<IApiResponse<DataPage<Follow>>>
+        public static async Task<IApiResponse<FollowsDataPage<Follow>>>
         GetUserFollowingPageAsync(string bearer_token, string client_id, string from_id, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<DataPage<Follow>> following = await GetUserFollowingPageAsync(bearer_token, client_id, from_id, default(FollowsQueryParameters), api_request_settings);
+            IApiResponse<FollowsDataPage<Follow>> following = await GetUserFollowingPageAsync(bearer_token, client_id, from_id, default(FollowsQueryParameters), api_request_settings);
 
             return following;
         }
@@ -626,10 +626,10 @@ TwitchNet.Api
         /// </param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        public static async Task<IApiResponse<DataPage<Follow>>>
+        public static async Task<IApiResponse<FollowsDataPage<Follow>>>
         GetUserFollowingPageAsync(string bearer_token, string client_id, string from_id, FollowsQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<DataPage<Follow>> following = await TwitchApiInternal.GetUserRelationshipPageAsync(bearer_token, client_id, from_id, string.Empty, query_parameters, api_request_settings);
+            IApiResponse<FollowsDataPage<Follow>> following = await TwitchApiInternal.GetUserRelationshipPageAsync(bearer_token, client_id, from_id, string.Empty, query_parameters, api_request_settings);
 
             return following;
         }
@@ -641,10 +641,10 @@ TwitchNet.Api
         /// <param name="from_id">The user to get the following list from.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        public static async Task<IApiResponse<Data<Follow>>>
+        public static async Task<IApiResponse<FollowsData<Follow>>>
         GetUserFollowingAsync(string bearer_token, string from_id, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<Data<Follow>> following = await GetUserFollowingAsync(bearer_token, client_id_default, from_id, api_request_settings);
+            IApiResponse<FollowsData<Follow>> following = await GetUserFollowingAsync(bearer_token, client_id_default, from_id, api_request_settings);
 
             return following;
         }
@@ -657,10 +657,10 @@ TwitchNet.Api
         /// <param name="from_id">The user to get the following list from.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        public static async Task<IApiResponse<Data<Follow>>>
+        public static async Task<IApiResponse<FollowsData<Follow>>>
         GetUserFollowingAsync(string bearer_token, string client_id, string from_id, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<Data<Follow>> following = await TwitchApiInternal.GetUserRelationshipAsync(bearer_token, client_id, from_id, string.Empty, default(FollowsQueryParameters), api_request_settings);
+            IApiResponse<FollowsData<Follow>> following = await TwitchApiInternal.GetUserRelationshipAsync(bearer_token, client_id, from_id, string.Empty, default(FollowsQueryParameters), api_request_settings);
 
             return following;
         }
@@ -672,10 +672,10 @@ TwitchNet.Api
         /// <param name="to_id">The user to get the followers for.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        public static async Task<IApiResponse<DataPage<Follow>>>
+        public static async Task<IApiResponse<FollowsDataPage<Follow>>>
         GetUserFollowersPageAsync(string bearer_token, string to_id, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<DataPage<Follow>> followers = await GetUserFollowersPageAsync(bearer_token, to_id, default(FollowsQueryParameters), api_request_settings);
+            IApiResponse<FollowsDataPage<Follow>> followers = await GetUserFollowersPageAsync(bearer_token, to_id, default(FollowsQueryParameters), api_request_settings);
 
             return followers;
         }
@@ -691,10 +691,10 @@ TwitchNet.Api
         /// </param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        public static async Task<IApiResponse<DataPage<Follow>>>
+        public static async Task<IApiResponse<FollowsDataPage<Follow>>>
         GetUserFollowersPageAsync(string bearer_token, string to_id, FollowsQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<DataPage<Follow>> followers = await GetUserFollowersPageAsync(bearer_token, client_id_default, to_id, query_parameters);
+            IApiResponse<FollowsDataPage<Follow>> followers = await GetUserFollowersPageAsync(bearer_token, client_id_default, to_id, query_parameters);
 
             return followers;
         }
@@ -707,10 +707,10 @@ TwitchNet.Api
         /// <param name="to_id">The user to get the followers for.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        public static async Task<IApiResponse<DataPage<Follow>>>
+        public static async Task<IApiResponse<FollowsDataPage<Follow>>>
         GetUserFollowersPageAsync(string bearer_token, string client_id, string to_id, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<DataPage<Follow>> followers = await GetUserFollowersPageAsync(bearer_token, client_id, to_id, default(FollowsQueryParameters), api_request_settings);
+            IApiResponse<FollowsDataPage<Follow>> followers = await GetUserFollowersPageAsync(bearer_token, client_id, to_id, default(FollowsQueryParameters), api_request_settings);
 
             return followers;
         }
@@ -727,10 +727,10 @@ TwitchNet.Api
         /// </param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        public static async Task<IApiResponse<DataPage<Follow>>>
+        public static async Task<IApiResponse<FollowsDataPage<Follow>>>
         GetUserFollowersPageAsync(string bearer_token, string client_id, string to_id, FollowsQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<DataPage<Follow>> followers = await TwitchApiInternal.GetUserRelationshipPageAsync(bearer_token, client_id, string.Empty, to_id, query_parameters, api_request_settings);
+            IApiResponse<FollowsDataPage<Follow>> followers = await TwitchApiInternal.GetUserRelationshipPageAsync(bearer_token, client_id, string.Empty, to_id, query_parameters, api_request_settings);
 
             return followers;
         }
@@ -742,10 +742,10 @@ TwitchNet.Api
         /// <param name="to_id">The user to get the followers for.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        public static async Task<IApiResponse<Data<Follow>>>
+        public static async Task<IApiResponse<FollowsData<Follow>>>
         GetUserFollowersAsync(string bearer_token, string to_id, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<Data<Follow>> followers = await GetUserFollowersAsync(bearer_token, client_id_default, to_id, api_request_settings);
+            IApiResponse<FollowsData<Follow>> followers = await GetUserFollowersAsync(bearer_token, client_id_default, to_id, api_request_settings);
 
             return followers;
         }
@@ -758,10 +758,10 @@ TwitchNet.Api
         /// <param name="to_id">The user to get the followers for.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        public static async Task<IApiResponse<Data<Follow>>>
+        public static async Task<IApiResponse<FollowsData<Follow>>>
         GetUserFollowersAsync(string bearer_token, string client_id, string to_id, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<Data<Follow>> followers = await TwitchApiInternal.GetUserRelationshipAsync(bearer_token, client_id, string.Empty, to_id, default(FollowsQueryParameters), api_request_settings);
+            IApiResponse<FollowsData<Follow>> followers = await TwitchApiInternal.GetUserRelationshipAsync(bearer_token, client_id, string.Empty, to_id, default(FollowsQueryParameters), api_request_settings);
 
             return followers;
         }

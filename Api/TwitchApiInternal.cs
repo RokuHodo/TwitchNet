@@ -268,7 +268,7 @@ TwitchNet.Api
         /// </param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<DataPage<Follow>>>
+        internal static async Task<IApiResponse<FollowsDataPage<Follow>>>
         GetUserRelationshipPageAsync(string bearer_token, string client_id, string from_id, string to_id, FollowsQueryParameters query_parameters, ApiRequestSettings api_request_settings)
         {
             if (api_request_settings.IsNull())
@@ -291,7 +291,7 @@ TwitchNet.Api
             query_parameters.from_id = from_id;
             query_parameters.to_id = to_id;
 
-            IApiResponse<DataPage<Follow>> follows = await RestRequestUtil.ExecuteRequestAsync<DataPage<Follow>>("users/follows", Method.GET, bearer_token, client_id, query_parameters, api_request_settings);
+            IApiResponse<FollowsDataPage<Follow>> follows = await RestRequestUtil.ExecuteRequestAsync<FollowsDataPage<Follow>>("users/follows", Method.GET, bearer_token, client_id, query_parameters, api_request_settings);
 
             return follows;
         }
@@ -306,7 +306,7 @@ TwitchNet.Api
         /// <param name="query_parameters">A set of query parameters to customize the request. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<Data<Follow>>>
+        internal static async Task<IApiResponse<FollowsData<Follow>>>
         GetUserRelationshipAsync(string bearer_token, string client_id, string from_id, string to_id, FollowsQueryParameters query_parameters, ApiRequestSettings api_request_settings)
         {
             if (api_request_settings.IsNull())
@@ -329,7 +329,7 @@ TwitchNet.Api
             query_parameters.from_id = from_id;
             query_parameters.to_id = to_id;
 
-            IApiResponse<Data<Follow>> follows = await RestRequestUtil.ExecuteRequestPagesAsync<Follow, DataPage<Follow>, Data<Follow>>("users/follows", Method.GET, bearer_token, client_id, query_parameters, api_request_settings);
+            IApiResponse<FollowsData<Follow>> follows = await RestRequestUtil.ExecuteRequestPagesAsync<Follow, FollowsDataPage<Follow>, FollowsData<Follow>>("users/follows", Method.GET, bearer_token, client_id, query_parameters, api_request_settings);
 
             return follows;
         }
@@ -357,7 +357,7 @@ TwitchNet.Api
                 ExceptionUtil.ThrowIfInvalid(to_id, nameof(to_id));
             }
 
-            IApiResponse<DataPage<Follow>> relationship = await GetUserRelationshipPageAsync(bearer_token, client_id, from_id, to_id, default(FollowsQueryParameters), api_request_settings);
+            IApiResponse<FollowsDataPage<Follow>> relationship = await GetUserRelationshipPageAsync(bearer_token, client_id, from_id, to_id, default(FollowsQueryParameters), api_request_settings);
 
             ApiResponse<bool> is_following = new ApiResponse<bool>(relationship);
             is_following.result = relationship.result.data.IsValid();

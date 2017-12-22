@@ -80,6 +80,7 @@
     <Compile Include="Extensions\ReflectionExtensions.cs" />
     <Compile Include="Extensions\ValidationExtensions.cs" />
     <Compile Include="Helpers\Json\JsonDeserializer.cs" />
+    <Compile Include="Helpers\Json\TimeSpanConverter.cs" />
     <Compile Include="Interfaces\Api\IDataPage.cs" />
     <Compile Include="Interfaces\Api\IData.cs" />
     <Compile Include="Models\Api\Entitlements\Url.cs" />

@@ -1,4 +1,7 @@
-﻿// imported .dll's
+﻿using System;
+using System.Collections.Generic;
+
+// imported .dll's
 using Newtonsoft.Json;
 
 using RestSharp;
@@ -24,14 +27,17 @@ TwitchNet.Helpers.Json
         Deserialize<return_type>(IRestResponse response)
         {
             JsonSerializerSettings settings = new JsonSerializerSettings();
+            settings.Converters.Add(new TimeSpanConverter());
+
             settings.NullValueHandling      = NullValueHandling.Ignore;
+            settings.DateParseHandling      = DateParseHandling.DateTime;
             settings.DateTimeZoneHandling   = DateTimeZoneHandling.Local;
             settings.FloatParseHandling     = FloatParseHandling.Double;
 
 #if DEBUG
 
             // NOTE: Deserialize - For debugging purposes only, change MissingMemberHandling to 'ignrore' on release build
-            // settings.MissingMemberHandling  = MissingMemberHandling.Error;
+            settings.MissingMemberHandling  = MissingMemberHandling.Error;
 
 #endif
 

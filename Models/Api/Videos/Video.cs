@@ -91,6 +91,6 @@ TwitchNet.Models.Api.Videos
         /// The duration of the video.
         /// </summary>
         [JsonProperty("duration")]
-        public string           duration        { get; protected set; }
+        public TimeSpan           duration        { get; protected set; }
     }
 }

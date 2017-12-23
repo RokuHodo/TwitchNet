@@ -49,7 +49,7 @@ namespace TwitchNet.Helpers.Json
             // attempt to match HH:MM:SS format used by TimeSpan
             if(!TimeSpan.TryParse(value, out TimeSpan time_span))
             {
-                // attampt to match 00h00m00s format
+                // attempt to match 00h00m00s format
                 Regex regex = new Regex("^(?:(?:(?:(?<days>\\d{1,})d)?(?<hours>\\d{1,2})h)?(?<minutes>\\d{1,2})m)?(?<seconds>\\d{1,2})s$");
                 Match match = regex.Match(value);
                 if (match.Success)

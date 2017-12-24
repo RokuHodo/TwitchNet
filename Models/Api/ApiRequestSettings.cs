@@ -104,8 +104,8 @@ TwitchNet.Models.Api
         /// </para>
         /// <para>
         /// Min:        -1,
-        /// Max:        100,
-        /// Default:    -1.
+        /// Max:        1,
+        /// Default:    1.
         /// The retry limit is clamped between the minimum and the maximum values.
         /// </para>
         /// </summary>
@@ -123,7 +123,7 @@ TwitchNet.Models.Api
 
         /// <summary>
         /// <para>Determine how to handle the status code '429 - Too Many Requests'.</para>
-        /// <para>Default: <see cref="StatusHandling.Retry"/>.</para>
+        /// <para>Default: <see cref="StatusHandling.Error"/>.</para>
         /// </summary>
         public StatusHandling status_429_handling
         {
@@ -145,7 +145,7 @@ TwitchNet.Models.Api
         /// </para>
         /// <para>
         /// Min:        -1,
-        /// Max:        100,
+        /// Max:        1,
         /// Default:    1.
         /// The retry limit is clamped between the minimum and the maximum values.
         /// </para>
@@ -180,7 +180,7 @@ TwitchNet.Models.Api
 
         /// <summary>
         /// <para>Determine how to handle the status code '503 - Service Unavailable'.</para>
-        /// <para>Default: <see cref="StatusHandling.Retry"/>.</para>
+        /// <para>Default: <see cref="StatusHandling.Error"/>.</para>
         /// </summary>
         public StatusHandling status_503_handling
         {
@@ -221,16 +221,19 @@ TwitchNet.Models.Api
             _status_default_handling            = StatusHandling.Error;
             _status_default_hanlding_settings   = new StatusHandlingSettings(_status_default_retry_limit, _status_default_handling);
 
-            _status_429_retry_limit             = new ClampedNumber<short>(-1, 100, -1);
-            _status_429_handling                = StatusHandling.Retry;
+            // TODO: change default values in documentation
+            _status_429_retry_limit             = new ClampedNumber<short>(-1, 1, 1);
+            _status_429_handling                = StatusHandling.Error;
             _status_429_hanlding_settings       = new StatusHandlingSettings(_status_429_retry_limit, _status_429_handling);
 
-            _status_500_retry_limit             = new ClampedNumber<short>(-1, 100, 1);
+            // TODO: change default values in documentation
+            _status_500_retry_limit = new ClampedNumber<short>(-1, 1, 1);
             _status_500_handling                = StatusHandling.Error;
             _status_500_hanlding_settings       = new StatusHandlingSettings(_status_500_retry_limit, _status_500_handling);
 
-            _status_503_retry_limit             = new ClampedNumber<short>(1, 1, 1);
-            _status_503_handling                = StatusHandling.Retry;
+            // TODO: change default values in documentation
+            _status_503_retry_limit = new ClampedNumber<short>(1, 1, 1);
+            _status_503_handling                = StatusHandling.Error;
             _status_503_hanlding_settings       = new StatusHandlingSettings(_status_503_retry_limit, _status_503_handling);
 
             _status_handlers_settings = new Dictionary<ushort, StatusHandlingSettings>();

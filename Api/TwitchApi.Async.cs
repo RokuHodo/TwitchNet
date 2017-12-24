@@ -42,6 +42,53 @@ TwitchNet.Api
 
         #endregion
 
+        #region /games/top
+
+        /// <summary>
+        /// Asynchronously gets a single page of top games, most popular first.
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static async Task<IApiResponse<DataPage<Game>>>
+        GetTopGamesPageAsync(string client_id, ApiRequestSettings api_request_settings = api_request_settings_default)
+        {
+            IApiResponse<DataPage<Game>> top_games = await GetTopGamesPageAsync(client_id, default(TopGamesQueryParameters), api_request_settings);
+
+            return top_games;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a single page of top games, most popular first.
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static async Task<IApiResponse<DataPage<Game>>>
+        GetTopGamesPageAsync(string client_id, TopGamesQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
+        {
+            IApiResponse<DataPage<Game>> top_games = await TwitchApiInternal.GetTopGamesPageAsync(bearer_token_default, client_id, query_parameters, api_request_settings);
+
+            return top_games;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a complete list of top games, most popular first.
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static async Task<IApiResponse<Data<Game>>>
+        GetTopGamesAsync(string client_id, ApiRequestSettings api_request_settings = api_request_settings_default)
+        {
+            IApiResponse<Data<Game>> top_games = await TwitchApiInternal.GetTopGamesAsync(bearer_token_default, client_id, api_request_settings);
+
+            return top_games;
+        }
+
+        #endregion
+
         #region /streams
 
         /// <summary>

@@ -16,8 +16,8 @@ TwitchNet.Models.Api.Streams
     {
         #region Fields        
 
-        private StreamLanguage? _language;
-        private StreamType?     _type;
+        private StreamLanguage?     _language;
+        private StreamType?         _type;
 
         private ClampedList<string> _community_ids  = new ClampedList<string>();
         private ClampedList<string> _game_ids       = new ClampedList<string>();

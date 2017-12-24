@@ -85,7 +85,8 @@ TwitchNet.Api
                 ExceptionUtil.ThrowIfNullOrDefault(query_parameters, nameof(query_parameters));
                 if(!query_parameters.ids.IsValid() && !query_parameters.names.IsValid())
                 {
-                    throw new ArgumentException("At least one valid game name or ID must be provided.");                }
+                    throw new ArgumentException("At least one valid game name or ID must be provided.");
+                }
             }
 
             IApiResponse<Data<Game>> games = await RestRequestUtil.ExecuteRequestAsync<Data<Game>, GamesQueryParameters>("games", Method.GET, bearer_token, client_id, query_parameters, api_request_settings);
@@ -95,7 +96,40 @@ TwitchNet.Api
 
         #endregion
 
-        // TODO: (API) Implement /games/top endpoint
+        #region /games/tpp
+
+        /// <summary>
+        /// Asynchronously gets a single page of top games, most popular first.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        internal static async Task<IApiResponse<DataPage<Game>>>
+        GetTopGamesPageAsync(string bearer_token, string client_id, TopGamesQueryParameters query_parameters, ApiRequestSettings api_request_settings)
+        {
+            IApiResponse<DataPage<Game>> top_games = await RestRequestUtil.ExecuteRequestAsync<DataPage<Game>>("games/top", Method.GET, bearer_token, client_id, query_parameters, api_request_settings);
+
+            return top_games;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a complete list of top games, most popular first.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        internal static async Task<IApiResponse<Data<Game>>>
+        GetTopGamesAsync(string bearer_token, string client_id, ApiRequestSettings api_request_settings)
+        {
+            IApiResponse<Data<Game>> top_games = await RestRequestUtil.ExecuteRequestPagesAsync<Game, DataPage<Game>, Data<Game>>("games/top", Method.GET, bearer_token, client_id, default(TopGamesQueryParameters), api_request_settings);
+
+            return top_games;
+        }
+
+        #endregion
 
         #region /streams
 
@@ -312,6 +346,8 @@ TwitchNet.Api
             if (api_request_settings.IsNull())
             {
                 api_request_settings = new ApiRequestSettings();
+                api_request_settings.status_429_retry_limit = -1;
+                api_request_settings.status_429_handling = StatusHandling.Retry;
             }
 
             if (api_request_settings.input_hanlding == InputHandling.Error)
@@ -414,6 +450,8 @@ TwitchNet.Api
             if (api_request_settings.IsNull())
             {
                 api_request_settings = new ApiRequestSettings();
+                api_request_settings.status_429_retry_limit = -1;
+                api_request_settings.status_429_handling = StatusHandling.Retry;
             }
 
             if (api_request_settings.input_hanlding == InputHandling.Error)

@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace TwitchNet.Helpers.Json
 {
-    public class
+    internal class
     TimeSpanConverter : JsonConverter
     {
         /// <summary>

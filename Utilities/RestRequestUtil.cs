@@ -11,7 +11,6 @@ using TwitchNet.Enums.Debug;
 using TwitchNet.Enums.Api;
 using TwitchNet.Extensions;
 using TwitchNet.Helpers.Json;
-using TwitchNet.Interfaces.Api;
 using TwitchNet.Models.Api;
 
 // imported .dll's
@@ -92,7 +91,10 @@ TwitchNet.Utilities
 
             if (api_request_settings.IsNull())
             {
+                // TODO: change behvaior in documentation
                 api_request_settings = new ApiRequestSettings();
+                api_request_settings.status_429_retry_limit = -1;
+                api_request_settings.status_429_handling = StatusHandling.Retry;
             }
 
             if (query_parameters.IsNullOrDefault())
@@ -104,19 +106,22 @@ TwitchNet.Utilities
             bool requesting = true;
             do
             {
-                ApiResponse<page_type> _api_response = await ExecuteRequestAsync<page_type>(endpoint, method, bearer_token, client_id, query_parameters, api_request_settings);
-                data.AddRange(_api_response.result.data);
+                ApiResponse<page_type> api_page_response = await ExecuteRequestAsync<page_type>(endpoint, method, bearer_token, client_id, query_parameters, api_request_settings);
+                if (api_page_response.result.data.IsValid())
+                {
+                    data.AddRange(api_page_response.result.data);
+                }
 
-                requesting = _api_response.result.data.IsValid() && _api_response.result.pagination.cursor.IsValid();
+                requesting = api_page_response.result.data.IsValid() && api_page_response.result.pagination.cursor.IsValid();
                 if (requesting)
                 {
-                    query_parameters.after = _api_response.result.pagination.cursor;
+                    query_parameters.after = api_page_response.result.pagination.cursor;
                 }
                 else
                 {
                     // TODO: This only copies the JSON list 'data' to the result, and no any other members.
                     // Clone any similar members between the result and the page result?
-                    api_response = new ApiResponse<result_type>(_api_response);
+                    api_response = new ApiResponse<result_type>(api_page_response);
                     api_response.result = new result_type();
                     api_response.result.data = data;
                 }
@@ -133,51 +138,40 @@ TwitchNet.Utilities
         internal static async Task<(IRestResponse<result_type>, ApiResponse)>
         ExecuteRequestAsync<result_type>(IRestRequest rest_request, ApiRequestSettings api_request_settings)
         {
-            IRestResponse<result_type> rest_response = new RestResponse<result_type>();
-            ApiResponse api_response = new ApiResponse();
+            RestClient client = Client();
+            IRestResponse<result_type> rest_response = await client.ExecuteTaskAsync<result_type>(rest_request);
 
-            try
+            ApiResponse api_response = new ApiResponse(rest_response);
+            api_response.exception = rest_response.ErrorException;
+
+            if(api_request_settings.internal_error_handling == ErrorHandling.Error && !rest_response.ErrorException.IsNullOrDefault())
             {
-                RestClient client = Client();
-                rest_response = await client.ExecuteTaskAsync<result_type>(rest_request);
-                if(api_request_settings.internal_error_handling == ErrorHandling.Error && !rest_response.ErrorException.IsNullOrDefault())
-                {
-                    Log.Error(Log.FormatColumns(nameof(rest_response.ErrorException), rest_response.ErrorException.Message));
+                Log.Error(Log.FormatColumns(nameof(rest_response.ErrorException), rest_response.ErrorException.Message));
 
-                    throw rest_response.ErrorException;
-                }
-
-                api_response = new ApiResponse(rest_response);
-
-                (IRestResponse<result_type> rest_response, ApiResponse api_response) rest_result = await HandleStatus(rest_response, api_response, api_request_settings);
-                rest_response = rest_result.rest_response;
-                api_response = rest_result.api_response;
-            }
-            catch(Exception exception)
-            {
-                if(api_request_settings.internal_error_handling == ErrorHandling.Error)
-                {
-                    Log.Error("Intenral exception: " + exception.Message);
-
-                    throw exception;
-                }
+                throw rest_response.ErrorException;
             }
 
-            return (rest_response, api_response);
+            (IRestResponse<result_type> rest_response, ApiResponse api_response) rest_result = await HandleStatus(rest_response, api_response, api_request_settings);
+
+            return rest_result;
         }
 
         #endregion
 
         #region Status handling
 
+        // TODO: attach exception to response, even if it's ignored.
         private static async Task<(IRestResponse<result_type>, ApiResponse)>
         HandleStatus<result_type>(IRestResponse<result_type> rest_response, ApiResponse api_response, ApiRequestSettings api_request_settings)
         {
-            ushort status = (ushort)api_response.status_code;
-            string status_prefix = "'" + status + " " + api_response.status_description + "'";
+            ushort status_code = (ushort)api_response.status_code;
+            string status_prefix = "'" + status_code + "' " + api_response.status_description + ".";
+
+            Exception exception = null;
+            api_response.exception = exception;
 
             // no error, return the valid response
-            if (!api_response.status_error.IsValid() || rest_response.IsSuccessful)
+            if (!api_response.status_error.IsValid() && rest_response.IsSuccessful)
             {
                 Log.PrintLine(status_prefix + ", Requests remaining: " + api_response.rate_limit.remaining);
 
@@ -185,32 +179,45 @@ TwitchNet.Utilities
             }
 
             // small hack to use the deault handler '000' since it isn't a real status code
-            if (!api_request_settings._status_handlers_settings.ContainsKey(status))
+            if (!api_request_settings._status_handlers_settings.ContainsKey(status_code))
             {
-                status = 000;
+                status_code = 000;
             }
 
-            // error handling happens here 
-            switch (api_request_settings._status_handlers_settings[status].handling)
+            string exception_message = status_prefix;
+            if (api_response.status_error_message.IsValid())
+            {
+                exception_message += " " + api_response.status_error_message + ".";
+            }
+
+            switch (api_request_settings._status_handlers_settings[status_code].handling)
             {
                 case StatusHandling.Error:
-                {
-                    Log.Error("API Error: " + status_prefix + ": " + api_response.status_error);
+                {                    
+                    Log.Error(exception_message);
 
-                    throw new Exception(status_prefix + ": "+ api_response.status_error);
+                    exception = new Exception(exception_message);
+                    api_response.exception = exception;
+
+                    throw exception;
                 }
 
                 case StatusHandling.Retry:
                 {
                     lock (api_request_settings)
                     {
-                        ++api_request_settings._status_handlers_settings[status].retry_count;
-                        if(api_request_settings._status_handlers_settings[status].retry_count > api_request_settings._status_handlers_settings[status].retry_limit.value && api_request_settings._status_handlers_settings[status].retry_limit.value != -1)
+                        // NOTE: This behavior needs changing in documentatiom
+                        ++api_request_settings._status_handlers_settings[status_code].retry_count;
+                        if(api_request_settings._status_handlers_settings[status_code].retry_count > api_request_settings._status_handlers_settings[status_code].retry_limit.value && api_request_settings._status_handlers_settings[status_code].retry_limit.value != -1)
                         {
-                            Log.Warning(TimeStamp.TimeLong, status_prefix + " receieved from Twitch. Retry limit " + api_request_settings._status_handlers_settings[status].retry_limit.value + " reached. Cancelling request.");
-                            api_request_settings._status_handlers_settings[status].retry_count = 0;
+                            Log.Warning(TimeStamp.TimeLong, status_prefix + " receieved from Twitch. Retry limit " + api_request_settings._status_handlers_settings[status_code].retry_limit.value + " exceeded. Cancelling request.");
+                            api_request_settings._status_handlers_settings[status_code].retry_count = 0;
 
-                            break;
+                            exception_message += " Retry limit exceeded.";
+                            exception = new Exception(exception_message);
+                            api_response.exception = exception;
+
+                            throw exception;
                         }
                     }
 
@@ -226,16 +233,17 @@ TwitchNet.Utilities
                     (IRestResponse<result_type> rest_response, ApiResponse api_response) rest_result = await ExecuteRequestAsync<result_type>(rest_response.Request, api_request_settings);
                     rest_response = rest_result.rest_response;
                     api_response = rest_result.api_response;
-                    }
+                }
                 break;
 
                 case StatusHandling.Ignore:
                 default:
                 {
-
+                    exception = new Exception(exception_message);
+                    api_response.exception = exception;
                 }
                 break;
-            }
+            }            
 
             return (rest_response, api_response);
         }

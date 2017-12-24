@@ -5,7 +5,7 @@ TwitchNet.Enums.Api
     StatusHandling
     {
         /// <summary>
-        /// Throw an <see cref="Exception"/> when an API error is returned.
+        /// Throw an intenral <see cref="Exception"/> when an API error is returned.
         /// </summary>
         Error   = 0,
 
@@ -16,6 +16,7 @@ TwitchNet.Enums.Api
 
         /// <summary>
         /// Execute the request until a limit is reached (if any) or the request succeeds.
+        /// If the retry limit is exceeded, an error is thrown.
         /// </summary>
         Retry   = 2,
     }

@@ -19,9 +19,6 @@ using RestSharp;
 namespace 
 TwitchNet.Utilities
 {
-    // TODO: (RestRequestUtil) Change the Exectution methods to accept any type of model structure, not just the typical Twitch response models.
-    // This will allow for more flexibility down the road in case they make cmall chanmge.
-
     // TODO: (RestRequestUtil) Make the base URL customizable to accomodate for any future API revisions that may use different URL's.
 
     internal static class
@@ -86,12 +83,14 @@ TwitchNet.Utilities
         where page_type     : DataPage<data_type>, new()
         where result_type   : Data<data_type>, new()
         {
+            // TODO: change from returning Data<> to to DataPage<>
             ApiResponse<result_type> api_response = new ApiResponse<result_type>();
             List<data_type> data = new List<data_type>();
 
             if (api_request_settings.IsNull())
             {
                 // TODO: change behvaior in documentation
+                // TODO: change to default behavior to Error instread of retry
                 api_request_settings = new ApiRequestSettings();
                 api_request_settings.status_429_retry_limit = -1;
                 api_request_settings.status_429_handling = StatusHandling.Retry;

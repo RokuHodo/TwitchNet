@@ -1,6 +1,7 @@
 ﻿// project namespaces
 using TwitchNet.Interfaces.Api;
 using TwitchNet.Models.Api;
+using TwitchNet.Models.Api.Clips;
 using TwitchNet.Models.Api.Entitlements;
 using TwitchNet.Models.Api.Games;
 using TwitchNet.Models.Api.Streams;
@@ -13,6 +14,74 @@ TwitchNet.Api
     public static partial class
     TwitchApiBearer
     {
+        #region /clips
+
+        /// <summary>
+        /// <para>Creates a clip.</para>
+        /// <para>Required Scope: 'clips:edit'.</para>
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<Data<CreatedClip>>
+        CreateClip(string bearer_token, ClipCreationQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
+        {
+            IApiResponse<Data<CreatedClip>> clip = CreateClipAsync(bearer_token, query_parameters, api_request_settings).Result;
+
+            return clip;
+        }
+
+        /// <summary>
+        /// <para>Creates a clip.</para>
+        /// <para>Required Scope: 'clips:edit'.</para>
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<Data<CreatedClip>>
+        CreateClip(string bearer_token, string client_id, ClipCreationQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
+        {
+            IApiResponse<Data<CreatedClip>> clip = CreateClipAsync(bearer_token, client_id, query_parameters, api_request_settings).Result;
+
+            return clip;
+        }
+
+        /// <summary>
+        /// Gets information about a clip.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<Data<Clip>>
+        GetClip(string bearer_token, ClipQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
+        {
+            IApiResponse<Data<Clip>> clip = GetClipAsync(bearer_token, query_parameters, api_request_settings).Result;
+
+            return clip;
+        }
+
+        /// <summary>
+        /// Gets information about a clip.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<Data<Clip>>
+        GetClip(string bearer_token, string client_id, ClipQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
+        {
+            IApiResponse<Data<Clip>> clip = GetClipAsync(bearer_token, client_id, query_parameters, api_request_settings).Result;
+
+            return clip;
+        }
+
+        #endregion
+
         #region /entitlements/upload
 
         /// <summary>

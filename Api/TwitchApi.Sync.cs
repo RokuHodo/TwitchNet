@@ -1,6 +1,7 @@
 ﻿// project namespaces
 using TwitchNet.Interfaces.Api;
 using TwitchNet.Models.Api;
+using TwitchNet.Models.Api.Clips;
 using TwitchNet.Models.Api.Games;
 using TwitchNet.Models.Api.Streams;
 using TwitchNet.Models.Api.Users;
@@ -12,6 +13,25 @@ TwitchNet.Api
     public static partial class
     TwitchApi
     {
+        #region /clips
+
+        /// <summary>
+        /// Gets information about a clip.
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static IApiResponse<Data<Clip>>
+        GetClip(string client_id, ClipQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
+        {
+            IApiResponse<Data<Clip>> clip = GetClipAsync(client_id, query_parameters, api_request_settings).Result;
+
+            return clip;
+        }
+
+        #endregion
+
         #region /games
 
         /// <summary>

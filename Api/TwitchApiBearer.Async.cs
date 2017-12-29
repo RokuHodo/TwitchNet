@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 // project namespaces
 using TwitchNet.Interfaces.Api;
 using TwitchNet.Models.Api;
+using TwitchNet.Models.Api.Clips;
 using TwitchNet.Models.Api.Entitlements;
 using TwitchNet.Models.Api.Games;
 using TwitchNet.Models.Api.Streams;
@@ -21,6 +22,74 @@ TwitchNet.Api
         private static readonly string              client_id_default               = string.Empty;
 
         private const           ApiRequestSettings  api_request_settings_default    = default(ApiRequestSettings);
+
+        #endregion
+
+        #region /clips
+
+        /// <summary>
+        /// <para>Asynchronously creates a clip.</para>
+        /// <para>Required Scope: 'clips:edit'.</para>
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static async Task<IApiResponse<Data<CreatedClip>>>
+        CreateClipAsync(string bearer_token, ClipCreationQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
+        {
+            IApiResponse<Data<CreatedClip>> clip = await CreateClipAsync(bearer_token, client_id_default, query_parameters, api_request_settings);
+
+            return clip;
+        }
+
+        /// <summary>
+        /// <para>Asynchronously creates a clip.</para>
+        /// <para>Required Scope: 'clips:edit'.</para>
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static async Task<IApiResponse<Data<CreatedClip>>>
+        CreateClipAsync(string bearer_token, string client_id, ClipCreationQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
+        {
+            IApiResponse<Data<CreatedClip>> clip = await TwitchApiInternal.CreateClipAsync(bearer_token, client_id, query_parameters, api_request_settings);
+
+            return clip;
+        }
+
+        /// <summary>
+        /// Asynchronously gets information about a clip.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static async Task<IApiResponse<Data<Clip>>>
+        GetClipAsync(string bearer_token, ClipQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
+        {
+            IApiResponse<Data<Clip>> clip = await GetClipAsync(bearer_token, client_id_default, query_parameters, api_request_settings);
+
+            return clip;
+        }
+
+        /// <summary>
+        /// Asynchronously gets information about a clip.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static async Task<IApiResponse<Data<Clip>>>
+        GetClipAsync(string bearer_token, string client_id, ClipQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
+        {
+            IApiResponse<Data<Clip>> clip = await TwitchApiInternal.GetClipAsync(bearer_token, client_id, query_parameters, api_request_settings);
+
+            return clip;
+        }
 
         #endregion
 

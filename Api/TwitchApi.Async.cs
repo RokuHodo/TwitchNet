@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 // project namespaces
 using TwitchNet.Interfaces.Api;
 using TwitchNet.Models.Api;
+using TwitchNet.Models.Api.Clips;
 using TwitchNet.Models.Api.Games;
 using TwitchNet.Models.Api.Streams;
 using TwitchNet.Models.Api.Users;
@@ -20,6 +21,25 @@ TwitchNet.Api
         private static readonly string              bearer_token_default             = string.Empty;
 
         private const           ApiRequestSettings  api_request_settings_default    = default(ApiRequestSettings);
+
+        #endregion
+
+        #region /clips
+
+        /// <summary>
+        /// Asynchronously gets information about a clip.
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        public static async Task<IApiResponse<Data<Clip>>>
+        GetClipAsync(string client_id, ClipQueryParameters query_parameters, ApiRequestSettings api_request_settings = api_request_settings_default)
+        {
+            IApiResponse<Data<Clip>> clip = await TwitchApiInternal.GetClipAsync(bearer_token_default, client_id, query_parameters, api_request_settings);
+
+            return clip;
+        }
 
         #endregion
 

@@ -8,6 +8,7 @@ using TwitchNet.Enums.Api;
 using TwitchNet.Extensions;
 using TwitchNet.Interfaces.Api;
 using TwitchNet.Models.Api;
+using TwitchNet.Models.Api.Clips;
 using TwitchNet.Models.Api.Entitlements;
 using TwitchNet.Models.Api.Games;
 using TwitchNet.Models.Api.Streams;
@@ -24,7 +25,64 @@ TwitchNet.Api
     internal static partial class
     TwitchApiInternal
     {
-        // TODO: (API) Implement /clips endpoint
+        #region /clips
+
+        /// <summary>
+        /// <para>Asynchronously creates a clip.</para>
+        /// <para>Required Scope: 'clips:edit'.</para>
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        internal static async Task<IApiResponse<Data<CreatedClip>>>
+        CreateClipAsync(string bearer_token, string client_id, ClipCreationQueryParameters query_parameters, ApiRequestSettings api_request_settings)
+        {
+            if (api_request_settings.IsNull())
+            {
+                api_request_settings = new ApiRequestSettings();
+            }
+
+            if (api_request_settings.input_hanlding == InputHandling.Error)
+            {
+                ExceptionUtil.ThrowIfNullOrDefault(query_parameters, nameof(query_parameters));
+                ExceptionUtil.ThrowIfInvalid(query_parameters.broadcaster_id, nameof(query_parameters.broadcaster_id));
+            }
+
+            IApiResponse<Data<CreatedClip>> clip_creation = await RestRequestUtil.ExecuteRequestAsync<Data<CreatedClip>, ClipCreationQueryParameters>("clips", Method.POST, bearer_token, client_id, query_parameters, api_request_settings);
+
+            return clip_creation;
+        }
+
+        /// <summary>
+        /// Asynchronously gets information about a clip.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
+        internal static async Task<IApiResponse<Data<Clip>>>
+        GetClipAsync(string bearer_token, string client_id, ClipQueryParameters query_parameters, ApiRequestSettings api_request_settings)
+        {
+            if (api_request_settings.IsNull())
+            {
+                api_request_settings = new ApiRequestSettings();
+            }
+
+            if (api_request_settings.input_hanlding == InputHandling.Error)
+            {
+                ExceptionUtil.ThrowIfNullOrDefault(query_parameters, nameof(query_parameters));
+                ExceptionUtil.ThrowIfInvalid(query_parameters.id, nameof(query_parameters.id));
+            }
+
+            IApiResponse<Data<Clip>> clip = await RestRequestUtil.ExecuteRequestAsync<Data<Clip>, ClipQueryParameters>("clips", Method.GET, bearer_token, client_id, query_parameters, api_request_settings);
+
+            return clip;
+        }
+
+        #endregion
 
         #region /entitlements/upload
 

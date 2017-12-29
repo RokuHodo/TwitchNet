@@ -83,6 +83,7 @@
     <Compile Include="Helpers\Json\TimeSpanConverter.cs" />
     <Compile Include="Interfaces\Api\IDataPage.cs" />
     <Compile Include="Interfaces\Api\IData.cs" />
+    <Compile Include="Models\Api\ApiResponseBundle.cs" />
     <Compile Include="Models\Api\Clips\ClipCreationQueryParameters.cs" />
     <Compile Include="Models\Api\Clips\CreatedClip.cs" />
     <Compile Include="Models\Api\Clips\Clip.cs" />

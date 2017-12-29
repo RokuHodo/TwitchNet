@@ -113,9 +113,9 @@ TwitchNet.Models.Api
             result = api_response.result;
         }
 
-        public ApiResponse((IRestResponse<result_type> rest_response, IApiResponse api_response) rest_result) : base(rest_result.api_response)
+        public ApiResponse(ApiResponseBundle<result_type> response_bundle) : base(response_bundle.api_response)
         {
-            result = rest_result.rest_response.Data;
+            result = response_bundle.rest_response.Data;
         }
     }
 }

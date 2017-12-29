@@ -11,6 +11,7 @@ using TwitchNet.Enums.Debug;
 using TwitchNet.Enums.Api;
 using TwitchNet.Extensions;
 using TwitchNet.Helpers.Json;
+using TwitchNet.Interfaces.Api;
 using TwitchNet.Models.Api;
 
 // imported .dll's
@@ -26,6 +27,17 @@ TwitchNet.Utilities
     {
         #region Execute methods
 
+        /// <summary>
+        /// Asynchronously executes a rest request.
+        /// </summary>
+        /// <typeparam name="result_type">The type of the <see cref="IRestResponse{T}.Data"/> object.</typeparam>
+        /// <param name="endpoint">The endpoint URL.</param>
+        /// <param name="method">The HTTP request method.</param>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A list of individual query parameters to customize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns an instance of the <see cref="ApiResponse{result_type}"/> class.</returns>
         public static async Task<ApiResponse<result_type>>
         ExecuteRequestAsync<result_type>(string endpoint, Method method, string bearer_token, string client_id, IList<QueryParameter> query_parameters, ApiRequestSettings api_request_settings)
         {
@@ -37,12 +49,27 @@ TwitchNet.Utilities
             RestRequest request = Request(endpoint, method, bearer_token, client_id, api_request_settings);
             request = PagingUtil.AddPaging(request, query_parameters);
 
-            (IRestResponse<result_type> rest_response, ApiResponse api_response) rest_result = await ExecuteRequestAsync<result_type>(request, api_request_settings);            
-            ApiResponse<result_type> api_response = new ApiResponse<result_type>(rest_result);
+            ApiResponseBundle<result_type> response_bundle = await ExecuteRequestAsync<result_type>(request, api_request_settings);            
+            ApiResponse<result_type> api_response = new ApiResponse<result_type>(response_bundle);
 
             return api_response;
         }
 
+        /// <summary>
+        /// Asynchronously executes a rest request.
+        /// </summary>
+        /// <typeparam name="result_type">The type of the <see cref="IRestResponse{T}.Data"/> object.</typeparam>
+        /// <typeparam name="query_parameters_type">
+        /// The type of the <paramref name="query_parameters"/> object.
+        /// Restricted to a class.
+        /// </typeparam>
+        /// <param name="endpoint">The endpoint URL.</param>
+        /// <param name="method">The HTTP request method.</param>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns an instance of the <see cref="ApiResponse{result_type}"/> class.</returns>
         public static async Task<ApiResponse<result_type>>
         ExecuteRequestAsync<result_type, query_parameters_type>(string endpoint, Method method, string bearer_token, string client_id, query_parameters_type query_parameters, ApiRequestSettings api_request_settings)
         where query_parameters_type : class, new()
@@ -55,12 +82,23 @@ TwitchNet.Utilities
             RestRequest request = Request(endpoint, method, bearer_token, client_id, api_request_settings);
             request = PagingUtil.AddPaging(request, query_parameters);
 
-            (IRestResponse<result_type> rest_response, ApiResponse api_response) rest_result = await ExecuteRequestAsync<result_type>(request, api_request_settings);
-            ApiResponse<result_type> api_response = new ApiResponse<result_type>(rest_result);
+            ApiResponseBundle<result_type> response_bundle = await ExecuteRequestAsync<result_type>(request, api_request_settings);
+            ApiResponse<result_type> api_response = new ApiResponse<result_type>(response_bundle);
 
             return api_response;
         }
 
+        /// <summary>
+        /// Asynchronously executes a rest request.
+        /// </summary>
+        /// <typeparam name="result_type">The type of the <see cref="IRestResponse{T}.Data"/> object.</typeparam>
+        /// <param name="endpoint">The endpoint URL.</param>
+        /// <param name="method">The HTTP request method.</param>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns an instance of the <see cref="ApiResponse{result_type}"/> class.</returns>
         public static async Task<ApiResponse<result_type>>
         ExecuteRequestAsync<result_type>(string endpoint, Method method, string bearer_token, string client_id, QueryParametersPage query_parameters, ApiRequestSettings api_request_settings)
         {
@@ -72,17 +110,32 @@ TwitchNet.Utilities
             RestRequest request = Request(endpoint, method, bearer_token, client_id, api_request_settings);
             request = PagingUtil.AddPaging(request, query_parameters);
 
-            (IRestResponse<result_type> rest_response, ApiResponse api_response) rest_result = await ExecuteRequestAsync<result_type>(request, api_request_settings);
-            ApiResponse<result_type> api_response = new ApiResponse<result_type>(rest_result);
+            ApiResponseBundle<result_type> response_bundle = await ExecuteRequestAsync<result_type>(request, api_request_settings);
+            ApiResponse<result_type> api_response = new ApiResponse<result_type>(response_bundle);
 
             return api_response;
         }
 
-        public static async Task<ApiResponse<page_type>>
-        ExecuteRequestPagesAsync<data_type, page_type>(string endpoint, Method method, string bearer_token, string client_id, QueryParametersPage query_parameters, ApiRequestSettings api_request_settings)
-        where page_type     : DataPage<data_type>, new()
+        /// <summary>
+        /// Asynchronously executes a multi-page rest request.
+        /// </summary>
+        /// <typeparam name="data_type">
+        /// The generic type passed through to the <see cref="Data{data_type}"/> class.
+        /// This is the object type that the <code>data[{data_type}]</code> structure from Twitch will deserialize into.
+        /// </typeparam>
+        /// <typeparam name="result_type">The type of the <see cref="IRestResponse{T}.Data"/> object.</typeparam>
+        /// <param name="endpoint">The endpoint URL.</param>
+        /// <param name="method">The HTTP request method.</param>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns an instance of the <see cref="ApiResponse{result_type}"/> class.</returns>
+        public static async Task<ApiResponse<result_type>>
+        ExecuteRequestPagesAsync<data_type, result_type>(string endpoint, Method method, string bearer_token, string client_id, QueryParametersPage query_parameters, ApiRequestSettings api_request_settings)
+        where result_type : DataPage<data_type>, IDataPage<data_type>, new()
         {
-            ApiResponse<page_type> api_response = new ApiResponse<page_type>();
+            ApiResponse<result_type> api_response = new ApiResponse<result_type>();
             List<data_type> data = new List<data_type>();
 
             if (query_parameters.IsNullOrDefault())
@@ -98,7 +151,7 @@ TwitchNet.Utilities
             bool requesting = true;
             do
             {
-                ApiResponse<page_type> api_page_response = await ExecuteRequestAsync<page_type>(endpoint, method, bearer_token, client_id, query_parameters, api_request_settings);
+                ApiResponse<result_type> api_page_response = await ExecuteRequestAsync<result_type>(endpoint, method, bearer_token, client_id, query_parameters, api_request_settings);
                 if (api_page_response.result.data.IsValid())
                 {
                     data.AddRange(api_page_response.result.data);
@@ -121,8 +174,15 @@ TwitchNet.Utilities
             return api_response;
         }
 
+        /// <summary>
+        /// Asynchronously executes a rest request.
+        /// </summary>
+        /// <typeparam name="result_type">The type of the <see cref="IRestResponse{T}.Data"/> object.</typeparam>
+        /// <param name="rest_request">The rest request to execute.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>An instance of the <see cref="ApiResponseBundle{result_type}"/> class.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static async Task<(IRestResponse<result_type>, ApiResponse)>
+        internal static async Task<ApiResponseBundle<result_type>>
         ExecuteRequestAsync<result_type>(IRestRequest rest_request, ApiRequestSettings api_request_settings)
         {
             RestClient client = Client();
@@ -138,16 +198,24 @@ TwitchNet.Utilities
                 throw rest_response.ErrorException;
             }
 
-            (IRestResponse<result_type> rest_response, ApiResponse api_response) rest_result = await HandleStatus(rest_response, api_response, api_request_settings);
+            ApiResponseBundle<result_type> response_bundle = await HandleStatus(rest_response, api_response, api_request_settings);
 
-            return rest_result;
+            return response_bundle;
         }
 
         #endregion
 
         #region Status handling
 
-        private static async Task<(IRestResponse<result_type>, ApiResponse)>
+        /// <summary>
+        /// Handles the status code returned with the rest response.
+        /// </summary>
+        /// <typeparam name="result_type">The type of the <see cref="IRestResponse{T}.Data"/> object.</typeparam>
+        /// <param name="rest_response">The rest response.</param>
+        /// <param name="api_response">The base response assembled from the <see cref="IRestResponse{T}"/> object.</param>
+        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
+        /// <returns>An instance of the <see cref="ApiResponseBundle{result_type}"/> class.</returns>
+        private static async Task<ApiResponseBundle<result_type>>
         HandleStatus<result_type>(IRestResponse<result_type> rest_response, ApiResponse api_response, ApiRequestSettings api_request_settings)
         {
             ushort status_code = (ushort)api_response.status_code;
@@ -161,7 +229,7 @@ TwitchNet.Utilities
             {
                 Log.PrintLine(status_prefix + ", Requests remaining: " + api_response.rate_limit.remaining);
 
-                return (rest_response, api_response);
+                return new ApiResponseBundle<result_type>(rest_response, api_response);
             }
 
             // small hack to use the deault handler '000' since it isn't a real status code
@@ -216,9 +284,9 @@ TwitchNet.Utilities
                         Log.Warning(TimeStamp.TimeLong, "Resuming request.");
                     }
 
-                    (IRestResponse<result_type> rest_response, ApiResponse api_response) rest_result = await ExecuteRequestAsync<result_type>(rest_response.Request, api_request_settings);
-                    rest_response = rest_result.rest_response;
-                    api_response = rest_result.api_response;
+                    ApiResponseBundle<result_type> response_bundle = await ExecuteRequestAsync<result_type>(rest_response.Request, api_request_settings);
+                    rest_response = response_bundle.rest_response;
+                    api_response = response_bundle.api_response;
                 }
                 break;
 
@@ -231,7 +299,7 @@ TwitchNet.Utilities
                 break;
             }            
 
-            return (rest_response, api_response);
+            return new ApiResponseBundle<result_type>(rest_response, api_response);
         }
 
         #endregion

@@ -649,10 +649,10 @@ TwitchNet.Api
         /// <param name="description">The new description to set.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        public static IApiResponse<bool>
+        public static IApiResponse<Data<User>>
         SetUserDescription(string bearer_token, string description, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<bool> success = SetUserDescriptionAsync(bearer_token, description, api_request_settings).Result;
+            IApiResponse<Data<User>> success = SetUserDescriptionAsync(bearer_token, description, api_request_settings).Result;
 
             return success;
         }
@@ -666,10 +666,10 @@ TwitchNet.Api
         /// <param name="description">The new description to set.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        public static IApiResponse<bool>
+        public static IApiResponse<Data<User>>
         SetUserDescription(string bearer_token, string client_id, string description, ApiRequestSettings api_request_settings = api_request_settings_default)
         {
-            IApiResponse<bool> success = SetUserDescriptionAsync(bearer_token, client_id, description, api_request_settings).Result;
+            IApiResponse<Data<User>> success = SetUserDescriptionAsync(bearer_token, client_id, description, api_request_settings).Result;
 
             return success;
         }

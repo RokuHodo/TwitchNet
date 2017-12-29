@@ -323,7 +323,7 @@ TwitchNet.Api
         /// <param name="description">The new description to set.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<bool>>
+        internal static async Task<IApiResponse<Data<User>>>
         SetUserDescriptionAsync(string bearer_token, string client_id, string description, ApiRequestSettings api_request_settings)
         {
             QueryParameter[] query_parameters = new QueryParameter[]
@@ -335,13 +335,9 @@ TwitchNet.Api
                 },
             };
 
-            IApiResponse<Data<User>> users = await RestRequestUtil.ExecuteRequestAsync<Data<User>>("users", Method.PUT, bearer_token, client_id, query_parameters, api_request_settings);
+            IApiResponse<Data<User>> result = await RestRequestUtil.ExecuteRequestAsync<Data<User>>("users", Method.PUT, bearer_token, client_id, query_parameters, api_request_settings);
 
-            // TODO: SetUserDescriptionAsync - Test to see if this is a valid check to see if the description was actually updated.
-            ApiResponse<bool> response = new ApiResponse<bool>(users);
-            response.result = users.result.data.IsValid();
-
-            return response;
+            return result;
         }
 
         #endregion

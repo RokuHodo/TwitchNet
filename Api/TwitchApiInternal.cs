@@ -177,12 +177,13 @@ TwitchNet.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<Data<Game>>>
-        GetTopGamesAsync(string bearer_token, string client_id, ApiRequestSettings api_request_settings)
+        internal static async Task<IApiResponse<DataPage<Game>>>
+        GetTopGamesAsync(string bearer_token, string client_id, TopGamesQueryParameters query_parameters, ApiRequestSettings api_request_settings)
         {
-            IApiResponse<Data<Game>> top_games = await RestRequestUtil.ExecuteRequestPagesAsync<Game, DataPage<Game>, Data<Game>>("games/top", Method.GET, bearer_token, client_id, default(TopGamesQueryParameters), api_request_settings);
+            IApiResponse<DataPage<Game>> top_games = await RestRequestUtil.ExecuteRequestPagesAsync<Game, DataPage<Game>>("games/top", Method.GET, bearer_token, client_id, query_parameters, api_request_settings);
 
             return top_games;
         }
@@ -215,10 +216,10 @@ TwitchNet.Api
         /// <param name="query_parameters">A set of query parameters to customize the request.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<Data<Stream>>>
+        internal static async Task<IApiResponse<DataPage<Stream>>>
         GetStreamsAsync(string bearer_token, string client_id, StreamsQueryParameters query_parameters, ApiRequestSettings api_request_settings)
         {
-            IApiResponse<Data<Stream>> streams = await RestRequestUtil.ExecuteRequestPagesAsync<Stream, DataPage<Stream>, Data<Stream>>("streams", Method.GET, bearer_token, client_id, query_parameters, api_request_settings);
+            IApiResponse<DataPage<Stream>> streams = await RestRequestUtil.ExecuteRequestPagesAsync<Stream, DataPage<Stream>>("streams", Method.GET, bearer_token, client_id, query_parameters, api_request_settings);
 
             return streams;
         }
@@ -278,10 +279,10 @@ TwitchNet.Api
         /// <param name="query_parameters">A set of query parameters to customize the request.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<Data<Metadata>>>
+        internal static async Task<IApiResponse<DataPage<Metadata>>>
         GetStreamsMetadataAsync(string bearer_token, string client_id, StreamsQueryParameters query_parameters, ApiRequestSettings api_request_settings)
         {
-            IApiResponse<Data<Metadata>> metadata = await RestRequestUtil.ExecuteRequestPagesAsync<Metadata, DataPage<Metadata>, Data<Metadata>>("streams/metadata", Method.GET, bearer_token, client_id, query_parameters, api_request_settings);
+            IApiResponse<DataPage<Metadata>> metadata = await RestRequestUtil.ExecuteRequestPagesAsync<Metadata, DataPage<Metadata>>("streams/metadata", Method.GET, bearer_token, client_id, query_parameters, api_request_settings);
 
             return metadata;
         }
@@ -398,7 +399,7 @@ TwitchNet.Api
         /// <param name="query_parameters">A set of query parameters to customize the request. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<FollowsData<Follow>>>
+        internal static async Task<IApiResponse<FollowsDataPage<Follow>>>
         GetUserRelationshipAsync(string bearer_token, string client_id, string from_id, string to_id, FollowsQueryParameters query_parameters, ApiRequestSettings api_request_settings)
         {
             if (api_request_settings.IsNull())
@@ -423,7 +424,7 @@ TwitchNet.Api
             query_parameters.from_id = from_id;
             query_parameters.to_id = to_id;
 
-            IApiResponse<FollowsData<Follow>> follows = await RestRequestUtil.ExecuteRequestPagesAsync<Follow, FollowsDataPage<Follow>, FollowsData<Follow>>("users/follows", Method.GET, bearer_token, client_id, query_parameters, api_request_settings);
+            IApiResponse<FollowsDataPage<Follow>> follows = await RestRequestUtil.ExecuteRequestPagesAsync<Follow, FollowsDataPage<Follow>>("users/follows", Method.GET, bearer_token, client_id, query_parameters, api_request_settings);
 
             return follows;
         }
@@ -502,7 +503,7 @@ TwitchNet.Api
         /// <param name="query_parameters">A set of query parameters to customize the request.</param>
         /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<Data<Video>>>
+        internal static async Task<IApiResponse<DataPage<Video>>>
         GetVideosAsync(string bearer_token, string client_id, VideosQueryParameters query_parameters, ApiRequestSettings api_request_settings)
         {
             if (api_request_settings.IsNull())
@@ -522,7 +523,7 @@ TwitchNet.Api
                 }
             }
 
-            IApiResponse<Data<Video>> videos = await RestRequestUtil.ExecuteRequestPagesAsync<Video, DataPage<Video>, Data<Video>>("videos", Method.GET, bearer_token, client_id, query_parameters, api_request_settings);
+            IApiResponse<DataPage<Video>> videos = await RestRequestUtil.ExecuteRequestPagesAsync<Video, DataPage<Video>>("videos", Method.GET, bearer_token, client_id, query_parameters, api_request_settings);
 
             return videos;
         }

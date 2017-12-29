@@ -78,29 +78,22 @@ TwitchNet.Utilities
             return api_response;
         }
 
-        public static async Task<ApiResponse<result_type>>
-        ExecuteRequestPagesAsync<data_type, page_type, result_type>(string endpoint, Method method, string bearer_token, string client_id, QueryParametersPage query_parameters, ApiRequestSettings api_request_settings)
+        public static async Task<ApiResponse<page_type>>
+        ExecuteRequestPagesAsync<data_type, page_type>(string endpoint, Method method, string bearer_token, string client_id, QueryParametersPage query_parameters, ApiRequestSettings api_request_settings)
         where page_type     : DataPage<data_type>, new()
-        where result_type   : Data<data_type>, new()
         {
-            // TODO: change from returning Data<> to to DataPage<>
-            ApiResponse<result_type> api_response = new ApiResponse<result_type>();
+            ApiResponse<page_type> api_response = new ApiResponse<page_type>();
             List<data_type> data = new List<data_type>();
-
-            if (api_request_settings.IsNull())
-            {
-                // TODO: change behvaior in documentation
-                // TODO: change to default behavior to Error instread of retry
-                api_request_settings = new ApiRequestSettings();
-                api_request_settings.status_429_retry_limit = -1;
-                api_request_settings.status_429_handling = StatusHandling.Retry;
-            }
 
             if (query_parameters.IsNullOrDefault())
             {
                 query_parameters = new QueryParametersPage();
             }
-            query_parameters.first = 100;
+
+            if (api_request_settings.IsNullOrDefault())
+            {
+                api_request_settings = new ApiRequestSettings();
+            }
 
             bool requesting = true;
             do
@@ -111,18 +104,13 @@ TwitchNet.Utilities
                     data.AddRange(api_page_response.result.data);
                 }
 
+                api_response = api_page_response;
+                api_response.result.data = data;
+
                 requesting = api_page_response.result.data.IsValid() && api_page_response.result.pagination.cursor.IsValid();
                 if (requesting)
                 {
                     query_parameters.after = api_page_response.result.pagination.cursor;
-                }
-                else
-                {
-                    // TODO: This only copies the JSON list 'data' to the result, and no any other members.
-                    // Clone any similar members between the result and the page result?
-                    api_response = new ApiResponse<result_type>(api_page_response);
-                    api_response.result = new result_type();
-                    api_response.result.data = data;
                 }
             }
             while (requesting);
@@ -159,7 +147,6 @@ TwitchNet.Utilities
 
         #region Status handling
 
-        // TODO: attach exception to response, even if it's ignored.
         private static async Task<(IRestResponse<result_type>, ApiResponse)>
         HandleStatus<result_type>(IRestResponse<result_type> rest_response, ApiResponse api_response, ApiRequestSettings api_request_settings)
         {
@@ -205,7 +192,7 @@ TwitchNet.Utilities
                 {
                     lock (api_request_settings)
                     {
-                        // NOTE: This behavior needs changing in documentatiom
+                        // TODO: This behavior needs changing in documentatiom
                         ++api_request_settings._status_handlers_settings[status_code].retry_count;
                         if(api_request_settings._status_handlers_settings[status_code].retry_count > api_request_settings._status_handlers_settings[status_code].retry_limit.value && api_request_settings._status_handlers_settings[status_code].retry_limit.value != -1)
                         {

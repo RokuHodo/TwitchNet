@@ -14,7 +14,7 @@ using RestSharp;
 namespace
 TwitchNet.Models.Api
 {
-    // NOTE: This structure needs changing in documentatiom
+    // TODO: This structure needs changing in documentatiom
     internal class
     ApiResponse : IApiResponse
     {

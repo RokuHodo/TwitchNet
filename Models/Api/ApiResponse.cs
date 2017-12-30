@@ -14,7 +14,6 @@ using RestSharp;
 namespace
 TwitchNet.Models.Api
 {
-    // TODO: This structure needs changing in documentatiom
     internal class
     ApiResponse : IApiResponse
     {
@@ -51,7 +50,7 @@ TwitchNet.Models.Api
         public RateLimit                    rate_limit          { get; internal set; }
 
         /// <summary>
-        /// The exception that was encountered while making the request, if any.
+        /// The exception that was encountered or thrown while making the request, if any.
         /// </summary>
         public Exception                    exception           { get; internal set; }
 

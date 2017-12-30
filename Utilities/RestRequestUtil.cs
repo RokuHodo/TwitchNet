@@ -260,7 +260,6 @@ TwitchNet.Utilities
                 {
                     lock (api_request_settings)
                     {
-                        // TODO: This behavior needs changing in documentatiom
                         ++api_request_settings._status_handlers_settings[status_code].retry_count;
                         if(api_request_settings._status_handlers_settings[status_code].retry_count > api_request_settings._status_handlers_settings[status_code].retry_limit.value && api_request_settings._status_handlers_settings[status_code].retry_limit.value != -1)
                         {

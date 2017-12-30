@@ -5,7 +5,7 @@ TwitchNet.Enums
     ErrorHandling
     {
         /// <summary>
-        /// Throw an <see cref="Exception"/> where one is encountered.
+        /// Throw an <see cref="Exception"/> where one is encountered or where one id manually thrown.
         /// </summary>
         Error   = 0,
 

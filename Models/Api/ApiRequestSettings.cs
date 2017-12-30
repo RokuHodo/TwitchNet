@@ -221,17 +221,14 @@ TwitchNet.Models.Api
             _status_default_handling            = StatusHandling.Error;
             _status_default_hanlding_settings   = new StatusHandlingSettings(_status_default_retry_limit, _status_default_handling);
 
-            // TODO: change default values in documentation
             _status_429_retry_limit             = new ClampedNumber<short>(-1, 1, 1);
             _status_429_handling                = StatusHandling.Error;
             _status_429_hanlding_settings       = new StatusHandlingSettings(_status_429_retry_limit, _status_429_handling);
 
-            // TODO: change default values in documentation
             _status_500_retry_limit = new ClampedNumber<short>(-1, 1, 1);
             _status_500_handling                = StatusHandling.Error;
             _status_500_hanlding_settings       = new StatusHandlingSettings(_status_500_retry_limit, _status_500_handling);
 
-            // TODO: change default values in documentation
             _status_503_retry_limit = new ClampedNumber<short>(1, 1, 1);
             _status_503_handling                = StatusHandling.Error;
             _status_503_hanlding_settings       = new StatusHandlingSettings(_status_503_retry_limit, _status_503_handling);

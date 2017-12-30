@@ -7,7 +7,7 @@ TwitchNet.Models.Api.Clips
         private string _broadcaster_id;
 
         /// <summary>
-        /// The ID of the clip being queried.
+        /// The user ID from which the clip will be made.
         /// </summary>
         [QueryParameter("broadcaster_id")]
         public string broadcaster_id

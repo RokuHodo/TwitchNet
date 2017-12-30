@@ -7,9 +7,9 @@ TwitchNet.Models.Api
     internal class
     ApiResponseBundle<result_type>
     {
-        internal ApiResponse                api_response { get; set; }
+        internal ApiResponse                api_response    { get; set; }
 
-        internal IRestResponse<result_type> rest_response { get; set; }
+        internal IRestResponse<result_type> rest_response   { get; set; }
 
         internal
         ApiResponseBundle()

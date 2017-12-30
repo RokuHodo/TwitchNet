@@ -15,7 +15,7 @@ TwitchNet.Models.Api
         /// </summary>
         public Dictionary<string, string> headers { get; protected set; }
 
-        public Headers(IRestResponse rest_response)
+        public Headers(RestResponse rest_response)
         {
             foreach (Parameter header in rest_response.Headers)
             {

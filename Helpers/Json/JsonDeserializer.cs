@@ -1,4 +1,7 @@
-﻿// imported .dll's
+﻿using System;
+using System.Collections.Generic;
+
+// imported .dll's
 using Newtonsoft.Json;
 
 using RestSharp;
@@ -17,14 +20,17 @@ TwitchNet.Helpers.Json
         /// <summary>
         /// Custom deserializer that utilizies Newtonsoft to handle Json responses with RestSharp
         /// </summary>
-        /// <typeparam name="return_type">The <see cref="Type"/> of the object to deserialize into.</typeparam>
+        /// <typeparam name="return_type">The <see cref="Type"/> of the object to deserialize.</typeparam>
         /// <param name="response">The rest response to deserialzie.</param>
         /// <returns>Returns a deserialized <typeparamref name="return_type"/> object.</returns>
         public return_type
         Deserialize<return_type>(IRestResponse response)
         {
             JsonSerializerSettings settings = new JsonSerializerSettings();
+            settings.Converters.Add(new TimeSpanConverter());
+
             settings.NullValueHandling      = NullValueHandling.Ignore;
+            settings.DateParseHandling      = DateParseHandling.DateTime;
             settings.DateTimeZoneHandling   = DateTimeZoneHandling.Local;
             settings.FloatParseHandling     = FloatParseHandling.Double;
 

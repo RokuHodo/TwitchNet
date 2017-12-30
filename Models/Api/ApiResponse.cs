@@ -1,9 +1,9 @@
 ﻿// standard namespaces
+using System;
 using System.Collections.Generic;
 using System.Net;
 
 // project namespaces
-using TwitchNet.Extensions;
 using TwitchNet.Interfaces.Api;
 
 // imported .dll's
@@ -18,9 +18,16 @@ TwitchNet.Models.Api
     ApiResponse : IApiResponse
     {
         /// <summary>
-        /// The error message, if any, returned with the response.
+        /// The status error returned by Twitch when a request is unsuccessful.
+        /// This typically coincides with traditional HTTP status codes.
         /// </summary>
         public string                       status_error        { get; internal set; }
+
+        /// <summary>
+        /// The status error message returned by Twitch when a request is unsuccessful.
+        /// This can be blank even if a status error is returned by twitch.
+        /// </summary>
+        public string                       status_error_message { get; internal set; }
 
         /// <summary>
         /// The description of the status code.
@@ -42,16 +49,24 @@ TwitchNet.Models.Api
         /// </summary>
         public RateLimit                    rate_limit          { get; internal set; }
 
+        /// <summary>
+        /// The exception that was encountered or thrown while making the request, if any.
+        /// </summary>
+        public Exception                    exception           { get; internal set; }
+
         public ApiResponse()
         {
 
         }
 
         public ApiResponse(IRestResponse rest_response)
-        {
-            status_code         = rest_response.StatusCode;
-            status_description  = rest_response.StatusDescription;
-            status_error        = JsonConvert.DeserializeObject<ApiError>(rest_response.Content).message ?? string.Empty;
+        {           
+            ApiError api_error      = JsonConvert.DeserializeObject<ApiError>(rest_response.Content);
+            status_error            = api_error.error ?? string.Empty;
+            status_error_message    = api_error.message ?? string.Empty;
+
+            status_description = rest_response.StatusDescription;
+            status_code = rest_response.StatusCode;
 
             headers = new Dictionary<string, string>();
             foreach(Parameter header in rest_response.Headers)
@@ -59,7 +74,7 @@ TwitchNet.Models.Api
                 headers.Add(header.Name, header.Value.ToString());
             }
 
-            rate_limit          = new RateLimit(headers);
+            rate_limit = new RateLimit(headers);
         }
 
         public ApiResponse(IApiResponse api_response)
@@ -75,22 +90,31 @@ TwitchNet.Models.Api
     }
 
     internal class
-    ApiResponse<data_type> : ApiResponse, IApiResponse<data_type>
-    where data_type : class, new()
+    ApiResponse<result_type> : ApiResponse, IApiResponse<result_type>
     {
         /// <summary>
         /// Contains the deserialized result from the Twitch API.
         /// </summary>
-        public ApiData<data_type> result { get; internal set; }
+        public result_type result { get; internal set; }
 
         public ApiResponse()
         {
 
         }
 
-        public ApiResponse((IRestResponse<ApiData<data_type>> rest_response, IApiResponse api_response) rest_result) : base(rest_result.api_response)
+        public ApiResponse(IApiResponse api_response) : base(api_response)
         {
-            result = rest_result.rest_response.Data;
+
+        }
+
+        public ApiResponse(IApiResponse<result_type> api_response) : base(api_response)
+        {
+            result = api_response.result;
+        }
+
+        public ApiResponse(ApiResponseBundle<result_type> response_bundle) : base(response_bundle.api_response)
+        {
+            result = response_bundle.rest_response.Data;
         }
     }
 }

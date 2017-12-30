@@ -8,12 +8,12 @@ namespace
 TwitchNet.Interfaces.Api
 {
     public interface
-    IApiValue<type>
+    IData<data_type>
     {
         /// <summary>
         /// Contains the response data.
         /// </summary>
         [JsonProperty("data")]
-        IList<type> data { get; }
+        IList<data_type> data { get; }
     }
 }

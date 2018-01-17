@@ -56,9 +56,11 @@
     <Compile Include="Api\TwitchApi.Async.cs" />
     <Compile Include="Api\TwitchApiBearer.Sync.cs" />
     <Compile Include="Api\TwitchApiBearer.Async.cs" />
+    <Compile Include="Clients\Irc\IrcClient.cs" />
     <Compile Include="Debug\Error.cs" />
     <Compile Include="Debug\Log.cs" />
     <Compile Include="Enums\Api\Entitlements\EntitlementType.cs" />
+    <Compile Include="Enums\Clients\ClientState.cs" />
     <Compile Include="Enums\InputHandling.cs" />
     <Compile Include="Enums\ErrorHandling.cs" />
     <Compile Include="Enums\Api\StatusHandling.cs" />
@@ -125,6 +127,7 @@
     <Compile Include="Models\Api\ApiRequestSettings.cs" />
     <Compile Include="Models\Api\Users\UsersQueryParameters.cs" />
     <Compile Include="Models\Api\Videos\VideosQueryParameters.cs" />
+    <Compile Include="Models\Clients\Irc\IrcUser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\ExceptionUtil.cs" />
     <Compile Include="Utilities\PagingUtil.cs" />

@@ -75,9 +75,9 @@ namespace TwitchNet.Utilities
         /// <param name="parameter_name">The name of the parameter.</param>
         /// <exception cref="ArgumentException">Thrown if the string is null, empty, or whitespace.</exception>
         public static void
-        ThrowIfInvalid(string parameter, string parameter_name)
+        ThrowIfInvalid(string parameter, string parameter_name, Action callback = null)
         {
-            ThrowIfInvalid(parameter, parameter_name, parameter_name + " cannot be null, empty, or whitespace.");
+            ThrowIfInvalid(parameter, parameter_name, parameter_name + " cannot be null, empty, or whitespace.", callback);
         }
 
         /// <summary>
@@ -87,11 +87,16 @@ namespace TwitchNet.Utilities
         /// <param name="parameter_name">The name of the parameter.</param>
         /// <param name="message">The excpetion message.</param>
         public static void
-        ThrowIfInvalid(string parameter, string parameter_name, string message)
+        ThrowIfInvalid(string parameter, string parameter_name, string message, Action callback = null)
         {
             if (parameter.IsValid())
             {
                 return;
+            }
+
+            if (!callback.IsNull())
+            {
+                callback();
             }
 
             throw new ArgumentException(message, parameter_name);

@@ -6,6 +6,7 @@ using System.Net.Security;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 // project namespaces
 using TwitchNet.Debug;
@@ -21,6 +22,8 @@ TwitchNet.Clients.Irc
     IrcClient
     {
         #region Fields
+
+        private bool        reading;
 
         private ushort      _port;
 
@@ -80,6 +83,8 @@ TwitchNet.Clients.Irc
             ExceptionUtil.ThrowIfNull(irc_user, nameof(irc_user));
             this.irc_user = irc_user;
 
+            reading = false;
+
             encoding = Encoding.UTF8;
             state_mutex = new Mutex();
 
@@ -105,7 +110,7 @@ TwitchNet.Clients.Irc
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(host, port);
 
-            SendIrcHandshake();
+            Login();
         }
 
         public void
@@ -124,10 +129,10 @@ TwitchNet.Clients.Irc
             socket.BeginConnect(host, port, Callback_OnBeginConnect, null);
         }
 
-        private void 
+        private void
         Callback_OnBeginConnect(IAsyncResult result)
         {
-            if(socket.IsNull() || result.IsNull())
+            if (socket.IsNull() || result.IsNull())
             {
                 //TODO: Force disconnect, clean up, and set to disconnected
 
@@ -136,7 +141,7 @@ TwitchNet.Clients.Irc
 
             if (result.IsCompleted)
             {
-                SendIrcHandshake();
+                Login();
             }
             else
             {
@@ -147,7 +152,7 @@ TwitchNet.Clients.Irc
         }
 
         private void
-        SendIrcHandshake()
+        Login()
         {
             // TODO: First check to see if these are true to dispose/close and null the socket and then set state to disconnected.
             ExceptionUtil.ThrowIfNull(irc_user, nameof(irc_user));
@@ -167,11 +172,116 @@ TwitchNet.Clients.Irc
 
             Send("PASS oauth:" + irc_user.pass);
             Send("NICK " + irc_user.nick);
+
+            // NOTE: only for tetsing
+            SetState(ClientState.Connected);
         }
+
+        //private void
+        //ForceDisconnect()
+        //{
+        //    if (!stream.IsNull())
+        //    {
+        //        stream.Close();
+        //        stream = null;
+        //    }
+
+        //    if (!socket.IsNull())
+        //    {
+        //        if (socket.Connected)
+        //        {
+        //            socket.Shutdown(SocketShutdown.Both);
+        //            socket.Disconnect(false);
+        //        }
+        //        socket = null;
+        //    }
+
+        //    OverrideState(ClientState.Disconnected);
+        //}
+
+        public void
+        Disconnect()
+        {
+            if (!SetState(ClientState.Disconnecting))
+            {
+                return;
+            }
+
+            stream.Close();
+            stream = null;
+
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Disconnect(false);
+            socket = null;
+
+            do
+            {
+                Thread.Sleep(25);
+            }
+            while (reading);
+
+            SetState(ClientState.Disconnected);
+
+            // OnDisconnected.Raise(this, EventArgs.Empty);
+        }
+
+        public async void
+        DisconnectAsync()
+        {
+            if (!SetState(ClientState.Disconnecting))
+            {
+                return;
+            }
+
+            stream.Close();
+            stream = null;
+
+            socket.Shutdown(SocketShutdown.Both);
+            socket.BeginDisconnect(false, Callback_OnBeginDisconnect, null);
+
+            do
+            {
+                await Task.Delay(25);
+            }
+            while (reading);
+
+            SetState(ClientState.Disconnected);
+
+            // OnDisconnected.Raise(this, EventArgs.Empty);
+        }
+
+        private void
+        Callback_OnBeginDisconnect(IAsyncResult result)
+        {
+
+            if (!result.IsCompleted)
+            {
+                socket = null;
+
+                SetState(ClientState.Disconnected);
+            }
+            else
+            {
+                // is the socket still open and connected if it fails? reconnect if failed?
+                // create a new stream
+                // start the read stream thread again
+                // set state back to connected
+            }
+
+            socket.EndDisconnect(result);
+        }      
 
         #endregion
 
         #region State handling
+
+        private void
+        OverrideState(ClientState override_state)
+        {
+            state_mutex.WaitOne();
+            state = override_state;
+            state_mutex.ReleaseMutex();
+        }
 
         private bool
         SetState(ClientState transition_state, bool attempting_reconnect = false)
@@ -406,20 +516,26 @@ TwitchNet.Clients.Irc
         private async void
         ReadStream()
         {
-            while (!socket.IsNull() && socket.Connected && !stream.IsNull())
+            int byte_count = 0;
+            byte[] buffer = buffer = new byte[1024 * 2];
+
+            reading = true;
+            while (reading && !socket.IsNull() && !stream.IsNull())
             {
-                byte[] buffer = new byte[1024 * 2];
-                int byte_count = 0;
                 try
                 {
-                    byte_count = await stream.ReadAsync(buffer, 0, buffer.Length);
+                    byte_count = await stream.ReadAsync(buffer, 0, 2048);
                 }
                 catch (ObjectDisposedException exception)
                 {
-                    if(state != ClientState.Disconnecting)
+                    if(state == ClientState.Disconnecting)
                     {
-                        // an actual error occured if we aren't trying to disconnect
+                        reading = false;
+
+                        continue;
                     }
+
+                    throw exception;
                 }
 
                 if (!buffer.IsValid() || byte_count <= 0)
@@ -446,12 +562,11 @@ TwitchNet.Clients.Irc
                     byte_count -= byte_index;
                 }
                 while (byte_count > 0);
-            }
 
-            // TODO: Dispose of the stream object when we disconnect instead?
-            stream.Close();
-            stream.Dispose();
+                await Task.Delay(50);
+            }
         }
+
 
         #endregion
     }

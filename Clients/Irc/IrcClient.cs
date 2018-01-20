@@ -1,10 +1,12 @@
 ﻿// standard namespaces
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Net.Sockets;
 using System.Net.Security;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Timers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,18 +25,22 @@ TwitchNet.Clients.Irc
     {
         #region Fields
 
-        private bool        reading;
+        private bool                    reading;
 
-        private ushort      _port;
+        private ushort                  _port;
 
-        private string      _host;
+        private string                  _host;
 
-        private Encoding    encoding;
-        private Socket      socket;
-        private Stream      stream;
-        private Thread      reader_thread;
+        private Encoding                encoding;
+        private Socket                  socket;
+        private Stream                  stream;
+        private Thread                  reader_thread;
 
-        private Mutex       state_mutex;        
+        private Mutex                   state_mutex;
+
+        private System.Timers.Timer     processing_timer;
+
+        private ConcurrentQueue<string> processing_queue;
 
         #endregion
 
@@ -88,6 +94,11 @@ TwitchNet.Clients.Irc
             encoding = Encoding.UTF8;
             state_mutex = new Mutex();
 
+            processing_timer = new System.Timers.Timer(1);
+            processing_timer.Elapsed += Callback_ProcessingTimer;
+
+            processing_queue = new ConcurrentQueue<string>();
+
             SetState(ClientState.Disconnected);
         }
 
@@ -104,11 +115,13 @@ TwitchNet.Clients.Irc
             }
 
             // TODO: First check to see if these are true to dispose/close and null the socket and then set state to disconnected.
-            ExceptionUtil.ThrowIfInvalid(host, nameof(host));
-            ExceptionUtil.ThrowIfNullOrDefault(port, nameof(port));
+            ExceptionUtil.ThrowIfInvalid(host, nameof(host), QuickDisconnect);
+            ExceptionUtil.ThrowIfNullOrDefault(port, nameof(port), QuickDisconnect);
 
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(host, port);
+
+            QuickDisconnect();
 
             Login();
         }
@@ -121,9 +134,8 @@ TwitchNet.Clients.Irc
                 return;
             }
 
-            // TODO: First check to see if these are true to dispose/close and null the socket and then set state to disconnected.
-            ExceptionUtil.ThrowIfInvalid(host, nameof(host));
-            ExceptionUtil.ThrowIfNullOrDefault(port, nameof(port));
+            ExceptionUtil.ThrowIfInvalid(host, nameof(host), QuickDisconnect);
+            ExceptionUtil.ThrowIfNullOrDefault(port, nameof(port), QuickDisconnect);
 
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.BeginConnect(host, port, Callback_OnBeginConnect, null);
@@ -132,32 +144,17 @@ TwitchNet.Clients.Irc
         private void
         Callback_OnBeginConnect(IAsyncResult result)
         {
-            if (socket.IsNull() || result.IsNull())
-            {
-                //TODO: Force disconnect, clean up, and set to disconnected
-
-                return;
-            }
-
-            if (result.IsCompleted)
-            {
-                Login();
-            }
-            else
-            {
-                //TODO: Force disconnect, clean up, and set to disconnected
-            }
-
             socket.EndConnect(result);
+
+            Login();
         }
 
         private void
         Login()
         {
-            // TODO: First check to see if these are true to dispose/close and null the socket and then set state to disconnected.
-            ExceptionUtil.ThrowIfNull(irc_user, nameof(irc_user));
-            ExceptionUtil.ThrowIfInvalid(irc_user.nick, nameof(irc_user.nick));
-            ExceptionUtil.ThrowIfInvalid(irc_user.pass, nameof(irc_user.pass));
+            ExceptionUtil.ThrowIfNull(irc_user, nameof(irc_user), QuickDisconnect);
+            ExceptionUtil.ThrowIfInvalid(irc_user.nick, nameof(irc_user.nick), QuickDisconnect);
+            ExceptionUtil.ThrowIfInvalid(irc_user.pass, nameof(irc_user.pass), QuickDisconnect);
 
             stream = new NetworkStream(socket);
 
@@ -170,34 +167,39 @@ TwitchNet.Clients.Irc
             reader_thread = new Thread(new ThreadStart(ReadStream));
             reader_thread.Start();
 
+            processing_timer.Start();
+
             Send("PASS oauth:" + irc_user.pass);
             Send("NICK " + irc_user.nick);
 
             // NOTE: only for tetsing
+            Send("JOIN #admiralbahroo");
             SetState(ClientState.Connected);
         }
 
-        //private void
-        //ForceDisconnect()
-        //{
-        //    if (!stream.IsNull())
-        //    {
-        //        stream.Close();
-        //        stream = null;
-        //    }
+        private void
+        QuickDisconnect()
+        {
+            OverrideState(ClientState.Disconnecting);
 
-        //    if (!socket.IsNull())
-        //    {
-        //        if (socket.Connected)
-        //        {
-        //            socket.Shutdown(SocketShutdown.Both);
-        //            socket.Disconnect(false);
-        //        }
-        //        socket = null;
-        //    }
+            if (!stream.IsNull())
+            {
+                stream.Close();
+                stream = null;
+            }
 
-        //    OverrideState(ClientState.Disconnected);
-        //}
+            if (!socket.IsNull())
+            {
+                if (socket.Connected)
+                {
+                    socket.Shutdown(SocketShutdown.Both);
+                    socket.Disconnect(false);
+                }
+                socket = null;
+            }
+
+            OverrideState(ClientState.Disconnected);
+        }
 
         public void
         Disconnect()
@@ -253,23 +255,13 @@ TwitchNet.Clients.Irc
         private void
         Callback_OnBeginDisconnect(IAsyncResult result)
         {
-
-            if (!result.IsCompleted)
-            {
-                socket = null;
-
-                SetState(ClientState.Disconnected);
-            }
-            else
-            {
-                // is the socket still open and connected if it fails? reconnect if failed?
-                // create a new stream
-                // start the read stream thread again
-                // set state back to connected
-            }
-
             socket.EndDisconnect(result);
-        }      
+            socket = null;
+
+            SetState(ClientState.Disconnected);
+
+            // OnDisconnected.Raise(this, EventArgs.Empty);
+        }
 
         #endregion
 
@@ -513,6 +505,16 @@ TwitchNet.Clients.Irc
 
         #region Reading
 
+        private void Callback_ProcessingTimer(object sender, ElapsedEventArgs e)
+        {
+            if (!processing_queue.TryDequeue(out string message))
+            {
+                return;
+            }
+
+            Log.PrintLine(message);
+        }
+
         private async void
         ReadStream()
         {
@@ -555,8 +557,7 @@ TwitchNet.Clients.Irc
                     byte_index++;
 
                     string message = encoding.GetString(buffer, 0, byte_index - 2);
-                    Log.PrintLine(message);
-                    // ProcessIrcMessage(message);
+                    processing_queue.Enqueue(message);
 
                     Buffer.BlockCopy(buffer, byte_index, buffer, 0, byte_count - byte_index);
                     byte_count -= byte_index;

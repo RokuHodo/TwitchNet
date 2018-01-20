@@ -16,9 +16,9 @@ namespace TwitchNet.Utilities
         /// <param name="obj_name">The name of the object</param>
         /// <exception cref="ArgumentNullException">Thrown if the object is null.</exception>
         public static void
-        ThrowIfNull(object obj, string obj_name)
+        ThrowIfNull(object obj, string obj_name, Action callback  = null)
         {
-            ThrowIfNull(obj, obj_name, obj_name + " cannot be null.");
+            ThrowIfNull(obj, obj_name, obj_name + " cannot be null.", callback);
         }
 
         /// <summary>
@@ -28,11 +28,16 @@ namespace TwitchNet.Utilities
         /// <param name="obj_name">The name of the object</param>
         /// <param name="message">The excpetion message.</param>
         public static void
-        ThrowIfNull(object obj, string obj_name, string message)
+        ThrowIfNull(object obj, string obj_name, string message, Action callback = null)
         {
             if (!obj.IsNull())
             {
                 return;
+            }
+
+            if (!callback.IsNull())
+            {
+                callback();
             }
 
             throw new ArgumentNullException(obj_name, message);
@@ -45,9 +50,9 @@ namespace TwitchNet.Utilities
         /// <param name="obj_name">The name of the object</param>
         /// <exception cref="ArgumentException">Thrown if the object is null or equal to its default value.</exception>
         public static void
-        ThrowIfNullOrDefault(object obj, string obj_name)
+        ThrowIfNullOrDefault(object obj, string obj_name, Action callback = null)
         {
-            ThrowIfNullOrDefault(obj, obj_name, obj_name + " cannot be null or equal to its default value.");
+            ThrowIfNullOrDefault(obj, obj_name, obj_name + " cannot be null or equal to its default value.", callback);
         }
 
         /// <summary>
@@ -58,11 +63,16 @@ namespace TwitchNet.Utilities
         /// <param name="message">The excpetion message.</param>
         /// <exception cref="ArgumentException">Thrown if the object is null or equal to its default value.</exception>
         public static void
-        ThrowIfNullOrDefault(object obj, string obj_name, string message)
+        ThrowIfNullOrDefault(object obj, string obj_name, string message, Action callback = null)
         {
             if (!obj.IsNullOrDefault())
             {
                 return;
+            }
+
+            if (!callback.IsNull())
+            {
+                callback();
             }
 
             throw new ArgumentException(message, obj_name);

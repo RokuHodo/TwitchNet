@@ -1,6 +1,8 @@
 ﻿// standard namespaces
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Net.Security;
@@ -40,7 +42,8 @@ TwitchNet.Clients.Irc
 
         private System.Timers.Timer     processing_timer;
 
-        private ConcurrentQueue<string> processing_queue;
+        private ConcurrentQueue<string> processing_queue_normal;
+        private ConcurrentQueue<string> processing_queue_priority;
 
         #endregion
 
@@ -97,7 +100,7 @@ TwitchNet.Clients.Irc
             processing_timer = new System.Timers.Timer(1);
             processing_timer.Elapsed += Callback_ProcessingTimer;
 
-            processing_queue = new ConcurrentQueue<string>();
+            processing_queue_normal = new ConcurrentQueue<string>();
 
             SetState(ClientState.Disconnected);
         }
@@ -120,8 +123,6 @@ TwitchNet.Clients.Irc
 
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(host, port);
-
-            QuickDisconnect();
 
             Login();
         }
@@ -173,7 +174,7 @@ TwitchNet.Clients.Irc
             Send("NICK " + irc_user.nick);
 
             // NOTE: only for tetsing
-            Send("JOIN #admiralbahroo");
+            // Send("JOIN #distortion2");
             SetState(ClientState.Connected);
         }
 
@@ -505,9 +506,31 @@ TwitchNet.Clients.Irc
 
         #region Reading
 
-        private void Callback_ProcessingTimer(object sender, ElapsedEventArgs e)
+        private void
+        ProcessMessages()
         {
-            if (!processing_queue.TryDequeue(out string message))
+            if (!processing_queue_priority.TryDequeue(out string message))
+            {
+                // As long as there are priority messages, don't process any normal messages.
+                // There was probably just an issue dequeueing the message, or a priority message was just enqueued by the reader.
+                if(processing_queue_priority.Count != 0)
+                {
+                    return;
+                }
+
+                if (!processing_queue_normal.TryDequeue(out message))
+                {
+                    return;
+                }
+            }
+
+            Log.PrintLine(message);
+        }
+
+        private void
+        Callback_ProcessingTimer(object sender, ElapsedEventArgs e)
+        {
+            if (!processing_queue_normal.TryDequeue(out string message))
             {
                 return;
             }
@@ -518,15 +541,18 @@ TwitchNet.Clients.Irc
         private async void
         ReadStream()
         {
-            int byte_count = 0;
-            byte[] buffer = buffer = new byte[1024 * 2];
+            int bytes_count = 0;
+            byte[] buffer = buffer = new byte[1024];
+
+            List<byte> line = new List<byte>();
 
             reading = true;
+
             while (reading && !socket.IsNull() && !stream.IsNull())
             {
                 try
                 {
-                    byte_count = await stream.ReadAsync(buffer, 0, 2048);
+                    bytes_count = await stream.ReadAsync(buffer, 0, buffer.Length);
                 }
                 catch (ObjectDisposedException exception)
                 {
@@ -540,34 +566,39 @@ TwitchNet.Clients.Irc
                     throw exception;
                 }
 
-                if (!buffer.IsValid() || byte_count <= 0)
+                if (bytes_count == 0 || !buffer.IsValid())
                 {
                     continue;
                 }
 
-                do
+                foreach (byte element in buffer)
                 {
-                    // 0x0A = '\n'
-                    int byte_index = Array.IndexOf<byte>(buffer, 0x0A, 0, buffer.Length);
-                    if (byte_index < 0)
+                    if(element == 0x0)
                     {
-                        break;
+                        continue;
                     }
 
-                    byte_index++;
+                    line.Add(element);
+                        
+                    // 0x0A = '\n', 0x0D = '\r'
+                    if(element == 0x0A)
+                    {
+                        // This is assumes that the line terminates with \r\n and not \n\r, or just either \r or \n
+                        // Safe assumption on windows and that the RFC 1459 spec requires it, but we should probably handle other cases to be safe
+                        string message = encoding.GetString(line.ToArray(), 0, line.Count - 2);
+                        Log.PrintLine(message);
+                        if (message.IsValid())
+                        {
+                            processing_queue_normal.Enqueue(message);
+                        }
 
-                    string message = encoding.GetString(buffer, 0, byte_index - 2);
-                    processing_queue.Enqueue(message);
-
-                    Buffer.BlockCopy(buffer, byte_index, buffer, 0, byte_count - byte_index);
-                    byte_count -= byte_index;
+                        line.Clear();
+                    }
                 }
-                while (byte_count > 0);
 
-                await Task.Delay(50);
+                Array.Clear(buffer, 0, bytes_count);
             }
         }
-
 
         #endregion
     }

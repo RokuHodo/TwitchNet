@@ -9,9 +9,7 @@ TwitchNet.Models.Clients.Irc
 {
     public class
     IrcMessage
-    {
-        private List<string> _parameters;
-
+    {        
         public Dictionary<string, string>   tags        { get; protected set; }
 
         public string                       prefix      { get; protected set; }
@@ -25,8 +23,6 @@ TwitchNet.Models.Clients.Irc
             {
                 return;
             }
-
-            _parameters = new List<string>();
 
             string message_post_tags = ParseTags(message);
             string message_post_prefix = ParsePrefix(message_post_tags);
@@ -115,7 +111,9 @@ TwitchNet.Models.Clients.Irc
 
         private List<string>
         ParseParameters(string message_post_command)
-        {           
+        {
+            List<string> _parameters = new List<string>();
+
             if (!message_post_command.IsValid())
             {
                 return _parameters;
@@ -133,7 +131,11 @@ TwitchNet.Models.Clients.Irc
                     _parameters.Add(parameter);
                     message_post_command = message_post_command.TextAfter(' ').TrimStart(' ');
 
-                    _parameters = ParseParameters(message_post_command);
+                    List<string> temp = ParseParameters(message_post_command);
+                    if (temp.IsValid())
+                    {
+                        _parameters.AddRange(temp);
+                    }
                 }
                 else
                 {

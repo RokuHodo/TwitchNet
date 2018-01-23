@@ -1,5 +1,8 @@
 ﻿// project namespaces
 using System;
+using System.Collections.Generic;
+
+using TwitchNet.Extensions;
 
 namespace
 TwitchNet.Extensions
@@ -47,7 +50,7 @@ TwitchNet.Extensions
         {
             string result = string.Empty;
 
-            if (!str.IsValid() || !sub_str_from.IsValid())
+            if (!str.IsValid() || sub_str_from.IsNull())
             {
                 return result;
             }
@@ -63,7 +66,7 @@ TwitchNet.Extensions
                 throw new ArgumentOutOfRangeException(nameof(start_index), start_index, nameof(start_index) + " must be between 0 and " + maximum + " (length of the string minus 1)");
             }
 
-            int index_of = str.IndexOf(sub_str_from, start_index);
+            int index_of = str.IndexOf(sub_str_from, start_index, StringComparison.Ordinal);
             if (index_of < 0)
             {
                 return result;
@@ -112,7 +115,7 @@ TwitchNet.Extensions
         {
             string result = string.Empty;
 
-            if (!str.IsValid() || !sub_str.IsValid())
+            if (!str.IsValid() || sub_str.IsNull())
             {
                 return result;
             }
@@ -128,7 +131,7 @@ TwitchNet.Extensions
                 throw new ArgumentOutOfRangeException(nameof(start_index), start_index, nameof(start_index) + " must be between 0 and " + maximum + " (length of the string minus 1)");
             }
 
-            int index_of = str.IndexOf(sub_str, start_index);
+            int index_of = str.IndexOf(sub_str, start_index, StringComparison.Ordinal);
             if (index_of < 0)
             {
                 return result;
@@ -220,7 +223,7 @@ TwitchNet.Extensions
         {
             string result = string.Empty;
 
-            if (!str.IsValid() || !sub_str_from.IsValid() || !sub_str_to.IsValid())
+            if (!str.IsValid() || sub_str_from.IsNull() || sub_str_to.IsNull())
             {
                 return result;
             }
@@ -236,13 +239,13 @@ TwitchNet.Extensions
                 throw new ArgumentOutOfRangeException(nameof(start_index), start_index, nameof(start_index) + " must be between 0 and " + maximum + " (length of the string minus 1)");
             }
 
-            int parse_start_index = str.IndexOf(sub_str_from, start_index);
+            int parse_start_index = str.IndexOf(sub_str_from, start_index, StringComparison.Ordinal);
             if (parse_start_index < 0)
             {
                 return result;
             }
 
-            int parse_end_index = str.IndexOf(sub_str_to, parse_start_index + sub_str_from.Length);
+            int parse_end_index = str.IndexOf(sub_str_to, parse_start_index + sub_str_from.Length, StringComparison.Ordinal);
             if (parse_end_index < 0)
             {
                 return result;
@@ -252,6 +255,54 @@ TwitchNet.Extensions
             result = str.Substring(parse_start_index, parse_end_index - parse_start_index);
 
             return result;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="string"/> into an <see cref="Array"/> of a specified type.
+        /// </summary>
+        /// <typeparam name="type">The type of the returned <see cref="Array"/>.</typeparam>
+        /// <param name="str">The <see cref="string"/> to be parsed.</param>
+        /// <param name="separator">An <see cref="char"/> that represents a point to separate the string into elemnts.</param>
+        /// <returns>
+        /// Returns a default <see cref="Array"/> of the specified type is no <see cref="string"/> elements could be converted.
+        /// Returns an <see cref="Array"/> of a specified type with the successfully converted <see cref="string"/> elements otherwise.
+        /// </returns>
+        public static type[] StringToArray<type>(this string str, char separator, StringSplitOptions options = StringSplitOptions.None)
+        {
+            return str.StringToArray<type>(new char[] { separator }, options);
+        }
+
+        /// <summary>
+        /// Converts a <see cref="string"/> into an <see cref="Array"/> of a specified type.
+        /// </summary>
+        /// <typeparam name="type">The type of the returned <see cref="Array"/>.</typeparam>
+        /// <param name="str">The <see cref="string"/> to be parsed.</param>
+        /// <param name="separator">An <see cref="Array"/> of <see cref="char"/>s that represent points to separate the string into elemnts.</param>
+        /// <returns>
+        /// Returns a default <see cref="Array"/> of the specified type is no <see cref="string"/> elements could be converted.
+        /// Returns an <see cref="Array"/> of a specified type with the successfully converted <see cref="string"/> elements otherwise.
+        /// </returns>
+        public static type[] StringToArray<type>(this string str, char[] separators, StringSplitOptions options = StringSplitOptions.None)
+        {
+            if (!str.IsValid())
+            {
+                return default(type[]);
+            }
+
+            List<type> result = new List<type>();
+
+            string[] array = str.Split(separators, options);
+            foreach (string element in array)
+            {
+                if (!element.CanCovertTo(typeof(type)))
+                {
+                    continue;
+                }
+
+                result.Add((type)Convert.ChangeType(element, typeof(type)));
+            }
+
+            return result.IsValid() ? result.ToArray() : default(type[]);
         }
 
         #endregion

@@ -8,7 +8,6 @@ using System.Net.Sockets;
 using System.Net.Security;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Timers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -33,17 +32,12 @@ TwitchNet.Clients.Irc
 
         private string                  _host;
 
-        private Encoding                encoding;
         private Socket                  socket;
         private Stream                  stream;
+
         private Thread                  reader_thread;
 
         private Mutex                   state_mutex;
-
-        private System.Timers.Timer     processing_timer;
-
-        private ConcurrentQueue<string> processing_queue_normal;
-        private ConcurrentQueue<string> processing_queue_priority;
 
         #endregion
 
@@ -94,13 +88,7 @@ TwitchNet.Clients.Irc
 
             reading = false;
 
-            encoding = Encoding.UTF8;
             state_mutex = new Mutex();
-
-            processing_timer = new System.Timers.Timer(1);
-            processing_timer.Elapsed += Callback_ProcessingTimer;
-
-            processing_queue_normal = new ConcurrentQueue<string>();
 
             SetState(ClientState.Disconnected);
         }
@@ -117,7 +105,6 @@ TwitchNet.Clients.Irc
                 return;
             }
 
-            // TODO: First check to see if these are true to dispose/close and null the socket and then set state to disconnected.
             ExceptionUtil.ThrowIfInvalid(host, nameof(host), QuickDisconnect);
             ExceptionUtil.ThrowIfNullOrDefault(port, nameof(port), QuickDisconnect);
 
@@ -166,15 +153,14 @@ TwitchNet.Clients.Irc
             }
 
             reader_thread = new Thread(new ThreadStart(ReadStream));
-            reader_thread.Start();
-
-            processing_timer.Start();
-
+            reader_thread.Start();           
+            
             Send("PASS oauth:" + irc_user.pass);
             Send("NICK " + irc_user.nick);
 
             // NOTE: only for tetsing
-            // Send("JOIN #distortion2");
+            // Send("JOIN #elajjaz");
+            Send("JOIN #bananasaurus_rex");
             SetState(ClientState.Connected);
         }
 
@@ -322,25 +308,23 @@ TwitchNet.Clients.Irc
         {
             bool result = false;
 
-            string error = "Cannot connect to " + host + ": {0}";
-
             switch (state)
             {
                 case ClientState.Connected:
                 {
-                    Log.Warning(string.Format(error, "already connected"));
+                    Log.PrintLine("Cannot connect to " + host + ": already connected");
                 }
                 break;
 
                 case ClientState.Connecting:
                 {
-                    Log.Warning(string.Format(error, "already connecting"));
+                    Log.PrintLine("Cannot connect to " + host + ": currently connecting");
                 }
                 break;
 
                 case ClientState.Disconnecting:
                 {
-                    Log.Warning(string.Format(error, "currently disconnecting"));
+                    Log.PrintLine("Cannot connect to " + host + ": currently disconnecting");
                 }
                 break;
 
@@ -363,25 +347,23 @@ TwitchNet.Clients.Irc
         {
             bool result = false;
 
-            string error = "Cannot disconnect to " + host + ": {0}";
-
             switch (state)
             {
                 case ClientState.Connecting:
                 {
-                    Log.Warning(string.Format(error, "currently connecting"));
+                    Log.PrintLine("Cannot disconnect from " + host + ": currently connecting");
                 }
                 break;
 
                 case ClientState.Disconnecting:
                 {
-                    Log.Warning(string.Format(error, "currently disconnecting"));
+                    Log.PrintLine("Cannot disconnect from " + host + ": already connecting");
                 }
                 break;
 
                 case ClientState.Disconnected:
                 {
-                    Log.Warning(string.Format(error, "already disconnected"));
+                    Log.PrintLine("Cannot disconnect from " + host + ": already disconnected");
                 }
                 break;
 
@@ -404,19 +386,17 @@ TwitchNet.Clients.Irc
         {
             bool result = false;
 
-            string error = "Cannot reconnect to " + host + ": {0}";
-
             switch (state)
             {
                 case ClientState.Connecting:
                 {
-                    Log.Warning(string.Format(error, "currently connecting"));
+                    Log.PrintLine("Cannot reconnect to " + host + ": currently connecting");
                 }
                 break;
 
                 case ClientState.Disconnecting:
                 {
-                    Log.Warning(string.Format(error, "currently disconnecting"));
+                    Log.PrintLine("Cannot reconnect to " + host + ": currently discnnecting");
                 }
                 break;
 
@@ -448,7 +428,7 @@ TwitchNet.Clients.Irc
                 return;
             }
 
-            byte[] bytes = encoding.GetBytes(message + "\r\n");
+            byte[] bytes = Encoding.UTF8.GetBytes(message + "\r\n");
             stream.Write(bytes, 0, bytes.Length);
             stream.Flush();
 
@@ -469,7 +449,7 @@ TwitchNet.Clients.Irc
                 return;
             }
 
-            byte[] bytes = encoding.GetBytes(message + "\r\n");
+            byte[] bytes = Encoding.UTF8.GetBytes(message + "\r\n");
             await stream.WriteAsync(bytes, 0, bytes.Length);
             stream.Flush();
 
@@ -504,50 +484,17 @@ TwitchNet.Clients.Irc
 
         #endregion
 
-        #region Reading
-
-        private void
-        ProcessMessages()
-        {
-            if (!processing_queue_priority.TryDequeue(out string message))
-            {
-                // As long as there are priority messages, don't process any normal messages.
-                // There was probably just an issue dequeueing the message, or a priority message was just enqueued by the reader.
-                if(processing_queue_priority.Count != 0)
-                {
-                    return;
-                }
-
-                if (!processing_queue_normal.TryDequeue(out message))
-                {
-                    return;
-                }
-            }
-
-            Log.PrintLine(message);
-        }
-
-        private void
-        Callback_ProcessingTimer(object sender, ElapsedEventArgs e)
-        {
-            if (!processing_queue_normal.TryDequeue(out string message))
-            {
-                return;
-            }
-
-            Log.PrintLine(message);
-        }
+        #region Reading and processing        
 
         private async void
         ReadStream()
         {
             int bytes_count = 0;
-            byte[] buffer = buffer = new byte[1024];
+            byte[] buffer = new byte[1024];
 
             List<byte> line = new List<byte>();
 
             reading = true;
-
             while (reading && !socket.IsNull() && !stream.IsNull())
             {
                 try
@@ -573,7 +520,7 @@ TwitchNet.Clients.Irc
 
                 foreach (byte element in buffer)
                 {
-                    if(element == 0x0)
+                    if (element == 0x0)
                     {
                         continue;
                     }
@@ -583,21 +530,30 @@ TwitchNet.Clients.Irc
                     // 0x0A = '\n', 0x0D = '\r'
                     if(element == 0x0A)
                     {
-                        // This is assumes that the line terminates with \r\n and not \n\r, or just either \r or \n
+                        // This assumes that the line terminates with \r\n and not \n\r, or just either \r or \n
                         // Safe assumption on windows and that the RFC 1459 spec requires it, but we should probably handle other cases to be safe
-                        string message = encoding.GetString(line.ToArray(), 0, line.Count - 2);
-                        Log.PrintLine(message);
-                        if (message.IsValid())
-                        {
-                            processing_queue_normal.Enqueue(message);
-                        }
+                        string message = Encoding.UTF8.GetString(line.ToArray(), 0, line.Count - 2);
+                        IrcMessage irc_message = new IrcMessage(message);
+                        ProcessMessage(message);
 
                         line.Clear();
+
                     }
                 }
 
                 Array.Clear(buffer, 0, bytes_count);
             }
+        }
+
+        private void
+        ProcessMessage(string message)
+        {
+            if (!message.IsValid())
+            {
+                return;
+            }
+
+            Log.PrintLine(message);
         }
 
         #endregion

@@ -41,6 +41,6 @@ TwitchNet.Enums.Debug
         /// <summary>
         /// Print all debug information. Overrides all other bitfields if set, except 'None'.
         /// </summary>
-        All         = 1 << 5
+        All         = Errors | Warnings | Success | Headers | Detailed
     }
 }

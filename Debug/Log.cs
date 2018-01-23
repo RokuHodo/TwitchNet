@@ -45,218 +45,84 @@ TwitchNet.Debug
 
         #endregion
 
-        #region Success, error, and warning messages        
-
-        public static void
-        Success(params string[] lines)
-        {
-            Success(TimeStamp.None, lines);
-        }
-
-        public static void
-        Success(TimeStamp stamp, params string[] lines)
-        {
-            DebugHeader(LogLevel.Success, ConsoleColor.Green, stamp, "[ Success ]", lines);
-        }
-
-        public static void
-        Error(params string[] lines)
-        {
-            Error(TimeStamp.None, lines);
-        }
-
-        public static void
-        Error(TimeStamp stamp, params string[] lines)
-        {
-            DebugHeader(LogLevel.Errors, ConsoleColor.Red, stamp, "[ Error ]", lines);
-        }
-
-        public static void
-        Warning(params string[] lines)
-        {
-            Warning(TimeStamp.None, lines);
-        }
-
-        public static void
-        Warning(TimeStamp stamp, params string[] lines)
-        {
-            DebugHeader(LogLevel.Warnings, ConsoleColor.Yellow, stamp, "[ Warning ]", lines);
-        }
-
-        #endregion
-
-        #region Notifies and headers
-
-        public static void
-        Header(string header, params string[] lines)
-        {
-            Header(TimeStamp.None, header, lines);
-        }
-
-        public static void
-        Header(TimeStamp stamp, string header, params string[] lines)
-        {
-            DebugHeader(LogLevel.Headers, ConsoleColor.Cyan, stamp, header, lines);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void
-        DebugHeader(LogLevel flag, ConsoleColor color, TimeStamp stamp, string header, params string[] lines)
-        {
-            string[] print = new string[lines.Length + 1];
-            print[0] = header;
-            Array.Copy(lines, 0, print, 1, lines.Length);
-
-            DebugPrintLine(flag, color, stamp, print);
-        }
-
-        #endregion
-
         #region Printing
 
-        #region No carriage return
-
         public static void
-        Print(params string[] words)
+        PrintLine(string value)
         {
-            Print(ConsoleColor.Gray, TimeStamp.None, words);
+            PrintLine(ConsoleColor.Gray, TimeStamp.None, value);
         }
 
         public static void
-        Print(ConsoleColor color, params string[] words)
+        PrintLine(TimeStamp stamp, string value)
         {
-            Print(color, TimeStamp.None, words);
+            PrintLine(ConsoleColor.Gray, stamp, value);
         }
 
         public static void
-        Print(TimeStamp stamp, params string[] words)
+        PrintLine(ConsoleColor color, string value)
         {
-            Print(ConsoleColor.Gray, stamp, words);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void
-        Print(ConsoleColor color, TimeStamp stamp, params string[] words)
-        {
-            DebugPrint(LogLevel.Detailed, color, stamp, words);
-        }
-
-        #endregion
-
-        #region Carriage return
-
-        public static void
-        PrintLine(params string[] lines)
-        {
-            PrintLine(ConsoleColor.Gray, TimeStamp.None, lines);
-        }
-
-        public static void
-        PrintLine(ConsoleColor color, params string[] lines)
-        {
-            PrintLine(color, TimeStamp.None, lines);
-        }
-
-        public static void
-        PrintLine(TimeStamp stamp, params string[] lines)
-        {
-            PrintLine(ConsoleColor.Gray, stamp, lines);
+            PrintLine(color, TimeStamp.None, value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void
-        PrintLine(ConsoleColor color, TimeStamp stamp, params string[] lines)
+        PrintLine(ConsoleColor color, TimeStamp stamp, string value)
         {
-            DebugPrintLine(LogLevel.Detailed, color, stamp, lines);
+            PrintLine(color, stamp, value, null);
         }
 
         public static void
-        PrintLineColumns(string label, string text)
+        PrintLine(string format, params object[] parameters)
         {
-            PrintLineColumns(ConsoleColor.Gray, TimeStamp.None, label, text);
+            PrintLine(ConsoleColor.Gray, TimeStamp.None, format, parameters);
         }
 
         public static void
-        PrintLineColumns(ConsoleColor color, string label, string text)
+        PrintLine(TimeStamp stamp, string format, params object[] parameters)
         {
-            PrintLineColumns(color, TimeStamp.None, label, text);
+            PrintLine(ConsoleColor.Gray, stamp, format, parameters);
         }
 
         public static void
-        PrintLineColumns(TimeStamp stamp, string label, string text)
+        PrintLine(ConsoleColor color, string format, params object[] parameters)
         {
-            PrintLineColumns(ConsoleColor.Gray, stamp, label, text);
+            PrintLine(color, TimeStamp.None, format, parameters);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void
-        PrintLineColumns(ConsoleColor color, TimeStamp stamp, string label, string text)
+        PrintLine(ConsoleColor color, TimeStamp stamp, string format, params object[] parameters)
         {
-            string message = string.Format("{0,-20} {1,-20}", label, text);
-
-            PrintLine(color, stamp, message);
+            DebugPrintLine(LogLevel.Detailed, color, stamp, format, parameters);
         }
-
-        #endregion
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void
-        DebugPrintLine(LogLevel flag, ConsoleColor color, TimeStamp stamp, params string[] lines)
+        DebugPrintLine(LogLevel level, ConsoleColor color, TimeStamp stamp, string format, params object[] parametrs)
         {
-            PrintBuilder(flag, color, stamp, true, lines);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void
-        DebugPrint(LogLevel flag, ConsoleColor color, TimeStamp stamp, params string[] words)
-        {
-            PrintBuilder(flag, color, stamp, false, words);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void
-        PrintBuilder(LogLevel flag, ConsoleColor color, TimeStamp stamp, bool carriage_return, params string[] lines)
-        {
-            if (!lines.IsValid())
+            if (!format.IsValid())
             {
                 return;
             }
 
-            //HasFlag(DebugLevel.None) always evaluates to true since None = 0, need to test this case separatelty
-            if (level == LogLevel.None)
+            // TODO: Replace this with manual bitwise since this is *really* slow.
+            if (level == LogLevel.None || !level.HasFlag(level))
             {
                 return;
             }
 
-            if (!level.HasFlag(flag) && !level.HasFlag(LogLevel.All))
-            {
-                return;
-            }
-
-            string time = GetTimeStampString(stamp);
-
-            StringBuilder builder = new StringBuilder();
-            builder.Append(time);
-
-            foreach (string line in lines)
-            {
-                if (!line.IsValid())
-                {
-                    continue;
-                }
-
-                if (carriage_return)
-                {
-                    builder.AppendLine(line);
-                }
-                else
-                {
-                    builder.Append(lines);
-                }
-            }
+            string value = GetTimeStampString(stamp);
 
             Console.ForegroundColor = color;
-            Console.Write(builder);
+            if (parametrs.IsValid())
+            {
+                Console.WriteLine(value + " " + format, parametrs);
+            }
+            else
+            {
+                Console.WriteLine(value + " " + format);
+            }
             Console.ResetColor();
         }
 
@@ -264,49 +130,51 @@ TwitchNet.Debug
         private static string
         GetTimeStampString(TimeStamp stamp)
         {
-            string time = "[ {0} ] ";
+            string time = string.Empty;
 
             switch (stamp)
             {
                 case TimeStamp.None:
-                    {
-                        time = string.Empty;
-                    }
-                    break;
+                {
+                    time = string.Empty;
+                }
+                break;
+
                 case TimeStamp.DateLong:
-                    {
-                        time = string.Format(time, DateTime.Now.ToLongDateString());
-                    }
-                    break;
+                {
+                    time = "[ " + DateTime.Now.ToLongDateString() + " ]";
+                }
+                break;
+
                 case TimeStamp.DateShort:
-                    {
-                        time = string.Format(time, DateTime.Now.ToShortDateString());
-                    }
-                    break;
+                {
+                    time = "[ " + DateTime.Now.ToShortDateString() + " ]";
+                }
+                break;
+
                 case TimeStamp.TimeLong:
-                    {
-                        time = string.Format(time, DateTime.Now.ToLongTimeString());
-                    }
-                    break;
+                {
+                    time = "[ " + DateTime.Now.ToLongTimeString() + " ]";
+                }
+                break;
+
                 case TimeStamp.TimeShort:
-                    {
-                        time = string.Format(time, DateTime.Now.ToShortTimeString());
-                    }
-                    break;
+                {
+                    time = "[ " + DateTime.Now.ToShortTimeString() + " ]";
+                }
+                break;
+
                 case TimeStamp.Default:
                 default:
-                    {
-                        time = string.Format(time, DateTime.Now.ToString());
-                    }
-                    break;
+                {
+                    time = "[ " + DateTime.Now.ToString() + " ]";
+                }
+                break;
             }
 
             return time;
         }
 
-        /// <summary>
-        /// Prints a blank line to the command line.
-        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void
         BlankLine()
@@ -336,7 +204,8 @@ TwitchNet.Debug
             if (obj == null || obj is ValueType || obj is DateTime || obj is string)
             {
                 string value = GetObjectValueString(obj);
-                PrintLineColumns(label, value);
+                // TODO: Reimplement all printing functions 
+                // PrintLineColumns(label, value);
             }
             else if (obj is IEnumerable)
             {
@@ -367,12 +236,12 @@ TwitchNet.Debug
                         if (obj_member_value_string == string.Empty)
                         {
                             BlankLine();
-                            Header(member.Name);
+                            // Header(member.Name);
                             PrintObject(string.Empty, obj_member_value);
                         }
                         else
                         {
-                            PrintLineColumns(member.Name, obj_member_value_string);
+                            // PrintLineColumns(member.Name, obj_member_value_string);
                         }
                     }
                 }

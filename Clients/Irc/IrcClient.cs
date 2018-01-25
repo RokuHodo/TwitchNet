@@ -21,7 +21,7 @@ using TwitchNet.Utilities;
 namespace
 TwitchNet.Clients.Irc
 {
-    public class
+    public partial class
     IrcClient
     {
         #region Fields
@@ -89,6 +89,9 @@ TwitchNet.Clients.Irc
             reading = false;
 
             state_mutex = new Mutex();
+
+            handlers = new Dictionary<string, MessageHandler>();
+            // DefaultHandlers();
 
             SetState(ClientState.Disconnected);
         }
@@ -158,9 +161,9 @@ TwitchNet.Clients.Irc
             Send("PASS oauth:" + irc_user.pass);
             Send("NICK " + irc_user.nick);
 
-            // NOTE: only for tetsing
+            // NOTE: below is only for tetsing
             // Send("JOIN #elajjaz");
-            Send("JOIN #bananasaurus_rex");
+            // Send("JOIN #bananasaurus_rex");
             SetState(ClientState.Connected);
         }
 
@@ -414,18 +417,77 @@ TwitchNet.Clients.Irc
 
         #region Sending
 
-        public void
+        public bool
+        Pong()
+        {
+            bool sent = PongAsync().Result;
+
+            return sent;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async Task<bool>
+        PongAsync()
+        {
+            bool sent = await SendAsync("PONG");
+
+            return sent;
+        }
+
+        public bool
+        Pong(string trailing)
+        {
+            bool sent = PongAsync(trailing).Result;
+
+            return sent;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async Task<bool>
+        PongAsync(string trailing)
+        {
+            ExceptionUtil.ThrowIfInvalid(trailing, nameof(trailing));
+
+            bool sent = await SendAsync("PONG :" + trailing);
+
+            return sent;
+        }
+
+        public bool
+        Pong(IrcMessage message)
+        {
+            bool sent = PongAsync(message).Result;
+
+            return sent;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async Task<bool>
+        PongAsync(IrcMessage message)
+        {
+            ExceptionUtil.ThrowIfNull(message, nameof(message));
+            ExceptionUtil.ThrowIfInvalid(message.trailing, nameof(message.trailing));
+
+            bool sent = await SendAsync("PONG :" + message.trailing);
+
+            return sent;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool
         Send(string format, params object[] arguments)
         {
+            bool sent = false;
+                 
             if (!format.IsValid())
             {
-                return;
+                return sent;
             }
 
             string message = string.Format(format, arguments);
             if (!CanSend(message))
             {
-                return;
+                return sent;
             }
 
             byte[] bytes = Encoding.UTF8.GetBytes(message + "\r\n");
@@ -433,20 +495,27 @@ TwitchNet.Clients.Irc
             stream.Flush();
 
             // OnMessageSent.Raise(this, new MessageEventArgs(message));
+
+            sent = true;
+
+            return sent;
         }
 
-        public async void
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async Task<bool>
         SendAsync(string format, params object[] arguments)
         {
+            bool sent = false;
+
             if (!format.IsValid())
             {
-                return;
+                return sent;
             }
 
             string message = string.Format(format, arguments);
             if (!CanSend(message))
             {
-                return;
+                return sent;
             }
 
             byte[] bytes = Encoding.UTF8.GetBytes(message + "\r\n");
@@ -454,6 +523,10 @@ TwitchNet.Clients.Irc
             stream.Flush();
 
             // OnMessageSent.Raise(this, new MessageEventArgs(message));
+
+            sent = true;
+
+            return sent;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -492,7 +565,7 @@ TwitchNet.Clients.Irc
             int bytes_count = 0;
             byte[] buffer = new byte[1024];
 
-            List<byte> line = new List<byte>();
+            List<byte> line_bytes = new List<byte>();
 
             reading = true;
             while (reading && !socket.IsNull() && !stream.IsNull())
@@ -518,26 +591,33 @@ TwitchNet.Clients.Irc
                     continue;
                 }
 
-                foreach (byte element in buffer)
+                for(int index = 0; index < buffer.Length; ++index)
                 {
-                    if (element == 0x0)
+                    if (buffer[index] == 0x0)
                     {
                         continue;
-                    }
+                    }                                       
 
-                    line.Add(element);
-                        
-                    // 0x0A = '\n', 0x0D = '\r'
-                    if(element == 0x0A)
+                    // 0x0D = '\r', 0x0A = '\n'
+                    if (buffer[index] == 0x0D || buffer[index] == 0x0A)
                     {
-                        // This assumes that the line terminates with \r\n and not \n\r, or just either \r or \n
-                        // Safe assumption on windows and that the RFC 1459 spec requires it, but we should probably handle other cases to be safe
-                        string message = Encoding.UTF8.GetString(line.ToArray(), 0, line.Count - 2);
-                        IrcMessage irc_message = new IrcMessage(message);
-                        ProcessMessage(message);
+                        string message_raw = Encoding.UTF8.GetString(line_bytes.ToArray(), 0, line_bytes.Count);
+                        line_bytes.Clear();
 
-                        line.Clear();
+                        ProcessMessage(message_raw);
 
+                        int next_index = index + 1;
+                        if (buffer[index] == 0x0D && next_index < buffer.Length)
+                        {
+                            if(buffer[next_index] == 0x0A)
+                            {
+                                index++;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        line_bytes.Add(buffer[index]);
                     }
                 }
 
@@ -546,14 +626,23 @@ TwitchNet.Clients.Irc
         }
 
         private void
-        ProcessMessage(string message)
+        ProcessMessage(string message_raw)
         {
-            if (!message.IsValid())
+            if (!message_raw.IsValid())
             {
                 return;
             }
 
-            Log.PrintLine(message);
+            IrcMessage message_irc = new IrcMessage(message_raw);
+            if (!message_irc.command.IsValid())
+            {
+                return;
+            }
+            // OnIrcMessage.Raise(this, new IrcMessageEventArgs(raw_message, irc_message));
+
+            Log.PrintLine(message_raw);
+
+            RunHandler(message_raw, message_irc);
         }
 
         #endregion

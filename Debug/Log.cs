@@ -113,15 +113,19 @@ TwitchNet.Debug
             }
 
             string value = GetTimeStampString(stamp);
+            if (value.IsValid())
+            {
+                format = value + " " + format;
+            }
 
             Console.ForegroundColor = color;
             if (parametrs.IsValid())
             {
-                Console.WriteLine(value + " " + format, parametrs);
+                Console.WriteLine(format, parametrs);
             }
             else
             {
-                Console.WriteLine(value + " " + format);
+                Console.WriteLine(format);
             }
             Console.ResetColor();
         }

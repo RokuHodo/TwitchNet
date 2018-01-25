@@ -14,7 +14,9 @@ TwitchNet.Models.Clients.Irc
 
         public string                       prefix      { get; protected set; }
         public string                       command     { get; protected set; }
+        public string                       trailing    { get; protected set; }
 
+        public string[]                     middle      { get; protected set; }
         public string[]                     parameters  { get; protected set; }
 
         public IrcMessage(string message)
@@ -24,10 +26,12 @@ TwitchNet.Models.Clients.Irc
                 return;
             }
 
-            string message_post_tags = ParseTags(message);
-            string message_post_prefix = ParsePrefix(message_post_tags);
+            string message_post_tags    = ParseTags(message);
+            string message_post_prefix  = ParsePrefix(message_post_tags);
             string message_post_command = ParseCommand(message_post_prefix);
-            parameters = ParseParameters(message_post_command).ToArray();
+
+            middle                      = ParseParameters(message_post_command).ToArray();
+            parameters                  = AssembleParameters(middle, trailing);
         }
 
         #region Message parsing
@@ -112,38 +116,56 @@ TwitchNet.Models.Clients.Irc
         private List<string>
         ParseParameters(string message_post_command)
         {
-            List<string> _parameters = new List<string>();
+            List<string> _middle = new List<string>();
 
             if (!message_post_command.IsValid())
             {
-                return _parameters;
+                return _middle;
             }
 
             if(message_post_command[0] == ':')
             {
-                _parameters.Add(message_post_command.TextAfter(':'));
+                string parameter = message_post_command.TextAfter(':');
+
+                trailing = parameter;
             }
             else
             {
                 string parameter = message_post_command.TextBefore(' ');
                 if (parameter.IsValid())
                 {
-                    _parameters.Add(parameter);
+                    _middle.Add(parameter);
+
                     message_post_command = message_post_command.TextAfter(' ').TrimStart(' ');
 
                     List<string> temp = ParseParameters(message_post_command);
                     if (temp.IsValid())
                     {
-                        _parameters.AddRange(temp);
+                        _middle.AddRange(temp);
                     }
                 }
                 else
                 {
-                    _parameters.Add(message_post_command);
+                    _middle.Add(message_post_command);
                 }
+            }            
+
+            return _middle;
+        }
+
+        private string[]
+        AssembleParameters(string[] _middle, string _trailing)
+        {
+            List<string> _parameters = new List<string>();
+
+            foreach(string element in _middle)
+            {
+                _parameters.Add(element);
             }
 
-            return _parameters;
+            _parameters.Add(trailing);
+
+            return _parameters.ToArray();
         }
 
         #endregion

@@ -56,6 +56,7 @@
     <Compile Include="Api\TwitchApi.Async.cs" />
     <Compile Include="Api\TwitchApiBearer.Sync.cs" />
     <Compile Include="Api\TwitchApiBearer.Async.cs" />
+    <Compile Include="Clients\Irc\IrcClient.Handlers.cs" />
     <Compile Include="Clients\Irc\IrcClient.cs" />
     <Compile Include="Debug\Error.cs" />
     <Compile Include="Debug\Log.cs" />

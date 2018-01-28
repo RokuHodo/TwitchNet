@@ -10,17 +10,37 @@ TwitchNet.Models.Clients.Irc
     public class
     IrcMessage
     {        
-        public Dictionary<string, string>   tags        { get; protected set; }
+        public string                       raw             { get; protected set; }
 
-        public string                       prefix      { get; protected set; }
-        public string                       command     { get; protected set; }
-        public string                       trailing    { get; protected set; }
+        public Dictionary<string, string>   tags            { get; protected set; }
 
-        public string[]                     middle      { get; protected set; }
-        public string[]                     parameters  { get; protected set; }
+        public string                       prefix          { get; protected set; }
+        public string                       server_or_nick  { get; protected set; }
+        public string                       user            { get; protected set; }
+        public string                       host            { get; protected set; }
+
+        public string                       command         { get; protected set; }
+
+        public string                       trailing        { get; protected set; }
+        public string[]                     middle          { get; protected set; }
+        public string[]                     parameters      { get; protected set; }
 
         public IrcMessage(string message)
         {
+
+            raw                         = message;
+
+            tags                        = new Dictionary<string, string>();
+
+            prefix                      = string.Empty;
+            server_or_nick              = string.Empty;
+            user                        = string.Empty;
+            host                        = string.Empty;
+
+            command                     = string.Empty;
+
+            trailing                    = string.Empty;
+
             if (!message.IsValid())
             {
                 return;
@@ -39,8 +59,6 @@ TwitchNet.Models.Clients.Irc
         private string
         ParseTags(string message)
         {
-            tags = new Dictionary<string, string>();
-
             string message_no_tags = message;
 
             // irc message only conmtains tags when it is preceeded with "@"
@@ -71,8 +89,6 @@ TwitchNet.Models.Clients.Irc
         public string
         ParsePrefix(string message_post_tags)
         {
-            prefix = string.Empty;
-
             string message_post_prefix = string.Empty;
 
             if (!message_post_tags.IsValid())
@@ -89,6 +105,25 @@ TwitchNet.Models.Clients.Irc
 
             prefix = message_post_tags.TextBetween(':', ' ');
 
+            int user_index = prefix.IndexOf('!');
+            int host_index = prefix.IndexOf('@');
+
+            if(user_index < 0 && host_index < 0)
+            {
+                server_or_nick = prefix;
+            }
+            else if(user_index != -1 && host_index < 0)
+            {
+                server_or_nick = prefix.TextBefore('!');
+                user = prefix.TextAfter('!');
+            }
+            else
+            {
+                server_or_nick = prefix.TextBefore('!');
+                user = prefix.TextBetween('!', '@');
+                host = prefix.TextAfter('@');
+            }
+
             message_post_prefix = message_post_tags.TextAfter(' ').TrimStart(' ');
 
             return message_post_prefix;
@@ -97,8 +132,6 @@ TwitchNet.Models.Clients.Irc
         private string
         ParseCommand(string message_post_prefix)
         {
-            command = string.Empty;
-
             string message_post_command = string.Empty;
 
             if (!message_post_prefix.IsValid())

@@ -90,8 +90,10 @@ TwitchNet.Clients.Irc
 
             state_mutex = new Mutex();
 
+            names = new Dictionary<string, List<string>>();
+
             handlers = new Dictionary<string, MessageHandler>();
-            // DefaultHandlers();
+            DefaultHandlers();
 
             SetState(ClientState.Disconnected);
         }
@@ -148,7 +150,6 @@ TwitchNet.Clients.Irc
             ExceptionUtil.ThrowIfInvalid(irc_user.pass, nameof(irc_user.pass), QuickDisconnect);
 
             stream = new NetworkStream(socket);
-
             if (port == 443)
             {
                 stream = new SslStream(stream, false);
@@ -160,11 +161,6 @@ TwitchNet.Clients.Irc
             
             Send("PASS oauth:" + irc_user.pass);
             Send("NICK " + irc_user.nick);
-
-            // NOTE: below is only for tetsing
-            // Send("JOIN #elajjaz");
-            // Send("JOIN #bananasaurus_rex");
-            SetState(ClientState.Connected);
         }
 
         private void
@@ -640,9 +636,9 @@ TwitchNet.Clients.Irc
             }
             // OnIrcMessage.Raise(this, new IrcMessageEventArgs(raw_message, irc_message));
 
-            Log.PrintLine(message_raw);
+            Log.PrintLine(message_irc.raw);
 
-            RunHandler(message_raw, message_irc);
+            RunHandler(message_irc);
         }
 
         #endregion

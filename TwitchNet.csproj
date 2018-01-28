@@ -75,6 +75,13 @@
     <Compile Include="Enums\Api\Videos\VideoType.cs" />
     <Compile Include="Enums\Api\Videos\VideoSort.cs" />
     <Compile Include="Enums\Api\Videos\VideoPeriod.cs" />
+    <Compile Include="Events\Clients\Irc\EndOfNamesEventArgs.cs" />
+    <Compile Include="Events\Clients\Irc\MotdEventArgs.cs" />
+    <Compile Include="Events\Clients\Irc\UnknownCommandEventArgs.cs" />
+    <Compile Include="Events\Clients\Irc\NumericReplyEventArgs.cs" />
+    <Compile Include="Events\Clients\Irc\NamReplyEventArgs.cs" />
+    <Compile Include="Events\Clients\Irc\IrcMessageEventArgs.cs" />
+    <Compile Include="Extensions\EventExtensions.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\MathExtensions .cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />

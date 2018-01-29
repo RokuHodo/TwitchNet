@@ -1,5 +1,6 @@
 ﻿// standard namespaces
 using System;
+using System.Collections.Generic;
 
 // project namespaces
 using TwitchNet.Extensions;
@@ -98,6 +99,28 @@ namespace TwitchNet.Utilities
         /// <param name="message">The excpetion message.</param>
         public static void
         ThrowIfInvalid(string parameter, string parameter_name, string message, Action callback = null)
+        {
+            if (parameter.IsValid())
+            {
+                return;
+            }
+
+            if (!callback.IsNull())
+            {
+                callback();
+            }
+
+            throw new ArgumentException(message, parameter_name);
+        }
+
+        public static void
+        ThrowIfInvalid<type>(IList<type> parameter, string parameter_name, Action callback = null)
+        {
+            ThrowIfInvalid(parameter, parameter_name, parameter_name + " cannot be null, empty, or whitespace.", callback);
+        }
+
+        public static void
+        ThrowIfInvalid<type>(IList<type> parameter, string parameter_name, string message, Action callback = null)
         {
             if (parameter.IsValid())
             {

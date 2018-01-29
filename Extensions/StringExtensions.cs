@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 
+// project namespaces
+
 namespace
 TwitchNet.Extensions
 {
@@ -301,7 +303,8 @@ TwitchNet.Extensions
         /// Returns a default <see cref="Array"/> of the specified type is no <see cref="string"/> elements could be converted.
         /// Returns an <see cref="Array"/> of a specified type with the successfully converted <see cref="string"/> elements otherwise.
         /// </returns>
-        public static type[] StringToArray<type>(this string str, char separator, StringSplitOptions options = StringSplitOptions.None)
+        public static type[]
+        StringToArray<type>(this string str, char separator, StringSplitOptions options = StringSplitOptions.None)
         {
             return str.StringToArray<type>(new char[] { separator }, options);
         }
@@ -316,7 +319,8 @@ TwitchNet.Extensions
         /// Returns a default <see cref="Array"/> of the specified type is no <see cref="string"/> elements could be converted.
         /// Returns an <see cref="Array"/> of a specified type with the successfully converted <see cref="string"/> elements otherwise.
         /// </returns>
-        public static type[] StringToArray<type>(this string str, char[] separators, StringSplitOptions options = StringSplitOptions.None)
+        public static type[]
+        StringToArray<type>(this string str, char[] separators, StringSplitOptions options = StringSplitOptions.None)
         {
             if (!str.IsValid())
             {

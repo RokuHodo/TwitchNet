@@ -1,8 +1,6 @@
 ﻿// standard namespaces
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Net.Security;
@@ -413,105 +411,137 @@ TwitchNet.Clients.Irc
 
         #region Sending
 
-        public bool
+        public void
         Pong()
         {
-            bool sent = PongAsync().Result;
-
-            return sent;
+            Send("PONG");
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async Task<bool>
+        public async Task
         PongAsync()
         {
-            bool sent = await SendAsync("PONG");
-
-            return sent;
+            await SendAsync("PONG");
         }
 
-        public bool
+        public void
         Pong(string trailing)
         {
-            bool sent = PongAsync(trailing).Result;
+            ExceptionUtil.ThrowIfInvalid(trailing, nameof(trailing));
 
-            return sent;
+            Send("PONG :" + trailing);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async Task<bool>
+        public async Task
         PongAsync(string trailing)
         {
             ExceptionUtil.ThrowIfInvalid(trailing, nameof(trailing));
 
-            bool sent = await SendAsync("PONG :" + trailing);
-
-            return sent;
+            await SendAsync("PONG :" + trailing);
         }
 
-        public bool
+        public void
         Pong(IrcMessage message)
         {
-            bool sent = PongAsync(message).Result;
+            ExceptionUtil.ThrowIfNull(message, nameof(message));
+            ExceptionUtil.ThrowIfInvalid(message.trailing, nameof(message.trailing));
 
-            return sent;
+            Send("PONG :" + message.trailing);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async Task<bool>
+        public async void
         PongAsync(IrcMessage message)
         {
             ExceptionUtil.ThrowIfNull(message, nameof(message));
             ExceptionUtil.ThrowIfInvalid(message.trailing, nameof(message.trailing));
 
-            bool sent = await SendAsync("PONG :" + message.trailing);
+            await SendAsync("PONG :" + message.trailing);
+        }
 
-            return sent;
+        public void
+        Join(params string[] channels)
+        {
+            ExceptionUtil.ThrowIfInvalid(channels, nameof(channels));
+
+            string format = channels.Length == 1 ? channels[0] : string.Join(",", channels);
+            Send("JOIN " + format.ToLower());
+        }
+
+        public async void
+        JoinAsync(params string[] channels)
+        {
+            ExceptionUtil.ThrowIfInvalid(channels, nameof(channels));
+
+            string format = channels.Length == 1 ? channels[0] : string.Join(",", channels);
+            await SendAsync("JOIN " + format.ToLower());
+        }
+
+        public void
+        Part(params string[] channels)
+        {
+            ExceptionUtil.ThrowIfInvalid(channels, nameof(channels));
+
+            string format = channels.Length == 1 ? channels[0] : string.Join(",", channels);
+            Send("PART " + format.ToLower());
+        }
+
+        public async void
+        PartAsync(params string[] channels)
+        {
+            ExceptionUtil.ThrowIfInvalid(channels, nameof(channels));
+
+            string format = channels.Length == 1 ? channels[0] : string.Join(",", channels);
+            await SendAsync("PART " + format.ToLower());
+        }
+
+        public void
+        SendPrivmsg(string channel, string format, params string[] arguments)
+        {
+            ExceptionUtil.ThrowIfInvalid(channel, nameof(channel));
+            ExceptionUtil.ThrowIfInvalid(format, nameof(format));
+
+            string trailing = !arguments.IsValid() ? format : string.Format(format, arguments);
+            Send("PRIVMSG " + channel + " :" + trailing);
+        }
+
+        public async void
+        SendPrivmsgAsync(string channel, string format, params string[] arguments)
+        {
+            ExceptionUtil.ThrowIfInvalid(channel, nameof(channel));
+            ExceptionUtil.ThrowIfInvalid(format, nameof(format));
+
+            string trailing = !arguments.IsValid() ? format : string.Format(format, arguments);
+            await SendAsync("PRIVMSG " + channel + " :" + trailing);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool
+        public void
         Send(string format, params object[] arguments)
         {
-            bool sent = false;
-                 
-            if (!format.IsValid())
-            {
-                return sent;
-            }
+            ExceptionUtil.ThrowIfInvalid(format, nameof(format));
 
-            string message = string.Format(format, arguments);
+            string message = !arguments.IsValid() ? format : string.Format(format, arguments);
             if (!CanSend(message))
             {
-                return sent;
+                return;
             }
 
-            byte[] bytes = Encoding.UTF8.GetBytes(message + "\r\n");
+            byte[] bytes = Encoding.UTF8.GetBytes(message + "\r\n");            
             stream.Write(bytes, 0, bytes.Length);
             stream.Flush();
 
             // OnMessageSent.Raise(this, new MessageEventArgs(message));
-
-            sent = true;
-
-            return sent;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async Task<bool>
+        public async Task
         SendAsync(string format, params object[] arguments)
         {
-            bool sent = false;
+            ExceptionUtil.ThrowIfInvalid(format, nameof(format));
 
-            if (!format.IsValid())
-            {
-                return sent;
-            }
-
-            string message = string.Format(format, arguments);
+            string message = !arguments.IsValid() ? format : string.Format(format, arguments);
             if (!CanSend(message))
             {
-                return sent;
+                return;
             }
 
             byte[] bytes = Encoding.UTF8.GetBytes(message + "\r\n");
@@ -519,10 +549,6 @@ TwitchNet.Clients.Irc
             stream.Flush();
 
             // OnMessageSent.Raise(this, new MessageEventArgs(message));
-
-            sent = true;
-
-            return sent;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

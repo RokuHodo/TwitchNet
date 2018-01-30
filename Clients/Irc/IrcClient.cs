@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 // project namespaces
 using TwitchNet.Debug;
 using TwitchNet.Enums.Clients;
+using TwitchNet.Events.Clients.Irc;
 using TwitchNet.Extensions;
 using TwitchNet.Models.Clients.Irc;
 using TwitchNet.Utilities;
@@ -528,8 +529,6 @@ TwitchNet.Clients.Irc
             byte[] bytes = Encoding.UTF8.GetBytes(message + "\r\n");            
             stream.Write(bytes, 0, bytes.Length);
             stream.Flush();
-
-            // OnMessageSent.Raise(this, new MessageEventArgs(message));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -547,8 +546,6 @@ TwitchNet.Clients.Irc
             byte[] bytes = Encoding.UTF8.GetBytes(message + "\r\n");
             await stream.WriteAsync(bytes, 0, bytes.Length);
             stream.Flush();
-
-            // OnMessageSent.Raise(this, new MessageEventArgs(message));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -660,9 +657,13 @@ TwitchNet.Clients.Irc
             {
                 return;
             }
-            // OnIrcMessage.Raise(this, new IrcMessageEventArgs(raw_message, irc_message));
 
-            Log.PrintLine(message_irc.raw);
+            OnIrcMessage.Raise(this, new IrcMessageEventArgs(message_irc));
+
+            if (message_irc.command != "PRIVMSG")
+            {
+                Log.PrintLine(message_irc.raw);
+            }
 
             RunHandler(message_irc);
         }

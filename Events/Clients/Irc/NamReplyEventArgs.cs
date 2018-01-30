@@ -23,12 +23,9 @@ TwitchNet.Events.Clients.Irc
 
         public NamReplyEventArgs(IrcMessage message) : base(message)
         {
-            if (!message.parameters.IsValid())
-            {
-                return;
-            }
+            names = message.trailing.StringToArray<string>(' ');
 
-            if(message.parameters.Length < 3)
+            if (!message.parameters.IsValid() || message.parameters.Length < 3)
             {
                 return;
             }
@@ -48,8 +45,6 @@ TwitchNet.Events.Clients.Irc
             }
 
             channel = message.parameters[2];
-
-            names = message.trailing.StringToArray<string>(' ');
         }
     }
 }

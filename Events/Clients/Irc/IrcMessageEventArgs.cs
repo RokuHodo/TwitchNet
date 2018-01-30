@@ -10,11 +10,11 @@ TwitchNet.Events.Clients.Irc
     public class
     IrcMessageEventArgs : EventArgs
     {
-        public IrcMessage message { get; protected set; }
+        public IrcMessage message_irc { get; protected set; }
 
         public IrcMessageEventArgs(IrcMessage message)
         {
-            this.message = message;
+            message_irc = message;
         }
     }
 }

@@ -76,6 +76,9 @@
     <Compile Include="Enums\Api\Videos\VideoSort.cs" />
     <Compile Include="Enums\Api\Videos\VideoPeriod.cs" />
     <Compile Include="Events\Clients\Irc\EndOfNamesEventArgs.cs" />
+    <Compile Include="Events\Clients\Irc\PrivmsgEventArgs.cs" />
+    <Compile Include="Events\Clients\Irc\PartEventArgs.cs" />
+    <Compile Include="Events\Clients\Irc\JoinEventArgs.cs" />
     <Compile Include="Events\Clients\Irc\MotdEventArgs.cs" />
     <Compile Include="Events\Clients\Irc\UnknownCommandEventArgs.cs" />
     <Compile Include="Events\Clients\Irc\NumericReplyEventArgs.cs" />
@@ -136,6 +139,7 @@
     <Compile Include="Models\Api\Users\UsersQueryParameters.cs" />
     <Compile Include="Models\Api\Videos\VideosQueryParameters.cs" />
     <Compile Include="Models\Clients\Irc\IrcMessage.cs" />
+    <Compile Include="Models\Clients\Irc\Privmsg.cs" />
     <Compile Include="Models\Clients\Irc\IrcUser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\ExceptionUtil.cs" />

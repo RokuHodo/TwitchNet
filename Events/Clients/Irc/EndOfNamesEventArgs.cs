@@ -17,12 +17,7 @@ TwitchNet.Events.Clients.Irc
 
         public EndOfNamesEventArgs(IrcMessage message, Dictionary<string, List<string>> names) : base(message)
         {
-            if (!message.parameters.IsValid())
-            {
-                return;
-            }
-
-            if(message.parameters.Length < 2)
+            if (!message.parameters.IsValid() || message.parameters.Length < 2)
             {
                 return;
             }

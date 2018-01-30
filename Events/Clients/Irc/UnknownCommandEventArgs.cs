@@ -9,19 +9,13 @@ TwitchNet.Events.Clients.Irc
     UnknownCommandEventArgs : NumericReplyEventArgs
     {
         public string command       { get; protected set; }
-
         public string description   { get; protected set; }
 
         public UnknownCommandEventArgs(IrcMessage message) : base(message)
         {
             description = message.trailing;
 
-            if (!message.parameters.IsValid())
-            {
-                return;
-            }
-
-            if(message.parameters.Length < 2)
+            if (!message.parameters.IsValid() || message.parameters.Length < 2)
             {
                 return;
             }

@@ -40,6 +40,11 @@ TwitchNet.Clients.Irc
         private Dictionary<string, MessageHandler>          handlers;
 
         /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received.</para>
+        /// </summary>
+        public event EventHandler<IrcMessageEventArgs>      OnIrcMessage;
+
+        /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 001, RPL_WELCOME.</para>
         /// <para>Signifies that the <see cref="IrcClient"/> has successfully registered and connected to the IRC server.</para>
         /// </summary>
@@ -107,6 +112,33 @@ TwitchNet.Clients.Irc
         /// <para>Signifies that the command trying to be used is not suported by the server.</para>
         /// </summary>
         public event EventHandler<UnknownCommandEventArgs>  OnUnknownCommand;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command JOIN.</para>
+        /// <para>Signifies that a user has joined a channel.</para>
+        /// </summary>
+        public event EventHandler<JoinEventArgs>            OnJoin;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command PART.</para>
+        /// <para>Signifies that a user has left a channel.</para>
+        /// </summary>
+        public event EventHandler<PartEventArgs>            OnPart;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command PING.</para>
+        /// <para>
+        /// Sent by the server to test to see if a connected client is still active.
+        /// The client should then respong with the appropriate PONG message as soon as possible for the connectin to not be terminated.
+        /// </para>
+        /// </summary>
+        public event EventHandler<IrcMessageEventArgs>      OnPing;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command PRIVMSG.</para>
+        /// <para>Sent when a user sends a message in a channel.</para>
+        /// </summary>
+        public event EventHandler<PrivmsgEventArgs>         OnPrivmsg;
 
         #endregion
 
@@ -329,13 +361,13 @@ TwitchNet.Clients.Irc
         private void
         HandleJoin(IrcMessage message)
         {
-            // OnJoin.Raise();
+            OnJoin.Raise(this, new JoinEventArgs(message));
         }
 
         private void
         HandlePart(IrcMessage message)
         {
-            // OnPart.Raise();
+            OnPart.Raise(this, new PartEventArgs(message));
         }
 
         private void
@@ -343,7 +375,7 @@ TwitchNet.Clients.Irc
         {
             Pong(message);
 
-            // OnPing.Raise();
+            OnPing.Raise(this, new IrcMessageEventArgs(message));
         }
 
         private void
@@ -351,7 +383,7 @@ TwitchNet.Clients.Irc
         {
             Log.PrintLine(message.raw);
 
-            // OnPrivmsg.Raise();
+            OnPrivmsg.Raise(this, new PrivmsgEventArgs(message));
         }
 
         #endregion        

@@ -8,6 +8,9 @@ TwitchNet.Events.Clients.Irc
     public class
     NumericReplyEventArgs : IrcMessageEventArgs
     {
+        /// <summary>
+        /// The irc client nick.
+        /// </summary>
         public string client { get; protected set; }
 
         public NumericReplyEventArgs(IrcMessage message) : base(message)

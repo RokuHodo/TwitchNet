@@ -5,7 +5,8 @@ using System.Text.RegularExpressions;
 // imported .dll's
 using Newtonsoft.Json;
 
-namespace TwitchNet.Helpers.Json
+namespace
+TwitchNet.Helpers.Json
 {
     internal class
     TimeSpanConverter : JsonConverter
@@ -63,7 +64,7 @@ namespace TwitchNet.Helpers.Json
                 }
                 else
                 {
-                    throw new ArgumentException("Can not convert " + nameof(value) + " from " + object_type.Name + " to " + typeof(TimeSpan).Name, value);
+                    throw new ArgumentException("Failed to convert " + nameof(value) + " from " + object_type.Name + " to " + typeof(TimeSpan).Name, value);
                 }
             }
 

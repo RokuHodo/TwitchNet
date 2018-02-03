@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 
-// project namespaces
-
 namespace
 TwitchNet.Extensions
 {

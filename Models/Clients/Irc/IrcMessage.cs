@@ -9,53 +9,107 @@ TwitchNet.Models.Clients.Irc
 {
     public class
     IrcMessage
-    {        
+    {
+        #region Properties
+
+        /// <summary>
+        /// The raw string ingested by the reader.
+        /// </summary>
         public string                       raw             { get; protected set; }
 
+        /// <summary>
+        /// The optional tags prefixed to the message.
+        /// </summary>
         public Dictionary<string, string>   tags            { get; protected set; }
 
+        /// <summary>
+        /// An optional part of the message.
+        /// If the prefix is provided, the server name or nick is always provided, and the user and/or host may also be included.
+        /// </summary>
         public string                       prefix          { get; protected set; }
+
+        /// <summary>
+        /// The server name or the nick of the user.
+        /// Contained within the prefix.
+        /// </summary>
         public string                       server_or_nick  { get; protected set; }
+
+        /// <summary>
+        /// The irc user.
+        /// Contained within the prefix.
+        /// </summary>
         public string                       user            { get; protected set; }
+
+        /// <summary>
+        /// The host of the irc.
+        /// Contained within the prefix.
+        /// </summary>
         public string                       host            { get; protected set; }
 
+        /// <summary>
+        /// The irc command.
+        /// </summary>
         public string                       command         { get; protected set; }
 
+        /// <summary>
+        /// A message parameter.
+        /// Any, possibly empty, sequence of octets not including NUL or CR or LF.
+        /// </summary>
         public string                       trailing        { get; protected set; }
+
+        /// <summary>
+        /// An array of message parameters.
+        /// Any non-empty sequence of octets not including SPACE or NUL or CR or LF.
+        /// </summary>
         public string[]                     middle          { get; protected set; }
+
+        /// <summary>
+        /// An array of all middle parameters and trailing.
+        /// </summary>
         public string[]                     parameters      { get; protected set; }
+
+        #endregion
+
+        #region Constructor
 
         public IrcMessage(string message)
         {
 
-            raw                         = message;
+            raw = message;
 
-            tags                        = new Dictionary<string, string>();
+            tags = new Dictionary<string, string>();
 
-            prefix                      = string.Empty;
-            server_or_nick              = string.Empty;
-            user                        = string.Empty;
-            host                        = string.Empty;
+            prefix = string.Empty;
+            server_or_nick = string.Empty;
+            user = string.Empty;
+            host = string.Empty;
 
-            command                     = string.Empty;
+            command = string.Empty;
 
-            trailing                    = string.Empty;
+            trailing = string.Empty;
 
             if (!message.IsValid())
             {
                 return;
             }
 
-            string message_post_tags    = ParseTags(message);
-            string message_post_prefix  = ParsePrefix(message_post_tags);
+            string message_post_tags = ParseTags(message);
+            string message_post_prefix = ParsePrefix(message_post_tags);
             string message_post_command = ParseCommand(message_post_prefix);
 
-            middle                      = ParseParameters(message_post_command).ToArray();
-            parameters                  = AssembleParameters(middle, trailing);
+            middle = ParseParameters(message_post_command).ToArray();
+            parameters = AssembleParameters(middle, trailing);
         }
 
-        #region Message parsing
+        #endregion        
 
+        #region Parsing
+
+        /// <summary>
+        /// Parses an irc message for tags, if present.
+        /// </summary>
+        /// <param name="message">The irc message to parse.</param>
+        /// <returns>Returns the irc message after the tags.</returns>
         private string
         ParseTags(string message)
         {
@@ -86,6 +140,11 @@ TwitchNet.Models.Clients.Irc
             return message_no_tags;
         }
 
+        /// <summary>
+        /// Parses an irc message for the prefix, if present.
+        /// </summary>
+        /// <param name="message_post_tags">The irc message after the tags.</param>
+        /// <returns>Returns the irc message after the prefix.</returns>
         public string
         ParsePrefix(string message_post_tags)
         {
@@ -129,6 +188,11 @@ TwitchNet.Models.Clients.Irc
             return message_post_prefix;
         }
 
+        /// <summary>
+        /// Parses an irc message for the commmand.
+        /// </summary>
+        /// <param name="message_post_prefix">The irc message after the prefix.</param>
+        /// <returns>Returns the irc message after the command.</returns>
         private string
         ParseCommand(string message_post_prefix)
         {
@@ -146,6 +210,11 @@ TwitchNet.Models.Clients.Irc
             return message_post_command;
         }
 
+        /// <summary>
+        /// Parses an irc message for the parameters (middle and trailing).
+        /// </summary>
+        /// <param name="message_post_command">The irc message after the command.</param>
+        /// <returns>Returns an middle array of parameters.</returns>
         private List<string>
         ParseParameters(string message_post_command)
         {
@@ -186,6 +255,12 @@ TwitchNet.Models.Clients.Irc
             return _middle;
         }
 
+        /// <summary>
+        /// Combines the middle and trailing into a single parameters array.
+        /// </summary>
+        /// <param name="_middle">The array of middle parameters.</param>
+        /// <param name="_trailing">The trailing parameter.</param>
+        /// <returns>The combined parameters array.</returns>
         private string[]
         AssembleParameters(string[] _middle, string _trailing)
         {

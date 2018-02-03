@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 // project namespaces
 using TwitchNet.Enums.Debug;
@@ -118,7 +117,11 @@ TwitchNet.Debug
                 format = value + " " + format;
             }
 
-            Console.ForegroundColor = color;
+            if(color != ConsoleColor.Gray)
+            {
+                Console.ForegroundColor = color;
+            }
+
             if (parametrs.IsValid())
             {
                 Console.WriteLine(format, parametrs);
@@ -127,7 +130,11 @@ TwitchNet.Debug
             {
                 Console.WriteLine(format);
             }
-            Console.ResetColor();
+
+            if (color != ConsoleColor.Gray)
+            {
+                Console.ResetColor();
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -272,16 +279,6 @@ TwitchNet.Debug
             }
 
             return value;
-        }
-
-        #endregion
-        
-        #region Formatting
-
-        public static string
-        FormatColumns(object column_1, object column_2, int column_1_align = -20, int column_2_align = -20)
-        {
-            return string.Format("{0," + column_1_align + "} {1," + column_2_align + "}", column_1, column_2);
         }
 
         #endregion

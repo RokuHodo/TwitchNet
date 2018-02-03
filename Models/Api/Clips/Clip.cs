@@ -7,7 +7,8 @@ using TwitchNet.Enums.Api.Streams;
 // imported .dll's
 using Newtonsoft.Json;
 
-namespace TwitchNet.Models.Api.Clips
+namespace
+TwitchNet.Models.Api.Clips
 {
     public class
     Clip

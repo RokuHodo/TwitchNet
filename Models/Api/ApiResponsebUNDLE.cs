@@ -7,8 +7,14 @@ TwitchNet.Models.Api
     internal class
     ApiResponseBundle<result_type>
     {
+        /// <summary>
+        /// The base TwitchApi response.
+        /// </summary>
         internal ApiResponse                api_response    { get; set; }
 
+        /// <summary>
+        /// The response from the Rest Request.
+        /// </summary>
         internal IRestResponse<result_type> rest_response   { get; set; }
 
         internal

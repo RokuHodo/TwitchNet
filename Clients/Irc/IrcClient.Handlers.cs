@@ -354,30 +354,46 @@ TwitchNet.Clients.Irc
             OnUnknownCommand.Raise(this, new UnknownCommandEventArgs(message));
         }
 
-        #endregion  
+        #endregion
 
         #region Other handlers        
 
+        /// <summary>
+        /// Handles the IRC message with the command JOIN.
+        /// </summary>
+        /// <param name="message">The irc message to be handled.</param>
         private void
         HandleJoin(IrcMessage message)
         {
             OnJoin.Raise(this, new JoinEventArgs(message));
         }
 
+        /// <summary>
+        /// Handles the IRC message with the command PART.
+        /// </summary>
+        /// <param name="message">The irc message to be handled.</param>
         private void
         HandlePart(IrcMessage message)
         {
             OnPart.Raise(this, new PartEventArgs(message));
         }
 
+        /// <summary>
+        /// Handles the IRC message with the command PING.
+        /// </summary>
+        /// <param name="message">The irc message to be handled.</param>
         private void
         HandlePing(IrcMessage message)
         {
-            Pong(message);
+            Pong(message.trailing);
 
             OnPing.Raise(this, new IrcMessageEventArgs(message));
         }
 
+        /// <summary>
+        /// Handles the IRC message with the command PRIVMSG.
+        /// </summary>
+        /// <param name="message">The irc message to be handled.</param>
         private void
         HandlePrivmsg(IrcMessage message)
         {

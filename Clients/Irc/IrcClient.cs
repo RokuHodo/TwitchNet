@@ -25,23 +25,28 @@ TwitchNet.Clients.Irc
     {
         #region Fields
 
-        private bool                    reading;
+        private bool    reading;
 
-        private ushort                  _port;
+        private ushort  _port;
+        private string  _host;
 
-        private string                  _host;
+        private IrcUser _irc_user;
 
-        private Socket                  socket;
-        private Stream                  stream;
+        private Socket  socket;
+        private Stream  stream;
 
-        private Thread                  reader_thread;
+        private Thread  reader_thread;
 
-        private Mutex                   state_mutex;
+        private Mutex   state_mutex;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// The port number of the remote host.
+        /// </summary>
+        /// <exception cref="ArgumentException">Thrown if the port is null or equal to zero.</exception>
         public ushort port
         {
             get
@@ -55,6 +60,10 @@ TwitchNet.Clients.Irc
             }
         }
 
+        /// <summary>
+        /// The name of the remote host.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">Thrown if the host is null, empty, or whitespace.</exception>
         public string host
         {
             get
@@ -68,23 +77,53 @@ TwitchNet.Clients.Irc
             }
         }
 
-        public ClientState state { get; private set; }
+        /// <summary>
+        /// The IRC user's credentials.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">Thrown if the irc_user is null.</exception>
+        public IrcUser irc_user
+        {
+            get
+            {
+                return _irc_user;
+            }
+            set
+            {
+                ExceptionUtil.ThrowIfNull(value, nameof(irc_user));
+                _irc_user = value;
+            }
+        }
 
-        public IrcUser irc_user { get; set; }
+        /// <summary>
+        /// The current state of the IRC client.
+        /// </summary>
+        public ClientState state { get; private set; }
 
         #endregion
 
         #region Constructors
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="IrcClient"/> that is ready to connect to the IRC server.
+        /// </summary>
+        /// <param name="host">The name of the remote host.</param>
+        /// <param name="port">The port number of the remote host.</param>
+        /// <param name="irc_user">The IRC user's credentials.</param>
         public
-        IrcClient(string host, ushort port, IrcUser irc_user)
+        IrcClient(string host, ushort port, IrcUser irc_user) : this()
         {
             this.host = host;
             this.port = port;
 
-            ExceptionUtil.ThrowIfNull(irc_user, nameof(irc_user));
             this.irc_user = irc_user;
+        }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="IrcClient"/>.
+        /// </summary>
+        public
+        IrcClient()
+        {
             reading = false;
 
             state_mutex = new Mutex();
@@ -101,6 +140,11 @@ TwitchNet.Clients.Irc
 
         #region Connection handling
 
+        /// <summary>
+        /// Establish a connection to a remote host using the <see cref="ProtocolType.Tcp"/> protocol and log into the IRC server.
+        /// </summary>
+        /// <exception cref="ArgumentException">Thrown if the host is null, empty, or whitespace.</exception>
+        /// <exception cref="ArgumentNullException">Thrown id the port is null or equal to zero.</exception>
         public void
         Connect()
         {
@@ -118,6 +162,11 @@ TwitchNet.Clients.Irc
             Login();
         }
 
+        /// <summary>
+        /// Asynchronously establish a connection to a rmeote host using the <see cref="ProtocolType.Tcp"/> protocol and log into the IRC server.
+        /// </summary>
+        /// <exception cref="ArgumentException">Thrown if the host is null, empty, or whitespace.</exception>
+        /// <exception cref="ArgumentNullException">Thrown id the port is null or equal to zero.</exception>
         public void
         ConnectAsync()
         {
@@ -133,6 +182,10 @@ TwitchNet.Clients.Irc
             socket.BeginConnect(host, port, Callback_OnBeginConnect, null);
         }
 
+        /// <summary>
+        /// Finish asynchronously connecting to a remote host.
+        /// </summary>
+        /// <param name="result">The result of the async operation.</param>
         private void
         Callback_OnBeginConnect(IAsyncResult result)
         {
@@ -141,6 +194,11 @@ TwitchNet.Clients.Irc
             Login();
         }
 
+        /// <summary>
+        /// Log into the IRC server.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">Thrown if the irc_user is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if the nick or pass are null, empty, or whitespace.</exception>
         private void
         Login()
         {
@@ -156,12 +214,25 @@ TwitchNet.Clients.Irc
             }
 
             reader_thread = new Thread(new ThreadStart(ReadStream));
-            reader_thread.Start();           
-            
+            reader_thread.Start();
+
+            do
+            {
+                Thread.Sleep(5);
+            }
+            while (!reading);
+
             Send("PASS oauth:" + irc_user.pass);
             Send("NICK " + irc_user.nick);
         }
 
+        /// <summary>
+        /// <para>Force closes the connection to the remote host without waiting for the reader thread to stop.</para>
+        /// <para>
+        /// This method is generally unsafe and should only be called before the socket connection is fully established and the reader thread is started.
+        /// Otherwise, <see cref="Disconnect()"/> or <see cref="DisconnectAsync()"/> should be called.
+        /// </para>
+        /// </summary>
         private void
         QuickDisconnect()
         {
@@ -186,6 +257,9 @@ TwitchNet.Clients.Irc
             OverrideState(ClientState.Disconnected);
         }
 
+        /// <summary>
+        /// Closes the connection from a remote host and disconnect from the IRC server.
+        /// </summary>
         public void
         Disconnect()
         {
@@ -193,6 +267,8 @@ TwitchNet.Clients.Irc
             {
                 return;
             }
+
+            // TODO: Send QUIT to the IRC server?
 
             stream.Close();
             stream = null;
@@ -203,7 +279,7 @@ TwitchNet.Clients.Irc
 
             do
             {
-                Thread.Sleep(25);
+                Thread.Sleep(5);
             }
             while (reading);
 
@@ -212,7 +288,10 @@ TwitchNet.Clients.Irc
             // OnDisconnected.Raise(this, EventArgs.Empty);
         }
 
-        public async void
+        /// <summary>
+        /// Asynchronously closes the connection from a remote host and disconnect from the IRC server.
+        /// </summary>
+        public void
         DisconnectAsync()
         {
             if (!SetState(ClientState.Disconnecting))
@@ -220,31 +299,33 @@ TwitchNet.Clients.Irc
                 return;
             }
 
+            // TODO: Send QUIT to the IRC server?
+
             stream.Close();
             stream = null;
 
             socket.Shutdown(SocketShutdown.Both);
-            socket.BeginDisconnect(false, Callback_OnBeginDisconnect, null);
-
-            do
-            {
-                await Task.Delay(25);
-            }
-            while (reading);
-
-            SetState(ClientState.Disconnected);
-
-            // OnDisconnected.Raise(this, EventArgs.Empty);
+            socket.BeginDisconnect(false, Callback_OnBeginDisconnect, null);            
         }
 
+        /// <summary>
+        /// Finish asynchronously disconnecting from the remote host.
+        /// </summary>
+        /// <param name="result">The result of the async operation.</param>
         private void
         Callback_OnBeginDisconnect(IAsyncResult result)
         {
+            while (reading);
+            {
+                Thread.Sleep(5);
+            }
+
             socket.EndDisconnect(result);
             socket = null;
 
             SetState(ClientState.Disconnected);
 
+            // TODO: Implement OnDisconnected
             // OnDisconnected.Raise(this, EventArgs.Empty);
         }
 
@@ -252,6 +333,14 @@ TwitchNet.Clients.Irc
 
         #region State handling
 
+        /// <summary>
+        /// <para>Overrides the client's state, regardless the client's current state or current operation.</para>
+        /// <para>
+        /// This is generally unsafe and should only be used when overriding the state won't cause adverse side effects to occur.
+        /// Otherwise, use <see cref="SetState(ClientState)"/> to safely change the client state.
+        /// </para>
+        /// </summary>
+        /// <param name="override_state"></param>
         private void
         OverrideState(ClientState override_state)
         {
@@ -260,8 +349,13 @@ TwitchNet.Clients.Irc
             state_mutex.ReleaseMutex();
         }
 
+        /// <summary>
+        /// Sets the client's state.
+        /// </summary>
+        /// <param name="transition_state"></param>
+        /// <returns></returns>
         private bool
-        SetState(ClientState transition_state, bool attempting_reconnect = false)
+        SetState(ClientState transition_state)
         {
             bool success = false;
 
@@ -270,20 +364,20 @@ TwitchNet.Clients.Irc
             {
                 case ClientState.Connecting:
                 {
-                    success = attempting_reconnect ? CanReconnect() : CanConnect();
+                    success = CanConnect();
                 }
                 break;
 
                 case ClientState.Disconnecting:
                 {
-                    success = attempting_reconnect ? CanReconnect() : CanDisconnect();
+                    success = CanDisconnect();
                 }
                 break;
 
                 case ClientState.Connected:
                 case ClientState.Disconnected:
                 {
-                    success = attempting_reconnect ? CanReconnect() : true;
+                    success = true;
                 }
                 break;
             }
@@ -298,7 +392,7 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// Checks to see if it is safe to connect to the IRC.
+        /// Checks to see if it is safe to connect.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool
@@ -337,7 +431,7 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// Checks to see if it is safe to disconnect from the Twitch IRC.
+        /// Checks to see if it is safe to disconnect.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool
@@ -375,55 +469,34 @@ TwitchNet.Clients.Irc
             return result;
         }
 
-        /// <summary>
-        /// Checks to see if it is safe to reconnect to the Twitch IRC.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool
-        CanReconnect()
-        {
-            bool result = false;
-
-            switch (state)
-            {
-                case ClientState.Connecting:
-                {
-                    Log.PrintLine("Cannot reconnect to " + host + ": currently connecting");
-                }
-                break;
-
-                case ClientState.Disconnecting:
-                {
-                    Log.PrintLine("Cannot reconnect to " + host + ": currently discnnecting");
-                }
-                break;
-
-                case ClientState.Connected:
-                case ClientState.Disconnected:
-                {
-                    result = true;
-                }
-                break;
-            }
-            return result;
-        }
-
         #endregion
 
         #region Sending
 
+        /// <summary>
+        /// Sends a raw PONG command to the IRC server.
+        /// </summary>
         public void
         Pong()
         {
             Send("PONG");
         }
 
+        /// <summary>
+        /// Asynchronously sends a raw PONG command to the IRC server.
+        /// </summary>
+        /// <returns>Returns an asynchronous <see cref="Task"/> operation..</returns>
         public async Task
         PongAsync()
         {
             await SendAsync("PONG");
         }
 
+        /// <summary>
+        /// Sends a PONG command with a trailing parameter to the IRC server.
+        /// </summary>
+        /// <param name="trailing">The trailing paramater to attach to the message.</param>
+        /// <exception cref="ArgumentException">Thrown if the trailing is null, empty, or whitespace.</exception>
         public void
         Pong(string trailing)
         {
@@ -432,6 +505,12 @@ TwitchNet.Clients.Irc
             Send("PONG :" + trailing);
         }
 
+        /// <summary>
+        /// Asynchronously sends a PONG command with a trailing parameter to the IRC server.
+        /// </summary>
+        /// <param name="trailing"></param>
+        /// <param name="trailing">The trailing paramater to attach to the message.</param>
+        /// <exception cref="ArgumentException">Thrown if the trailing is null, empty, or whitespace.</exception>
         public async Task
         PongAsync(string trailing)
         {
@@ -440,24 +519,15 @@ TwitchNet.Clients.Irc
             await SendAsync("PONG :" + trailing);
         }
 
-        public void
-        Pong(IrcMessage message)
-        {
-            ExceptionUtil.ThrowIfNull(message, nameof(message));
-            ExceptionUtil.ThrowIfInvalid(message.trailing, nameof(message.trailing));
-
-            Send("PONG :" + message.trailing);
-        }
-
-        public async void
-        PongAsync(IrcMessage message)
-        {
-            ExceptionUtil.ThrowIfNull(message, nameof(message));
-            ExceptionUtil.ThrowIfInvalid(message.trailing, nameof(message.trailing));
-
-            await SendAsync("PONG :" + message.trailing);
-        }
-
+        /// <summary>
+        /// Joins one or more IRC channels.
+        /// The preceeding '#' or ampersand must be included in the channel name(s).
+        /// </summary>
+        /// <param name="channels">
+        /// The channel nick(s) to join, case sensitive.
+        /// The preceeding '#' or ampersand must be included in the channel nick(s).
+        /// </param>
+        /// <exception cref="ArgumentException">Thrown if the channel params are null or empty.</exception>
         public void
         Join(params string[] channels)
         {
@@ -467,6 +537,14 @@ TwitchNet.Clients.Irc
             Send("JOIN " + format.ToLower());
         }
 
+        /// <summary>
+        /// Asynchronously joins one or more IRC channels.
+        /// </summary>
+        /// <param name="channels">
+        /// The channel nick(s) to join, case sensitive.
+        /// The preceeding '#' or ampersand must be included in the channel nick(s).
+        /// </param>
+        /// <exception cref="ArgumentException">Thrown if the channel params are null or empty.</exception>
         public async void
         JoinAsync(params string[] channels)
         {
@@ -476,6 +554,14 @@ TwitchNet.Clients.Irc
             await SendAsync("JOIN " + format.ToLower());
         }
 
+        /// <summary>
+        /// Leaves one or more IRC channels.        
+        /// </summary>
+        /// <param name="channels">
+        /// The channel nick(s) to leave, case sensitive.
+        /// The preceeding '#' or ampersand must be included in the channel nick(s).
+        /// </param>
+        /// <exception cref="ArgumentException">Thrown if the channel params are null or empty.</exception>
         public void
         Part(params string[] channels)
         {
@@ -485,6 +571,14 @@ TwitchNet.Clients.Irc
             Send("PART " + format.ToLower());
         }
 
+        /// <summary>
+        /// Asynchronously leaves one or more IRC channels.
+        /// </summary>
+        /// <param name="channels">
+        /// The channel nick(s) to leave, case sensitive.
+        /// The preceeding '#' or ampersand must be included in the channel nick(s).
+        /// </param>
+        /// <exception cref="ArgumentException">Thrown if the channel params are null or empty.</exception>
         public async void
         PartAsync(params string[] channels)
         {
@@ -494,6 +588,19 @@ TwitchNet.Clients.Irc
             await SendAsync("PART " + format.ToLower());
         }
 
+        /// <summary>
+        /// Sends a private message in a channel.
+        /// </summary>
+        /// <param name="channel">
+        /// The channel to send the message in, case sensitive.
+        /// The preceeding '#' or ampersand must be included in the channel nick.
+        /// </param>
+        /// <param name="format">
+        /// The message to send.
+        /// This can be a normal string and does not need to include variable formats.
+        /// </param>
+        /// <param name="arguments">Optional format variable arugments.</param>
+        /// <exception cref="ArgumentException">Thrown if the channel or format are null, empty, or whitespace.</exception>
         public void
         SendPrivmsg(string channel, string format, params string[] arguments)
         {
@@ -504,6 +611,19 @@ TwitchNet.Clients.Irc
             Send("PRIVMSG " + channel + " :" + trailing);
         }
 
+        /// <summary>
+        /// Asynchronously sends a private message in a channel.
+        /// </summary>
+        /// <param name="channel">
+        /// The channel to send the message in, case sensitive.
+        /// The preceeding '#' or ampersand must be included in the channel nick.
+        /// </param>
+        /// <param name="format">
+        /// The message to send.
+        /// This can be a normal string and does not need to include variable formats.
+        /// </param>
+        /// <param name="arguments">Optional format variable arugments.</param>
+        /// <exception cref="ArgumentException">Thrown if the channel or format are null, empty, or whitespace.</exception>
         public async void
         SendPrivmsgAsync(string channel, string format, params string[] arguments)
         {
@@ -514,6 +634,15 @@ TwitchNet.Clients.Irc
             await SendAsync("PRIVMSG " + channel + " :" + trailing);
         }
 
+        /// <summary>
+        /// Sends a raw string to the IRC.
+        /// </summary>
+        /// <param name="format">
+        /// The string to send.
+        /// This can be a normal string and does not need to include variable formats.
+        /// </param>
+        /// <param name="arguments">Optional format variable arugments.</param>
+        /// <exception cref="ArgumentException">Thrown if the format is null, empty, or whitespace.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void
         Send(string format, params object[] arguments)
@@ -531,6 +660,15 @@ TwitchNet.Clients.Irc
             stream.Flush();
         }
 
+        /// <summary>
+        /// Asynchronously sends a raw string to the IRC.
+        /// </summary>
+        /// <param name="format">
+        /// The string to send.
+        /// This can be a normal string and does not need to include variable formats.
+        /// </param>
+        /// <param name="arguments">Optional format variable arugments.</param>
+        /// <exception cref="ArgumentException">Thrown if the format is null, empty, or whitespace.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async Task
         SendAsync(string format, params object[] arguments)
@@ -548,6 +686,11 @@ TwitchNet.Clients.Irc
             stream.Flush();
         }
 
+        /// <summary>
+        /// Checks to see if a message can be sent.
+        /// </summary>
+        /// <param name="message">The message to check.</param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool
         CanSend(string message)
@@ -578,16 +721,21 @@ TwitchNet.Clients.Irc
 
         #region Reading and processing        
 
+        /// <summary>
+        /// Reads and incoming data from the IRC via a <see cref="NetworkStream"/>.
+        /// </summary>
         private async void
         ReadStream()
         {
+            bool polling = true;
+
             int bytes_count = 0;
             byte[] buffer = new byte[1024];
 
             List<byte> line_bytes = new List<byte>();
 
             reading = true;
-            while (reading && !socket.IsNull() && !stream.IsNull())
+            while (polling && !socket.IsNull() && !stream.IsNull())
             {
                 try
                 {
@@ -597,11 +745,12 @@ TwitchNet.Clients.Irc
                 {
                     if(state == ClientState.Disconnecting)
                     {
-                        reading = false;
+                        polling = false;
 
                         continue;
                     }
 
+                    // TODO: Raise an event instead of throwing an exception?
                     throw exception;
                 }
 
@@ -642,8 +791,15 @@ TwitchNet.Clients.Irc
 
                 Array.Clear(buffer, 0, bytes_count);
             }
+
+            reading = false;
         }
 
+        /// <summary>
+        /// Processes message encoded by the <see cref="NetworkStream"/>.
+        /// </summary>
+        /// <param name="message_raw"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void
         ProcessMessage(string message_raw)
         {
@@ -659,11 +815,6 @@ TwitchNet.Clients.Irc
             }
 
             OnIrcMessage.Raise(this, new IrcMessageEventArgs(message_irc));
-
-            if (message_irc.command != "PRIVMSG")
-            {
-                Log.PrintLine(message_irc.raw);
-            }
 
             RunHandler(message_irc);
         }

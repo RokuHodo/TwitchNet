@@ -11,8 +11,14 @@ TwitchNet.Events.Clients.Irc
     public class
     EndOfNamesEventArgs : NumericReplyEventArgs
     {
+        /// <summary>
+        /// The channel that the clients have joined.
+        /// </summary>
         public string   channel     { get; protected set; }
 
+        /// <summary>
+        /// The complete list of client nicks that have joined the channel.
+        /// </summary>
         public string[] names       { get; protected set; }
 
         public EndOfNamesEventArgs(IrcMessage message, Dictionary<string, List<string>> names) : base(message)

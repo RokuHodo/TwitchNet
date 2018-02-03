@@ -225,11 +225,11 @@ TwitchNet.Models.Api
             _status_429_handling                = StatusHandling.Error;
             _status_429_hanlding_settings       = new StatusHandlingSettings(_status_429_retry_limit, _status_429_handling);
 
-            _status_500_retry_limit = new ClampedNumber<short>(-1, 1, 1);
+            _status_500_retry_limit             = new ClampedNumber<short>(-1, 1, 1);
             _status_500_handling                = StatusHandling.Error;
             _status_500_hanlding_settings       = new StatusHandlingSettings(_status_500_retry_limit, _status_500_handling);
 
-            _status_503_retry_limit = new ClampedNumber<short>(1, 1, 1);
+            _status_503_retry_limit             = new ClampedNumber<short>(1, 1, 1);
             _status_503_handling                = StatusHandling.Error;
             _status_503_hanlding_settings       = new StatusHandlingSettings(_status_503_retry_limit, _status_503_handling);
 

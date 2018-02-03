@@ -7,6 +7,8 @@ TwitchNet.Extensions
     internal static class
     MathExtensions
     {
+        #region Clamps
+
         /// <summary>
         /// Clamps a comparable value to a minimum value.
         /// </summary>
@@ -166,6 +168,10 @@ TwitchNet.Extensions
             return value;
         }
 
+        #endregion
+
+        #region Boundary checks
+
         /// <summary>
         /// Checks if a comparable value is between two values, inclusive.
         /// </summary>
@@ -204,6 +210,8 @@ TwitchNet.Extensions
             return result;
 
         }
+
+        #endregion
 
         #region Comparable operations
 

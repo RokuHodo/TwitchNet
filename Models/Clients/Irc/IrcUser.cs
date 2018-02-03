@@ -1,6 +1,8 @@
 ﻿// project namespaces
 using TwitchNet.Utilities;
 
+using System;
+
 namespace
 TwitchNet.Models.Clients.Irc
 {
@@ -13,6 +15,7 @@ TwitchNet.Models.Clients.Irc
         /// <summary>
         /// The nick name of the Irc user.
         /// </summary>
+        /// <exception cref="ArgumentException">Thrown if the nick is null, emtpy, or whitespace.</exception>
         public string nick
         {
             get
@@ -29,6 +32,7 @@ TwitchNet.Models.Clients.Irc
         /// <summary>
         /// The password of the Irc user.
         /// </summary>
+        /// <exception cref="ArgumentException">Thrown if the pass is null, emtpy, or whitespace.</exception>
         public string pass
         {
             get

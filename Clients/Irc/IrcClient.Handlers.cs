@@ -1,6 +1,7 @@
 ﻿// standard namespaces
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 // project namespaces
 using TwitchNet.Debug;
@@ -49,6 +50,15 @@ TwitchNet.Clients.Irc
         /// <para>Signifies that the <see cref="IrcClient"/> has successfully registered and connected to the IRC server.</para>
         /// </summary>
         public event EventHandler<NumericReplyEventArgs>    OnConnected;
+
+        /// <summary>
+        /// <para>Raised when the <see cref="IrcClient"/> disconnects from the IRC server.</para>
+        /// <para>
+        /// This is only raised when <see cref="Disconnect"/> or <see cref="DisconnectAsync"/> is called by the client.
+        /// This is not raised when the connection is terminated by the server because no message is sent signifying the end of the connection. 
+        /// </para>
+        /// </summary>
+        public event EventHandler<EventArgs>                OnDisconnected;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 002, RPL_YOURHOST.</para>
@@ -140,6 +150,12 @@ TwitchNet.Clients.Irc
         /// </summary>
         public event EventHandler<PrivmsgEventArgs>         OnPrivmsg;
 
+        /// <summary>
+        /// <para>Raised when the socket or stream encounters an error.</para>
+        /// <para>It is strongly recommended to reconnect to the IRC server if a network error is encountered.</para>
+        /// </summary>
+        public event EventHandler<ErrorEventArgs>           OnNetworkError;
+
         #endregion
 
         #region Messange handling
@@ -147,7 +163,8 @@ TwitchNet.Clients.Irc
         public virtual void
         DefaultHandlers()
         {
-            handlers.Clear();
+            handlers = new Dictionary<string, MessageHandler>();
+            names = new Dictionary<string, List<string>>();
 
             SetHandler("001", HandleWelcome);
             SetHandler("002", HandleYourHost);

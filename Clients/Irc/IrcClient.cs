@@ -128,9 +128,6 @@ TwitchNet.Clients.Irc
 
             state_mutex = new Mutex();
 
-            names = new Dictionary<string, List<string>>();
-
-            handlers = new Dictionary<string, MessageHandler>();
             DefaultHandlers();
 
             SetState(ClientState.Disconnected);
@@ -268,7 +265,7 @@ TwitchNet.Clients.Irc
                 return;
             }
 
-            // TODO: Send QUIT to the IRC server?
+            Quit();
 
             stream.Close();
             stream = null;
@@ -285,7 +282,7 @@ TwitchNet.Clients.Irc
 
             SetState(ClientState.Disconnected);
 
-            // OnDisconnected.Raise(this, EventArgs.Empty);
+            OnDisconnected.Raise(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -299,7 +296,7 @@ TwitchNet.Clients.Irc
                 return;
             }
 
-            // TODO: Send QUIT to the IRC server?
+            QuitAsync().Wait();
 
             stream.Close();
             stream = null;
@@ -325,8 +322,7 @@ TwitchNet.Clients.Irc
 
             SetState(ClientState.Disconnected);
 
-            // TODO: Implement OnDisconnected
-            // OnDisconnected.Raise(this, EventArgs.Empty);
+            OnDisconnected.Raise(this, EventArgs.Empty);
         }
 
         #endregion
@@ -476,47 +472,72 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Sends a raw PONG command to the IRC server.
         /// </summary>
+        /// <param name="trailing">The trailing paramater to attach to the message.</param>
         public void
-        Pong()
+        Pong(string trailing = "")
         {
-            Send("PONG");
+            string message = "PONG";
+            if (trailing.IsValid())
+            {
+                message += ": " + trailing;
+
+            }
+
+            Send(message);
         }
 
         /// <summary>
         /// Asynchronously sends a raw PONG command to the IRC server.
         /// </summary>
+        /// <param name="trailing">The trailing paramater to attach to the message.</param>
         /// <returns>Returns an asynchronous <see cref="Task"/> operation..</returns>
         public async Task
-        PongAsync()
+        PongAsync(string trailing = "")
         {
-            await SendAsync("PONG");
+            string message = "PONG";
+            if (trailing.IsValid())
+            {
+                message += ": " + trailing;
+
+            }
+
+            await SendAsync(message);
         }
 
         /// <summary>
-        /// Sends a PONG command with a trailing parameter to the IRC server.
+        /// Ends a client session with the IRC server.
         /// </summary>
         /// <param name="trailing">The trailing paramater to attach to the message.</param>
-        /// <exception cref="ArgumentException">Thrown if the trailing is null, empty, or whitespace.</exception>
-        public void
-        Pong(string trailing)
-        {
-            ExceptionUtil.ThrowIfInvalid(trailing, nameof(trailing));
-
-            Send("PONG :" + trailing);
-        }
-
-        /// <summary>
-        /// Asynchronously sends a PONG command with a trailing parameter to the IRC server.
-        /// </summary>
         /// <param name="trailing"></param>
-        /// <param name="trailing">The trailing paramater to attach to the message.</param>
-        /// <exception cref="ArgumentException">Thrown if the trailing is null, empty, or whitespace.</exception>
-        public async Task
-        PongAsync(string trailing)
+        public void
+        Quit(string trailing = "")
         {
-            ExceptionUtil.ThrowIfInvalid(trailing, nameof(trailing));
+            string message = "QUIT";
+            if (trailing.IsValid())
+            {
+                message += ": " + trailing;
 
-            await SendAsync("PONG :" + trailing);
+            }
+
+            Send(message);
+        }
+
+        /// <summary>
+        /// Asynchronously ends a client session with the IRC server.
+        /// </summary>
+        /// <param name="trailing">The trailing paramater to attach to the message.</param>
+        /// <returns></returns>
+        public async Task
+        QuitAsync(string trailing = "")
+        {
+            string message = "QUIT";
+            if (trailing.IsValid())
+            {
+                message += ": " + trailing;
+
+            }
+
+            await SendAsync(message);
         }
 
         /// <summary>
@@ -750,12 +771,14 @@ TwitchNet.Clients.Irc
                         continue;
                     }
 
-                    // TODO: Raise an event instead of throwing an exception?
-                    throw exception;
+                    OnNetworkError.Raise(this, new ErrorEventArgs(exception));
                 }
 
                 if (bytes_count == 0 || !buffer.IsValid())
                 {
+                    Exception exception = new Exception("Null or empty data received from the stream.");
+                    OnNetworkError.Raise(this, new ErrorEventArgs(exception));
+
                     continue;
                 }
 

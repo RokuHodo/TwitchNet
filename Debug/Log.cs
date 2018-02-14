@@ -98,15 +98,14 @@ TwitchNet.Debug
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void
-        DebugPrintLine(LogLevel level, ConsoleColor color, TimeStamp stamp, string format, params object[] parametrs)
+        DebugPrintLine(LogLevel _level, ConsoleColor color, TimeStamp stamp, string format, params object[] parametrs)
         {
             if (!format.IsValid())
             {
                 return;
             }
 
-            // TODO: Replace this with manual bitwise since this is *really* slow.
-            if (level == LogLevel.None || !level.HasFlag(level))
+            if (level == LogLevel.None || (level & _level) != level)
             {
                 return;
             }
@@ -117,6 +116,7 @@ TwitchNet.Debug
                 format = value + " " + format;
             }
 
+            // dont' change the color if it is already the default color sicne this is an expensive operation
             if(color != ConsoleColor.Gray)
             {
                 Console.ForegroundColor = color;

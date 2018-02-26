@@ -99,6 +99,25 @@ TwitchNet.Extensions
         }
 
         /// <summary>
+        /// Verifies that an object that implements <see cref="IDictionary{TKey, TValue}"/> is not null and has at least one <see cref="KeyValuePair{TKey, TValue}"/>.
+        /// </summary>
+        /// <typeparam name="key_type">The dictionary key type.</typeparam>
+        /// <typeparam name="value_type">The dictionary value type.</typeparam>
+        /// <param name="dictionary">The dictionary to verify.</param>
+        /// <returns>
+        /// Returns true if the dictionary is not null and has at least one <see cref="KeyValuePair{TKey, TValue}"/>.
+        /// Returns false otherwise.
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool
+        IsValid<key_type, value_type>(this IDictionary<key_type, value_type> dictionary)
+        {
+            bool result = !dictionary.IsNull() && dictionary.Keys.Count > 0;
+
+            return result;
+        }
+
+        /// <summary>
         /// Checks to see if an <see cref="object"/> can be convereted to certain type.
         /// </summary>
         /// <param name="obj">The <see cref="object"/> to be checked.</param>

@@ -99,6 +99,11 @@ TwitchNet.Clients.Irc
         /// </summary>
         public ClientState state { get; private set; }
 
+        /// <summary>
+        /// Determines whether or not to automatically respond to a PING with a PONG.
+        /// </summary>
+        public bool auto_pong { get; set; }
+
         #endregion
 
         #region Constructors
@@ -124,13 +129,13 @@ TwitchNet.Clients.Irc
         public
         IrcClient()
         {
-            reading = false;
-
             state_mutex = new Mutex();
+            SetState(ClientState.Disconnected);
+
+            reading = false;
+            auto_pong = false;
 
             DefaultHandlers();
-
-            SetState(ClientState.Disconnected);
         }
 
         #endregion
@@ -467,7 +472,7 @@ TwitchNet.Clients.Irc
 
         #endregion
 
-        #region Sending
+        #region Command wrappers
 
         /// <summary>
         /// Sends a raw PONG command to the IRC server.
@@ -539,6 +544,8 @@ TwitchNet.Clients.Irc
 
             await SendAsync(message);
         }
+
+        // TODO: Manually track which channels you join/leave?
 
         /// <summary>
         /// Joins one or more IRC channels.
@@ -654,6 +661,10 @@ TwitchNet.Clients.Irc
             string trailing = !arguments.IsValid() ? format : string.Format(format, arguments);
             await SendAsync("PRIVMSG " + channel + " :" + trailing);
         }
+
+        #endregion
+
+        #region Sending
 
         /// <summary>
         /// Sends a raw string to the IRC.

@@ -39,6 +39,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
@@ -58,10 +59,12 @@
     <Compile Include="Api\TwitchApiBearer.Async.cs" />
     <Compile Include="Clients\Irc\IrcClient.Handlers.cs" />
     <Compile Include="Clients\Irc\IrcClient.cs" />
+    <Compile Include="Clients\Irc\TwitchIrcClient.cs" />
     <Compile Include="Debug\Error.cs" />
     <Compile Include="Debug\Log.cs" />
     <Compile Include="Enums\Api\Entitlements\EntitlementType.cs" />
     <Compile Include="Enums\Clients\ClientState.cs" />
+    <Compile Include="Enums\Clients\Irc\Twitch\BadgeType.cs" />
     <Compile Include="Enums\InputHandling.cs" />
     <Compile Include="Enums\ErrorHandling.cs" />
     <Compile Include="Enums\Api\StatusHandling.cs" />
@@ -69,13 +72,17 @@
     <Compile Include="Enums\Api\Streams\StreamLanguage.cs" />
     <Compile Include="Enums\Api\Streams\StreamType.cs" />
     <Compile Include="Enums\Api\Users\BroadcasterType.cs" />
-    <Compile Include="Enums\Api\Users\UserType.cs" />
+    <Compile Include="Enums\UserType.cs" />
     <Compile Include="Enums\Debug\LogLevel.cs" />
     <Compile Include="Enums\Debug\TimeStamp.cs" />
     <Compile Include="Enums\Api\Videos\VideoType.cs" />
     <Compile Include="Enums\Api\Videos\VideoSort.cs" />
     <Compile Include="Enums\Api\Videos\VideoPeriod.cs" />
+    <Compile Include="Events\Clients\Irc\ChannelOperatorEventArgs.cs" />
+    <Compile Include="Events\Clients\Irc\Twitch\TwitchPrivmsgEventArgs.cs" />
+    <Compile Include="Events\Clients\Irc\UserModeEventArgs.cs" />
     <Compile Include="Events\Clients\Irc\EndOfNamesEventArgs.cs" />
+    <Compile Include="Events\Clients\Irc\ChannelModeEventArgs.cs" />
     <Compile Include="Events\Clients\Irc\PrivmsgEventArgs.cs" />
     <Compile Include="Events\Clients\Irc\PartEventArgs.cs" />
     <Compile Include="Events\Clients\Irc\JoinEventArgs.cs" />
@@ -141,10 +148,14 @@
     <Compile Include="Models\Clients\Irc\IrcMessage.cs" />
     <Compile Include="Models\Clients\Irc\Privmsg.cs" />
     <Compile Include="Models\Clients\Irc\IrcUser.cs" />
+    <Compile Include="Models\Clients\Irc\Twitch\Emote.cs" />
+    <Compile Include="Models\Clients\Irc\Twitch\Badge.cs" />
+    <Compile Include="Models\Clients\Irc\Twitch\TwitchPrivmsg.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\ExceptionUtil.cs" />
     <Compile Include="Utilities\PagingUtil.cs" />
     <Compile Include="Utilities\RestRequestUtil.cs" />
+    <Compile Include="Utilities\TagsUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Api\TwitchApiInternal.cs" />

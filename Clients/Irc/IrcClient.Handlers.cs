@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 
 // project namespaces
-using TwitchNet.Debug;
 using TwitchNet.Enums.Clients;
 using TwitchNet.Events.Clients.Irc;
 using TwitchNet.Extensions;
@@ -130,6 +129,18 @@ TwitchNet.Clients.Irc
         public event EventHandler<JoinEventArgs>            OnJoin;
 
         /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command MODE.</para>
+        /// <para>Signifies that a MODE change occured to a client's channel.</para>
+        /// </summary>
+        public event EventHandler<ChannelModeEventArgs>     OnChannelMode;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command MODE.</para>
+        /// <para>Signifies that a MODE change occured to a specific user.</para>
+        /// </summary>
+        public event EventHandler<UserModeEventArgs>        OnUserMode;
+
+        /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command PART.</para>
         /// <para>Signifies that a user has left a channel.</para>
         /// </summary>
@@ -146,7 +157,6 @@ TwitchNet.Clients.Irc
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command PRIVMSG.</para>
-        /// <para>Sent when a user sends a message in a channel.</para>
         /// </summary>
         public event EventHandler<PrivmsgEventArgs>         OnPrivmsg;
 
@@ -178,6 +188,7 @@ TwitchNet.Clients.Irc
             SetHandler("421", HandleUnknownCommand);
 
             SetHandler("JOIN", HandleJoin);
+            SetHandler("MODE", HandleMode);
             SetHandler("PART", HandlePart);
             SetHandler("PING", HandlePing);
             SetHandler("PRIVMSG", HandlePrivmsg);
@@ -255,7 +266,7 @@ TwitchNet.Clients.Irc
         /// Handles the IRC message with the command 001, RPL_WELCOME.
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
-        private void
+        protected virtual void
         HandleWelcome(IrcMessage message)
         {
             SetState(ClientState.Connected);
@@ -267,7 +278,7 @@ TwitchNet.Clients.Irc
         /// Handles the IRC message with the command 002, RPL_YOURHOST.
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
-        private void
+        protected virtual void
         HandleYourHost(IrcMessage message)
         {
             OnYourHost.Raise(this, new NumericReplyEventArgs(message));
@@ -277,7 +288,7 @@ TwitchNet.Clients.Irc
         /// Handles the IRC message with the command 003, RPL_CREATED.
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
-        private void
+        protected virtual void
         HandleCreated(IrcMessage message)
         {
             OnCreated.Raise(this, new NumericReplyEventArgs(message));
@@ -287,7 +298,7 @@ TwitchNet.Clients.Irc
         /// Handles the IRC message with the command 004, RPL_MYINFO.
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
-        private void
+        protected virtual void
         HandleMyInfo(IrcMessage message)
         {
             OnMyInfo.Raise(this, new NumericReplyEventArgs(message));
@@ -297,7 +308,7 @@ TwitchNet.Clients.Irc
         /// Handles the IRC message with the command 353, RPL_NAMREPLY.
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
-        private void
+        protected virtual void
         HandleNamReply(IrcMessage message)
         {
             NamReplyEventArgs args = new NamReplyEventArgs(message);
@@ -319,7 +330,7 @@ TwitchNet.Clients.Irc
         /// Handles the IRC message with the command 366, RPL_ENDOFNAMES.
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
-        private void
+        protected virtual void
         HandleEndOfNames(IrcMessage message)
         {
             EndOfNamesEventArgs args = new EndOfNamesEventArgs(message, names);
@@ -335,7 +346,7 @@ TwitchNet.Clients.Irc
         /// Handles the IRC message with the command 372, RPL_MOTD.
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
-        private void
+        protected virtual void
         HandleMotd(IrcMessage message)
         {
             OnMotd.Raise(this, new MotdEventArgs(message));
@@ -345,7 +356,7 @@ TwitchNet.Clients.Irc
         /// Handles the IRC message with the command 375, RPL_MOTDSTART.
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
-        private void
+        protected virtual void
         HandleMotdStart(IrcMessage message)
         {
             OnMotdStart.Raise(this, new NumericReplyEventArgs(message));
@@ -355,7 +366,7 @@ TwitchNet.Clients.Irc
         /// Handles the IRC message with the command 376, RPL_ENDOFMOTD.
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
-        private void
+        protected virtual void
         HandleEndOfMotd(IrcMessage message)
         {
             OnEndOfMotd.Raise(this, new NumericReplyEventArgs(message));
@@ -365,7 +376,7 @@ TwitchNet.Clients.Irc
         /// Handles the IRC message with the command 421, ERR_UNKNOWNCOMMAND.
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
-        private void
+        protected virtual void
         HandleUnknownCommand(IrcMessage message)
         {
             OnUnknownCommand.Raise(this, new UnknownCommandEventArgs(message));
@@ -379,17 +390,40 @@ TwitchNet.Clients.Irc
         /// Handles the IRC message with the command JOIN.
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
-        private void
+        protected virtual void
         HandleJoin(IrcMessage message)
         {
             OnJoin.Raise(this, new JoinEventArgs(message));
         }
 
         /// <summary>
+        /// Handles the IRC message with the command MODE.
+        /// </summary>
+        /// <param name="message">The irc message to be handled.</param>
+        protected virtual void
+        HandleMode(IrcMessage message)
+        {
+            if (!message.parameters.IsValid() || !message.parameters[0].IsValid())
+            {
+                return;
+            }
+
+            // TODO: Raise an event for each separate mode set?
+            if(message.parameters[0][0] == '#' || message.parameters[0][0] == '&')
+            {
+                OnChannelMode.Raise(this, new ChannelModeEventArgs(message));
+            }
+            else
+            {
+                OnUserMode.Raise(this, new UserModeEventArgs(message));
+            }
+        }
+
+        /// <summary>
         /// Handles the IRC message with the command PART.
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
-        private void
+        protected virtual void
         HandlePart(IrcMessage message)
         {
             OnPart.Raise(this, new PartEventArgs(message));
@@ -399,10 +433,13 @@ TwitchNet.Clients.Irc
         /// Handles the IRC message with the command PING.
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
-        private void
+        protected virtual void
         HandlePing(IrcMessage message)
         {
-            Pong(message.trailing);
+            if (auto_pong)
+            {
+                Pong(message.trailing);
+            }
 
             OnPing.Raise(this, new IrcMessageEventArgs(message));
         }
@@ -411,11 +448,9 @@ TwitchNet.Clients.Irc
         /// Handles the IRC message with the command PRIVMSG.
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
-        private void
+        protected virtual void
         HandlePrivmsg(IrcMessage message)
         {
-            Log.PrintLine(message.raw);
-
             OnPrivmsg.Raise(this, new PrivmsgEventArgs(message));
         }
 

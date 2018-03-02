@@ -9,12 +9,12 @@ TwitchNet.Events.Clients.Irc
     JoinEventArgs : IrcMessageEventArgs
     {
         /// <summary>
-        /// The nick of the client who joined a channel.
+        /// The nick of the client who joined the channel.
         /// </summary>
         public string nick      { get; protected set; }
 
         /// <summary>
-        /// The channel the client has joined.
+        /// The IRC channel the client has joined.
         /// </summary>
         public string channel   { get; protected set; }
 

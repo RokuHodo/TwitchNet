@@ -17,7 +17,7 @@ TwitchNet.Models.Clients.Irc
         #region Properties
 
         /// <summary>
-        /// Whether or not the sender is a mod.
+        /// Whether or not the sender is a moderator.
         /// </summary>
         public bool     mod             { get; protected set; }
 
@@ -43,7 +43,7 @@ TwitchNet.Models.Clients.Irc
         public uint     bits            { get; protected set; }
 
         /// <summary>
-        /// The message id.
+        /// The unique message id.
         /// </summary>
         public string   id              { get; protected set; }
 
@@ -64,6 +64,12 @@ TwitchNet.Models.Clients.Irc
         public string   room_id         { get; protected set; }
 
         /// <summary>
+        /// <para>The sender's user type</para>
+        /// <para>Set to <see cref="UserType.None"/> if the sender has no elevated privileges.</para>
+        /// </summary>
+        public UserType user_type       { get; protected set; }
+
+        /// <summary>
         /// <para>The color of the sender's display name.</para>
         /// <para>The color is <see cref="Color.Empty"/> if it was never set by the sender.</para>
         /// </summary>
@@ -72,7 +78,7 @@ TwitchNet.Models.Clients.Irc
         /// <summary>
         /// The time the message was sent.
         /// </summary>
-        public DateTime tmi_sent_ts    { get; protected set; }
+        public DateTime tmi_sent_ts     { get; protected set; }
 
         /// <summary>
         /// <para>The chat badges that the sender has, if any.</para>
@@ -87,25 +93,20 @@ TwitchNet.Models.Clients.Irc
         public Emote[]  emotes          { get; protected set; }
 
         /// <summary>
-        /// <para>The user's type</para>
-        /// <para>Set to <see cref="UserType.None"/> if the user has no elevated user type.</para>
-        /// </summary>
-        public UserType user_type       { get; protected set; }
-
-        /// <summary>
         /// The Twitch user who sent the message.
         /// </summary>
-        public string sender_name { get; protected set; }
+        public string   sender     { get; protected set; }
 
         /// <summary>
-        /// The Twitch channel the message was sent in.
+        /// <para>The Twitch channel the message was sent in.</para>
+        /// <para>This does not include the preceding '#' and only includes the channel login.</para>
         /// </summary>
-        public string channel_name { get; protected set; }
+        public string   channel    { get; protected set; }
 
         /// <summary>
         /// The body of the message.
         /// </summary>
-        public string body { get; protected set; }
+        public string   body            { get; protected set; }
 
         #endregion
 
@@ -113,8 +114,8 @@ TwitchNet.Models.Clients.Irc
 
         public TwitchPrivmsg(Privmsg message)
         {
-            sender_name = message.nick;
-            channel_name = message.channel.TextAfter('#');
+            sender = message.nick;
+            channel = message.channel.TextAfter('#');
 
             body = message.body;
 
@@ -132,15 +133,13 @@ TwitchNet.Models.Clients.Irc
                 user_id         = TagsUtil.ToString(message.tags, "user-id");
                 room_id         = TagsUtil.ToString(message.tags, "room-id");
 
-                color           = TagsUtil.FromtHtml(message.tags, "color");
+                user_type       = TagsUtil.ToUserType(message.tags, "user-type");
 
+                color           = TagsUtil.FromtHtml(message.tags, "color");
                 tmi_sent_ts     = TagsUtil.FromUnixEpoch(message.tags, "tmi-sent-ts");
 
                 badges          = TagsUtil.ToBadges(message.tags, "badges");
-
                 emotes          = TagsUtil.ToEmotes(message.tags, "emotes");
-
-                user_type       = TagsUtil.ToUserType(message.tags, "user-type");
             }
         }
 

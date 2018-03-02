@@ -9,11 +9,6 @@ TwitchNet.Events.Clients.Irc
     ChannelModeEventArgs : IrcMessageEventArgs
     {
         /// <summary>
-        /// The channel whose mode was changed.
-        /// </summary>
-        public string   channel     { get; protected set; }
-
-        /// <summary>
         /// Denotes the whether the mode was added '+', or removed '-'.
         /// </summary>
         public char     modifier    { get; protected set; }
@@ -30,20 +25,24 @@ TwitchNet.Events.Clients.Irc
         public string   mode_set    { get; protected set; }
 
         /// <summary>
+        /// The IRC channel whose mode was changed.
+        /// </summary>
+        public string   channel     { get; protected set; }
+
+        /// <summary>
         /// Any arguments, if any, associated with the mode such as masks or specific values.
         /// </summary>
         public string   arguments   { get; protected set; }
 
         public ChannelModeEventArgs(IrcMessage message) : base(message)
         {
-            arguments = message.trailing;
-
-            if (!message.parameters.IsValid() || message.parameters.Length < 2)
+            if (!message.parameters.IsValid() || message.parameters.Length < 3)
             {
                 return;
             }
 
             channel = message.parameters[0];
+            arguments = message.parameters[2];
 
             mode_set = message.parameters[1];
             if(message.parameters[1].Length < 2)

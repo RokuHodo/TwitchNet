@@ -204,8 +204,15 @@ TwitchNet.Models.Clients.Irc
             }
 
             command = message_post_prefix.TextBefore(' ');
-
-            message_post_command = message_post_prefix.TextAfter(' ').TrimStart(' ');
+            if (!command.IsValid())
+            {
+                //If there's no space after the command, it's the end of the message
+                command = message_post_prefix;
+            }
+            else
+            {
+                message_post_command = message_post_prefix.TextAfter(' ').TrimStart(' ');
+            }
 
             return message_post_command;
         }

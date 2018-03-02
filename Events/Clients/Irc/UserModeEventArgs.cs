@@ -9,7 +9,7 @@ TwitchNet.Events.Clients.Irc
     UserModeEventArgs : IrcMessageEventArgs
     {
         /// <summary>
-        /// The nick name of the user whose mode was changed.
+        /// The name of the user whose mode was changed.
         /// </summary>
         public string   nick     { get; protected set; }
 

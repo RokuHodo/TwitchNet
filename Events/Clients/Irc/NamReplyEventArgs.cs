@@ -17,7 +17,7 @@ TwitchNet.Events.Clients.Irc
         public char     status      { get; protected set; }
 
         /// <summary>
-        /// The channel that the clients have joined.
+        /// The IRC channel that the clients have joined.
         /// </summary>
         public string   channel     { get; protected set; }
 

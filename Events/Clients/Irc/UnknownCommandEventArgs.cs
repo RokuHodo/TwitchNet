@@ -9,7 +9,7 @@ TwitchNet.Events.Clients.Irc
     UnknownCommandEventArgs : NumericReplyEventArgs
     {
         /// <summary>
-        /// The unsupported irc command.
+        /// The unsupported IRC command.
         /// </summary>
         public string command       { get; protected set; }
 

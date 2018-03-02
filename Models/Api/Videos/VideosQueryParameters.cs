@@ -22,7 +22,7 @@ TwitchNet.Models.Api.Videos
 
         private ClampedList<string> _ids = new ClampedList<string>();
 
-        private VideoLanguage?      _language;
+        private BroadcasterLanguage?      _language;
         private VideoPeriod?        _period;
         private VideoSort?          _sort;
         private VideoType?          _type;
@@ -110,7 +110,7 @@ TwitchNet.Models.Api.Videos
         /// This is the language selected in the Twitch dashboard or in the video information editor, not the language selected at the home page.
         /// </summary>
         [QueryParameter("language")]
-        public VideoLanguage? language
+        public BroadcasterLanguage? language
         {
             get
             {

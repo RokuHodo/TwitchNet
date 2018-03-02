@@ -9,7 +9,7 @@ TwitchNet.Events.Clients.Irc
     NumericReplyEventArgs : IrcMessageEventArgs
     {
         /// <summary>
-        /// The irc client nick.
+        /// The IRC client nick.
         /// </summary>
         public string client { get; protected set; }
 

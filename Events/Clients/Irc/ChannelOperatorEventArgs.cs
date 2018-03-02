@@ -10,7 +10,7 @@ TwitchNet.Events.Clients.Irc
         public bool     is_operator { get; protected set; }
 
         /// <summary>
-        /// The user that gained or lost operator status.
+        /// The user nick that gained or lost operator status.
         /// </summary>
         public string   user        { get; protected set; }
 

@@ -12,7 +12,7 @@ TwitchNet.Events.Clients.Irc
     EndOfNamesEventArgs : NumericReplyEventArgs
     {
         /// <summary>
-        /// The channel that the clients have joined.
+        /// The IRC channel that the clients have joined.
         /// </summary>
         public string   channel     { get; protected set; }
 

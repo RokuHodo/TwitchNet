@@ -7,6 +7,8 @@ using System.Text.RegularExpressions;
 
 //project namespaces
 using TwitchNet.Enums;
+using TwitchNet.Enums.Api.Videos;
+using TwitchNet.Enums.Clients.Irc.Twitch;
 using TwitchNet.Extensions;
 using TwitchNet.Models.Clients.Irc.Twitch;
 
@@ -19,7 +21,6 @@ TwitchNet.Utilities
         public static string
         ToString(Dictionary<string, string> tags, string key)
         {
-            // this method is more for syntactic sugar than anything else
             string value = string.Empty;
 
             if(!IsTagValid(tags, key))
@@ -35,7 +36,6 @@ TwitchNet.Utilities
         public static uint
         ToUInt32(Dictionary<string, string> tags, string key)
         {
-            // this method is more for syntactic sugar than anything else
             uint value = 0;
 
             if (!IsTagValid(tags, key))
@@ -44,6 +44,36 @@ TwitchNet.Utilities
             }
 
             UInt32.TryParse(tags[key], out value);
+
+            return value;
+        }
+
+        public static ushort
+        ToUInt16(Dictionary<string, string> tags, string key)
+        {
+            ushort value = 0;
+
+            if (!IsTagValid(tags, key))
+            {
+                return value;
+            }
+
+            UInt16.TryParse(tags[key], out value);
+
+            return value;
+        }
+
+        public static int
+        ToInt32(Dictionary<string, string> tags, string key)
+        {
+            int value = 0;
+
+            if (!IsTagValid(tags, key))
+            {
+                return value;
+            }
+
+            Int32.TryParse(tags[key], out value);
 
             return value;
         }
@@ -99,35 +129,54 @@ TwitchNet.Utilities
                 return user_type;
             }
 
-            // TODO: Create an enum dictionary cache instead of doing switch/case for every enum?
-            switch (tags[key])
-            {
-                case "mod":
-                {
-                    user_type = UserType.Mod;
-                }
-                break;
-
-                case "global_mod":
-                {
-                    user_type = UserType.GlobalMod;
-                }
-                break;
-
-                case "admin":
-                {
-                    user_type = UserType.Admin;
-                }
-                break;
-
-                case "staff":
-                {
-                    user_type = UserType.Staff;
-                }
-                break;
-            }
+            user_type = EnumCacheUtil.ToUserType(tags[key]);
 
             return user_type;
+        }
+
+        public static UserNoticeType
+        ToUserNoticeType(Dictionary<string, string> tags, string key)
+        {
+            UserNoticeType user_notice = UserNoticeType.None;
+
+            if(!IsTagValid(tags, key))
+            {
+                return user_notice;
+            }
+
+            user_notice = EnumCacheUtil.ToUserNoticeType(tags[key]);
+
+            return user_notice;
+        }
+
+        public static SubscriptionPlan
+        ToSubscriptionPlan(Dictionary<string, string> tags, string key)
+        {
+            SubscriptionPlan plan = SubscriptionPlan.None;
+
+            if (!IsTagValid(tags, key))
+            {
+                return plan;
+            }
+
+            plan = EnumCacheUtil.ToSubscriptionPlan(tags[key]);
+
+            return plan;
+        }
+
+        public static RitualType
+        ToRitualType(Dictionary<string, string> tags, string key)
+        {
+            RitualType type = RitualType.None;
+
+            if (!IsTagValid(tags, key))
+            {
+                return type;
+            }
+
+            type = EnumCacheUtil.ToRitualType(tags[key]);
+
+            return type;
         }
 
         public static DateTime
@@ -198,18 +247,46 @@ TwitchNet.Utilities
             return emotes.ToArray();
         }
 
+        public static type[]
+        ToArray<type>(Dictionary<string, string> tags, string key, char separator)
+        {
+            if (!IsTagValid(tags, key))
+            {
+                return new type[0];
+            }
+
+            type[] array = tags[key].StringToArray<type>(separator);
+
+            return array;
+        }
+
+        public static BroadcasterLanguage
+        FromBroadcasterLanguage(Dictionary<string, string> tags, string key)
+        {
+            BroadcasterLanguage language = BroadcasterLanguage.None;
+
+            if (!IsTagValid(tags, key))
+            {
+                return language;
+            }
+
+            language = EnumCacheUtil.ToBroadcasterLanguage(tags[key]);
+
+            return language;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool
+        public static bool
         IsTagValid(Dictionary<string, string> tags, string key)
         {
             bool valid = true;
 
-            if (!key.IsValid() || !tags.ContainsKey(key))
+            if(!key.IsValid() || !tags.IsValid())
             {
                 return false;
             }
 
-            if (!tags[key].IsValid())
+            if (!tags.ContainsKey(key) || !tags[key].IsValid())
             {
                 return false;
             }

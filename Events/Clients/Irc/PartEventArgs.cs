@@ -9,12 +9,12 @@ TwitchNet.Events.Clients.Irc
     PartEventArgs : IrcMessageEventArgs
     {
         /// <summary>
-        /// The nick of the client who left a channel.
+        /// The nick of the client who left the channel.
         /// </summary>
         public string nick      { get; protected set; }
 
         /// <summary>
-        /// The channel the client has left.
+        /// The IRC channel the client has left.
         /// </summary>
         public string channel   { get; protected set; }
 

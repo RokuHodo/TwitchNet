@@ -224,6 +224,11 @@ TwitchNet.Clients.Irc
             }
             while (!reading);
 
+            // TODO: Give the user a way to request these before logging in, i.e, OnSocketConnected
+            Send("CAP REQ :twitch.tv/commands");
+            Send("CAP REQ :twitch.tv/tags");
+            Send("CAP REQ :twitch.tv/membership");
+
             Send("PASS oauth:" + irc_user.pass);
             Send("NICK " + irc_user.nick);
         }
@@ -837,6 +842,8 @@ TwitchNet.Clients.Irc
         private void
         ProcessMessage(string message_raw)
         {
+            // Console.WriteLine(message_raw);
+
             if (!message_raw.IsValid())
             {
                 return;

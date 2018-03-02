@@ -408,7 +408,6 @@ TwitchNet.Clients.Irc
                 return;
             }
 
-            // TODO: Raise an event for each separate mode set?
             if(message.parameters[0][0] == '#' || message.parameters[0][0] == '&')
             {
                 OnChannelMode.Raise(this, new ChannelModeEventArgs(message));

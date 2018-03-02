@@ -11,7 +11,7 @@ TwitchNet.Events.Clients.Irc
     MotdEventArgs : NumericReplyEventArgs
     {
         /// <summary>
-        /// The server's message of the day.
+        /// The IRC server's message of the day.
         /// </summary>
         public string motd { get; protected set; }
 

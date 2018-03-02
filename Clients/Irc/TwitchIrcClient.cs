@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 
 // project namespaces
 using TwitchNet.Api;
+using TwitchNet.Enums.Clients.Irc.Twitch;
 using TwitchNet.Events.Clients.Irc;
 using TwitchNet.Events.Clients.Irc.Twitch;
 using TwitchNet.Extensions;
@@ -19,19 +20,94 @@ TwitchNet.Clients.Irc
     TwitchIrcClient : IrcClient
     {
         /// <summary>
-        /// Raised when a user gains operator status.
+        /// <para>Raised when a user gains operator status.</para>
+        /// <para>Requires /membership.</para>
         /// </summary>
         public event EventHandler<ChannelOperatorEventArgs> OnUserModded;
 
         /// <summary>
-        /// Raised when a user looses operator status.
+        /// <para>Raised when a user looses operator status,</para>
+        /// <para>Requires /membership.</para>
         /// </summary>
         public event EventHandler<ChannelOperatorEventArgs> OnUserUnmodded;
 
         /// <summary>
-        /// Raised when a Twitch message was sent.
+        /// <para>Raised when a Twitch message was sent.</para>
+        /// <para>Supplementary tags can be added to the message by requesting /tags.</para>
         /// </summary>
         public event EventHandler<TwitchPrivmsgEventArgs>   OnTwitchPrivmsg;
+
+        /// <summary>
+        /// <para>Raised when a user gets timed out or banned.</para>
+        /// <para>
+        /// Requires /commands.
+        /// Supplementary tags can be added to the message by requesting /tags.
+        /// </para>
+        /// </summary>
+        public event EventHandler<ClearChatEventArgs>       OnClearChat;
+
+        /// <summary>
+        /// <para>Raised after the client successfully logs in.</para>
+        /// <para>
+        /// Requires /commands.
+        /// Must be requested before the client logs in.
+        /// Supplementary tags can be added to the message by requesting /tags.
+        /// </para>
+        /// </summary>
+        public event EventHandler<GlobalUserStateEventArgs> OnGlobalUserstate;
+
+        /// <summary>
+        /// <para>Raised when a user joins a channel or a room setting is changed.</para>
+        /// <para>
+        /// Requires /commands.
+        /// Supplementary tags can be added to the message by requesting /tags.
+        /// </para>
+        /// </summary>
+        public event EventHandler<RoomStateEventArgs>       OnRoomState;
+
+        /// <summary>
+        /// <para>Raised when a user subscribes or resubscribes to a channel.</para>
+        /// <para>
+        /// Requires /commands.
+        /// Supplementary tags can be added to the message by requesting /tags.
+        /// This event will not work properly without first requesting /tags.
+        /// </para>
+        /// </summary>
+        public event EventHandler<SubscriberEventArgs>      OnSubscriber;
+
+        /// <summary>
+        /// <para>Raised when a channel raids another channel.</para>
+        /// <para>
+        /// Requires /commands.
+        /// Supplementary tags can be added to the message by requesting /tags.
+        /// This event will not work properly without first requesting /tags.
+        /// </para>
+        /// </summary>
+        public event EventHandler<RaidEventArgs>            OnRaid;
+
+        /// <summary>
+        /// <para>Raised when a ritual occurs.</para>
+        /// <para>
+        /// Requires /commands.
+        /// Supplementary tags can be added to the message by requesting /tags.
+        /// This event will not work properly without first requesting /tags.
+        /// </para>
+        /// </summary>
+        public event EventHandler<RitualEventArgs>          OnRitual;
+
+        /// <summary>
+        /// <para>
+        /// Raised when a user subscribes or resubscribes to a channel, a channel raids another channel, or a ritual occurs.
+        /// This will only be raised if the events <see cref="OnSubscriber"/>, <see cref="OnRitual"/>, or <see cref="OnRaid"/> fail to parse the message.
+        /// Failure to parse the message into its proper sub event should only happen when /tags was not requested.
+        /// </para>
+        /// <para>
+        /// Requires /commands.
+        /// Supplementary tags can be added to the message by requesting /tags.
+        /// This event will not work properly without first requesting /tags.
+        /// </para>
+        /// </summary>
+        public event EventHandler<UserNoticeEventArgs>      OnUserNotice;
 
         /// <summary>
         /// The information of the Twitch irc user.
@@ -57,6 +133,11 @@ TwitchNet.Clients.Irc
 
             OnChannelMode += new EventHandler<ChannelModeEventArgs>(Callback_OnChannelMode);
             OnPrivmsg += new EventHandler<PrivmsgEventArgs>(Callback_OnPrivmsg);
+
+            SetHandler("CLEARCHAT", HandleClearChat);
+            SetHandler("GLOBALUSERSTATE", HandleGlobalUserState);
+            SetHandler("ROOMSTATE", HandleRoomState);
+            SetHandler("USERNOTICE", HandleUserNotice);
         }
 
         #region Sending
@@ -124,7 +205,62 @@ TwitchNet.Clients.Irc
         Callback_OnPrivmsg(object sender, PrivmsgEventArgs args)
         {
             OnTwitchPrivmsg.Raise(this, new TwitchPrivmsgEventArgs(args));
-            // TODO: Parse into a TwitchPrivmsg and raise that event
+        }
+
+        #endregion
+
+        #region Handlers
+
+        private void
+        HandleClearChat(IrcMessage message)
+        {
+            OnClearChat.Raise(this, new ClearChatEventArgs(message));
+        }
+
+        private void
+        HandleGlobalUserState(IrcMessage message)
+        {
+            OnGlobalUserstate.Raise(this, new GlobalUserStateEventArgs(message));
+        }
+
+        private void
+        HandleRoomState(IrcMessage message)
+        {
+            OnRoomState.Raise(this, new RoomStateEventArgs(message));
+        }
+
+        private void
+        HandleUserNotice(IrcMessage message)
+        {
+            UserNoticeEventArgs args = new UserNoticeEventArgs(message);
+            switch (args.msg_id)
+            {
+                case UserNoticeType.Sub:
+                case UserNoticeType.Resub:
+                {
+                    OnSubscriber.Raise(this, new SubscriberEventArgs(args));
+                }
+                break;
+
+                case UserNoticeType.Raid:
+                {
+                    OnRaid.Raise(this, new RaidEventArgs(args));
+                }
+                break;
+
+                case UserNoticeType.Ritual:
+                {
+                    OnRitual.Raise(this, new RitualEventArgs(args));
+                }
+                break;
+
+                case UserNoticeType.None:
+                default:
+                {
+                    OnUserNotice.Raise(this, args);
+                }
+                break;
+            }
         }
 
         #endregion

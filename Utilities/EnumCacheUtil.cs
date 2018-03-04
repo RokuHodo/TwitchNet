@@ -449,23 +449,189 @@ namespace TwitchNet.Utilities
         public static RitualType
         ToRitualType(string str)
         {
-            RitualType type = RitualType.None;
+            RitualType ritual_type = RitualType.None;
 
             if (!str.IsValid())
             {
-                return type;
+                return ritual_type;
             }
 
             switch (str)
             {
                 case "new_chatter":
                 {
-                    type = RitualType.NewChatter;
+                    ritual_type = RitualType.NewChatter;
                 }
                 break;
             }
 
-            return type;
+            return ritual_type;
+        }
+
+        public static NoticeType
+        ToNoticeType(string str)
+        {
+            NoticeType notice_type = NoticeType.None;
+
+            if (!str.IsValid())
+            {
+                return notice_type;
+            }
+
+            switch (str)
+            {
+                case "already_banned":
+                {
+                    notice_type = NoticeType.AlreadyBanned;
+                }
+                break;
+
+                case "already_emote_only_off":
+                {
+                    notice_type = NoticeType.AlreadyEmoteOnlyOff;
+                }
+                break;
+
+                case "already_emote_only_on":
+                {
+                    notice_type = NoticeType.AlreadyEmoteOnlyOn;
+                }
+                break;
+
+                case "already_r9k_off":
+                {
+                    notice_type = NoticeType.AlreadyR9kOff;
+                }
+                break;
+
+                case "already_r9k_on":
+                {
+                    notice_type = NoticeType.AlreadyR9kOn;
+                }
+                break;
+
+                case "already_subs_off":
+                {
+                    notice_type = NoticeType.AlreadySubsOff;
+                }
+                break;
+
+                case "already_subs_on":
+                {
+                    notice_type = NoticeType.AlreadySubsOn;
+                }
+                break;
+
+                case "bad_host_hosting":
+                {
+                    notice_type = NoticeType.BadHostHosting;
+                }
+                break;
+
+                case "bad_unban_no_ban":
+                {
+                    notice_type = NoticeType.BadUnbanNoBan;
+                }
+                break;
+
+                case "ban_success":
+                {
+                    notice_type = NoticeType.BanSuccess;
+                }
+                break;
+
+                case "emote_only_off":
+                {
+                    notice_type = NoticeType.EmoteOnlyOff;
+                }
+                break;
+
+                case "emote_only_on":
+                {
+                    notice_type = NoticeType.EmoteOnlyOn;
+                }
+                break;
+
+                case "host_off":
+                {
+                    notice_type = NoticeType.HostOff;
+                }
+                break;
+
+                case "host_on":
+                {
+                    notice_type = NoticeType.HostOn;
+                }
+                break;
+
+                case "hosts_remaining":
+                {
+                    notice_type = NoticeType.HostsRemaining;
+                }
+                break;
+
+                case "msg_channel_suspended":
+                {
+                    notice_type = NoticeType.MsgChannelSuspended;
+                }
+                break;
+
+                case "r9k_off":
+                {
+                    notice_type = NoticeType.R9kOff;
+                }
+                break;
+
+                case "r9k_on":
+                {
+                    notice_type = NoticeType.R9kOn;
+                }
+                break;
+
+                case "slow_off":
+                {
+                    notice_type = NoticeType.SlowOff;
+                }
+                break;
+
+                case "slow_on":
+                {
+                    notice_type = NoticeType.SlowOn;
+                }
+                break;
+
+                case "subs_off":
+                {
+                    notice_type = NoticeType.SubsOff;
+                }
+                break;
+
+                case "subs_on":
+                {
+                    notice_type = NoticeType.SubsOn;
+                }
+                break;
+
+                case "timeout_success":
+                {
+                    notice_type = NoticeType.TimeoutSuccess;
+                }
+                break;
+
+                case "unban_success":
+                {
+                    notice_type = NoticeType.UnbanSuccess;
+                }
+                break;
+
+                case "unrecognized_cmd":
+                {
+                    notice_type = NoticeType.UnrecognizedCmd;
+                }
+                break;
+            }
+
+            return notice_type;
         }
     }
 }

@@ -1,7 +1,5 @@
 ﻿// project namespaces
-using TwitchNet.Enums.Clients.Irc.Twitch;
-using TwitchNet.Extensions;
-using TwitchNet.Utilities;
+using TwitchNet.Models.Clients.Irc.Twitch;
 
 namespace
 TwitchNet.Events.Clients.Irc.Twitch
@@ -10,16 +8,14 @@ TwitchNet.Events.Clients.Irc.Twitch
     RitualEventArgs : UserNoticeEventArgs
     {
         /// <summary>
-        /// The ritual type.
+        /// <para>The tags attached to the message, if any.</para>
+        /// <para>Check the <code>is_valid</code> property to determine if tags were attached to the message.</para>
         /// </summary>
-        public RitualType msg_param_ritual_name { get; protected set; }
+        public new RitualTags tags { get; protected set; }
 
         public RitualEventArgs(UserNoticeEventArgs args) : base(args)
         {
-            if (args.message_irc.tags.IsValid())
-            {
-                msg_param_ritual_name = TagsUtil.ToRitualType(message_irc.tags, "msg-param-ritual-name");
-            }
+            tags = new RitualTags(args);
         }
     }
 }

@@ -5,7 +5,8 @@ using System.Collections.Generic;
 // project namespaces
 using TwitchNet.Extensions;
 
-namespace TwitchNet.Models.Clients.Irc.Twitch
+namespace
+TwitchNet.Models.Clients.Irc.Twitch
 {
 
     public struct

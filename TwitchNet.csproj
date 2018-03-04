@@ -85,6 +85,7 @@
     <Compile Include="Enums\Api\Videos\VideoSort.cs" />
     <Compile Include="Enums\Api\Videos\VideoPeriod.cs" />
     <Compile Include="Events\Clients\Irc\ChannelOperatorEventArgs.cs" />
+    <Compile Include="Events\Clients\Irc\Twitch\NoticeEventArgs.cs" />
     <Compile Include="Events\Clients\Irc\Twitch\HostTargetEventArgs.cs" />
     <Compile Include="Events\Clients\Irc\Twitch\UserStateEventArgs.cs" />
     <Compile Include="Events\Clients\Irc\Twitch\RitualEventArgs.cs" />
@@ -118,6 +119,7 @@
     <Compile Include="Helpers\Json\TimeSpanConverter.cs" />
     <Compile Include="Interfaces\Api\IDataPage.cs" />
     <Compile Include="Interfaces\Api\IData.cs" />
+    <Compile Include="Interfaces\Clients\Irc\ITags.cs" />
     <Compile Include="Models\Api\ApiResponseBundle.cs" />
     <Compile Include="Models\Api\Clips\ClipCreationQueryParameters.cs" />
     <Compile Include="Models\Api\Clips\CreatedClip.cs" />
@@ -163,8 +165,18 @@
     <Compile Include="Models\Clients\Irc\IrcMessage.cs" />
     <Compile Include="Models\Clients\Irc\Privmsg.cs" />
     <Compile Include="Models\Clients\Irc\IrcUser.cs" />
+    <Compile Include="Models\Clients\Irc\Twitch\UserStateTags.cs" />
+    <Compile Include="Models\Clients\Irc\Twitch\RoomStateTags.cs" />
+    <Compile Include="Models\Clients\Irc\Twitch\SubscriberTags.cs" />
+    <Compile Include="Models\Clients\Irc\Twitch\RitualTags.cs" />
+    <Compile Include="Models\Clients\Irc\Twitch\RaidTags.cs" />
+    <Compile Include="Models\Clients\Irc\Twitch\UserNoticeTags.cs" />
+    <Compile Include="Models\Clients\Irc\Twitch\NoticeTags.cs" />
+    <Compile Include="Models\Clients\Irc\Twitch\GlobalUserStateTags.cs" />
     <Compile Include="Models\Clients\Irc\Twitch\Emote.cs" />
     <Compile Include="Models\Clients\Irc\Twitch\Badge.cs" />
+    <Compile Include="Models\Clients\Irc\Twitch\ClearChatTags.cs" />
+    <Compile Include="Models\Clients\Irc\Twitch\TwitchPrivmsgTags.cs" />
     <Compile Include="Models\Clients\Irc\Twitch\TwitchPrivmsg.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\EnumCacheUtil.cs" />

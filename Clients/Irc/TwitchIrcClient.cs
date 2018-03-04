@@ -92,13 +92,11 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// <para>
         /// Raised when a user subscribes or resubscribes to a channel, a channel raids another channel, or a ritual occurs.
-        /// This will only be raised if the events <see cref="OnSubscriber"/>, <see cref="OnRitual"/>, or <see cref="OnRaid"/> fail to parse the message.
-        /// Failure to parse the message into its proper sub event should only happen when /tags was not requested.
+        /// This event only contains the common tags between all three user notices.
         /// </para>
         /// <para>
         /// Requires /commands.
         /// Supplementary tags can be added to the message by requesting /tags.
-        /// This event will not work properly without first requesting /tags.
         /// </para>
         /// </summary>
         public event EventHandler<UserNoticeEventArgs>      OnUserNotice;
@@ -126,6 +124,17 @@ TwitchNet.Clients.Irc
         /// <para>Requires /commands.</para>
         /// </summary>
         public event EventHandler<IrcMessageEventArgs>      OnReconnect;
+
+        /// <summary>
+        /// <para>
+        /// Raised when Twitch sends a NOTICE message.
+        /// </para>
+        /// <para>
+        /// Requires /commands.
+        /// Supplementary tags can be added to the message by requesting /tags.
+        /// </para>
+        /// </summary>
+        public event EventHandler<NoticeEventArgs>          OnNotice;
 
         /// <summary>
         /// The information of the Twitch irc user.
@@ -159,6 +168,7 @@ TwitchNet.Clients.Irc
             SetHandler("USERSTATE", HandleUserState);
             SetHandler("HOSTTARGET", HandleHostTarget);
             SetHandler("RECONNECT", HandleReconnect);
+            SetHandler("NOTICE", HandleNotice);
         }
 
         #region Sending
@@ -246,8 +256,11 @@ TwitchNet.Clients.Irc
         private void
         HandleUserNotice(IrcMessage message)
         {
+
             UserNoticeEventArgs args = new UserNoticeEventArgs(message);
-            switch (args.msg_id)
+            OnUserNotice.Raise(this, args);
+
+            switch (args.tags.msg_id)
             {
                 // TODO: Look into gifted subs, knowing Twitch they probably don't follow either of these
                 case UserNoticeType.Sub:
@@ -266,13 +279,6 @@ TwitchNet.Clients.Irc
                 case UserNoticeType.Ritual:
                 {
                     OnRitual.Raise(this, new RitualEventArgs(args));
-                }
-                break;
-
-                case UserNoticeType.None:
-                default:
-                {
-                    OnUserNotice.Raise(this, args);
                 }
                 break;
             }
@@ -294,6 +300,11 @@ TwitchNet.Clients.Irc
         HandleReconnect(IrcMessage message)
         {
             OnReconnect.Raise(this, new IrcMessageEventArgs(message));
+        }
+        private void
+        HandleNotice(IrcMessage message)
+        {
+            OnNotice.Raise(this, new NoticeEventArgs(message));
         }
 
         #endregion

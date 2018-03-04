@@ -1,11 +1,13 @@
-﻿using System;
+﻿// standard namespaces
+using System;
 
 // project namespaces
 using TwitchNet.Enums.Clients.Irc.Twitch;
 using TwitchNet.Extensions;
 using TwitchNet.Utilities;
 
-namespace TwitchNet.Models.Clients.Irc.Twitch
+namespace
+TwitchNet.Models.Clients.Irc.Twitch
 {
     public struct
     Badge

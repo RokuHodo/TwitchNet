@@ -14,6 +14,7 @@ namespace TwitchNet.Enums.Clients.Irc.Twitch
         [EnumMember(Value = "")]
         None                = 0,
 
+        // TODO: Raise separate event for this and parse relevant extra data
         /// <summary>
         /// A user was attempted to be banned that is already banned.
         /// </summary>
@@ -56,18 +57,21 @@ namespace TwitchNet.Enums.Clients.Irc.Twitch
         [EnumMember(Value = "already_subs_on")]
         AlreadySubsOn       = 7,
 
+        // TODO: Raise separate event for this and parse relevant extra data
         /// <summary>
         /// Attempted to host a user that you are already hosting.
         /// </summary>
         [EnumMember(Value = "bad_host_hosting")]
         BadHostHosting      = 8,
 
+        // TODO: Raise separate event for this and parse relevant extra data
         /// <summary>
         /// A user was attempted to be banned but is already banned.
         /// </summary>
         [EnumMember(Value = "bad_unban_no_ban")]
         BadUnbanNoBan       = 9,
 
+        // TODO: Raise separate event for this and parse relevant extra data
         /// <summary>
         /// A user was banned.
         /// </summary>
@@ -92,12 +96,14 @@ namespace TwitchNet.Enums.Clients.Irc.Twitch
         [EnumMember(Value = "host_off")]
         HostOff             = 13,
 
+        // TODO: Raise separate event for this and parse relevant extra data?
         /// <summary>
         /// A channel has started hosting another user.
         /// </summary>
         [EnumMember(Value = "host_on")]
         HostOn              = 14,
 
+        // TODO: Raise separate event for this and parse relevant extra data
         /// <summary>
         /// A channel has started hosting another user and has 'n' number of hosts remaining.
         /// </summary>
@@ -128,6 +134,7 @@ namespace TwitchNet.Enums.Clients.Irc.Twitch
         [EnumMember(Value = "slow_off")]
         SlowOff             = 19,
 
+        // TODO: Raise separate event for this and parse relevant extra data?
         /// <summary>
         /// Slow mode was turned on.
         /// </summary>
@@ -146,18 +153,21 @@ namespace TwitchNet.Enums.Clients.Irc.Twitch
         [EnumMember(Value = "subs_on")]
         SubsOn              = 22,
 
+        // TODO: Raise separate event for this and parse relevant extra data
         /// <summary>
         /// A user was timed out.
         /// </summary>
         [EnumMember(Value = "timeout_success")]
         TimeoutSuccess      = 23,
 
+        // TODO: Raise separate event for this and parse relevant extra data
         /// <summary>
         /// A user was unbanned.
         /// </summary>
         [EnumMember(Value = "unban_success")]
         UnbanSuccess        = 24,
 
+        // TODO: Raise separate event for this and parse relevant extra data
         /// <summary>
         /// A unrecognized Twitch chat command was attempted to be used.
         /// </summary>

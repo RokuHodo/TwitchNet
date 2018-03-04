@@ -1,5 +1,5 @@
 ﻿// project namespaces
-using TwitchNet.Models.Clients.Irc;
+using TwitchNet.Models.Clients.Irc.Twitch;
 
 namespace
 TwitchNet.Events.Clients.Irc.Twitch

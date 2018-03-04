@@ -134,6 +134,21 @@ TwitchNet.Utilities
             return user_type;
         }
 
+        public static NoticeType
+        ToNoticeType(Dictionary<string, string> tags, string key)
+        {
+            NoticeType notice = NoticeType.None;
+
+            if (!IsTagValid(tags, key))
+            {
+                return notice;
+            }
+
+            notice = EnumCacheUtil.ToNoticeType(tags[key]);
+
+            return notice;
+        }
+
         public static UserNoticeType
         ToUserNoticeType(Dictionary<string, string> tags, string key)
         {
@@ -177,27 +192,7 @@ TwitchNet.Utilities
             type = EnumCacheUtil.ToRitualType(tags[key]);
 
             return type;
-        }
-
-        public static DateTime
-        FromUnixEpoch(Dictionary<string, string> tags, string key)
-        {
-            DateTime time = DateTime.MinValue;
-
-            if (!IsTagValid(tags, key))
-            {
-                return time;
-            }
-
-            if(!Int64.TryParse(tags[key], out long time_epoch))
-            {
-                return time;
-            }
-
-            time = time_epoch.FromUnixEpochMilliseconds();
-
-            return time;
-        }
+        }        
 
         public static Badge[]
         ToBadges(Dictionary<string, string> tags, string key)
@@ -245,6 +240,41 @@ TwitchNet.Utilities
             }
 
             return emotes.ToArray();
+        }        
+
+        public static BroadcasterLanguage
+        ToBroadcasterLanguage(Dictionary<string, string> tags, string key)
+        {
+            BroadcasterLanguage language = BroadcasterLanguage.None;
+
+            if (!IsTagValid(tags, key))
+            {
+                return language;
+            }
+
+            language = EnumCacheUtil.ToBroadcasterLanguage(tags[key]);
+
+            return language;
+        }
+
+        public static DateTime
+        FromUnixEpoch(Dictionary<string, string> tags, string key)
+        {
+            DateTime time = DateTime.MinValue;
+
+            if (!IsTagValid(tags, key))
+            {
+                return time;
+            }
+
+            if (!Int64.TryParse(tags[key], out long time_epoch))
+            {
+                return time;
+            }
+
+            time = time_epoch.FromUnixEpochMilliseconds();
+
+            return time;
         }
 
         public static type[]
@@ -258,21 +288,6 @@ TwitchNet.Utilities
             type[] array = tags[key].StringToArray<type>(separator);
 
             return array;
-        }
-
-        public static BroadcasterLanguage
-        FromBroadcasterLanguage(Dictionary<string, string> tags, string key)
-        {
-            BroadcasterLanguage language = BroadcasterLanguage.None;
-
-            if (!IsTagValid(tags, key))
-            {
-                return language;
-            }
-
-            language = EnumCacheUtil.ToBroadcasterLanguage(tags[key]);
-
-            return language;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

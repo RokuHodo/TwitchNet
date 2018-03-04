@@ -6,7 +6,7 @@ namespace TwitchNet.Enums.Clients.Irc.Twitch
 {
     [Flags]
     public enum
-    RoomState
+    RoomStateType
     {
         /// <summary>
         /// No room state has changed.

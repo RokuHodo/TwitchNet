@@ -27,37 +27,38 @@ TwitchNet.Events.Clients.Irc.Twitch
         /// <summary>
         /// The id of the room where the user got timed out or banned.
         /// </summary>
-        public string   room_id { get; protected set; }
+        public string   room_id         { get; protected set; }
 
         /// <summary>
         /// The if of the user who got banned or timed out.
         /// </summary>
-        public string   target_user_id { get; protected set; }
+        public string   target_user_id  { get; protected set; }
 
         /// <summary>
         /// The time message was sent.
         /// </summary>
-        public DateTime tmi_sent_ts { get; protected set; }
+        public DateTime tmi_sent_ts     { get; protected set; }
 
         /// <summary>
         /// <para>The channel the user was banned in.</para>
         /// <para>This does not include the preceding '#' and only includes the channel login.</para>
         /// </summary>
-        public string   channel_name    { get; protected set; }
+        public string   channel         { get; protected set; }
 
         /// <summary>
         /// The user who got banned or timed out.
+        /// If no user was timed out or banned, the entire chat was cleared.
         /// </summary>
-        public string   user_name { get; protected set; }
+        public string   user            { get; protected set; }
 
         public ClearChatEventArgs(IrcMessage message) : base(message)
         {
             if (message.parameters.IsValid())
             {
-                channel_name = message.parameters[0].TextAfter('#');
+                channel = message.parameters[0].TextAfter('#');
             }
 
-            user_name = message.trailing;
+            user = message.trailing;
 
             if (message.tags.IsValid())
             {

@@ -842,7 +842,7 @@ TwitchNet.Clients.Irc
         private void
         ProcessMessage(string message_raw)
         {
-            // Console.WriteLine(message_raw);
+            Console.WriteLine(message_raw);
 
             if (!message_raw.IsValid())
             {

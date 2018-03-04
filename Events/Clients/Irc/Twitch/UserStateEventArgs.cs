@@ -3,22 +3,26 @@ using System.Drawing;
 
 // project namespaces
 using TwitchNet.Enums;
-using TwitchNet.Extensions;
 using TwitchNet.Models.Clients.Irc;
 using TwitchNet.Models.Clients.Irc.Twitch;
+using TwitchNet.Extensions;
 using TwitchNet.Utilities;
 
 namespace
 TwitchNet.Events.Clients.Irc.Twitch
 {
     public class
-    GlobalUserStateEventArgs : IrcMessageEventArgs
+    UserStateEventArgs : IrcMessageEventArgs
     {
+        /// <summary>
+        /// Whether or not the user is a moderator.
+        /// </summary>
+        public bool     mod             { get; protected set; }
 
         /// <summary>
-        /// The user id of the user.
+        /// Whether or not the user is subscribed to the channel.
         /// </summary>
-        public string   user_id         { get; protected set; }
+        public bool     subscriber      { get; protected set; }
 
         /// <summary>
         /// <para>The display name of the user.</para>
@@ -47,13 +51,25 @@ TwitchNet.Events.Clients.Irc.Twitch
         /// <para>The chat badges that the user has, if any.</para>
         /// <para>The array is empty if the user has no chat badges.</para>
         /// </summary>
-        public Badge[] badges           { get; protected set; }
+        public Badge[]  badges          { get; protected set; }
 
-        public GlobalUserStateEventArgs(IrcMessage message) : base(message)
+        /// <summary>
+        /// The channel that the user has joined or sent sent a message in.
+        /// </summary>
+        public string   channel         { get; protected set; }
+
+        public UserStateEventArgs(IrcMessage message) : base(message)
         {
+            if (message.parameters.IsValid())
+            {
+                channel = message.parameters[0];
+            }
+
             if (message.tags.IsValid())
             {
-                user_id         = TagsUtil.ToString(message.tags, "user-id");
+                mod             = TagsUtil.ToBool(message.tags, "mod");
+                subscriber      = TagsUtil.ToBool(message.tags, "subscriber");
+
                 display_name    = TagsUtil.ToString(message.tags, "display-name");
                 emote_sets      = TagsUtil.ToArray<string>(message.tags, "emote-sets", ',');
 

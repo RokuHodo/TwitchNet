@@ -20,16 +20,10 @@ TwitchNet.Clients.Irc
     TwitchIrcClient : IrcClient
     {
         /// <summary>
-        /// <para>Raised when a user gains operator status.</para>
+        /// <para>Raised when a user gains or loses operator (mod) status in a channel.</para>
         /// <para>Requires /membership.</para>
         /// </summary>
-        public event EventHandler<ChannelOperatorEventArgs> OnUserModded;
-
-        /// <summary>
-        /// <para>Raised when a user looses operator status,</para>
-        /// <para>Requires /membership.</para>
-        /// </summary>
-        public event EventHandler<ChannelOperatorEventArgs> OnUserUnmodded;
+        public event EventHandler<ChannelOperatorEventArgs> OnChannelOperator;
 
         /// <summary>
         /// <para>Raised when a Twitch message was sent.</para>
@@ -110,6 +104,30 @@ TwitchNet.Clients.Irc
         public event EventHandler<UserNoticeEventArgs>      OnUserNotice;
 
         /// <summary>
+        /// <para>Raised when a user joins a channel or sends a PRIVMSG to a channel.</para>
+        /// <para>
+        /// Requires /commands.
+        /// Supplementary tags can be added to the message by requesting /tags.
+        /// </para>
+        /// </summary>
+        public event EventHandler<UserStateEventArgs>       OnUserState;
+
+        /// <summary>
+        /// <para>Raised when a channel starts or stops hosting another channel.</para>
+        /// <para>Requires /commands.</para>
+        /// </summary>
+        public event EventHandler<HostTargetEventArgs>      OnHostTarget;
+
+        /// <summary>
+        /// <para>
+        /// Raised when Twitch sends a notification for IRC clients to reconnect.
+        /// Clients should reconnect and rejoin all channels that they have joined.
+        /// </para>
+        /// <para>Requires /commands.</para>
+        /// </summary>
+        public event EventHandler<IrcMessageEventArgs>      OnReconnect;
+
+        /// <summary>
         /// The information of the Twitch irc user.
         /// </summary>
         public User twitch_user { get; private set; }
@@ -138,6 +156,9 @@ TwitchNet.Clients.Irc
             SetHandler("GLOBALUSERSTATE", HandleGlobalUserState);
             SetHandler("ROOMSTATE", HandleRoomState);
             SetHandler("USERNOTICE", HandleUserNotice);
+            SetHandler("USERSTATE", HandleUserState);
+            SetHandler("HOSTTARGET", HandleHostTarget);
+            SetHandler("RECONNECT", HandleReconnect);
         }
 
         #region Sending
@@ -185,15 +206,8 @@ TwitchNet.Clients.Irc
         /// <param name="args">The event arguments.</param>
         private void
         Callback_OnChannelMode(object sender, ChannelModeEventArgs args)
-        {            
-            if(args.mode_set == "+o")
-            {
-                OnUserModded.Raise(this, new ChannelOperatorEventArgs(args));
-            }
-            else if (args.mode_set == "-o")
-            {
-                OnUserUnmodded.Raise(this, new ChannelOperatorEventArgs(args));
-            }
+        {
+            OnChannelOperator.Raise(this, new ChannelOperatorEventArgs(args));
         }
 
         /// <summary>
@@ -235,6 +249,7 @@ TwitchNet.Clients.Irc
             UserNoticeEventArgs args = new UserNoticeEventArgs(message);
             switch (args.msg_id)
             {
+                // TODO: Look into gifted subs, knowing Twitch they probably don't follow either of these
                 case UserNoticeType.Sub:
                 case UserNoticeType.Resub:
                 {
@@ -261,6 +276,24 @@ TwitchNet.Clients.Irc
                 }
                 break;
             }
+        }
+
+        private void
+        HandleUserState(IrcMessage message)
+        {
+            OnUserState.Raise(this, new UserStateEventArgs(message));
+        }
+
+        private void
+        HandleHostTarget(IrcMessage message)
+        {
+            OnHostTarget.Raise(this, new HostTargetEventArgs(message));
+        }
+
+        private void
+        HandleReconnect(IrcMessage message)
+        {
+            OnReconnect.Raise(this, new IrcMessageEventArgs(message));
         }
 
         #endregion

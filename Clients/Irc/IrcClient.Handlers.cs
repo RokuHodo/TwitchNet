@@ -32,23 +32,23 @@ TwitchNet.Clients.Irc
         /// The partial or full list of channel names that have joined a channel.
         /// Used with commands '353' and '366'.
         /// </summary>
-        private Dictionary<string, List<string>>            names;
+        protected            Dictionary<string, List<string>>        names;
 
         /// <summary>
         /// The message handlers.
         /// </summary>
-        private Dictionary<string, MessageHandler>          handlers;
+        protected            Dictionary<string, MessageHandler>      handlers;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received.</para>
         /// </summary>
-        public event EventHandler<IrcMessageEventArgs>      OnIrcMessage;
+        public virtual event EventHandler<IrcMessageEventArgs>      OnIrcMessage;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 001, RPL_WELCOME.</para>
         /// <para>Signifies that the <see cref="IrcClient"/> has successfully registered and connected to the IRC server.</para>
         /// </summary>
-        public event EventHandler<NumericReplyEventArgs>    OnConnected;
+        public virtual event EventHandler<NumericReplyEventArgs>    OnConnected;
 
         /// <summary>
         /// <para>Raised when the <see cref="IrcClient"/> disconnects from the IRC server.</para>
@@ -57,7 +57,7 @@ TwitchNet.Clients.Irc
         /// This is not raised when the connection is terminated by the server because no message is sent signifying the end of the connection. 
         /// </para>
         /// </summary>
-        public event EventHandler<EventArgs>                OnDisconnected;
+        public virtual event EventHandler<EventArgs>                OnDisconnected;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 002, RPL_YOURHOST.</para>
@@ -66,7 +66,7 @@ TwitchNet.Clients.Irc
         /// This is part of the post-registration process.
         /// </para>
         /// </summary>
-        public event EventHandler<NumericReplyEventArgs>    OnYourHost;
+        public virtual event EventHandler<NumericReplyEventArgs>    OnYourHost;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 003, RPL_CREATED.</para>
@@ -75,7 +75,7 @@ TwitchNet.Clients.Irc
         /// This is part of the post-registration process.
         /// </para>
         /// </summary>
-        public event EventHandler<NumericReplyEventArgs>    OnCreated;
+        public virtual event EventHandler<NumericReplyEventArgs>    OnCreated;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 004, RPL_MYINFO.</para>
@@ -84,67 +84,67 @@ TwitchNet.Clients.Irc
         /// This is part of the post-registration process.
         /// </para>
         /// </summary>
-        public event EventHandler<NumericReplyEventArgs>    OnMyInfo;
+        public virtual event EventHandler<NumericReplyEventArgs>    OnMyInfo;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 353, RPL_NAMREPLY.</para>
         /// <para>Lists all clients that haved joined a channel.</para>
         /// </summary>
-        public event EventHandler<NamReplyEventArgs>        OnNamReply;
+        public virtual event EventHandler<NamReplyEventArgs>        OnNamReply;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 366, RPL_ENDOFNAMES.</para>
         /// <para>Signifies the end of receiving a list of channel names that have joined a channel.</para>
         /// </summary>
-        public event EventHandler<EndOfNamesEventArgs>      OnEndOfNames;
+        public virtual event EventHandler<EndOfNamesEventArgs>      OnEndOfNames;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 372, RPL_MOTD.</para>
         /// <para>Contains the Motd, message of the day, of the server.</para>
         /// </summary>
-        public event EventHandler<MotdEventArgs>            OnMotd;
+        public virtual event EventHandler<MotdEventArgs>            OnMotd;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 375, RPL_MOTDSTART.</para>
         /// <para>Signifies the start of the Motd, message of the day.</para>
         /// </summary>
-        public event EventHandler<NumericReplyEventArgs>    OnMotdStart;
+        public virtual event EventHandler<NumericReplyEventArgs>    OnMotdStart;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 376, RPL_ENDOFMOTD.</para>
         /// <para>Signifies the end of the Motd, message of the day.</para>
         /// </summary>
-        public event EventHandler<NumericReplyEventArgs>    OnEndOfMotd;
+        public virtual event EventHandler<NumericReplyEventArgs>    OnEndOfMotd;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 421, ERR_UNKNOWNCOMMAND.</para>
         /// <para>Signifies that the command trying to be used is not suported by the server.</para>
         /// </summary>
-        public event EventHandler<UnknownCommandEventArgs>  OnUnknownCommand;
+        public virtual event EventHandler<UnknownCommandEventArgs>  OnUnknownCommand;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command JOIN.</para>
         /// <para>Signifies that a user has joined a channel.</para>
         /// </summary>
-        public event EventHandler<JoinEventArgs>            OnJoin;
+        public virtual event EventHandler<JoinEventArgs>            OnJoin;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command MODE.</para>
         /// <para>Signifies that a MODE change occured to a client's channel.</para>
         /// </summary>
-        public event EventHandler<ChannelModeEventArgs>     OnChannelMode;
+        public virtual event EventHandler<ChannelModeEventArgs>     OnChannelMode;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command MODE.</para>
         /// <para>Signifies that a MODE change occured to a specific user.</para>
         /// </summary>
-        public event EventHandler<UserModeEventArgs>        OnUserMode;
+        public virtual event EventHandler<UserModeEventArgs>        OnUserMode;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command PART.</para>
         /// <para>Signifies that a user has left a channel.</para>
         /// </summary>
-        public event EventHandler<PartEventArgs>            OnPart;
+        public virtual event EventHandler<PartEventArgs>            OnPart;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command PING.</para>
@@ -153,18 +153,18 @@ TwitchNet.Clients.Irc
         /// The client should then respong with the appropriate PONG message as soon as possible for the connectin to not be terminated.
         /// </para>
         /// </summary>
-        public event EventHandler<IrcMessageEventArgs>      OnPing;
+        public virtual event EventHandler<IrcMessageEventArgs>      OnPing;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command PRIVMSG.</para>
         /// </summary>
-        public event EventHandler<PrivmsgEventArgs>         OnPrivmsg;
+        public virtual event EventHandler<PrivmsgEventArgs>         OnPrivmsg;
 
         /// <summary>
         /// <para>Raised when the socket or stream encounters an error.</para>
         /// <para>It is strongly recommended to reconnect to the IRC server if a network error is encountered.</para>
         /// </summary>
-        public event EventHandler<ErrorEventArgs>           OnNetworkError;
+        public virtual event EventHandler<ErrorEventArgs>           OnNetworkError;
 
         #endregion
 

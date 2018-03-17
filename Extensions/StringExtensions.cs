@@ -228,7 +228,7 @@ TwitchNet.Extensions
                 return result;
             }
 
-            int char_to_index = str.IndexOf(char_to, char_from_index);
+            int char_to_index = str.IndexOf(char_to, char_from_index + 1);
             if (char_to_index < 0)
             {
                 return result;

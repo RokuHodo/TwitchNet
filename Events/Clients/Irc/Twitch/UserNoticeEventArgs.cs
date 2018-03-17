@@ -38,11 +38,5 @@ TwitchNet.Events.Clients.Irc.Twitch
 
             tags = new UserNoticeTags(message);
         }
-
-        public UserNoticeEventArgs(UserNoticeEventArgs args) : base(args.message_irc)
-        {
-            body    = args.body;
-            channel = args.channel;
-        }
     }
 }

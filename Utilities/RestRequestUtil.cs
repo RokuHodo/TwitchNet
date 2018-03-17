@@ -135,7 +135,7 @@ TwitchNet.Utilities
         ExecuteRequestPagesAsync<data_type, result_type>(string endpoint, Method method, string bearer_token, string client_id, QueryParametersPage query_parameters, ApiRequestSettings api_request_settings)
         where result_type : DataPage<data_type>, IDataPage<data_type>, new()
         {
-            ApiResponse<result_type> api_response = new ApiResponse<result_type>();
+            ApiResponse<result_type> api_response = new ApiResponse<result_type>();     
             List<data_type> data = new List<data_type>();
 
             if (query_parameters.IsNullOrDefault())
@@ -155,18 +155,20 @@ TwitchNet.Utilities
                 if (api_page_response.result.data.IsValid())
                 {
                     data.AddRange(api_page_response.result.data);
-                }
-
-                api_response = api_page_response;
-                api_response.result.data = data;
+                }                
 
                 requesting = api_page_response.result.data.IsValid() && api_page_response.result.pagination.cursor.IsValid();
                 if (requesting)
                 {
                     query_parameters.after = api_page_response.result.pagination.cursor;
                 }
+                else
+                {
+                    api_response = api_page_response;
+                    api_response.result.data = data;
+                }
             }
-            while (requesting);
+            while (requesting);            
 
             // reset after in case the same set of query parameters are used for more than one request
             query_parameters.after = string.Empty;

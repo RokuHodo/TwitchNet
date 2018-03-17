@@ -13,13 +13,13 @@ TwitchNet.Events.Clients.Irc.Twitch
         /// The channel whose state has changed and/or the client has joined.
         /// Always valid.
         /// </summary>
-        public string               channel             { get; protected set; }
+        public string           channel             { get; protected set; }
 
         /// <summary>
         /// <para>The tags attached to the message, if any.</para>
         /// <para>Check the <code>is_valid</code> property to determine if tags were attached to the message.</para>
         /// </summary>
-        public RoomStateTags tags { get; protected set; }
+        public RoomStateTags    tags { get; protected set; }
 
         public RoomStateEventArgs(IrcMessage message) : base(message)
         {

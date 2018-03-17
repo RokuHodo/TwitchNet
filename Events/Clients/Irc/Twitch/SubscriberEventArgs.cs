@@ -1,4 +1,5 @@
 ﻿// project namespaces
+using TwitchNet.Models.Clients.Irc;
 using TwitchNet.Models.Clients.Irc.Twitch;
 
 namespace
@@ -13,9 +14,9 @@ TwitchNet.Events.Clients.Irc.Twitch
         /// </summary>
         public new SubscriberTags tags { get; protected set; }
 
-        public SubscriberEventArgs(UserNoticeEventArgs args) : base(args)
+        public SubscriberEventArgs(IrcMessage message) : base(message)
         {
-            tags = new SubscriberTags(args);
+            tags = new SubscriberTags(message);
         }
     }
 }

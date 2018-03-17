@@ -528,15 +528,15 @@ namespace TwitchNet.Utilities
                 }
                 break;
 
-                case "bad_unban_no_ban":
-                {
-                    notice_type = NoticeType.BadUnbanNoBan;
-                }
-                break;
-
                 case "ban_success":
                 {
                     notice_type = NoticeType.BanSuccess;
+                }
+                break;
+
+                case "bad_unban_no_ban":
+                {
+                    notice_type = NoticeType.BadUnbanNoBan;
                 }
                 break;
 
@@ -573,6 +573,18 @@ namespace TwitchNet.Utilities
                 case "msg_channel_suspended":
                 {
                     notice_type = NoticeType.MsgChannelSuspended;
+                }
+                break;
+
+                case "msg_room_not_found":
+                {
+                    notice_type = NoticeType.MsgRoomNotFound;
+                }
+                break;
+
+                case "no_permission":
+                {
+                    notice_type = NoticeType.NoPermission;
                 }
                 break;
 
@@ -627,6 +639,12 @@ namespace TwitchNet.Utilities
                 case "unrecognized_cmd":
                 {
                     notice_type = NoticeType.UnrecognizedCmd;
+                }
+                break;
+
+                case "unsupported_chatrooms_cmd":
+                {
+                    notice_type = NoticeType.UnsupportedChatRoomsCmd;
                 }
                 break;
             }

@@ -306,7 +306,7 @@ TwitchNet.Clients.Irc
                 return;
             }
 
-            QuitAsync().Wait();
+            Quit();
 
             stream.Close();
             stream = null;
@@ -497,24 +497,6 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// Asynchronously sends a raw PONG command to the IRC server.
-        /// </summary>
-        /// <param name="trailing">The trailing paramater to attach to the message.</param>
-        /// <returns>Returns an asynchronous <see cref="Task"/> operation..</returns>
-        public async Task
-        PongAsync(string trailing = "")
-        {
-            string message = "PONG";
-            if (trailing.IsValid())
-            {
-                message += ": " + trailing;
-
-            }
-
-            await SendAsync(message);
-        }
-
-        /// <summary>
         /// Ends a client session with the IRC server.
         /// </summary>
         /// <param name="trailing">The trailing paramater to attach to the message.</param>
@@ -530,24 +512,6 @@ TwitchNet.Clients.Irc
             }
 
             Send(message);
-        }
-
-        /// <summary>
-        /// Asynchronously ends a client session with the IRC server.
-        /// </summary>
-        /// <param name="trailing">The trailing paramater to attach to the message.</param>
-        /// <returns></returns>
-        public async Task
-        QuitAsync(string trailing = "")
-        {
-            string message = "QUIT";
-            if (trailing.IsValid())
-            {
-                message += ": " + trailing;
-
-            }
-
-            await SendAsync(message);
         }
 
         // TODO: Manually track which channels you join/leave?
@@ -567,24 +531,7 @@ TwitchNet.Clients.Irc
             ExceptionUtil.ThrowIfInvalid(channels, nameof(channels));
 
             string format = channels.Length == 1 ? channels[0] : string.Join(",", channels);
-            Send("JOIN " + format.ToLower());
-        }
-
-        /// <summary>
-        /// Asynchronously joins one or more IRC channels.
-        /// </summary>
-        /// <param name="channels">
-        /// The channel nick(s) to join, case sensitive.
-        /// The preceeding '#' or ampersand must be included in the channel nick(s).
-        /// </param>
-        /// <exception cref="ArgumentException">Thrown if the channel params are null or empty.</exception>
-        public async void
-        JoinAsync(params string[] channels)
-        {
-            ExceptionUtil.ThrowIfInvalid(channels, nameof(channels));
-
-            string format = channels.Length == 1 ? channels[0] : string.Join(",", channels);
-            await SendAsync("JOIN " + format.ToLower());
+            Send("JOIN " + format);
         }
 
         /// <summary>
@@ -601,24 +548,7 @@ TwitchNet.Clients.Irc
             ExceptionUtil.ThrowIfInvalid(channels, nameof(channels));
 
             string format = channels.Length == 1 ? channels[0] : string.Join(",", channels);
-            Send("PART " + format.ToLower());
-        }
-
-        /// <summary>
-        /// Asynchronously leaves one or more IRC channels.
-        /// </summary>
-        /// <param name="channels">
-        /// The channel nick(s) to leave, case sensitive.
-        /// The preceeding '#' or ampersand must be included in the channel nick(s).
-        /// </param>
-        /// <exception cref="ArgumentException">Thrown if the channel params are null or empty.</exception>
-        public async void
-        PartAsync(params string[] channels)
-        {
-            ExceptionUtil.ThrowIfInvalid(channels, nameof(channels));
-
-            string format = channels.Length == 1 ? channels[0] : string.Join(",", channels);
-            await SendAsync("PART " + format.ToLower());
+            Send("PART " + format);
         }
 
         /// <summary>
@@ -642,29 +572,6 @@ TwitchNet.Clients.Irc
 
             string trailing = !arguments.IsValid() ? format : string.Format(format, arguments);
             Send("PRIVMSG " + channel + " :" + trailing);
-        }
-
-        /// <summary>
-        /// Asynchronously sends a private message in a channel.
-        /// </summary>
-        /// <param name="channel">
-        /// The channel to send the message in, case sensitive.
-        /// The preceeding '#' or ampersand must be included in the channel nick.
-        /// </param>
-        /// <param name="format">
-        /// The message to send.
-        /// This can be a normal string and does not need to include variable formats.
-        /// </param>
-        /// <param name="arguments">Optional format variable arugments.</param>
-        /// <exception cref="ArgumentException">Thrown if the channel or format are null, empty, or whitespace.</exception>
-        public async void
-        SendPrivmsgAsync(string channel, string format, params string[] arguments)
-        {
-            ExceptionUtil.ThrowIfInvalid(channel, nameof(channel));
-            ExceptionUtil.ThrowIfInvalid(format, nameof(format));
-
-            string trailing = !arguments.IsValid() ? format : string.Format(format, arguments);
-            await SendAsync("PRIVMSG " + channel + " :" + trailing);
         }
 
         #endregion
@@ -780,14 +687,14 @@ TwitchNet.Clients.Irc
                 }
                 catch (ObjectDisposedException exception)
                 {
-                    if(state == ClientState.Disconnecting)
-                    {
-                        polling = false;
+                    polling = false;
 
-                        continue;
+                    if(state != ClientState.Disconnecting)
+                    {
+                        OnNetworkError.Raise(this, new ErrorEventArgs(exception));
                     }
 
-                    OnNetworkError.Raise(this, new ErrorEventArgs(exception));
+                    continue;
                 }
 
                 if (bytes_count == 0 || !buffer.IsValid())

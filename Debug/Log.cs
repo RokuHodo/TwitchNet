@@ -105,7 +105,7 @@ TwitchNet.Debug
                 return;
             }
 
-            if (level == LogLevel.None || (level & _level) != level)
+            if (level == LogLevel.None || (level & _level) != _level)
             {
                 return;
             }

@@ -63,12 +63,12 @@ TwitchNet.Models.Clients.Irc.Twitch
         public string           system_msg      { get; protected set; }
 
         /// <summary>
-        /// The id of the user.
+        /// The id of the user who triggered the user notice.
         /// </summary>
         public string           user_id         { get; protected set; }
 
         /// <summary>
-        /// <para>The type of user notice.</para>
+        /// <para>The type of the user notice.</para>
         /// <para>Set to <see cref="UserNoticeType.None"/> if the tag could not be parsed.</para>
         /// </summary>
         public UserNoticeType   msg_id          { get; protected set; }
@@ -129,31 +129,6 @@ TwitchNet.Models.Clients.Irc.Twitch
 
             badges          = TagsUtil.ToBadges(message.tags, "badges");
             emotes          = TagsUtil.ToEmotes(message.tags, "emotes");
-        }
-
-        public UserNoticeTags(UserNoticeEventArgs args)
-        {
-            is_valid        = args.tags.is_valid;
-
-            mod             = args.tags.mod;
-            subscriber      = args.tags.subscriber;
-            turbo           = args.tags.turbo;
-
-            display_name    = args.tags.display_name;
-            id              = args.tags.id;
-            login           = args.tags.login;
-            room_id         = args.tags.room_id;
-            system_msg      = args.tags.system_msg;
-            user_id         = args.tags.user_id;
-
-            msg_id          = args.tags.msg_id;
-            user_type       = args.tags.user_type;
-
-            color           = args.tags.color;
-            tmi_sent_ts     = args.tags.tmi_sent_ts;
-
-            badges          = args.tags.badges;
-            emotes          = args.tags.emotes;
         }
     }
 }

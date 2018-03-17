@@ -1,6 +1,5 @@
 ﻿// project namespaces
 using TwitchNet.Enums.Clients.Irc.Twitch;
-using TwitchNet.Events.Clients.Irc.Twitch;
 using TwitchNet.Interfaces.Clients.Irc;
 using TwitchNet.Utilities;
 
@@ -15,14 +14,14 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// </summary>
         public RitualType msg_param_ritual_name { get; protected set; }
 
-        public RitualTags(UserNoticeEventArgs args) : base(args)
+        public RitualTags(IrcMessage message) : base(message)
         {
             if (!is_valid)
             {
                 return;
             }
 
-            msg_param_ritual_name = TagsUtil.ToRitualType(args.message_irc.tags, "msg-param-ritual-name");
+            msg_param_ritual_name = TagsUtil.ToRitualType(message.tags, "msg-param-ritual-name");
         }
     }
 }

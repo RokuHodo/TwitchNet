@@ -19,7 +19,7 @@ TwitchNet.Events.Clients.Irc
         /// </summary>
         public string   channel     { get; protected set; }
 
-        public ChannelOperatorEventArgs(ChannelModeEventArgs args) : base(args.message_irc)
+        public ChannelOperatorEventArgs(ChannelModeEventArgs args) : base(args.irc_message)
         {
             is_operator = args.modifier == '+' ? true : false;
             user        = args.arguments;

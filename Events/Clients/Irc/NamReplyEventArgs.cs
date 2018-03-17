@@ -50,7 +50,7 @@ TwitchNet.Events.Clients.Irc
                 return;
             }
 
-            status = Convert.ToChar(message.parameters[1]);
+            status = message.parameters[1][0];
             if(status == '=')
             {
                 is_public = true;

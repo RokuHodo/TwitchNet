@@ -1,5 +1,4 @@
 ﻿// project namespaces
-using TwitchNet.Events.Clients.Irc.Twitch;
 using TwitchNet.Interfaces.Clients.Irc;
 using TwitchNet.Utilities;
 
@@ -25,16 +24,16 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// </summary>
         public string   msg_param_login         { get; protected set; }
 
-        public RaidTags(UserNoticeEventArgs args) : base(args)
+        public RaidTags(IrcMessage message) : base(message)
         {
             if (!is_valid)
             {
                 return;
             }
 
-            msg_param_viewer_count  = TagsUtil.ToUInt32(args.message_irc.tags, "msg-param-viewerCount");
-            msg_param_display_name  = TagsUtil.ToString(args.message_irc.tags, "msg-param-displayName");
-            msg_param_login         = TagsUtil.ToString(args.message_irc.tags, "msg-param-login");
+            msg_param_viewer_count  = TagsUtil.ToUInt32(message.tags, "msg-param-viewerCount");
+            msg_param_display_name  = TagsUtil.ToString(message.tags, "msg-param-displayName");
+            msg_param_login         = TagsUtil.ToString(message.tags, "msg-param-login");
         }
     }
 }

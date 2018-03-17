@@ -13,11 +13,11 @@ TwitchNet.Events.Clients.Irc
         /// <summary>
         /// The parsed IRC message.
         /// </summary>
-        public IrcMessage message_irc { get; protected set; }
+        public IrcMessage irc_message { get; protected set; }
 
         public IrcMessageEventArgs(IrcMessage message)
         {
-            message_irc = message;
+            irc_message = message;
         }
     }
 }

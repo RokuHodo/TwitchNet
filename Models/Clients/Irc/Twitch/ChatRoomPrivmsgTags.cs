@@ -5,14 +5,14 @@ using System.Drawing;
 // project namespaces
 using TwitchNet.Enums;
 using TwitchNet.Extensions;
-using TwitchNet.Interfaces.Clients.Irc;
+using TwitchNet.Events.Clients.Irc;
+using TwitchNet.Interfaces.Clients.Irc.Twitch;
 using TwitchNet.Utilities;
-
 namespace
 TwitchNet.Models.Clients.Irc.Twitch
 {
     public class
-    TwitchPrivmsgTags : ITags
+    ChatRoomPrivmsgTags : ISharedPrivmsgTags
     {
         /// <summary>
         /// Whether or not tags are atached to the message.
@@ -38,12 +38,6 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// Whether or not the body of the message only contains emotes.
         /// </summary>
         public bool     emote_only      { get; protected set; }
-
-        /// <summary>
-        /// <para>The amount of bits the sender cheered, if any.</para>
-        /// <para>Set to 0 if the sender did not cheer.</para>
-        /// </summary>
-        public uint     bits            { get; protected set; }
 
         /// <summary>
         /// The unique message id.
@@ -95,33 +89,57 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// </summary>
         public Emote[]  emotes          { get; protected set; }
 
-        public TwitchPrivmsgTags(Privmsg message)
+        public ChatRoomPrivmsgTags(PrivmsgEventArgs args)
         {
-            is_valid = message.tags.IsValid();
+            is_valid = args.tags.IsValid();
             if (!is_valid)
             {
                 return;
             }
 
-            mod             = TagsUtil.ToBool(message.tags, "mod");
-            subscriber      = TagsUtil.ToBool(message.tags, "subscriber");
-            turbo           = TagsUtil.ToBool(message.tags, "turbo");
-            emote_only      = TagsUtil.ToBool(message.tags, "emote-only");
+            mod             = TagsUtil.ToBool(args.tags, "mod");
+            subscriber      = TagsUtil.ToBool(args.tags, "subscriber");
+            turbo           = TagsUtil.ToBool(args.tags, "turbo");
+            emote_only      = TagsUtil.ToBool(args.tags, "emote-only");
 
-            bits            = TagsUtil.ToUInt32(message.tags, "bits");
+            id              = TagsUtil.ToString(args.tags, "id");
+            display_name    = TagsUtil.ToString(args.tags, "display-name");
+            user_id         = TagsUtil.ToString(args.tags, "user-id");
+            room_id         = TagsUtil.ToString(args.tags, "room-id");
 
-            id              = TagsUtil.ToString(message.tags, "id");
-            display_name    = TagsUtil.ToString(message.tags, "display-name");
-            user_id         = TagsUtil.ToString(message.tags, "user-id");
-            room_id         = TagsUtil.ToString(message.tags, "room-id");
+            user_type       = TagsUtil.ToUserType(args.tags, "user-type");
 
-            user_type       = TagsUtil.ToUserType(message.tags, "user-type");
+            color           = TagsUtil.FromtHtml(args.tags, "color");
+            tmi_sent_ts     = TagsUtil.FromUnixEpoch(args.tags, "tmi-sent-ts");
 
-            color           = TagsUtil.FromtHtml(message.tags, "color");
-            tmi_sent_ts     = TagsUtil.FromUnixEpoch(message.tags, "tmi-sent-ts");
+            badges          = TagsUtil.ToBadges(args.tags, "badges");
+            emotes          = TagsUtil.ToEmotes(args.tags, "emotes");
+        }
 
-            badges          = TagsUtil.ToBadges(message.tags, "badges");
-            emotes          = TagsUtil.ToEmotes(message.tags, "emotes");
+        public ChatRoomPrivmsgTags(StreamChatPrivmsgTags tags)
+        {
+            if (!tags.is_valid)
+            {
+                return;
+            }
+
+            mod             = tags.mod;
+            subscriber      = tags.subscriber;
+            turbo           = tags.turbo;
+            emote_only      = tags.emote_only;
+
+            id              = tags.id;
+            display_name    =  tags.display_name;
+            user_id         = tags.user_id;
+            room_id         = tags.room_id;
+
+            user_type       = tags.user_type;
+
+            color           = tags.color;
+            tmi_sent_ts     = tags.tmi_sent_ts;
+
+            badges          = tags.badges;
+            emotes          = tags.emotes;
         }
     }
 }

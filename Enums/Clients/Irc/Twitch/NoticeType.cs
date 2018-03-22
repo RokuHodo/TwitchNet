@@ -6,7 +6,7 @@ namespace TwitchNet.Enums.Clients.Irc.Twitch
     public enum
     NoticeType
     {
-        //TODO: Test for undocumented values, mostly due to inproper use of chat functions
+        //TODO: Test for undocumented values, mostly due to chat commands (like /color) and improper use of chat commands
 
         /// <summary>
         /// The msg-id tag could not be parsed.
@@ -14,7 +14,7 @@ namespace TwitchNet.Enums.Clients.Irc.Twitch
         [EnumMember(Value = "")]
         None                    = 0,
 
-        // TODO: Raise separate event for this and parse relevant extra data
+        // TODO: Raise separate event for this and parse relevant extra data?
         /// <summary>
         /// A user was attempted to be banned that is already banned.
         /// </summary>
@@ -57,21 +57,21 @@ namespace TwitchNet.Enums.Clients.Irc.Twitch
         [EnumMember(Value = "already_subs_on")]
         AlreadySubsOn           = 7,
 
-        // TODO: Raise separate event for this and parse relevant extra data
+        // TODO: Raise separate event for this and parse relevant extra data?
         /// <summary>
         /// Attempted to host a user that you are already hosting.
         /// </summary>
         [EnumMember(Value = "bad_host_hosting")]
         BadHostHosting          = 8,
 
-        // TODO: Raise separate event for this and parse relevant extra data
+        // TODO: Raise separate event for this and parse relevant extra data?
         /// <summary>
         /// A user was banned.
         /// </summary>
         [EnumMember(Value = "ban_success")]
         BanSuccess              = 9,
 
-        // TODO: Raise separate event for this and parse relevant extra data
+        // TODO: Raise separate event for this and parse relevant extra data?
         /// <summary>
         /// A user was attempted to be banned but is already banned.
         /// </summary>
@@ -96,14 +96,13 @@ namespace TwitchNet.Enums.Clients.Irc.Twitch
         [EnumMember(Value = "host_off")]
         HostOff                 = 13,
 
-        // TODO: Raise separate event for this and parse relevant extra data?
         /// <summary>
         /// A channel has started hosting another user.
         /// </summary>
         [EnumMember(Value = "host_on")]
         HostOn                  = 14,
 
-        // TODO: Raise separate event for this and parse relevant extra data
+        // TODO: Raise separate event for this and parse relevant extra data?
         /// <summary>
         /// A channel has started hosting another user and has 'n' number of hosts remaining.
         /// </summary>
@@ -165,14 +164,13 @@ namespace TwitchNet.Enums.Clients.Irc.Twitch
         [EnumMember(Value = "subs_on")]
         SubsOn                  = 24,
 
-        // TODO: Raise separate event for this and parse relevant extra data
         /// <summary>
         /// A user was timed out.
         /// </summary>
         [EnumMember(Value = "timeout_success")]
         TimeoutSuccess          = 25,
 
-        // TODO: Raise separate event for this and parse relevant extra data
+        // TODO: Raise separate event for this and parse relevant extra data?
         /// <summary>
         /// A user was unbanned.
         /// </summary>

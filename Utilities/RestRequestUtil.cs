@@ -20,7 +20,7 @@ using RestSharp;
 namespace 
 TwitchNet.Utilities
 {
-    // TODO: (RestRequestUtil) Make the base URL customizable to accomodate for any future API revisions that may use different URL's.
+    // TODO: Make the base URL customizable to accomodate for any future API revisions that may use different URL's.
 
     internal static class
     RestRequestUtil

@@ -135,6 +135,8 @@ TwitchNet.Clients.Irc
             reading = false;
             auto_pong = false;
 
+            handlers = new Dictionary<string, MessageHandler>();
+            names = new Dictionary<string, List<string>>();
             DefaultHandlers();
         }
 
@@ -564,6 +566,7 @@ TwitchNet.Clients.Irc
         /// </param>
         /// <param name="arguments">Optional format variable arugments.</param>
         /// <exception cref="ArgumentException">Thrown if the channel or format are null, empty, or whitespace.</exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void
         SendPrivmsg(string channel, string format, params string[] arguments)
         {

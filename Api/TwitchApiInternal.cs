@@ -25,6 +25,10 @@ TwitchNet.Api
     internal static partial class
     TwitchApiInternal
     {
+        // TODO: /analytics/games
+
+        // TODO: /bits/leaderboard
+
         #region /clips
 
         /// <summary>

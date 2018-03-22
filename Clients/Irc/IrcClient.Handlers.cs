@@ -173,8 +173,12 @@ TwitchNet.Clients.Irc
         public virtual void
         DefaultHandlers()
         {
-            handlers = new Dictionary<string, MessageHandler>();
-            names = new Dictionary<string, List<string>>();
+            if (handlers.IsNull())
+            {
+                return;
+            }
+
+            handlers.Clear();
 
             SetHandler("001", HandleWelcome);
             SetHandler("002", HandleYourHost);

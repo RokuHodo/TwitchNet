@@ -59,13 +59,14 @@
     <Compile Include="Api\TwitchApiBearer.Async.cs" />
     <Compile Include="Clients\Irc\IrcClient.Handlers.cs" />
     <Compile Include="Clients\Irc\IrcClient.cs" />
+    <Compile Include="Clients\Irc\TwitchIrcClient.Handlers.cs" />
     <Compile Include="Clients\Irc\TwitchIrcClient.cs" />
     <Compile Include="Debug\Error.cs" />
     <Compile Include="Debug\Log.cs" />
     <Compile Include="Enums\Api\Entitlements\EntitlementType.cs" />
     <Compile Include="Enums\Clients\ClientState.cs" />
-    <Compile Include="Enums\Clients\Irc\Twitch\PrivmsgSource.cs" />
     <Compile Include="Enums\Clients\Irc\Twitch\RitualType.cs" />
+    <Compile Include="Enums\Clients\Irc\Twitch\DisplayNameColor.cs" />
     <Compile Include="Enums\Clients\Irc\Twitch\SubscriptionPlan.cs" />
     <Compile Include="Enums\Clients\Irc\Twitch\HostTargetType.cs" />
     <Compile Include="Enums\Clients\Irc\Twitch\NoticeType.cs" />

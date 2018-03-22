@@ -12,8 +12,155 @@ namespace TwitchNet.Utilities
     public static class
     EnumCacheUtil
     {
+        #region Caches
+
+        private static
+        Dictionary<string, BroadcasterLanguage> to_broadcaster_language_cache = new Dictionary<string, BroadcasterLanguage>
+        {
+            { "",       BroadcasterLanguage.None },
+            { "en",     BroadcasterLanguage.En },
+            { "da",     BroadcasterLanguage.Da },
+            { "de",     BroadcasterLanguage.De },
+            { "es",     BroadcasterLanguage.Es },
+            { "fr",     BroadcasterLanguage.Fr },
+            { "it",     BroadcasterLanguage.It },
+            { "hu",     BroadcasterLanguage.Hu },
+            { "nl",     BroadcasterLanguage.Nl },
+            { "no",     BroadcasterLanguage.No },
+            { "pl",     BroadcasterLanguage.Pl },
+            { "pt",     BroadcasterLanguage.Pt },
+            { "sk",     BroadcasterLanguage.Sk },
+            { "fi",     BroadcasterLanguage.Fi },
+            { "sv",     BroadcasterLanguage.Sv },
+            { "vi",     BroadcasterLanguage.Vi },
+            { "tr",     BroadcasterLanguage.Tr },
+            { "cs",     BroadcasterLanguage.Cs },
+            { "el",     BroadcasterLanguage.El },
+            { "bg",     BroadcasterLanguage.Bg },
+            { "ru",     BroadcasterLanguage.Ru },
+            { "ar",     BroadcasterLanguage.Ar },
+            { "th",     BroadcasterLanguage.Th },
+            { "zh",     BroadcasterLanguage.Zh },
+            { "zh-hk",  BroadcasterLanguage.Zh_Hk },
+            { "ja",     BroadcasterLanguage.Ja },
+            { "ko",     BroadcasterLanguage.Ko },
+            { "asl",    BroadcasterLanguage.Asl },
+            { "other",  BroadcasterLanguage.Other },
+        };
+
+        private static
+        Dictionary<string, BadgeType> to_badge_cache = new Dictionary<string, BadgeType>
+        {
+            { "",               BadgeType.None },
+            { "admin",          BadgeType.Admin },
+            { "bits",           BadgeType.Bits },
+            { "broadcaster",    BadgeType.Broadcaster },
+            { "global_mod",     BadgeType.GlobalMod },
+            { "moderator",      BadgeType.Moderator },
+            { "subscriber",     BadgeType.Subscriber },
+            { "premium",        BadgeType.Premium },
+            { "turbo",          BadgeType.Turbo },
+            { "staff",          BadgeType.Staff },
+        };
+
+        private static
+        Dictionary<string, UserType> to_user_type_cache = new Dictionary<string, UserType>
+        {
+            { "",           UserType.None },
+            { "mod",        UserType.Mod },
+            { "global_mod", UserType.GlobalMod },
+            { "admin",      UserType.Admin },
+            { "staff",      UserType.Staff },
+        };
+
+        private static
+        Dictionary<string, UserNoticeType> to_user_notice_type_cache = new Dictionary<string, UserNoticeType>
+        {
+            { "",       UserNoticeType.None },
+            { "sub",    UserNoticeType.Sub },
+            { "resub",  UserNoticeType.Resub },
+            { "raid",   UserNoticeType.Raid },
+            { "ritual", UserNoticeType.Ritual },
+        };
+
+        private static
+        Dictionary<string, SubscriptionPlan> to_subscription_plan_cache = new Dictionary<string, SubscriptionPlan>
+        {
+            { "",       SubscriptionPlan.None },
+            { "Prime",  SubscriptionPlan.Prime },
+            { "1000",   SubscriptionPlan.Tier1 },
+            { "2000",   SubscriptionPlan.Tier2 },
+            { "3000",   SubscriptionPlan.Tier3 },
+        };
+
+        private static
+        Dictionary<string, RitualType> to_ritual_type_cache = new Dictionary<string, RitualType>
+        {
+            { "",               RitualType.None },
+            { "new_chatter",    RitualType.NewChatter },
+        };
+
+        private static
+        Dictionary<string, NoticeType> to_notice_type_cache = new Dictionary<string, NoticeType>
+        {
+            { "",                           NoticeType.None },
+            { "already_banned",             NoticeType.AlreadyBanned },
+            { "already_emote_only_off",     NoticeType.AlreadyEmoteOnlyOff },
+            { "already_emote_only_on",      NoticeType.AlreadyEmoteOnlyOn },
+            { "already_r9k_off",            NoticeType.AlreadyR9kOff },
+            { "already_r9k_on",             NoticeType.AlreadyR9kOn },
+            { "already_subs_off",           NoticeType.AlreadySubsOff },
+            { "already_subs_on",            NoticeType.AlreadySubsOn },
+            { "bad_host_hosting",           NoticeType.BadHostHosting },
+            { "ban_success",                NoticeType.BanSuccess },
+            { "bad_unban_no_ban",           NoticeType.BadUnbanNoBan },
+            { "emote_only_off",             NoticeType.EmoteOnlyOff },
+            { "emote_only_on",              NoticeType.EmoteOnlyOn },
+            { "host_off",                   NoticeType.HostOff },
+            { "host_on",                    NoticeType.HostOn },
+            { "hosts_remaining",            NoticeType.HostsRemaining },
+            { "msg_channel_suspended",      NoticeType.MsgChannelSuspended },
+            { "msg_room_not_found",         NoticeType.MsgRoomNotFound },
+            { "no_permission",              NoticeType.NoPermission },
+            { "r9k_off",                    NoticeType.R9kOff },
+            { "r9k_on",                     NoticeType.R9kOn },
+            { "slow_off",                   NoticeType.SlowOff },
+            { "slow_on",                    NoticeType.SlowOn },
+            { "subs_off",                   NoticeType.SubsOff },
+            { "subs_on",                    NoticeType.SubsOn },
+            { "timeout_success",            NoticeType.TimeoutSuccess },
+            { "unban_success",              NoticeType.UnbanSuccess },
+            { "unrecognized_cmd",           NoticeType.UnrecognizedCmd },
+            { "unsupported_chatrooms_cmd",  NoticeType.UnsupportedChatRoomsCmd }
+        };
+
+        private static
+        Dictionary<DisplayNameColor, string> from_display_name_color_cache = new Dictionary<DisplayNameColor, string>
+        {
+            { DisplayNameColor.Blue,        "blue" },
+            { DisplayNameColor.BlueViolet,  "blueviolet" },
+            { DisplayNameColor.CadetBlue,   "cadetblue" },
+            { DisplayNameColor.Chocloate,   "chocloate" },
+            { DisplayNameColor.Coral,       "coral" },
+            { DisplayNameColor.DodgerBlue,  "dodgerblue" },
+            { DisplayNameColor.FireBrick,   "firebrick" },
+            { DisplayNameColor.GoldenRod,   "goldenrod" },
+            { DisplayNameColor.Green,       "green" },
+            { DisplayNameColor.HotPink,     "hotpink" },
+            { DisplayNameColor.OrangeRed,   "orangered" },
+            { DisplayNameColor.Red,         "red" },
+            { DisplayNameColor.SeaGreen,    "seagreen" },
+            { DisplayNameColor.SpringGreen, "springgreen" },
+            { DisplayNameColor.YellowGreen, "yellowgreen" },
+
+        };
+
+        #endregion
+
+        #region Methods
+
         /// <summary>
-        /// Converts a string to a Broadcaster Language enum value.
+        /// Converts a string to a <see cref="BroadcasterLanguage"/> enum value.
         /// </summary>
         /// <param name="str">The string to convert.</param>
         /// <returns>
@@ -24,195 +171,18 @@ namespace TwitchNet.Utilities
         ToBroadcasterLanguage(string str)
         {
             BroadcasterLanguage language = BroadcasterLanguage.None;
-
-            if (!str.IsValid())
+            if (str.IsNull())
             {
                 return language;
             }
 
-            switch (str)
-            {
-                case "en":
-                {
-                    language = BroadcasterLanguage.En;
-                }
-                break;
-
-                case "da":
-                {
-                    language = BroadcasterLanguage.Da;
-                }
-                break;
-
-                case "de":
-                {
-                    language = BroadcasterLanguage.De;
-                }
-                break;
-
-                case "es":
-                {
-                    language = BroadcasterLanguage.Es;
-                }
-                break;
-
-                case "fr":
-                {
-                    language = BroadcasterLanguage.Fr;
-                }
-                break;
-
-                case "it":
-                {
-                    language = BroadcasterLanguage.It;
-                }
-                break;
-
-                case "hu":
-                {
-                    language = BroadcasterLanguage.Hu;
-                }
-                break;
-
-                case "nl":
-                {
-                    language = BroadcasterLanguage.Nl;
-                }
-                break;
-
-                case "no":
-                {
-                    language = BroadcasterLanguage.No;
-                }
-                break;
-
-                case "pl":
-                {
-                    language = BroadcasterLanguage.Pl;
-                }
-                break;
-
-                case "pt":
-                {
-                    language = BroadcasterLanguage.Pt;
-                }
-                break;
-
-                case "sk":
-                {
-                    language = BroadcasterLanguage.Sk;
-                }
-                break;
-
-                case "fi":
-                {
-                    language = BroadcasterLanguage.Fi;
-                }
-                break;
-
-                case "sv":
-                {
-                    language = BroadcasterLanguage.Sv;
-                }
-                break;
-
-                case "vi":
-                {
-                    language = BroadcasterLanguage.Vi;
-                }
-                break;
-
-                case "tr":
-                {
-                    language = BroadcasterLanguage.Tr;
-                }
-                break;
-
-                case "cs":
-                {
-                    language = BroadcasterLanguage.Cs;
-                }
-                break;
-
-                case "el":
-                {
-                    language = BroadcasterLanguage.El;
-                }
-                break;
-
-                case "bg":
-                {
-                    language = BroadcasterLanguage.Bg;
-                }
-                break;
-
-                case "ru":
-                {
-                    language = BroadcasterLanguage.Ru;
-                }
-                break;
-
-                case "ar":
-                {
-                    language = BroadcasterLanguage.Ar;
-                }
-                break;
-
-                case "th":
-                {
-                    language = BroadcasterLanguage.Th;
-                }
-                break;
-
-                case "zh":
-                {
-                    language = BroadcasterLanguage.Zh;
-                }
-                break;
-
-                case "zh-hk":
-                {
-                    language = BroadcasterLanguage.Zh_Hk;
-                }
-                break;
-
-                case "ja":
-                {
-                    language = BroadcasterLanguage.Ja;
-                }
-                break;
-
-                case "ko":
-                {
-                    language = BroadcasterLanguage.Ko;
-                }
-                break;
-
-                case "asl":
-                {
-                    language = BroadcasterLanguage.Asl;
-                }
-                break;
-
-                case "other":
-                {
-                    language = BroadcasterLanguage.Other;
-                }
-                break;
-
-                case "":
-                default:
-                {
-                    language = BroadcasterLanguage.None;
-                }
-                break;
-            }
+            to_broadcaster_language_cache.TryGetValue(str, out language);
 
             return language;
         }
 
         /// <summary>
-        /// Converts a string to a Badge enum value.
+        /// Converts a string to a <see cref="BadgeType"/> enum value.
         /// </summary>
         /// <param name="str">The string to convert.</param>
         /// <returns>
@@ -223,81 +193,18 @@ namespace TwitchNet.Utilities
         ToBadge(string str)
         {
             BadgeType badge = BadgeType.None;
-
-            if (!str.IsValid())
+            if (str.IsNull())
             {
                 return badge;
             }
 
-            switch (str)
-            {
-                case "admin":
-                {
-                    badge = BadgeType.Admin;
-                }
-                break;
-
-                case "bits":
-                {
-                    badge = BadgeType.Bits;
-                }
-                break;
-
-                case "broadcaster":
-                {
-                    badge = BadgeType.Broadcaster;
-                }
-                break;
-
-                case "global_mod":
-                {
-                    badge = BadgeType.GlobalMod;
-                }
-                break;
-
-                case "moderator":
-                {
-                    badge = BadgeType.Moderator;
-                }
-                break;
-
-                case "subscriber":
-                {
-                    badge = BadgeType.Subscriber;
-                }
-                break;
-
-                case "staff":
-                {
-                    badge = BadgeType.Staff;
-                }
-                break;
-
-                case "premium":
-                {
-                    badge = BadgeType.Premium;
-                }
-                break;
-
-                case "turbo":
-                {
-                    badge = BadgeType.Turbo;
-                }
-                break;
-
-                case "":
-                default:
-                {
-                    badge = BadgeType.None;
-                }
-                break;
-            }
+            to_badge_cache.TryGetValue(str, out badge);
 
             return badge;
         }
 
         /// <summary>
-        /// Converts a string to a User Type enum value.
+        /// Converts a string to an <see cref="UserType"/> enum value.
         /// </summary>
         /// <param name="str">The string to convert.</param>
         /// <returns>
@@ -308,51 +215,18 @@ namespace TwitchNet.Utilities
         ToUserType(string str)
         {
             UserType user_type = UserType.None;
-
-            if (!str.IsValid())
+            if (str.IsNull())
             {
                 return user_type;
             }
 
-            switch (str)
-            {
-                case "mod":
-                {
-                    user_type = UserType.Mod;
-                }
-                break;
-
-                case "global_mod":
-                {
-                    user_type = UserType.GlobalMod;
-                }
-                break;
-
-                case "admin":
-                {
-                    user_type = UserType.Admin;
-                }
-                break;
-
-                case "staff":
-                {
-                    user_type = UserType.Staff;
-                }
-                break;
-
-                case "":
-                default:
-                {
-                    user_type = UserType.None;
-                }
-                break;
-            }
+            to_user_type_cache.TryGetValue(str, out user_type);
 
             return user_type;
         }
 
         /// <summary>
-        /// Converts a string to a user notice type enum value.
+        /// Converts a string to an <see cref="UserNoticeType"/> enum value.
         /// </summary>
         /// <param name="str">The string to convert.</param>
         /// <returns>
@@ -363,293 +237,101 @@ namespace TwitchNet.Utilities
         ToUserNoticeType(string str)
         {
             UserNoticeType user_notice = UserNoticeType.None;
-
-            if (!str.IsValid())
+            if (str.IsNull())
             {
                 return user_notice;
             }
 
-            switch (str)
-            {
-                case "sub":
-                {
-                    user_notice = UserNoticeType.Sub;
-                }
-                break;
-
-                case "resub":
-                {
-                    user_notice = UserNoticeType.Resub;
-                }
-                break;
-
-                case "raid":
-                {
-                    user_notice = UserNoticeType.Raid;
-                }
-                break;
-
-                case "ritual":
-                {
-                    user_notice = UserNoticeType.Ritual;
-                }
-                break;
-
-                case "":
-                default:
-                {
-                    user_notice = UserNoticeType.None;
-                }
-                break;
-            }
+            to_user_notice_type_cache.TryGetValue(str, out user_notice);
 
             return user_notice;
         }
 
+        /// <summary>
+        /// Converts a string to a <see cref="SubscriptionPlan"/> enum value.
+        /// </summary>
+        /// <param name="str">The string to convert.</param>
+        /// <returns>
+        /// Returns the corresponding <see cref="SubscriptionPlan"/> value if successful.
+        /// Returns <see cref="SubscriptionPlan.None"/> otherwise.
+        /// </returns>
         public static SubscriptionPlan
         ToSubscriptionPlan(string str)
         {
             SubscriptionPlan plan = SubscriptionPlan.None;
-
-            if (!str.IsValid())
+            if (str.IsNull())
             {
                 return plan;
             }
 
-            switch (str)
-            {
-                case "Prime":
-                {
-                    plan = SubscriptionPlan.Prime;
-                }
-                break;
-
-                case "1000":
-                {
-                    plan = SubscriptionPlan.Tier1;
-                }
-                break;
-
-                case "2000":
-                {
-                    plan = SubscriptionPlan.Tier2;
-                }
-                break;
-
-                case "3000":
-                {
-                    plan = SubscriptionPlan.Tier3;
-                }
-                break;
-            }
+            to_subscription_plan_cache.TryGetValue(str, out plan);
 
             return plan;
         }
 
+        /// <summary>
+        /// Converts a string to a <see cref="RitualType"/> enum value.
+        /// </summary>
+        /// <param name="str">The string to convert.</param>
+        /// <returns>
+        /// Returns the corresponding <see cref="RitualType"/> value if successful.
+        /// Returns <see cref="RitualType.None"/> otherwise.
+        /// </returns>
         public static RitualType
         ToRitualType(string str)
         {
-            RitualType ritual_type = RitualType.None;
-
-            if (!str.IsValid())
+            RitualType ritual = RitualType.None;
+            if (str.IsNull())
             {
-                return ritual_type;
+                return ritual;
             }
 
-            switch (str)
-            {
-                case "new_chatter":
-                {
-                    ritual_type = RitualType.NewChatter;
-                }
-                break;
-            }
+            to_ritual_type_cache.TryGetValue(str, out ritual);
 
-            return ritual_type;
+            return ritual;
         }
 
+        /// <summary>
+        /// Converts a string to a <see cref="NoticeType"/> enum value.
+        /// </summary>
+        /// <param name="str">The string to convert.</param>
+        /// <returns>
+        /// Returns the corresponding <see cref="NoticeType"/> value if successful.
+        /// Returns <see cref="NoticeType.None"/> otherwise.
+        /// </returns>
         public static NoticeType
         ToNoticeType(string str)
         {
-            NoticeType notice_type = NoticeType.None;
-
-            if (!str.IsValid())
+            NoticeType notice = NoticeType.None;
+            if (str.IsNull())
             {
-                return notice_type;
+                return notice;
             }
 
-            switch (str)
-            {
-                case "already_banned":
-                {
-                    notice_type = NoticeType.AlreadyBanned;
-                }
-                break;
+            to_notice_type_cache.TryGetValue(str, out notice);
 
-                case "already_emote_only_off":
-                {
-                    notice_type = NoticeType.AlreadyEmoteOnlyOff;
-                }
-                break;
-
-                case "already_emote_only_on":
-                {
-                    notice_type = NoticeType.AlreadyEmoteOnlyOn;
-                }
-                break;
-
-                case "already_r9k_off":
-                {
-                    notice_type = NoticeType.AlreadyR9kOff;
-                }
-                break;
-
-                case "already_r9k_on":
-                {
-                    notice_type = NoticeType.AlreadyR9kOn;
-                }
-                break;
-
-                case "already_subs_off":
-                {
-                    notice_type = NoticeType.AlreadySubsOff;
-                }
-                break;
-
-                case "already_subs_on":
-                {
-                    notice_type = NoticeType.AlreadySubsOn;
-                }
-                break;
-
-                case "bad_host_hosting":
-                {
-                    notice_type = NoticeType.BadHostHosting;
-                }
-                break;
-
-                case "ban_success":
-                {
-                    notice_type = NoticeType.BanSuccess;
-                }
-                break;
-
-                case "bad_unban_no_ban":
-                {
-                    notice_type = NoticeType.BadUnbanNoBan;
-                }
-                break;
-
-                case "emote_only_off":
-                {
-                    notice_type = NoticeType.EmoteOnlyOff;
-                }
-                break;
-
-                case "emote_only_on":
-                {
-                    notice_type = NoticeType.EmoteOnlyOn;
-                }
-                break;
-
-                case "host_off":
-                {
-                    notice_type = NoticeType.HostOff;
-                }
-                break;
-
-                case "host_on":
-                {
-                    notice_type = NoticeType.HostOn;
-                }
-                break;
-
-                case "hosts_remaining":
-                {
-                    notice_type = NoticeType.HostsRemaining;
-                }
-                break;
-
-                case "msg_channel_suspended":
-                {
-                    notice_type = NoticeType.MsgChannelSuspended;
-                }
-                break;
-
-                case "msg_room_not_found":
-                {
-                    notice_type = NoticeType.MsgRoomNotFound;
-                }
-                break;
-
-                case "no_permission":
-                {
-                    notice_type = NoticeType.NoPermission;
-                }
-                break;
-
-                case "r9k_off":
-                {
-                    notice_type = NoticeType.R9kOff;
-                }
-                break;
-
-                case "r9k_on":
-                {
-                    notice_type = NoticeType.R9kOn;
-                }
-                break;
-
-                case "slow_off":
-                {
-                    notice_type = NoticeType.SlowOff;
-                }
-                break;
-
-                case "slow_on":
-                {
-                    notice_type = NoticeType.SlowOn;
-                }
-                break;
-
-                case "subs_off":
-                {
-                    notice_type = NoticeType.SubsOff;
-                }
-                break;
-
-                case "subs_on":
-                {
-                    notice_type = NoticeType.SubsOn;
-                }
-                break;
-
-                case "timeout_success":
-                {
-                    notice_type = NoticeType.TimeoutSuccess;
-                }
-                break;
-
-                case "unban_success":
-                {
-                    notice_type = NoticeType.UnbanSuccess;
-                }
-                break;
-
-                case "unrecognized_cmd":
-                {
-                    notice_type = NoticeType.UnrecognizedCmd;
-                }
-                break;
-
-                case "unsupported_chatrooms_cmd":
-                {
-                    notice_type = NoticeType.UnsupportedChatRoomsCmd;
-                }
-                break;
-            }
-
-            return notice_type;
+            return notice;
         }
+
+        /// <summary>
+        /// Converts a <see cref="DisplayNameColor"/> enum value to a string.
+        /// </summary>
+        /// <param name="value">The enum value to convert.</param>
+        /// <returns>
+        /// Returns the corresponding string value if successful.
+        /// Returns string value using <code>ToString() otherwise.</code>.
+        /// </returns>
+        public static string
+        FromDisplayNameColor(DisplayNameColor value)
+        {
+            if(!from_display_name_color_cache.TryGetValue(value, out string color))
+            {
+                color = value.ToString();
+            }
+
+            return color;
+        }
+
+        #endregion                                                
     }
 }

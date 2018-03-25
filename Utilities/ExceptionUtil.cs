@@ -160,5 +160,32 @@ TwitchNet.Utilities
 
             throw new ArgumentException(message, parameter_name);
         }
+
+        public static void
+        ThrowIfInvalidNick(string parameter, string parameter_name, Action callback = null)
+        {
+            ThrowIfInvalidNick(parameter, parameter_name, "Invalid IRC nick: " + parameter + ". " + nameof(parameter) + " can only contain lower case alpha-numeric characters and must be between 2 and 24 characters long.", callback);
+        }
+
+        public static void
+        ThrowIfInvalidNick(string parameter, string parameter_name, string message, Action callback = null)
+        {
+            if (parameter.IsValid())
+            {
+                return;
+            }
+
+            if (TwitchUtil.IsValidNick(parameter))
+            {
+                return;
+            }
+
+            if (!callback.IsNull())
+            {
+                callback();
+            }
+
+            throw new ArgumentException(message, parameter_name);
+        }
     }
 }

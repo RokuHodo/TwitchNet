@@ -228,8 +228,6 @@ TwitchNet.Clients.Irc
             }
             while (!reading);
 
-            // TODO: Give the user an option to enable auto rquest in case they don't want a callback just for that
-
             Send("PASS oauth:" + irc_user.pass);
             Send("NICK " + irc_user.nick);
         }
@@ -571,7 +569,7 @@ TwitchNet.Clients.Irc
         /// <exception cref="ArgumentException">Thrown if the channel or format are null, empty, or whitespace.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void
-        SendPrivmsg(string channel, string format, params string[] arguments)
+        SendPrivmsg(string channel, string format, params object[] arguments)
         {
             ExceptionUtil.ThrowIfInvalid(channel, nameof(channel));
             ExceptionUtil.ThrowIfInvalid(format, nameof(format));

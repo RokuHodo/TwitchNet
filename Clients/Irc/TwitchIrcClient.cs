@@ -4,12 +4,9 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 
 // project namespaces
-using TwitchNet.Api;
 using TwitchNet.Enums.Clients.Irc.Twitch;
 using TwitchNet.Events.Clients.Irc;
 using TwitchNet.Extensions;
-using TwitchNet.Interfaces.Api;
-using TwitchNet.Models.Api;
 using TwitchNet.Models.Api.Users;
 using TwitchNet.Models.Clients.Irc;
 using TwitchNet.Utilities;
@@ -23,9 +20,30 @@ TwitchNet.Clients.Irc
         #region  Properties
 
         /// <summary>
-        /// The information of the Twitch irc user.
+        /// Determines whether or not to retrieve the Twitch user information after the socket connects to the server.
         /// </summary>
-        public User twitch_user { get; private set; }
+        public bool request_user_info   { get; set; }
+
+        /// <summary>
+        /// Determines whether or not to request /commands after the socket connects to the server.
+        /// </summary>
+        public bool request_commands    { get; set; }
+
+        /// <summary>
+        /// Determines whether or not to request /membership after the socket connects to the server.
+        /// </summary>
+        public bool request_membership  { get; set; }
+
+        /// <summary>
+        /// Determines whether or not to request /tags after the socket connects to the server.
+        /// </summary>
+        public bool request_tags        { get; set; }        
+
+        /// <summary>
+        /// The information of the Twitch irc user.
+        /// This is only retrieved if <see cref="request_user_info"/> is set to true.
+        /// </summary>
+        public User twitch_user         { get; private set; }
 
         #endregion
 
@@ -33,23 +51,13 @@ TwitchNet.Clients.Irc
 
         public TwitchIrcClient(ushort port, IrcUser irc_user) : base("irc.chat.twitch.tv", port, irc_user)
         {
-            if (!TwitchUtil.IsValidNick(irc_user.nick))
-            {
-                throw new ArgumentException(nameof(irc_user.nick) + " can only contain lower case lpha-numeric characters and must be between 2 and 24 characters long.", nameof(irc_user.nick));
-            }
-
-            // TODO: Make this an optional setting, don't make an unintuitive request unless the user opts into it
-            IApiResponse<Data<User>> _twitch_user = TwitchApiBearer.GetUser(irc_user.pass);
-            if (!_twitch_user.result.data.IsValid())
-            {
-                throw new Exception("Could not get the user associated with the Bearer token");
-            }
-            twitch_user = _twitch_user.result.data[0];
+            ExceptionUtil.ThrowIfInvalidNick(irc_user.nick, nameof(irc_user.nick));            
 
             DefaultHandlers();
 
-            OnChannelMode   += new EventHandler<ChannelModeEventArgs>(Callback_OnChannelMode);
-            OnPrivmsg       += new EventHandler<PrivmsgEventArgs>(Callback_OnPrivmsg);
+            OnSocketConnected   += new EventHandler<EventArgs>(Callback_OnSocketConnected);
+            OnChannelMode       += new EventHandler<ChannelModeEventArgs>(Callback_OnChannelMode);
+            OnPrivmsg           += new EventHandler<PrivmsgEventArgs>(Callback_OnPrivmsg);
         }
 
         #endregion
@@ -132,13 +140,16 @@ TwitchNet.Clients.Irc
 
         #region Twitch chat command wrappers
 
-        // TODO: Make wrappers for commands that work in chat room.
-
         public void
         ChangeDisplayNameColor(string channel, DisplayNameColor color)
         {
-            string trialing = "/color " + EnumCacheUtil.FromDisplayNameColor(color);
-            SendPrivmsg(channel, trialing);
+            SendChatCommand(channel, ChatCommand.Color, EnumCacheUtil.FromDisplayNameColor(color));
+        }
+
+        public void
+        ChangeDisplayNameColor(string user_id, string uuid, DisplayNameColor color)
+        {
+            SendChatCommand(user_id, uuid, ChatCommand.Color, EnumCacheUtil.FromDisplayNameColor(color));
         }
 
         public void
@@ -149,8 +160,18 @@ TwitchNet.Clients.Irc
                 return;
             }
 
-            string trialing = "/color " + ColorTranslator.ToHtml(color);
-            SendPrivmsg(channel, trialing);
+            SendChatCommand(channel, ChatCommand.Color, ColorTranslator.ToHtml(color));
+        }
+
+        public void
+        ChangeDisplayNameColor(string user_id, string uuid, Color color)
+        {
+            if (color.IsEmpty)
+            {
+                return;
+            }
+
+            SendChatCommand(user_id, uuid, ChatCommand.Color, ColorTranslator.ToHtml(color));
         }
 
         public void
@@ -161,80 +182,118 @@ TwitchNet.Clients.Irc
                 throw new Exception(nameof(html_color) + " is not a valid HTML color name");
             }
 
-            string trialing = "/color " + html_color;
-            SendPrivmsg(channel, trialing);
+            SendChatCommand(channel, ChatCommand.Color, html_color);
+        }
+
+        public void
+        ChangeDisplayNameColor(string user_id, string uuid, string html_color)
+        {
+            if (!TwitchUtil.IsValidHtmlColor(html_color))
+            {
+                throw new Exception(nameof(html_color) + " is not a valid HTML color name");
+            }
+
+            SendChatCommand(user_id, uuid, ChatCommand.Color, html_color);
         }
 
         public void
         ChatDisconnect(string channel)
         {
-            SendPrivmsg(channel, "/disconnect");
+            SendChatCommand(channel, ChatCommand.Disconnect);
         }
 
         public void
         ChatDisconnect(string user_id, string uuid)
         {
-            SendChatRoomPrivmsg(user_id, uuid, "/disconnect");
+            SendChatCommand(user_id, uuid, ChatCommand.Disconnect);
         }
 
         public void
-        GetHelp(string channel)
+        PrintAvailableCommands(string channel)
         {
-            // This lists the commands available for use when no command is specified with /help
-            string trailing = "/help";
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(channel, ChatCommand.Help);
         }
 
         public void
-        GetHelp(string channel, ChatCommand command)
+        PrintAvailableCommands(string user_id, string uuid)
         {
-            string trailing = "/help " + EnumCacheUtil.FromChatCommand(command).TextAfter('/');
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(user_id, uuid, ChatCommand.Help);
         }
 
-        // TODO: Make this regular overload for SendPrivmsg?
         public void
-        SendPrivmsgMe(string channel, string body)
+        PrintHelp(string channel, ChatCommand command)
         {
-            ExceptionUtil.ThrowIfInvalid(body, nameof(body));
+            SendChatCommand(channel, ChatCommand.Help, EnumCacheUtil.FromChatCommand(command).TextAfter('/'));
+        }
 
-            string trailing = "/me " + body;
-            SendPrivmsg(channel, trailing);
+        public void
+        PrintHelp(string user_id, string uuid, ChatCommand command)
+        {
+            SendChatCommand(user_id, uuid, ChatCommand.Help, EnumCacheUtil.FromChatCommand(command).TextAfter('/'));
+        }
+
+        public void
+        SendPrivmsgMe(string channel, string format, params string[] arguments)
+        {
+            // Check format here since only sending /me is not allowed
+            ExceptionUtil.ThrowIfInvalid(format, nameof(format));
+
+            string trailing = EnumCacheUtil.FromChatCommand(ChatCommand.Me) + ' ' + format;
+            SendPrivmsg(channel, trailing, arguments);
+        }
+
+        public void
+        SendChatRoomPrivmsgMe(string user_id, string uuid, string format, params string[] arguments)
+        {
+            // Check format here since only sending /me is not allowed
+            ExceptionUtil.ThrowIfInvalid(format, nameof(format));
+
+            string trailing = EnumCacheUtil.FromChatCommand(ChatCommand.Me) + ' ' + format;
+            SendChatRoomPrivmsg(user_id, uuid, trailing, arguments);
         }
 
         public void
         Mods(string channel)
         {
-            string trailing = "/mods";
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(channel, ChatCommand.Mods);
+        }
+
+        public void
+        Mods(string user_id, string uuid)
+        {
+            SendChatCommand(user_id, uuid, ChatCommand.Mods);
         }
 
         public void
         Ban(string channel, string user_nick, string reason = "")
         {
-            if (!TwitchUtil.IsValidNick(user_nick))
-            {
-                throw new ArgumentException("Invalid " + nameof(user_nick) + ". " + nameof(user_nick) + " can only contain lower case alpha-numeric characters and must be between 2 and 24 characters long.", nameof(user_nick));
-            }
+            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
 
-            string trailing = "/ban " + user_nick;
-            if (reason.IsValid())
-            {
-                trailing += " " + reason;
-            }
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(channel, ChatCommand.Ban, user_nick, reason);
+        }
+
+        public void
+        Ban(string user_id, string uuid, string user_nick, string reason = "")
+        {
+            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
+
+            SendChatCommand(user_id, uuid, ChatCommand.Ban, user_nick, reason);
         }
 
         public void
         Unban(string channel, string user_nick)
         {
-            if (!TwitchUtil.IsValidNick(user_nick))
-            {
-                throw new ArgumentException("Invalid " + nameof(user_nick) + ". " + nameof(user_nick) + " can only contain lower case alpha-numeric characters and must be between 2 and 24 characters long.", nameof(user_nick));
-            }
+            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
 
-            string trailing = "/unban " + user_nick;
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(channel, ChatCommand.Unban, user_nick);
+        }
+
+        public void
+        Unban(string user_id, string uuid, string user_nick)
+        {
+            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
+
+            SendChatCommand(user_id, uuid, ChatCommand.Unban, user_nick);
         }
 
         public void
@@ -244,172 +303,265 @@ TwitchNet.Clients.Irc
         }
 
         public void
+        Purge(string user_id, string uuid, string user_nick, string reason = "")
+        {
+            Timeout(user_id, uuid, user_nick, 1, reason);
+        }
+
+        public void
         Timeout(string channel, string user_nick, string reason = "")
         {
             Timeout(channel, user_nick, 600, reason);
         }
 
+        public void
+        Timeout(string user_id, string uuid, string user_nick, string reason = "")
+        {
+            Timeout(user_id, uuid, user_nick, 600, reason);
+        }
+
+        public void
+        Timeout(string channel, string user_nick, TimeSpan length, string reason = "")
+        {
+            // Clamp the value up here to prevent a possible overflow exception with Convert.ToUint32()
+            double length_seconds = length.TotalSeconds.Clamp(1, 1209600);
+
+            Timeout(channel, user_nick, Convert.ToUInt32(length_seconds), reason);
+        }
+
+        public void
+        Timeout(string user_id, string uuid, string user_nick, TimeSpan length, string reason = "")
+        {
+            // Clamp the value up here to prevent a possible overflow exception with Convert.ToUint32()
+            double length_seconds = length.TotalSeconds.Clamp(1, 1209600);
+
+            Timeout(user_id, uuid, user_nick, Convert.ToUInt32(length_seconds), reason);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void
-        Timeout(string channel, string user_nick, ulong length_seconds, string reason = "")
+        Timeout(string channel, string user_nick, uint length_seconds, string reason = "")
         {
-            if (!TwitchUtil.IsValidNick(user_nick))
-            {
-                throw new ArgumentException("Invalid " + nameof(user_nick) + ". " + nameof(user_nick) + " can only contain lower case alpha-numeric characters and must be between 2 and 24 characters long.", nameof(user_nick));
-            }
+            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
 
-            // TODO: Make an overload that uses timespan?
-            // 1209600 = 14 days (2 weeks)
-            length_seconds = length_seconds.Clamp<ulong>(1, 1209600);
+            // 1209600 seconds = 14 days (2 weeks)
+            SendChatCommand(channel, ChatCommand.Timeout, user_nick, length_seconds.Clamp<uint>(1, 1209600), reason);
+        }
 
-            string trailing = "/timeout " + user_nick + " " + length_seconds;
-            if (reason.IsValid())
-            {
-                trailing += " " + reason;
-            }
-            SendPrivmsg(channel, trailing);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void
+        Timeout(string user_id, string uuid, string user_nick, uint length_seconds, string reason = "")
+        {
+            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
+
+            // 1209600 seconds = 14 days (2 weeks)
+            SendChatCommand(user_id, uuid, ChatCommand.Timeout, user_nick, length_seconds.Clamp<uint>(1, 1209600), reason);
         }
 
         public void
         Untimeout(string channel, string user_nick)
         {
-            if (!TwitchUtil.IsValidNick(user_nick))
-            {
-                throw new ArgumentException("Invalid " + nameof(user_nick) + ". " + nameof(user_nick) + " can only contain lower case alpha-numeric characters and must be between 2 and 24 characters long.", nameof(user_nick));
-            }
+            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
 
-            string trailing = "/untimeout " + user_nick;
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(channel, ChatCommand.Untimeout, user_nick);
+        }
+
+        public void
+        Untimeout(string user_id, string uuid, string user_nick)
+        {
+            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
+
+            SendChatCommand(user_id, uuid, ChatCommand.Untimeout, user_nick);
         }
 
         public void
         ClearChat(string channel)
         {
-            string trailing = "/clear";
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(channel, ChatCommand.Clear);
         }
 
         public void
         EnableEmoteOnlyMode(string channel)
         {
-            string trailing = "/emoteonly";
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(channel, ChatCommand.EmoteOnly);
+        }
+
+        public void
+        EnableEmoteOnlyMode(string user_id, string uuid)
+        {
+            SendChatCommand(user_id, uuid, ChatCommand.EmoteOnly);
         }
 
         public void
         DisableEmoteOnlyMode(string channel)
         {
-            string trailing = "/emoteonlyoff";
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(channel, ChatCommand.EmoteOnlyOff);
+        }
+
+        public void
+        DisableEmoteOnlyMode(string user_id, string uuid)
+        {
+            SendChatCommand(user_id, uuid, ChatCommand.EmoteOnlyOff);
         }
 
         public void
         EnableFollowerOnlyMode(string channel)
         {
-            string trailing = "/followers";
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(channel, ChatCommand.Followers);
         }
 
         public void
         DisableFollowerOnlyMode(string channel)
         {
-            string trailing = "/followersoff";
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(channel, ChatCommand.FollowersOff);
         }
 
         public void
         EnableR9KBetaMode(string channel)
         {
-            string trailing = "/r9kbeta";
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(channel, ChatCommand.R9kBeta);
+        }
+
+        public void
+        EnableR9KBetaMode(string user_id, string uuid)
+        {
+            SendChatCommand(user_id, uuid, ChatCommand.R9kBeta);
         }
 
         public void
         DisableR9KBetaMode(string channel)
         {
-            string trailing = "/r9kbetaoff";
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(channel, ChatCommand.R9kBetaOff);
         }
 
         public void
-        EnableSlowMode(string channel, ulong frequency_seconds)
+        DisableR9KBetaMode(string user_id, string uuid)
         {
-            // TODO: Make an overload that uses timespan?
-            // 86400 = 1 day
-            frequency_seconds = frequency_seconds.Clamp<ulong>(1, 86400);
+            SendChatCommand(user_id, uuid, ChatCommand.R9kBetaOff);
+        }
 
-            string trailing = "/slow " + frequency_seconds;
-            SendPrivmsg(channel, trailing);
+        public void
+        EnableSlowMode(string channel)
+        {
+            EnableSlowMode(channel, 120);
+        }
+
+        public void
+        EnableSlowMode(string user_id, string uuid)
+        {
+            EnableSlowMode(user_id, uuid, 120);
+        }
+
+        public void
+        EnableSlowMode(string channel, TimeSpan frequency)
+        {
+            // Clamp the value up here to prevent a possible overflow exception with Convert.ToUint32()
+            double frequency_seconds = frequency.TotalSeconds.Clamp(1, 86400);
+
+            EnableSlowMode(channel, Convert.ToUInt32(frequency_seconds));
+        }
+
+        public void
+        EnableSlowMode(string channel, uint frequency_seconds)
+        {
+            // 86400 seconds = 1 day
+            SendChatCommand(channel, ChatCommand.Slow, frequency_seconds.Clamp<uint>(1, 86400));
+        }
+
+        public void
+        EnableSlowMode(string user_id, string uuid, TimeSpan frequency)
+        {
+            // Clamp the value up here to prevent a possible overflow exception with Convert.ToUint32()
+            double frequency_seconds = frequency.TotalSeconds.Clamp(1, 86400);
+
+            EnableSlowMode(user_id, uuid, Convert.ToUInt32(frequency_seconds));
+        }
+
+        public void
+        EnableSlowMode(string user_id, string uuid, uint frequency_seconds)
+        {
+            // 86400 seconds = 1 day
+            SendChatCommand(user_id, uuid, ChatCommand.Slow, frequency_seconds.Clamp<uint>(1, 86400));
         }
 
         public void
         DisableSlowMode(string channel)
         {
-            string trailing = "/slowoff";
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(channel, ChatCommand.SlowOff);
+        }
+
+        public void
+        DisableSlowMode(string user_id, string uuid)
+        {
+            SendChatCommand(user_id, uuid, ChatCommand.SlowOff);
         }
 
         public void
         EnableSubscriberOnlyMode(string channel)
         {
-            string trailing = "/subscribers";
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(channel, ChatCommand.Subscribers);
         }
 
         public void
         DisableSubscriberOnlyMode(string channel)
         {
-            string trailing = "/subscribersoff";
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(channel, ChatCommand.SubscribersOff);
         }
 
         public void
         StartCommercial(string channel, CommercialLength length = CommercialLength.Seconds30)
         {
-            string trailing = "/commercial " + EnumCacheUtil.FromCommercialLength(length);
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(channel, ChatCommand.Commercial, EnumCacheUtil.FromCommercialLength(length));
         }
 
         public void
-        Host(string channel, string user_nick, string message)
+        Host(string channel, string user_nick, string message = "")
         {
-            if (!TwitchUtil.IsValidNick(user_nick))
-            {
-                throw new ArgumentException("Invalid " + nameof(user_nick) + ". " + nameof(user_nick) + " can only contain lower case alpha-numeric characters and must be between 2 and 24 characters long.", nameof(user_nick));
-            }
+            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
 
-            string trailing = "/host " + user_nick;
-            if (message.IsValid())
-            {
-                trailing += " " + message;
-            }
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(channel, ChatCommand.Host, user_nick, message);
         }
 
         public void
-        Unhost(string channel)
+        StopHost(string channel)
         {
-            string trailing = "/unhost";
-            SendPrivmsg(channel, trailing);
+            SendChatCommand(channel, ChatCommand.Unhost);
         }
 
         public void
         Raid(string channel, string user_nick)
         {
-            if (!TwitchUtil.IsValidNick(user_nick))
-            {
-                throw new ArgumentException("Invalid " + nameof(user_nick) + ". " + nameof(user_nick) + " can only contain lower case alpha-numeric characters and must be between 2 and 24 characters long.", nameof(user_nick));
-            }
+            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
 
-            string trailing = "/raid " + user_nick;
+            SendChatCommand(channel, ChatCommand.Raid, user_nick);
+        }
+
+        public void
+        StopRaid(string channel)
+        {
+            SendChatCommand(channel, ChatCommand.Unraid);
+        }
+
+        public void
+        SendChatCommand(string channel, ChatCommand command, params object[] arguments)
+        {
+            string trailing = EnumCacheUtil.FromChatCommand(command);
+            if (arguments.IsValid())
+            {
+                trailing += ' ' + string.Join(" ", arguments);
+            }
             SendPrivmsg(channel, trailing);
         }
 
         public void
-        Unraid(string channel)
+        SendChatCommand(string user_id, string uuid, ChatCommand command, params object[] arguments)
         {
-            string trailing = "/raid";
-            SendPrivmsg(channel, trailing);
+            string trailing = EnumCacheUtil.FromChatCommand(command);
+            if (arguments.IsValid())
+            {
+                trailing += ' ' + string.Join(" ", arguments);
+            }
+            SendPrivmsg(user_id, uuid, trailing);
         }
 
         #endregion

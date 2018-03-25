@@ -3,10 +3,14 @@ using System;
 using System.Collections.Generic;
 
 // project namespaces
+using TwitchNet.Api;
 using TwitchNet.Enums.Clients.Irc.Twitch;
 using TwitchNet.Events.Clients.Irc;
 using TwitchNet.Events.Clients.Irc.Twitch;
 using TwitchNet.Extensions;
+using TwitchNet.Interfaces.Api;
+using TwitchNet.Models.Api;
+using TwitchNet.Models.Api.Users;
 using TwitchNet.Models.Clients.Irc;
 using TwitchNet.Utilities;
 
@@ -216,11 +220,45 @@ TwitchNet.Clients.Irc
         /// <para>Raised when a NOTICE message is sent in a channel's chat room.</para>
         /// <para>Requires /commands and /tags.</para>
         /// </summary>
-        public event EventHandler<ChatRoomNoticeEventArgs>      OnChatRoomNotice;                                
+        public event EventHandler<ChatRoomNoticeEventArgs>      OnChatRoomNotice;
 
         #endregion
 
         #region Base event callbacks
+
+        /// <summary>
+        /// Callback for the <see cref="IrcClient.OnSocketConnected"/> event.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="args">The event arguments.</param>
+        private void
+        Callback_OnSocketConnected(object sender, EventArgs args)
+        {
+            if (request_user_info)
+            {
+                IApiResponse<Data<User>> _twitch_user = TwitchApiBearer.GetUser(irc_user.pass);
+                if (!_twitch_user.result.data.IsValid())
+                {
+                    return;
+                }
+                twitch_user = _twitch_user.result.data[0];
+            }
+
+            if (request_commands)
+            {
+                RequestCommands();
+            }
+
+            if (request_membership)
+            {
+                RequestMembership();
+            }
+
+            if (request_tags)
+            {
+                RequestTags();
+            }
+        }
 
         /// <summary>
         /// Callback for the <see cref="IrcClient.OnChannelMode"/> event.

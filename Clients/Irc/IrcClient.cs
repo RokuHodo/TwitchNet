@@ -217,6 +217,8 @@ TwitchNet.Clients.Irc
                 ((SslStream)stream).AuthenticateAsClient(host);
             }
 
+            OnSocketConnected.Raise(this, EventArgs.Empty);
+
             reader_thread = new Thread(new ThreadStart(ReadStream));
             reader_thread.Start();
 
@@ -226,10 +228,7 @@ TwitchNet.Clients.Irc
             }
             while (!reading);
 
-            // TODO: Give the user a way to request these before logging in, i.e, OnSocketConnected
-            Send("CAP REQ :twitch.tv/commands");
-            Send("CAP REQ :twitch.tv/tags");
-            Send("CAP REQ :twitch.tv/membership");
+            // TODO: Give the user an option to enable auto rquest in case they don't want a callback just for that
 
             Send("PASS oauth:" + irc_user.pass);
             Send("NICK " + irc_user.nick);
@@ -286,6 +285,8 @@ TwitchNet.Clients.Irc
             socket.Disconnect(false);
             socket = null;
 
+            OnSocketDisconnected.Raise(this, EventArgs.Empty);
+
             do
             {
                 Thread.Sleep(5);
@@ -324,7 +325,9 @@ TwitchNet.Clients.Irc
         private void
         Callback_OnBeginDisconnect(IAsyncResult result)
         {
-            while (reading);
+            OnSocketDisconnected.Raise(this, EventArgs.Empty);
+
+            while (reading)
             {
                 Thread.Sleep(5);
             }
@@ -491,7 +494,7 @@ TwitchNet.Clients.Irc
             string message = "PONG";
             if (trailing.IsValid())
             {
-                message += ": " + trailing;
+                message += " :" + trailing;
 
             }
 

@@ -14,7 +14,7 @@ TwitchNet.Models.Clients.Irc.Twitch
     {
         /// <summary>
         /// <para>The badge verison.</para>
-        /// <para>The version is set to -1 when <see cref="badge"/> is equal to <see cref="BadgeType.None"/>.</para>
+        /// <para>The version is set to -1 when <see cref="type"/> is equal to <see cref="BadgeType.None"/>.</para>
         /// </summary>
         short version;
 
@@ -22,7 +22,7 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// <para>The badge type.</para>
         /// <para>The badge is set to <see cref="BadgeType.None"/> if no valid badge type is found.</para>
         /// </summary>
-        BadgeType badge;
+        BadgeType type;
 
         public Badge(string badge_pair)
         {
@@ -32,8 +32,7 @@ TwitchNet.Models.Clients.Irc.Twitch
                 version = -1;
             }
 
-            badge = BadgeType.None;
-            badge = EnumCacheUtil.ToBadge(badge_pair.TextBefore('/'));
+            type = EnumCacheUtil.ToBadgeType(badge_pair.TextBefore('/'));
         }
     }
 }

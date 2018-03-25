@@ -1,6 +1,8 @@
 ﻿// standard namespaces
 using System;
-using System.Text.RegularExpressions;
+
+// project namespaces
+using TwitchNet.Utilities;
 
 // imported .dll's
 using Newtonsoft.Json;
@@ -47,25 +49,12 @@ TwitchNet.Helpers.Json
         ReadJson(JsonReader reader, Type object_type, object existing_value, JsonSerializer serializer)
         {
             string value = reader.Value.ToString();
-            // attempt to match HH:MM:SS format used by TimeSpan
+
+            // attempt to match HH:MM:SS format
             if(!TimeSpan.TryParse(value, out TimeSpan time_span))
             {
                 // attempt to match 00h00m00s format
-                Regex regex = new Regex("^(?:(?:(?:(?<days>\\d{1,})d)?(?<hours>\\d{1,2})h)?(?<minutes>\\d{1,2})m)?(?<seconds>\\d{1,2})s$");
-                Match match = regex.Match(value);
-                if (match.Success)
-                {
-                    Int32.TryParse(match.Groups["days"].Value, out int days);
-                    Int32.TryParse(match.Groups["hours"].Value, out int hours);
-                    Int32.TryParse(match.Groups["minutes"].Value, out int minutes);
-                    Int32.TryParse(match.Groups["seconds"].Value, out int seconds);
-
-                    time_span = new TimeSpan(days, hours, minutes, seconds);
-                }
-                else
-                {
-                    throw new ArgumentException("Failed to convert " + nameof(value) + " from " + object_type.Name + " to " + typeof(TimeSpan).Name, value);
-                }
+                TwitchUtil.TryGetVideoLength(value, out time_span);
             }
 
             return time_span;

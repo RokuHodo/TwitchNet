@@ -103,7 +103,7 @@ namespace TwitchNet.Utilities
         private static
         Dictionary<string, NoticeType> to_notice_type_cache = new Dictionary<string, NoticeType>
         {
-            { "",                           NoticeType.None },
+            { "",                           NoticeType.Other },
             { "already_banned",             NoticeType.AlreadyBanned },
             { "already_emote_only_off",     NoticeType.AlreadyEmoteOnlyOff },
             { "already_emote_only_on",      NoticeType.AlreadyEmoteOnlyOn },
@@ -152,7 +152,51 @@ namespace TwitchNet.Utilities
             { DisplayNameColor.SeaGreen,    "seagreen" },
             { DisplayNameColor.SpringGreen, "springgreen" },
             { DisplayNameColor.YellowGreen, "yellowgreen" },
+        };
 
+        private static
+        Dictionary<ChatCommand, string> from_chat_command_cache = new Dictionary<ChatCommand, string>
+        {
+            { ChatCommand.Color,            "/color" },
+            { ChatCommand.Disconnect,       "/disconnect" },
+            { ChatCommand.Help,             "/help" },
+            { ChatCommand.Me,               "/me" },
+            { ChatCommand.Mods,             "/mods" },
+            { ChatCommand.Whisper,          "/w" },
+
+            { ChatCommand.Ban,              "/ban" },
+            { ChatCommand.Timeout,          "/timeout" },
+            { ChatCommand.Unban,            "/unban" },
+            { ChatCommand.Untimeout,        "/untimeout" },
+
+            { ChatCommand.Clear,            "/clear" },
+            { ChatCommand.EmoteOnly,        "/emoteonly" },
+            { ChatCommand.EmoteOnlyOff,     "/emoteonlyoff" },
+            { ChatCommand.Followers,        "/followers" },
+            { ChatCommand.FollowersOff,     "/followersoff" },
+            { ChatCommand.R9kBeta,          "/r9kbeta" },
+            { ChatCommand.R9kBetaOff,       "/r9kbetaoff" },
+            { ChatCommand.Slow,             "/slow" },
+            { ChatCommand.SlowOff,          "/slowoff" },
+            { ChatCommand.Subscribers,      "/subscribers" },
+            { ChatCommand.SubscribersOff,   "/Subscribersoff" },
+
+            { ChatCommand.Commercial,       "/commercial" },
+            { ChatCommand.Host,             "/host" },
+            { ChatCommand.Raid,             "/raid" },
+            { ChatCommand.Unhost,           "/unhost" },
+            { ChatCommand.Unraid,           "/unraid" },
+        };
+
+        private static
+        Dictionary<CommercialLength, string> from_commercial_length_cache = new Dictionary<CommercialLength, string>
+        {
+            { CommercialLength.Seconds30,   "30" },
+            { CommercialLength.Seconds60,   "60" },
+            { CommercialLength.Seconds90,   "90" },
+            { CommercialLength.Seconds120,  "120" },
+            { CommercialLength.Seconds150,  "150" },
+            { CommercialLength.Seconds180,  "180" },
         };
 
         #endregion
@@ -190,7 +234,7 @@ namespace TwitchNet.Utilities
         /// Returns <see cref="BadgeType.None"/> otherwise.
         /// </returns>
         public static BadgeType
-        ToBadge(string str)
+        ToBadgeType(string str)
         {
             BadgeType badge = BadgeType.None;
             if (str.IsNull())
@@ -297,12 +341,12 @@ namespace TwitchNet.Utilities
         /// <param name="str">The string to convert.</param>
         /// <returns>
         /// Returns the corresponding <see cref="NoticeType"/> value if successful.
-        /// Returns <see cref="NoticeType.None"/> otherwise.
+        /// Returns <see cref="NoticeType.Other"/> otherwise.
         /// </returns>
         public static NoticeType
         ToNoticeType(string str)
         {
-            NoticeType notice = NoticeType.None;
+            NoticeType notice = NoticeType.Other;
             if (str.IsNull())
             {
                 return notice;
@@ -330,6 +374,44 @@ namespace TwitchNet.Utilities
             }
 
             return color;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="ChatCommand"/> enum value to a string.
+        /// </summary>
+        /// <param name="value">The enum value to convert.</param>
+        /// <returns>
+        /// Returns the corresponding string value if successful.
+        /// Returns string value using <code>ToString() otherwise.</code>.
+        /// </returns>
+        public static string
+        FromChatCommand(ChatCommand value)
+        {
+            if (!from_chat_command_cache.TryGetValue(value, out string command))
+            {
+                command = value.ToString();
+            }
+
+            return command;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="CommercialLength"/> enum value to a string.
+        /// </summary>
+        /// <param name="value">The enum value to convert.</param>
+        /// <returns>
+        /// Returns the corresponding string value if successful.
+        /// Returns string value using <code>ToString() otherwise.</code>.
+        /// </returns>
+        public static string
+        FromCommercialLength(CommercialLength value)
+        {
+            if (!from_commercial_length_cache.TryGetValue(value, out string command))
+            {
+                command = ((int)value).ToString();
+            }
+
+            return command;
         }
 
         #endregion                                                

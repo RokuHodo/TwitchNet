@@ -11,6 +11,7 @@ using TwitchNet.Enums.Api.Videos;
 using TwitchNet.Enums.Clients.Irc.Twitch;
 using TwitchNet.Extensions;
 using TwitchNet.Models.Clients.Irc.Twitch;
+using TwitchNet.Utilities;
 
 namespace
 TwitchNet.Utilities
@@ -108,8 +109,7 @@ TwitchNet.Utilities
                 return color;
             }
 
-            Regex regex = new Regex("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$");
-            if (!regex.IsMatch(tags[key]))
+            if (!TwitchUtil.IsValidHtmlColor(tags[key]))
             {
                 return color;
             }
@@ -137,7 +137,7 @@ TwitchNet.Utilities
         public static NoticeType
         ToNoticeType(Dictionary<string, string> tags, string key)
         {
-            NoticeType notice = NoticeType.None;
+            NoticeType notice = NoticeType.Other;
 
             if (!IsTagValid(tags, key))
             {

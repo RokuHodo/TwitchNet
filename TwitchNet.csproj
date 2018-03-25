@@ -65,6 +65,8 @@
     <Compile Include="Debug\Log.cs" />
     <Compile Include="Enums\Api\Entitlements\EntitlementType.cs" />
     <Compile Include="Enums\Clients\ClientState.cs" />
+    <Compile Include="Enums\Clients\Irc\Twitch\CommercialLength.cs" />
+    <Compile Include="Enums\Clients\Irc\Twitch\ChatCommand.cs" />
     <Compile Include="Enums\Clients\Irc\Twitch\RitualType.cs" />
     <Compile Include="Enums\Clients\Irc\Twitch\DisplayNameColor.cs" />
     <Compile Include="Enums\Clients\Irc\Twitch\SubscriptionPlan.cs" />
@@ -203,6 +205,7 @@
     <Compile Include="Utilities\PagingUtil.cs" />
     <Compile Include="Utilities\RestRequestUtil.cs" />
     <Compile Include="Utilities\TagsUtil.cs" />
+    <Compile Include="Utilities\TwitchUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Api\TwitchApiInternal.cs" />

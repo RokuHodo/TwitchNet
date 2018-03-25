@@ -45,10 +45,30 @@ TwitchNet.Clients.Irc
         public virtual event EventHandler<IrcMessageEventArgs>      OnIrcMessage;
 
         /// <summary>
+        /// <para>Raised when an the internal socket establishes a connection to the IRC server.</para>
+        /// <para>
+        /// Signifies that the client is ready to send and receive messages.
+        /// This occurs before the client logs into the IRC server and before <see cref="OnConnected"/> is raised.
+        /// At this point, <see cref="state"/> is still equal to <see cref="ClientState.Connecting"/> since the client is not yet logged into the IRC.
+        /// </para>
+        /// </summary>
+        public virtual event EventHandler<EventArgs>                OnSocketConnected;        
+
+        /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 001, RPL_WELCOME.</para>
         /// <para>Signifies that the <see cref="IrcClient"/> has successfully registered and connected to the IRC server.</para>
         /// </summary>
         public virtual event EventHandler<NumericReplyEventArgs>    OnConnected;
+
+        /// <summary>
+        /// <para>Raised when an the internal socket disconnects from the IRC server.</para>
+        /// <para>
+        /// Signifies that the client can no longer send and receive messages.
+        /// This occurs before the reader finishes processing the current data, before all currently raised events have finihshed, and before <see cref="OnDisconnected"/> is raised.
+        /// At this point, <see cref="state"/> is still equal to <see cref="ClientState.Disconnecting"/> since the reader is still waiting for all event to finish executing.
+        /// </para>
+        /// </summary>
+        public virtual event EventHandler<EventArgs>                OnSocketDisconnected;
 
         /// <summary>
         /// <para>Raised when the <see cref="IrcClient"/> disconnects from the IRC server.</para>

@@ -114,7 +114,9 @@ namespace TwitchNet.Utilities
             { "bad_commercial_error",       NoticeType.BadCommercialError },
             { "bad_host_hosting",           NoticeType.BadHostHosting },
             { "bad_host_rate_exceeded",     NoticeType.BadHostRateExceeded },
+            { "bad_mod_mod",                NoticeType.BadModMod },
             { "bad_slow_duration",          NoticeType.BadSlowDuration },
+            { "bad_unmod_mod",              NoticeType.BadUnmodMod},
             { "ban_success",                NoticeType.BanSuccess },
             { "bad_unban_no_ban",           NoticeType.BadUnbanNoBan },
             { "cmds_available",             NoticeType.CmdsAvailable },
@@ -125,6 +127,7 @@ namespace TwitchNet.Utilities
             { "host_on",                    NoticeType.HostOn },
             { "hosts_remaining",            NoticeType.HostsRemaining },
             { "invalid_user",               NoticeType.InvalidUser },
+            { "mod_success",                NoticeType.ModSuccess },
             { "msg_channel_suspended",      NoticeType.MsgChannelSuspended },
             { "msg_room_not_found",         NoticeType.MsgRoomNotFound },
             { "no_help",                    NoticeType.NoHelp },
@@ -139,6 +142,7 @@ namespace TwitchNet.Utilities
             { "timeout_success",            NoticeType.TimeoutSuccess },
             { "turbo_only_color",           NoticeType.TurboOnlyColor },
             { "unban_success",              NoticeType.UnbanSuccess },
+            { "unmod_success",              NoticeType.UnmodSuccess },
             { "unrecognized_cmd",           NoticeType.UnrecognizedCmd },
             { "usage_color",                NoticeType.UsageColor },
             { "usage_disconnect",           NoticeType.UsageDisconnect },
@@ -197,8 +201,10 @@ namespace TwitchNet.Utilities
             { ChatCommand.Whisper,          "/w" },
 
             { ChatCommand.Ban,              "/ban" },
+            { ChatCommand.Mod,              "/mod" },
             { ChatCommand.Timeout,          "/timeout" },
             { ChatCommand.Unban,            "/unban" },
+            { ChatCommand.Unmod,            "/unmod" },
             { ChatCommand.Untimeout,        "/untimeout" },
 
             { ChatCommand.Clear,            "/clear" },
@@ -218,6 +224,42 @@ namespace TwitchNet.Utilities
             { ChatCommand.Raid,             "/raid" },
             { ChatCommand.Unhost,           "/unhost" },
             { ChatCommand.Unraid,           "/unraid" },
+        };
+
+        private static
+        Dictionary<string, ChatCommand> to_chat_command_cache = new Dictionary<string, ChatCommand>
+        {
+            { "/color",             ChatCommand.Color },
+            { "/disconnect",        ChatCommand.Disconnect },
+            { "/help",              ChatCommand.Help },
+            { "/me",                ChatCommand.Me },
+            { "/mods",              ChatCommand.Mods },
+            { "/w",                 ChatCommand.Whisper },
+
+            { "/ban",               ChatCommand.Ban },
+            { "/mod",               ChatCommand.Mod },
+            { "/timeout",           ChatCommand.Timeout },
+            { "/unban",             ChatCommand.Unban },
+            { "/unmod",             ChatCommand.Unmod },
+            { "/untimeout",         ChatCommand.Untimeout },
+
+            { "/clear",             ChatCommand.Clear },
+            { "/emoteonly",         ChatCommand.EmoteOnly },
+            { "/emoteonlyoff",      ChatCommand.EmoteOnlyOff },
+            { "/followers",         ChatCommand.Followers },
+            { "/followersoff",      ChatCommand.FollowersOff },
+            { "/r9kbeta",           ChatCommand.R9kBeta },
+            { "/r9kbetaoff",        ChatCommand.R9kBetaOff },
+            { "/slow",              ChatCommand.Slow },
+            { "/slowoff",           ChatCommand.SlowOff },
+            { "/subscribers",       ChatCommand.Subscribers },
+            { "/Subscribersoff",    ChatCommand.SubscribersOff },
+
+            { "/commercial",        ChatCommand.Commercial },
+            { "/host",              ChatCommand.Host },
+            { "/raid",              ChatCommand.Raid },
+            { "/unhost",            ChatCommand.Unhost },
+            { "/unraid",            ChatCommand.Unraid },            
         };
 
         private static
@@ -423,6 +465,28 @@ namespace TwitchNet.Utilities
             {
                 command = value.ToString();
             }
+
+            return command;
+        }
+
+        /// <summary>
+        /// Converts a string to a <see cref="ChatCommand"/> enum value.
+        /// </summary>
+        /// <param name="str">The string to convert.</param>
+        /// <returns>
+        /// Returns the corresponding <see cref="ChatCommand"/> value if successful.
+        /// Returns <see cref="ChatCommand.Other"/> otherwise.
+        /// </returns>
+        public static ChatCommand
+        ToChatCommand(string str)
+        {
+            ChatCommand command = ChatCommand.Other;
+            if (str.IsNull())
+            {
+                return command;
+            }
+
+            to_chat_command_cache.TryGetValue(str, out command);
 
             return command;
         }

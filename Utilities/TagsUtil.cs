@@ -285,7 +285,7 @@ TwitchNet.Utilities
                 return new type[0];
             }
 
-            type[] array = tags[key].StringToArray<type>(separator);
+            type[] array = tags[key].StringToArray<type>(separator, StringSplitOptions.RemoveEmptyEntries);
 
             return array;
         }

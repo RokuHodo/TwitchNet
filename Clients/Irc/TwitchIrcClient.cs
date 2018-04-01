@@ -252,14 +252,34 @@ TwitchNet.Clients.Irc
             SendChatRoomPrivmsg(user_id, uuid, trailing, arguments);
         }
 
+        public void Mod(string channel, string user_nick)
+        {
+            SendChatCommand(channel, ChatCommand.Mod, user_nick);
+        }
+
+        public void Mod(string user_id, string uuid, string user_nick)
+        {
+            SendChatCommand(user_id, uuid, ChatCommand.Mod, user_nick);
+        }
+
+        public void Unmod(string channel, string user_nick)
+        {
+            SendChatCommand(channel, ChatCommand.Unmod, user_nick);
+        }
+
+        public void Unmod(string user_id, string uuid, string user_nick)
+        {
+            SendChatCommand(user_id, uuid, ChatCommand.Unmod, user_nick);
+        }
+
         public void
-        Mods(string channel)
+        PrintMods(string channel)
         {
             SendChatCommand(channel, ChatCommand.Mods);
         }
 
         public void
-        Mods(string user_id, string uuid)
+        PrintMods(string user_id, string uuid)
         {
             SendChatCommand(user_id, uuid, ChatCommand.Mods);
         }
@@ -410,6 +430,25 @@ TwitchNet.Clients.Irc
             SendChatCommand(channel, ChatCommand.Followers);
         }
 
+        //TODO: Make an overload that takes a raw string?
+        // I tried making a regex that mimics Twitch's format, but they've done some magical bull shit
+        public void
+        EnableFollowerOnlyMode(string channel, TimeSpan duration)
+        {
+
+            // Twtch considers 1 month = 30 days
+            if(duration.TotalDays > 90)
+            {
+                throw new ArgumentOutOfRangeException(nameof(duration), duration, "The duration cannot be more than 3 months (30 days).");
+            }
+
+            // manually calculate seconds in case the user used ms because Twitch doesn't support ms as a parameter.
+            int seconds = duration.Seconds + duration.Milliseconds / 1000;
+            string _duration = duration.Days + "d" + duration.Hours + "h" + duration.Minutes + "m" + seconds + "s";
+
+            SendChatCommand(channel, ChatCommand.Followers, _duration);
+        }
+
         public void
         DisableFollowerOnlyMode(string channel)
         {
@@ -556,12 +595,27 @@ TwitchNet.Clients.Irc
         public void
         SendChatCommand(string user_id, string uuid, ChatCommand command, params object[] arguments)
         {
+            switch (command)
+            {
+                case ChatCommand.Commercial:
+                case ChatCommand.Host:
+                case ChatCommand.Unhost:
+                case ChatCommand.Raid:
+                case ChatCommand.Unraid:
+                case ChatCommand.Clear:
+                case ChatCommand.Followers:
+                case ChatCommand.FollowersOff:
+                {
+                    throw new NotSupportedException("The command " + EnumCacheUtil.FromChatCommand(command) + " cannot be used in a chatroom.");
+                }
+            }
+
             string trailing = EnumCacheUtil.FromChatCommand(command);
             if (arguments.IsValid())
             {
                 trailing += ' ' + string.Join(" ", arguments);
             }
-            SendPrivmsg(user_id, uuid, trailing);
+            SendChatRoomPrivmsg(user_id, uuid, trailing);
         }
 
         #endregion

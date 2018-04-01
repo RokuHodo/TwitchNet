@@ -3,6 +3,15 @@
     public enum
     ChatCommand
     {
+        #region Other
+
+        /// <summary>
+        /// Represents an unsupported chat command.
+        /// </summary>
+        Other = 0,
+
+        #endregion
+
         #region General commands
 
         /// <summary>
@@ -13,41 +22,41 @@
         /// Usage (Turbo/Prime): /color {html_color} OR /color {color_name}.
         /// </para>
         /// </summary>
-        Color           = 0,
+        Color,
 
         /// <summary>
         /// <para>Disconnects the client from a chat room.</para>
         /// <para>Command: /disconnect</para>
         /// <para>Usage: /disconnect</para>
         /// </summary>
-        Disconnect      = 1,
+        Disconnect,
 
         /// <summary>
         /// <para>Gets information on how to use a specirfic command.</para>
         /// <para>Command: /help</para>
         /// <para>Usage: /help {command}</para>
         /// </summary>
-        Help            = 2,
+        Help,
 
         /// <summary>
         /// <para>Makes all text in a message the client's display name color.</para>
         /// <para>Command: /me</para>
         /// <para>Command: /me {message}</para>
         /// </summary>
-        Me              = 3,
+        Me,
 
         /// <summary>
         /// <para>Prints a list of all the mods in a specific chat.</para>
         /// <para>Command: /mods</para>
         /// <para>Usage: /mods</para>
         /// </summary>
-        Mods            = 4,
+        Mods,
 
         /// <summary>
         /// <para>Sends a private message to another user.</para>
         /// <para>Command: /w {user_nick} {message}</para>
         /// </summary>
-        Whisper         = 5,
+        Whisper,
 
         #endregion
 
@@ -58,28 +67,42 @@
         /// <para>Command: /ban</para>
         /// <para>Usage: /ban {user_nick}</para>
         /// </summary>
-        Ban             = 6,
+        Ban,
+
+        /// <summary>
+        /// <para>Grants a user moderator status.</para>
+        /// <para>Command: /mod</para>
+        /// <para>Usage: /mod {user_nick}</para>
+        /// </summary>
+        Mod,
 
         /// <summary>
         /// <para>Times out a user for a certain amount of time in a chat.</para>
         /// <para>Command: /timeout</para>
         /// <para>Usage: /timeout {useR_nick} [{length_seconds}] [{reason}]</para>
         /// </summary>
-        Timeout         = 7,
+        Timeout,
 
         /// <summary>
         /// <para>Unbans a user from a chat.</para>
         /// <para>Command: /unban</para>
         /// <para>Usage: /unban {user_nick}</para>
         /// </summary>
-        Unban           = 8,
+        Unban,
+
+        /// <summary>
+        /// <para>MRemoves a user's moderator status.</para>
+        /// <para>Command: /unmod</para>
+        /// <para>Usage: /unmod {user_nick}</para>
+        /// </summary>
+        Unmod,
 
         /// <summary>
         /// <para>Untimesout a user from a chat.</para>
         /// <para>Command: /untimeout</para>
         /// <para>Usage: /untimeout {user_nick}</para>
         /// </summary>
-        Untimeout       = 9,
+        Untimeout,
 
         #endregion
 
@@ -93,7 +116,7 @@
         /// <para>Command: /clear</para>
         /// <para>Usage: /clear</para>
         /// </summary>
-        Clear           = 10,
+        Clear,
 
         /// <summary>
         /// <para>
@@ -103,14 +126,14 @@
         /// <para>Command: /emoteonly</para>
         /// <para>Usage: /emoteonly</para>
         /// </summary>
-        EmoteOnly       = 11,
+        EmoteOnly,
 
         /// <summary>
         /// <para>Disables emote only mode.</para>
         /// <para>Command: /emoteonlyoff</para>
         /// <para>Usage: /emoteonlyoff</para>
         /// </summary>
-        EmoteOnlyOff    = 12,
+        EmoteOnlyOff,
 
         /// <summary>
         /// <para>
@@ -122,7 +145,7 @@
         /// <para>Command: /followers</para>
         /// <para>Usage: /followers [{length_custom}]</para>
         /// </summary>
-        Followers       = 13,
+        Followers,
 
         /// <summary>
         /// <para>
@@ -132,7 +155,7 @@
         /// <para>Command: /followersoff</para>
         /// <para>Usage: /followersoff</para>
         /// </summary>
-        FollowersOff    = 14,
+        FollowersOff,
 
         /// <summary>
         /// <para>
@@ -142,14 +165,14 @@
         /// <para>Command: /r9kbeta</para>
         /// <para>Usage: /r9kbeta</para>
         /// </summary>
-        R9kBeta         = 15,
+        R9kBeta,
 
         /// <summary>
         /// <para>Disables r9k beta mode.</para>
         /// <para>Command: /r9kbetaoff</para>
         /// <para>Usage: /r9kbetaoff</para>
         /// </summary>
-        R9kBetaOff      = 16,
+        R9kBetaOff,
 
         /// <summary>
         /// <para>
@@ -159,14 +182,14 @@
         /// <para>Command: /slow</para>
         /// <para>Usage: /slow [{length_seconds}]</para>
         /// </summary>
-        Slow            = 17,
+        Slow,
 
         /// <summary>
         /// <para>Disables slow mode.</para>
         /// <para>Command: /slowoff</para>
         /// <para>Usage: /slowoff</para>
         /// </summary>
-        SlowOff         = 18,
+        SlowOff,
 
         /// <summary>
         /// <para>
@@ -177,7 +200,7 @@
         /// <para>Command: /subscribers</para>
         /// <para>Usage: /subscribers</para>
         /// </summary>
-        Subscribers     = 19,
+        Subscribers,
 
         /// <summary>
         /// <para>
@@ -187,7 +210,7 @@
         /// <para>Command: /subscribersoff</para>
         /// <para>Usage: /subscribersoff</para>
         /// </summary>
-        SubscribersOff  = 20,
+        SubscribersOff,
 
         #endregion
 
@@ -202,7 +225,7 @@
         /// <para>Command: /commercial</para>
         /// <para>Usage: /commercial [{length_seconds}]</para>
         /// </summary>
-        Commercial      = 21,
+        Commercial,
 
         /// <summary>
         /// <para>
@@ -212,7 +235,7 @@
         /// <para>Command: /host</para>
         /// <para>Usage: /host {user_nick} [{message}]</para>
         /// </summary>
-        Host            = 22,
+        Host,
 
         /// <summary>
         /// <para>
@@ -222,7 +245,7 @@
         /// <para>Command: /raid</para>
         /// <para>Usage: /raid {user_nick}</para>
         /// </summary>
-        Raid            = 23,
+        Raid,
 
         /// <summary>
         /// <para>
@@ -232,7 +255,7 @@
         /// <para>Command: /unhost</para>
         /// <para>Usage: /unhost</para>
         /// </summary>
-        Unhost          = 24,
+        Unhost,
 
         /// <summary>
         /// <para>
@@ -242,7 +265,7 @@
         /// <para>Command: /unraid</para>
         /// <para>Usage: /unraid</para>
         /// </summary>
-        Unraid          = 25,
+        Unraid,
 
         #endregion
     }

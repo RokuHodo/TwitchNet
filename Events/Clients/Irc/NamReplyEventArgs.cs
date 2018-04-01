@@ -43,7 +43,7 @@ TwitchNet.Events.Clients.Irc
 
         public NamReplyEventArgs(IrcMessage message) : base(message)
         {
-            names = message.trailing.StringToArray<string>(' ');
+            names = message.trailing.StringToArray<string>(' ', StringSplitOptions.RemoveEmptyEntries);
 
             if (!message.parameters.IsValid() || message.parameters.Length < 3)
             {

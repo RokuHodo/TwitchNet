@@ -14,6 +14,11 @@ namespace TwitchNet.Utilities
 
         private static Regex video_length_regex = new Regex("^(?:(?:(?<hours>\\d{1,2})h)?(?<minutes>\\d{1,2})m)?(?<seconds>\\d{1,2})s$");
 
+        // This is mach the majority of the format options Twitch allows when using /follows
+        // This does NOT allow things like order-independence and multiople named inputs
+        // If I care enough, I'll look into this later.
+        private static Regex followers_duration_regex = new Regex("^(?:(?<months>\\d+)(?:mo|months?))?(?:(?<days>\\d+)(?:d|days?))?(?:(?<hours>\\d+)(?:h|hours?))?(?:(?<minutes>\\d+)(?:m|minutes?))?(?:(?<seconds>\\d+)(?:s|seconds?))?$");
+
         public static bool
         IsValidNick(string nick)
         {
@@ -29,6 +34,8 @@ namespace TwitchNet.Utilities
 
             return result;
         }
+
+        // 7_776_000 seconds = 3 months
 
         public static bool
         IsValidVideoLength(string length)

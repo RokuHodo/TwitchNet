@@ -13,7 +13,12 @@ TwitchNet.Models.Clients.Irc
         #region Properties
 
         /// <summary>
-        /// The raw string ingested by the reader.
+        /// The byte data received from the socket.
+        /// </summary>
+        public byte[]                       data            { get; protected set; }
+
+        /// <summary>
+        /// The UTF-8 encoded byte data received from the socket.
         /// </summary>
         public string                       raw             { get; protected set; }
 
@@ -72,10 +77,15 @@ TwitchNet.Models.Clients.Irc
 
         #region Constructor
 
-        public IrcMessage(string message)
+        public IrcMessage(byte[] data, string raw) : this(raw)
+        {
+            this.data = data;
+        }
+
+        public IrcMessage(string raw)
         {
 
-            raw = message;
+            this.raw = raw;
 
             tags = new Dictionary<string, string>();
 
@@ -88,12 +98,12 @@ TwitchNet.Models.Clients.Irc
 
             trailing = string.Empty;
 
-            if (!message.IsValid())
+            if (!raw.IsValid())
             {
                 return;
             }
 
-            string message_post_tags = ParseTags(message);
+            string message_post_tags = ParseTags(raw);
             string message_post_prefix = ParsePrefix(message_post_tags);
             string message_post_command = ParseCommand(message_post_prefix);
 

@@ -12,7 +12,7 @@ namespace TwitchNet.Enums.Clients.Irc.Twitch
         [EnumMember(Value = "")]
         Other                    = 0,
 
-        // TODO: Raise separate event for this and parse relevant extra data?
+        // @msg-id = already_banned :tmi.twitch.tv NOTICE #rokuhodo_ :RokuBotto is already banned in this channel.
         /// <summary>
         /// A user was attempted to be banned that is already banned.
         /// </summary>
@@ -61,40 +61,53 @@ namespace TwitchNet.Enums.Clients.Irc.Twitch
         [EnumMember(Value = "bad_commercial_error")]
         BadCommercialError,
 
-        // TODO: Raise separate event for this and parse relevant extra data?
+        // @msg-id=bad_host_hosting :tmi.twitch.tv NOTICE #rokuhodo_ :This channel is already hosting handmade_hero.
         /// <summary>
         /// Attempted to host a user that you are already hosting.
         /// </summary>
         [EnumMember(Value = "bad_host_hosting")]
         BadHostHosting,
 
+        // @msg-id=bad_host_rate_exceeded :tmi.twitch.tv NOTICE #rokuhodo_ :Host target cannot be changed more than 3 times every half hour.
         /// <summary>
-        /// An attempt was made to host more than 3 different users in a half hour time span.
+        /// An attempt was made to host more than 'n' different users in a half hour time span.
         /// </summary>
         [EnumMember(Value = "bad_host_rate_exceeded")]
         BadHostRateExceeded,
 
+        // @msg-id = bad_mod_mod :tmi.twitch.tv NOTICE #rokuhodo_ :RokuBotto is already a moderator of this channel.
         /// <summary>
-        /// Slow mode was enabled with a duration larger than allowed maximum.
+        /// An attempt was made to give a user moderator status, but is already a moderator.
+        /// </summary>
+        [EnumMember(Value = "bad_mod_mod")]
+        BadModMod,
+
+        /// <summary>
+        /// Slow mode was enabled with a duration larger than the allowed maximum.
         /// </summary>
         [EnumMember(Value = "bad_slow_duration")]
         BadSlowDuration,
 
-        // TODO: Raise separate event for this and parse relevant extra data?
+        // @msg-id = bad_unmod_mod :tmi.twitch.tv NOTICE #rokuhodo_ :RokuBotto is not a moderator of this channel.
+        /// <summary>
+        /// An attempt was made to remove a user's a moderator status, but is not a moderator.
+        /// </summary>
+        [EnumMember(Value = "bad_unmod_mod")]
+        BadUnmodMod,
+
         /// <summary>
         /// A user was banned.
         /// </summary>
         [EnumMember(Value = "ban_success")]
         BanSuccess,
 
-        // TODO: Raise separate event for this and parse relevant extra data?
+        // @msg-id=bad_unban_no_ban :tmi.twitch.tv NOTICE #rokuhodo_ :RokuBotto is not banned from this channel.
         /// <summary>
         /// A user was attempted to be banned but is already banned.
         /// </summary>
         [EnumMember(Value = "bad_unban_no_ban")]
         BadUnbanNoBan,
 
-        // TODO: Raise separate event for this and parse relevant extra data?
         // @msg-id=cmds_available :tmi.twitch.tv NOTICE #rokuhodo_ :Commands available to you in this room (use /help <command> for details): /help /w /me /disconnect /mods /color /commercial /mod /unmod /ban /unban /timeout /untimeout /slow /slowoff /r9kbeta /r9kbetaoff /emoteonly /emoteonlyoff /clear /subscribers /subscribersoff /followers /followersoff /host /unhost
         /// <summary>
         /// The command /help was use din chat with no comman specified.
@@ -133,20 +146,25 @@ namespace TwitchNet.Enums.Clients.Irc.Twitch
         [EnumMember(Value = "host_on")]
         HostOn,
 
-        // TODO: Raise separate event for this and parse relevant extra data?
+        // @msg-id=hosts_remaining :tmi.twitch.tv NOTICE #rokuhodo_ :2 host commands remaining this half hour.
         /// <summary>
         /// A channel has started hosting another user and has 'n' number of hosts remaining.
         /// </summary>
         [EnumMember(Value = "hosts_remaining")]
         HostsRemaining,
 
-        // TODO: Raise separate event for this and parse relevant extra data?
         // @msg-id=invalid_user :tmi.twitch.tv NOTICE rokuhodo_ :Invalid username: jhksdfjhsfdjhgsfd
         /// <summary>
         /// The user nick provided when using a chat command was invalid or does not exist.
         /// </summary>
         [EnumMember(Value = "invalid_user")]
         InvalidUser,
+
+        /// <summary>
+        /// A user was modded.
+        /// </summary>
+        [EnumMember(Value = "mod_success")]
+        ModSuccess,
 
         /// <summary>
         /// Attempted to join a channel that was either suspended or deleted.
@@ -184,7 +202,6 @@ namespace TwitchNet.Enums.Clients.Irc.Twitch
         [EnumMember(Value = "r9k_on")]
         R9kOn,
 
-        // TODO: Raise separate event for this and parse relevant extra data?
         // @msg-id=room_mods :tmi.twitch.tv NOTICE rokuhodo_ :The moderators of this channel are: dumj01, guyfromuranus, hoshinokamikagaseo, jents217, odizzle94, rokuhodo_, thewalkthroughking, usernameop
         /// <summary>
         /// The list of moderators for a room was requested.
@@ -228,14 +245,19 @@ namespace TwitchNet.Enums.Clients.Irc.Twitch
         [EnumMember(Value = "turbo_only_color")]
         TurboOnlyColor,
 
-        // TODO: Raise separate event for this and parse relevant extra data?
+        // @msg-id=unban_success :tmi.twitch.tv NOTICE #rokuhodo_ :RokuBotto is no longer banned from this channel.
         /// <summary>
-        /// A user was unbanned.
+        /// A user was unbanned or untimed out.
         /// </summary>
         [EnumMember(Value = "unban_success")]
         UnbanSuccess,
 
-        // TODO: Raise separate event for this and parse relevant extra data?
+        /// <summary>
+        /// A user was unmodded.
+        /// </summary>
+        [EnumMember(Value = "unmod_success")]
+        UnmodSuccess,
+
         /// <summary>
         /// An unrecognized Twitch chat command was attempted to be used or was attempted to get help on.
         /// </summary>
@@ -380,7 +402,7 @@ namespace TwitchNet.Enums.Clients.Irc.Twitch
         [EnumMember(Value = "usage_unhost")]
         UsageUnhost,
 
-        // TODO: Raise separate event for this and parse relevant extra data?
+        // @msg-id=unsupported_chatrooms_cmd :tmi.twitch.tv NOTICE #chatrooms:45947671:e0cb36e1-29b1-481a-a85f-a01bc9a36646 :The command /commercial cannot be used in a chatroom
         /// <summary>
         /// An unsupported chat room coomand was attempted to be used.
         /// </summary>

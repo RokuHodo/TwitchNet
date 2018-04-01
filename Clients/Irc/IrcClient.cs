@@ -606,6 +606,8 @@ TwitchNet.Clients.Irc
             byte[] bytes = Encoding.UTF8.GetBytes(message + "\r\n");            
             stream.Write(bytes, 0, bytes.Length);
             stream.Flush();
+
+            // TODO: OnMessageSent
         }
 
         /// <summary>
@@ -632,6 +634,8 @@ TwitchNet.Clients.Irc
             byte[] bytes = Encoding.UTF8.GetBytes(message + "\r\n");
             await stream.WriteAsync(bytes, 0, bytes.Length);
             stream.Flush();
+
+            // TODO: OnMessageSent
         }
 
         /// <summary>
@@ -680,7 +684,7 @@ TwitchNet.Clients.Irc
             int bytes_count = 0;
             byte[] buffer = new byte[1024];
 
-            List<byte> line_bytes = new List<byte>();
+            List<byte> data = new List<byte>();
 
             reading = true;
             while (polling && !socket.IsNull() && !stream.IsNull())
@@ -718,12 +722,13 @@ TwitchNet.Clients.Irc
 
                     // 0x0D = '\r', 0x0A = '\n'
                     if (buffer[index] == 0x0D || buffer[index] == 0x0A)
-                    {
-                        string message_raw = Encoding.UTF8.GetString(line_bytes.ToArray(), 0, line_bytes.Count);
-                        line_bytes.Clear();
+                    {                       
 
-                        ProcessMessage(message_raw);
+                        ProcessData(data.ToArray());
+                        data.Clear();
 
+                        // This doesn't take into account boundary cases where buffer[1023] == '\n' and then buffer[0] == '\r'.
+                        // Need to "fix" this, although all it would do now is send a blank message.
                         int next_index = index + 1;
                         if (buffer[index] == 0x0D && next_index < buffer.Length)
                         {
@@ -735,7 +740,7 @@ TwitchNet.Clients.Irc
                     }
                     else
                     {
-                        line_bytes.Add(buffer[index]);
+                        data.Add(buffer[index]);
                     }
                 }
 
@@ -748,19 +753,26 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Processes message encoded by the <see cref="NetworkStream"/>.
         /// </summary>
-        /// <param name="message_raw"></param>
+        /// <param name="encoded_data"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void
-        ProcessMessage(string message_raw)
+        ProcessData(byte[] data)
         {
-            Console.WriteLine(message_raw);
-
-            if (!message_raw.IsValid())
+            if (!data.IsValid())
             {
                 return;
             }
 
-            IrcMessage message_irc = new IrcMessage(message_raw);
+            // TODO: OnDataReceieved
+
+            string encoded_data = Encoding.UTF8.GetString(data, 0, data.Length);
+            if (!encoded_data.IsValid())
+            {
+                return;
+            }
+            Console.WriteLine(encoded_data);
+
+            IrcMessage message_irc = new IrcMessage(data, encoded_data);
             if (!message_irc.command.IsValid())
             {
                 return;

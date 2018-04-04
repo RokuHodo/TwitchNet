@@ -259,7 +259,7 @@
 
         /// <summary>
         /// <para>
-        /// Stops a raid from occuring before the raid goes off.
+        /// Stops a raid in progress from happening.
         /// This command does not work in a chat room.
         /// </para>
         /// <para>Command: /unraid</para>

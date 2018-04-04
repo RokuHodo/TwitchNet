@@ -72,6 +72,7 @@
     <Compile Include="Enums\Clients\Irc\Twitch\SubscriptionPlan.cs" />
     <Compile Include="Enums\Clients\Irc\Twitch\HostTargetType.cs" />
     <Compile Include="Enums\Clients\Irc\Twitch\NoticeType.cs" />
+    <Compile Include="Enums\Clients\Irc\Twitch\FollowersDurationPeriod.cs" />
     <Compile Include="Enums\Clients\Irc\Twitch\UserNoticeType.cs" />
     <Compile Include="Enums\Clients\Irc\Twitch\RoomStateType.cs" />
     <Compile Include="Enums\Clients\Irc\Twitch\BadgeType.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Enums\Api\Videos\VideoSort.cs" />
     <Compile Include="Enums\Api\Videos\VideoPeriod.cs" />
     <Compile Include="Events\Clients\Irc\ChannelOperatorEventArgs.cs" />
+    <Compile Include="Events\Clients\Irc\DataEventArgs.cs" />
     <Compile Include="Events\Clients\Irc\Twitch\ChatRoomBadUnmodModEventArgs.cs" />
     <Compile Include="Events\Clients\Irc\Twitch\BadUnmodModEventArgs.cs" />
     <Compile Include="Events\Clients\Irc\Twitch\ChatRoomBadModModEventArgs.cs" />

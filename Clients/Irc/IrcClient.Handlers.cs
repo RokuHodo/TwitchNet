@@ -40,9 +40,19 @@ TwitchNet.Clients.Irc
         protected            Dictionary<string, MessageHandler>      handlers;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received.</para>
+        /// <para>Raised data is receieved from the server.</para>
         /// </summary>
-        public virtual event EventHandler<IrcMessageEventArgs>      OnIrcMessage;
+        public virtual event EventHandler<DataEventArgs>            OnDataReceived;
+
+        /// <summary>
+        /// <para>Raised when data is sent by the client.</para>
+        /// </summary>
+        public virtual event EventHandler<DataEventArgs>            OnDataSent;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received from the server.</para>
+        /// </summary>
+        public virtual event EventHandler<IrcMessageEventArgs>      OnIrcMessageReceived;        
 
         /// <summary>
         /// <para>Raised when an the internal socket establishes a connection to the IRC server.</para>
@@ -190,6 +200,9 @@ TwitchNet.Clients.Irc
 
         #region Messange handling
 
+        /// <summary>
+        /// Sets all <see cref="IrcMessage"/> handlers back to the default methods.
+        /// </summary>
         public virtual void
         DefaultHandlers()
         {

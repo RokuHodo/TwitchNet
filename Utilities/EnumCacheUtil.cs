@@ -273,6 +273,29 @@ namespace TwitchNet.Utilities
             { CommercialLength.Seconds180,  "180" },
         };
 
+        private static
+        Dictionary<string, FollowersDurationPeriod> to_followers_duration_period = new Dictionary<string, FollowersDurationPeriod>
+        {
+            { "mo",         FollowersDurationPeriod.Months },
+            { "month",      FollowersDurationPeriod.Months },
+            { "months",     FollowersDurationPeriod.Months },
+            { "w",          FollowersDurationPeriod.Weeks },
+            { "week",       FollowersDurationPeriod.Weeks },
+            { "weeks",      FollowersDurationPeriod.Weeks },
+            { "d",          FollowersDurationPeriod.Days },
+            { "day",        FollowersDurationPeriod.Days },
+            { "days",       FollowersDurationPeriod.Days },
+            { "h",          FollowersDurationPeriod.Hours },
+            { "hour",       FollowersDurationPeriod.Hours },
+            { "hours",      FollowersDurationPeriod.Hours },
+            { "m",          FollowersDurationPeriod.Minutes },
+            { "minute",     FollowersDurationPeriod.Minutes },
+            { "minutes",    FollowersDurationPeriod.Minutes },
+            { "s",          FollowersDurationPeriod.Seconds },
+            { "second",     FollowersDurationPeriod.Seconds },
+            { "seconds",    FollowersDurationPeriod.Seconds },
+        };
+
         #endregion
 
         #region Methods
@@ -508,6 +531,28 @@ namespace TwitchNet.Utilities
             }
 
             return command;
+        }
+
+        /// <summary>
+        /// Converts a string to a <see cref="FollowersDurationPeriod"/> enum value.
+        /// </summary>
+        /// <param name="str">The string to convert.</param>
+        /// <returns>
+        /// Returns the corresponding <see cref="FollowersDurationPeriod"/> value if successful.
+        /// Returns <see cref="FollowersDurationPeriod.Seconds"/> otherwise.
+        /// </returns>
+        public static FollowersDurationPeriod
+        ToFollowersDurationPeriod(string str)
+        {
+            FollowersDurationPeriod period = FollowersDurationPeriod.Seconds;
+            if (str.IsNull())
+            {
+                return period;
+            }
+
+            to_followers_duration_period.TryGetValue(str, out period);
+
+            return period;
         }
 
         #endregion                                                

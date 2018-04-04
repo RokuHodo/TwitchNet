@@ -133,7 +133,8 @@ TwitchNet.Clients.Irc
             SetState(ClientState.Disconnected);
 
             reading = false;
-            auto_pong = false;
+
+            DefaultSettings();
 
             handlers = new Dictionary<string, MessageHandler>();
             names = new Dictionary<string, List<string>>();
@@ -141,6 +142,19 @@ TwitchNet.Clients.Irc
         }
 
         #endregion
+
+        #region Settings methods
+
+        /// <summary>
+        /// Sets all client settings to their default values.
+        /// </summary>
+        public virtual void
+        DefaultSettings()
+        {
+            auto_pong = false;
+        }
+
+        #endregion        
 
         #region Connection handling
 
@@ -503,7 +517,6 @@ TwitchNet.Clients.Irc
         /// Ends a client session with the IRC server.
         /// </summary>
         /// <param name="trailing">The trailing paramater to attach to the message.</param>
-        /// <param name="trailing"></param>
         public void
         Quit(string trailing = "")
         {
@@ -521,12 +534,8 @@ TwitchNet.Clients.Irc
 
         /// <summary>
         /// Joins one or more IRC channels.
-        /// The preceeding '#' or ampersand must be included in the channel name(s).
         /// </summary>
-        /// <param name="channels">
-        /// The channel nick(s) to join, case sensitive.
-        /// The preceeding '#' or ampersand must be included in the channel nick(s).
-        /// </param>
+        /// <param name="channels">The IRC channel(s) to join.</param>
         /// <exception cref="ArgumentException">Thrown if the channel params are null or empty.</exception>
         public void
         Join(params string[] channels)
@@ -540,10 +549,7 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Leaves one or more IRC channels.        
         /// </summary>
-        /// <param name="channels">
-        /// The channel nick(s) to leave, case sensitive.
-        /// The preceeding '#' or ampersand must be included in the channel nick(s).
-        /// </param>
+        /// <param name="channels">The IRC channel(s) to leave.</param>
         /// <exception cref="ArgumentException">Thrown if the channel params are null or empty.</exception>
         public void
         Part(params string[] channels)
@@ -555,12 +561,9 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// Sends a private message in a channel.
+        /// Sends a private message in an IRC channel.
         /// </summary>
-        /// <param name="channel">
-        /// The channel to send the message in, case sensitive.
-        /// The preceeding '#' or ampersand must be included in the channel nick.
-        /// </param>
+        /// <param name="channel">The IRC channel. Where to send the message.</param>
         /// <param name="format">
         /// The message to send.
         /// This can be a normal string and does not need to include variable formats.
@@ -583,13 +586,13 @@ TwitchNet.Clients.Irc
         #region Sending
 
         /// <summary>
-        /// Sends a raw string to the IRC.
+        /// Sends a raw string.
         /// </summary>
         /// <param name="format">
         /// The string to send.
         /// This can be a normal string and does not need to include variable formats.
         /// </param>
-        /// <param name="arguments">Optional format variable arugments.</param>
+        /// <param name="arguments">Optional format arugments.</param>
         /// <exception cref="ArgumentException">Thrown if the format is null, empty, or whitespace.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void
@@ -607,17 +610,17 @@ TwitchNet.Clients.Irc
             stream.Write(bytes, 0, bytes.Length);
             stream.Flush();
 
-            // TODO: OnMessageSent
+            OnDataSent.Raise(this, new DataEventArgs(bytes, message));
         }
 
         /// <summary>
-        /// Asynchronously sends a raw string to the IRC.
+        /// Asynchronously sends a raw string.
         /// </summary>
         /// <param name="format">
         /// The string to send.
         /// This can be a normal string and does not need to include variable formats.
         /// </param>
-        /// <param name="arguments">Optional format variable arugments.</param>
+        /// <param name="arguments">Optional format arugments.</param>
         /// <exception cref="ArgumentException">Thrown if the format is null, empty, or whitespace.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async Task
@@ -635,7 +638,7 @@ TwitchNet.Clients.Irc
             await stream.WriteAsync(bytes, 0, bytes.Length);
             stream.Flush();
 
-            // TODO: OnMessageSent
+            OnDataSent.Raise(this, new DataEventArgs(bytes, message));
         }
 
         /// <summary>
@@ -753,7 +756,7 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Processes message encoded by the <see cref="NetworkStream"/>.
         /// </summary>
-        /// <param name="encoded_data"></param>
+        /// <param name="data">The byte data received form the server.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void
         ProcessData(byte[] data)
@@ -763,24 +766,24 @@ TwitchNet.Clients.Irc
                 return;
             }
 
-            // TODO: OnDataReceieved
-
-            string encoded_data = Encoding.UTF8.GetString(data, 0, data.Length);
-            if (!encoded_data.IsValid())
-            {
-                return;
-            }
-            Console.WriteLine(encoded_data);
-
-            IrcMessage message_irc = new IrcMessage(data, encoded_data);
-            if (!message_irc.command.IsValid())
+            string raw = Encoding.UTF8.GetString(data, 0, data.Length);
+            if (!raw.IsValid())
             {
                 return;
             }
 
-            OnIrcMessage.Raise(this, new IrcMessageEventArgs(message_irc));
+            Console.WriteLine(raw);
+            OnDataReceived.Raise(this, new DataEventArgs(data, raw));
 
-            RunHandler(message_irc);
+            IrcMessage irc_message = new IrcMessage(data, raw);
+            if (!irc_message.command.IsValid())
+            {
+                return;
+            }
+
+            OnIrcMessageReceived.Raise(this, new IrcMessageEventArgs(irc_message));
+
+            RunHandler(irc_message);
         }
 
         #endregion

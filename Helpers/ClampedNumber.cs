@@ -17,6 +17,10 @@ TwitchNet.Helpers
 
         internal type _value_max;
 
+        /// <summary>
+        /// The value of the number.
+        /// Clamped between a min and a max.
+        /// </summary>
         public type value
         {
             get

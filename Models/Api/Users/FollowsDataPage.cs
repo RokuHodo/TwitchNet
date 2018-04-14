@@ -1,7 +1,8 @@
 ﻿//imported .dll's
 using Newtonsoft.Json;
 
-namespace TwitchNet.Models.Api.Users
+namespace
+TwitchNet.Models.Api.Users
 {
     public class
     FollowsDataPage<data_type> : DataPage<data_type>

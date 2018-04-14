@@ -20,7 +20,7 @@ using RestSharp;
 namespace 
 TwitchNet.Utilities
 {
-    // TODO: (RestRequestUtil) Make the base URL customizable to accomodate for any future API revisions that may use different URL's.
+    // TODO: Make the base URL customizable to accomodate for any future API revisions that may use different URL's.
 
     internal static class
     RestRequestUtil
@@ -135,7 +135,7 @@ TwitchNet.Utilities
         ExecuteRequestPagesAsync<data_type, result_type>(string endpoint, Method method, string bearer_token, string client_id, QueryParametersPage query_parameters, ApiRequestSettings api_request_settings)
         where result_type : DataPage<data_type>, IDataPage<data_type>, new()
         {
-            ApiResponse<result_type> api_response = new ApiResponse<result_type>();
+            ApiResponse<result_type> api_response = new ApiResponse<result_type>();     
             List<data_type> data = new List<data_type>();
 
             if (query_parameters.IsNullOrDefault())
@@ -155,18 +155,20 @@ TwitchNet.Utilities
                 if (api_page_response.result.data.IsValid())
                 {
                     data.AddRange(api_page_response.result.data);
-                }
-
-                api_response = api_page_response;
-                api_response.result.data = data;
+                }                
 
                 requesting = api_page_response.result.data.IsValid() && api_page_response.result.pagination.cursor.IsValid();
                 if (requesting)
                 {
                     query_parameters.after = api_page_response.result.pagination.cursor;
                 }
+                else
+                {
+                    api_response = api_page_response;
+                    api_response.result.data = data;
+                }
             }
-            while (requesting);
+            while (requesting);            
 
             // reset after in case the same set of query parameters are used for more than one request
             query_parameters.after = string.Empty;
@@ -193,8 +195,6 @@ TwitchNet.Utilities
 
             if(api_request_settings.internal_error_handling == ErrorHandling.Error && !rest_response.ErrorException.IsNullOrDefault())
             {
-                Log.Error(Log.FormatColumns(nameof(rest_response.ErrorException), rest_response.ErrorException.Message));
-
                 throw rest_response.ErrorException;
             }
 
@@ -248,8 +248,6 @@ TwitchNet.Utilities
             {
                 case StatusHandling.Error:
                 {                    
-                    Log.Error(exception_message);
-
                     exception = new Exception(exception_message);
                     api_response.exception = exception;
 
@@ -263,7 +261,7 @@ TwitchNet.Utilities
                         ++api_request_settings._status_handlers_settings[status_code].retry_count;
                         if(api_request_settings._status_handlers_settings[status_code].retry_count > api_request_settings._status_handlers_settings[status_code].retry_limit.value && api_request_settings._status_handlers_settings[status_code].retry_limit.value != -1)
                         {
-                            Log.Warning(TimeStamp.TimeLong, status_prefix + " receieved from Twitch. Retry limit " + api_request_settings._status_handlers_settings[status_code].retry_limit.value + " exceeded. Cancelling request.");
+                            Log.PrintLine(TimeStamp.TimeLong, status_prefix + " receieved from Twitch. Retry limit " + api_request_settings._status_handlers_settings[status_code].retry_limit.value + " exceeded. Cancelling request.");
                             api_request_settings._status_handlers_settings[status_code].retry_count = 0;
 
                             exception_message += " Retry limit exceeded.";
@@ -278,9 +276,9 @@ TwitchNet.Utilities
                     TimeSpan time = api_response.rate_limit.reset - DateTime.Now;
                     if (api_response.rate_limit.remaining == 0 && time.TotalMilliseconds > 0)
                     {
-                        Log.Warning(TimeStamp.TimeLong, "Request rate limit reached. Waiting " + time.TotalMilliseconds + "ms to execute the request again.");
+                        Log.PrintLine(TimeStamp.TimeLong, "Request rate limit reached. Waiting " + time.TotalMilliseconds + "ms to execute the request again.");
                         await Task.Delay(time);
-                        Log.Warning(TimeStamp.TimeLong, "Resuming request.");
+                        Log.PrintLine(TimeStamp.TimeLong, "Resuming request.");
                     }
 
                     ApiResponseBundle<result_type> response_bundle = await ExecuteRequestAsync<result_type>(rest_response.Request, api_request_settings);

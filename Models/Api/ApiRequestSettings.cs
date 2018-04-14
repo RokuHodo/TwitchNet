@@ -88,11 +88,11 @@ TwitchNet.Models.Api
         {
             get
             {
-                return _status_default_handling;
+                return _status_handlers_settings[000].handling;
             }
             set
             {
-                status_default_handling = value;
+                _status_handlers_settings[000].handling = value;
             }
         }
 
@@ -113,11 +113,11 @@ TwitchNet.Models.Api
         {
             get
             {
-                return _status_429_retry_limit.value;
+                return _status_handlers_settings[429].retry_limit.value;
             }
             set
             {
-                _status_429_retry_limit.value = value;
+                _status_handlers_settings[429].retry_limit.value = value;
             }
         }
 
@@ -129,11 +129,11 @@ TwitchNet.Models.Api
         {
             get
             {
-                return _status_429_handling;
+                return _status_handlers_settings[429].handling;
             }
             set
             {
-                _status_429_handling = value;
+                _status_handlers_settings[429].handling = value;
             }
         }
 
@@ -154,11 +154,11 @@ TwitchNet.Models.Api
         {
             get
             {
-                return _status_500_retry_limit.value;
+                return _status_handlers_settings[500].retry_limit.value;
             }
             set
             {
-                _status_500_retry_limit.value = value;
+                _status_handlers_settings[500].retry_limit.value = value;
             }
         }
 
@@ -170,11 +170,11 @@ TwitchNet.Models.Api
         {
             get
             {
-                return _status_500_handling;
+                return _status_handlers_settings[500].handling;
             }
             set
             {
-                _status_500_handling = value;
+                _status_handlers_settings[500].handling = value;
             }
         }
 
@@ -186,11 +186,11 @@ TwitchNet.Models.Api
         {
             get
             {
-                return _status_503_handling;
+                return _status_handlers_settings[503].handling;
             }
             set
             {
-                _status_503_handling = value;
+                _status_handlers_settings[503].handling = value;
             }
         }
 
@@ -225,11 +225,11 @@ TwitchNet.Models.Api
             _status_429_handling                = StatusHandling.Error;
             _status_429_hanlding_settings       = new StatusHandlingSettings(_status_429_retry_limit, _status_429_handling);
 
-            _status_500_retry_limit = new ClampedNumber<short>(-1, 1, 1);
+            _status_500_retry_limit             = new ClampedNumber<short>(-1, 1, 1);
             _status_500_handling                = StatusHandling.Error;
             _status_500_hanlding_settings       = new StatusHandlingSettings(_status_500_retry_limit, _status_500_handling);
 
-            _status_503_retry_limit = new ClampedNumber<short>(1, 1, 1);
+            _status_503_retry_limit             = new ClampedNumber<short>(1, 1, 1);
             _status_503_handling                = StatusHandling.Error;
             _status_503_hanlding_settings       = new StatusHandlingSettings(_status_503_retry_limit, _status_503_handling);
 

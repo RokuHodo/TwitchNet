@@ -79,7 +79,7 @@ TwitchNet.Models.Api.Videos
         /// This is the language selected in the Twitch dashboard or in the video information editor, not the language selected at the home page.
         /// </summary>
         [JsonProperty("language")]
-        public VideoLanguage    language        { get; protected set; }
+        public BroadcasterLanguage    language        { get; protected set; }
 
         /// <summary>
         /// The type of the video.

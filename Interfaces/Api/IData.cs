@@ -1,4 +1,4 @@
-﻿// standrad namespaces
+﻿// standard namespaces
 using System.Collections.Generic;
 
 // imported .dll's

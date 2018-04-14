@@ -8,25 +8,7 @@ TwitchNet.Extensions
 {
     internal static class
     ReflectionExtensions
-    {
-        /// <summary>
-        /// Checks to see if a <see cref="Type"/> has a custom attribute.
-        /// </summary>
-        /// <typeparam name="attribute_type">The <see cref="Attribute"/> type.</typeparam>
-        /// <param name="type">The <see cref="Type"/> of the object</param>
-        /// <returns>
-        /// Returns true if the object <see cref="Type"/> has the attribute.
-        /// Returns false otherwise.
-        /// </returns>
-        public static bool
-        HasAttribute<attribute_type>(this Type type)
-        where attribute_type : Attribute
-        {
-            bool result = !type.GetCustomAttribute<attribute_type>().IsNull();
-
-            return result;
-        }
-
+    {        
         /// <summary>
         /// Returns all the public properties of the current <see cref="Type"/> with a specified <see cref="Attribute"/>.
         /// </summary>
@@ -55,7 +37,7 @@ TwitchNet.Extensions
 
             foreach(PropertyInfo property in properties)
             {
-                if(!Attribute.GetCustomAttribute(property, typeof(attribute_type)).IsNull())
+                if(property.HasAttribute<attribute_type>())
                 {
                     result.Add(property);
                 }
@@ -65,60 +47,71 @@ TwitchNet.Extensions
         }
 
         /// <summary>
-        /// Gets a custom <see cref="Attribute"/> from a property.
+        /// Checks to see if a <see cref="Type"/> has a custom attribute.
         /// </summary>
         /// <typeparam name="attribute_type">The <see cref="Attribute"/> type.</typeparam>
-        /// <param name="property">The property to get the <see cref="Attribute"/> from.</param>
+        /// <param name="type">The <see cref="Type"/> of the object</param>
         /// <returns>
-        /// Returns the custom <see cref="Attribute"/> if the property has it.
-        /// Returns the default <see cref="Attribute"/> otherwise.
+        /// Returns true if the object <see cref="Type"/> has the attribute.
+        /// Returns false otherwise.
         /// </returns>
-        public static attribute_type
-        GetAttribute<attribute_type>(this PropertyInfo property)
+        public static bool
+        HasAttribute<attribute_type>(this Type type)
         where attribute_type : Attribute
         {
-            attribute_type attribute = default(attribute_type);
+            bool result = !type.GetCustomAttribute<attribute_type>().IsNull();
 
-            if (property.IsNull())
+            return result;
+        }
+
+        /// <summary>
+        /// Checks to see if a member has a custom attribute.
+        /// </summary>
+        /// <typeparam name="attribute_type">The <see cref="Attribute"/> type.</typeparam>
+        /// <param name="member">The member to check.</param>
+        /// <returns>
+        /// Returns true if the member has the attribute.
+        /// Returns false otherwise.
+        /// </returns>
+        public static bool
+        HasAttribute<attribute_type>(this MemberInfo member)
+        where attribute_type : Attribute
+        {
+            bool result = !Attribute.GetCustomAttribute(member, typeof(attribute_type)).IsNull();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Gets a custom <see cref="Attribute"/> from a <see cref="MemberInfo"/>.
+        /// </summary>
+        /// <typeparam name="attribute_type">The <see cref="Attribute"/> type.</typeparam>
+        /// <param name="member">The member to get the <see cref="Attribute"/> from.</param>
+        /// <returns>
+        /// Returns the custom <see cref="Attribute"/> if the member has it.
+        /// Returns <see cref="null"/> otherwise.
+        /// </returns>
+        public static attribute_type
+        GetAttribute<attribute_type>(this MemberInfo member)
+        where attribute_type : Attribute
+        {
+            attribute_type attribute = null;
+
+            if (member.IsNull())
             {
                 return attribute;
             }
 
-            attribute = Attribute.GetCustomAttribute(property, typeof(attribute_type)) as attribute_type;
+            attribute = Attribute.GetCustomAttribute(member, typeof(attribute_type)) as attribute_type;
 
             return attribute;
         }
 
         /// <summary>
-        /// Gets a custom <see cref="Attribute"/> from a property.
+        /// Tries to get a custom <see cref="Attribute"/> from a <see cref="PropertyInfo"/>.
         /// </summary>
         /// <typeparam name="attribute_type">The <see cref="Attribute"/> type.</typeparam>
-        /// <param name="field">The field to get the <see cref="Attribute"/> from.</param>
-        /// <returns>
-        /// Returns the custom <see cref="Attribute"/> if the property has it.
-        /// Returns the default <see cref="Attribute"/> otherwise.
-        /// </returns>
-        public static attribute_type
-        GetAttribute<attribute_type>(this FieldInfo field)
-        where attribute_type : Attribute
-        {
-            attribute_type attribute = default(attribute_type);
-
-            if (field.IsNull())
-            {
-                return attribute;
-            }
-
-            attribute = Attribute.GetCustomAttribute(field, typeof(attribute_type)) as attribute_type;
-
-            return attribute;
-        }
-
-        /// <summary>
-        /// Tries to get a custom <see cref="Attribute"/> from an enum value.
-        /// </summary>
-        /// <typeparam name="attribute_type">The <see cref="Attribute"/> type.</typeparam>
-        /// <param name="value">The value of the <see cref="Enum"/>.</param>
+        /// <param name="property">The value of the <see cref="Enum"/>.</param>
         /// <param name="attribute">
         /// The object value of <see cref="Enum"/> if the <see cref="Attribute"/> is successfully found.
         /// If the <see cref="Attribute"/> is not found, the value is <see cref="null"/>.</param>
@@ -127,13 +120,10 @@ TwitchNet.Extensions
         /// Returns false otherwise.
         /// </returns>
         public static bool
-        TryGetAttribute<attribute_type>(this Enum value, out attribute_type attribute)
+        TryGetAttribute<attribute_type>(this MemberInfo member, out attribute_type attribute)
         where attribute_type : Attribute
         {
-            Type enum_type = value.GetType();
-            string field = Enum.GetName(enum_type, value);
-
-            attribute = enum_type.GetField(field).GetAttribute<attribute_type>();
+            attribute = member.GetAttribute<attribute_type>();
 
             bool success = !attribute.IsNull();
 

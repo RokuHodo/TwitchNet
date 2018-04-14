@@ -1,4 +1,5 @@
 ﻿// project namespaces
+using TwitchNet.Enums;
 using TwitchNet.Enums.Api.Users;
 
 // imported .dll's

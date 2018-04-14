@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace
-TwitchNet.Enums.Api.Users
+TwitchNet.Enums
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum
@@ -16,24 +16,31 @@ TwitchNet.Enums.Api.Users
         /// The user is a normal user.
         /// </summary>
         [EnumMember(Value = "")]
-        Empty       = 0,
+        None       = 0,
+
+        /// <summary>
+        /// The user is a channel moderator.
+        /// This is only applicanle in chat messages and will never be part of a valid API response.
+        /// </summary>
+        [EnumMember(Value = "mod")]
+        Mod         = 1,
 
         /// <summary>
         /// The user is a Twitch global mod.
         /// </summary>
         [EnumMember(Value = "global_mod")]
-        Global_Mod  = 1,
+        GlobalMod   = 2,
 
         /// <summary>
         /// The user is a Twitch staff member.
         /// </summary>
         [EnumMember(Value = "staff")]
-        Staff       = 2,
+        Staff       = 3,
 
         /// <summary>
         /// The user is a Twitch admin.
         /// </summary>
         [EnumMember(Value = "admin")]
-        Admin       = 3,
+        Admin       = 4,
     }
 }

@@ -48,8 +48,8 @@ TwitchNet.Models.Api
 
             if (headers.ContainsKey("Ratelimit-Reset"))
             {
-                double reset_double = Convert.ToDouble(headers["Ratelimit-Reset"]);
-                reset = reset_double.ToDateTimeFromUnixEpoch();
+                long reset_double = Convert.ToInt64(headers["Ratelimit-Reset"]);
+                reset = reset_double.FromUnixEpochSeconds();
             }
         }
     }

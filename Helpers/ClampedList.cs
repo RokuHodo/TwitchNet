@@ -17,6 +17,10 @@ TwitchNet.Helpers
         private List<type>  _values                 = new List<type>();
         private List<type>  _values_default         = new List<type>();
 
+        /// <summary>
+        /// The list values.
+        /// Clamped between 0 and 100 elements.
+        /// </summary>
         public List<type> values
         {
             get

@@ -161,14 +161,29 @@ TwitchNet.Utilities
             throw new ArgumentException(message, parameter_name);
         }
 
+        /// <summary>
+        /// Throws if an <see cref="FormatException"/> if a string does not meet Twitch's user name format requirements.
+        /// </summary>
+        /// <param name="parameter">The parameter to check.</param>
+        /// <param name="parameter_name">The name of the parameter.</param>
+        /// <param name="callback">The action to perform if an exception would be thrown, before the excpetion is actually thrown.</param>
+        /// <exception cref="FormatException">Thrown if the string is not between 2 and 24 characters long, and does not only contian alpha-numeric characters.</exception>
         public static void
-        ThrowIfInvalidNick(string parameter, string parameter_name, Action callback = null)
+        ThrowIfInvalidNick(string parameter, Action callback = null)
         {
-            ThrowIfInvalidNick(parameter, parameter_name, "Invalid IRC nick: " + parameter + ". " + nameof(parameter) + " can only contain lower case alpha-numeric characters and must be between 2 and 24 characters long.", callback);
+            ThrowIfInvalidNick(parameter, "Invalid IRC nick: " + parameter + ". The nick can only contain lower case alpha-numeric characters and must be between 2 and 24 characters long.", callback);
         }
 
+        /// <summary>
+        /// Throws if an <see cref="FormatException"/> if a string does not meet Twitch's user name format requirements.
+        /// </summary>
+        /// <param name="parameter">The parameter to check.</param>
+        /// <param name="parameter_name">The name of the parameter.</param>
+        /// <param name="message">The excpetion message.</param>
+        /// <param name="callback">The action to perform if an exception would be thrown, before the excpetion is actually thrown.</param>
+        /// <exception cref="FormatException">Thrown if the string is not between 2 and 24 characters long, and does not only contian alpha-numeric characters.</exception>
         public static void
-        ThrowIfInvalidNick(string parameter, string parameter_name, string message, Action callback = null)
+        ThrowIfInvalidNick(string parameter, string message, Action callback = null)
         {
             if (parameter.IsValid())
             {
@@ -185,7 +200,49 @@ TwitchNet.Utilities
                 callback();
             }
 
-            throw new ArgumentException(message, parameter_name);
+            throw new FormatException(message);
+        }
+
+        /// <summary>
+        /// Throws if an <see cref="FormatException"/> if a string does not meet Twitch's /followers duration format requirements.
+        /// </summary>
+        /// <param name="parameter">The parameter to check.</param>
+        /// <param name="parameter_name">The name of the parameter.</param>
+        /// <param name="callback">The action to perform if an exception would be thrown, before the excpetion is actually thrown.</param>
+        /// <exception cref="FormatException">Thrown if the string does not meet Twitch's /followers duration format requirements.</exception>
+        public static void
+        ThrowIfInvalidFollowersDuration(string parameter, Action callback = null)
+        {
+            ThrowIfInvalidFollowersDuration(parameter,  "Invalid /followers duration format: " + parameter + ".", callback);
+        }
+
+        /// <summary>
+        /// Throws if an <see cref="FormatException"/> if a string does not meet Twitch's /followers duration format requirements.
+        /// </summary>
+        /// <param name="parameter">The parameter to check.</param>
+        /// <param name="parameter_name">The name of the parameter.</param>
+        /// <param name="message">The excpetion message.</param>
+        /// <param name="callback">The action to perform if an exception would be thrown, before the excpetion is actually thrown.</param>
+        /// <exception cref="FormatException">Thrown if the string does not meet Twitch's /followers duration format requirements.</exception>
+        public static void
+        ThrowIfInvalidFollowersDuration(string parameter, string message, Action callback = null)
+        {
+            if (parameter.IsValid())
+            {
+                return;
+            }
+
+            if (TwitchUtil.IsValidFollowersDurationFormat(parameter))
+            {
+                return;
+            }
+
+            if (!callback.IsNull())
+            {
+                callback();
+            }
+
+            throw new FormatException(message);
         }
     }
 }

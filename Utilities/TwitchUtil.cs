@@ -21,7 +21,7 @@ namespace TwitchNet.Utilities
         private static Regex user_nick_regex                        = new Regex("^[a-z][a-z0-9_]{2,24}$");
         private static Regex html_hex_color_regex                   = new Regex("^#([A-Fa-f0-9]{6})$");
         private static Regex video_length_regex                     = new Regex("^(?:(?:(?<hours>\\d{1,2})h)?(?<minutes>\\d{1,2})m)?(?<seconds>\\d{1,2})s$");
-        private static Regex followers_duration_regex               = new Regex("^(?:(?<duration>\\d+)\\s*(?<period>mo|months?|w|weeks?|d|days?|h|hours?|m|mninutes?|s|seconds?)\\s*)+$");        //"^(?:(?<months>\\d+)(?:\\s*mo|months?))*(?:(?<weeks>\\d+)(?:\\s*w|weeks?))*(?:(?<days>\\d+)(?:\\s*d|days?))*(?:(?<hours>\\d+)(?:\\s*h|hours?))*(?:(?<minutes>\\d+)(?:\\s*m|minutes?))*(?:(?<seconds>\\d+)(?:\\s*s|seconds?))*$");
+        private static Regex followers_duration_regex               = new Regex("^(?:(?<duration>\\d+)\\s*(?<period>mo|months?|w|weeks?|d|days?|h|hours?|m|mninutes?|s|seconds?)\\s*)+$");
 
         public static bool
         IsValidFollowersDurationFormat(string duration)

@@ -181,6 +181,7 @@ TwitchNet.Clients.Irc
         SendChatRoomPrivmsg(string user_id, string uuid, string format, params string[] arguments)
         {
             ExceptionUtil.ThrowIfInvalid(user_id, nameof(user_id));
+            // TODO: Check the actual format of the UUID instad of just if it is empty or null.
             ExceptionUtil.ThrowIfInvalid(uuid, nameof(uuid));
             ExceptionUtil.ThrowIfInvalid(format, nameof(format));
 
@@ -400,8 +401,11 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
         /// <param name="user_nick">The user to grant operator status.</param>
+        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
         public void Mod(string channel, string user_nick)
         {
+            ExceptionUtil.ThrowIfInvalidNick(user_nick);
+
             SendChatCommand(channel, ChatCommand.Mod, user_nick);
         }
 
@@ -411,8 +415,11 @@ TwitchNet.Clients.Irc
         /// <param name="user_id">The id of the user who owns the chat room.</param>
         /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
         /// <param name="user_nick">The user to grant operator status.</param>
+        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
         public void Mod(string user_id, string uuid, string user_nick)
         {
+            ExceptionUtil.ThrowIfInvalidNick(user_nick);
+
             SendChatCommand(user_id, uuid, ChatCommand.Mod, user_nick);
         }
 
@@ -421,8 +428,11 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
         /// <param name="user_nick">The user to grant operator status.</param>
+        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
         public void Unmod(string channel, string user_nick)
         {
+            ExceptionUtil.ThrowIfInvalidNick(user_nick);
+
             SendChatCommand(channel, ChatCommand.Unmod, user_nick);
         }
 
@@ -432,8 +442,11 @@ TwitchNet.Clients.Irc
         /// <param name="user_id">The id of the user who owns the chat room.</param>
         /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
         /// <param name="user_nick">The user to grant operator status.</param>
+        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
         public void Unmod(string user_id, string uuid, string user_nick)
         {
+            ExceptionUtil.ThrowIfInvalidNick(user_nick);
+
             SendChatCommand(user_id, uuid, ChatCommand.Unmod, user_nick);
         }
 
@@ -466,10 +479,11 @@ TwitchNet.Clients.Irc
         /// <param name="channel">The IRC channel. Where to send the message.</param>
         /// <param name="user_nick">The user to ban.</param>
         /// <param name="reason">The optional reason for the ban.</param>
+        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
         public void
         Ban(string channel, string user_nick, string reason = "")
         {
-            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
+            ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
             SendChatCommand(channel, ChatCommand.Ban, user_nick, reason);
         }
@@ -481,10 +495,11 @@ TwitchNet.Clients.Irc
         /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
         /// <param name="user_nick">The user to ban.</param>
         /// <param name="reason">The optional reason for the ban.</param>
+        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
         public void
         Ban(string user_id, string uuid, string user_nick, string reason = "")
         {
-            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
+            ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
             SendChatCommand(user_id, uuid, ChatCommand.Ban, user_nick, reason);
         }
@@ -494,10 +509,11 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
         /// <param name="user_nick">The user to unban.</param>
+        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
         public void
         Unban(string channel, string user_nick)
         {
-            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
+            ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
             SendChatCommand(channel, ChatCommand.Unban, user_nick);
         }
@@ -508,10 +524,11 @@ TwitchNet.Clients.Irc
         /// <param name="user_id">The id of the user who owns the chat room.</param>
         /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
         /// <param name="user_nick">The user to unban.</param>
+        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
         public void
         Unban(string user_id, string uuid, string user_nick)
         {
-            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
+            ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
             SendChatCommand(user_id, uuid, ChatCommand.Unban, user_nick);
         }
@@ -633,11 +650,12 @@ TwitchNet.Clients.Irc
         /// </para>
         /// </param>
         /// <param name="reason">The optional reason for the time out.</param>
+        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void
         Timeout(string channel, string user_nick, uint duration_seconds, string reason = "")
         {
-            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
+            ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
             // 1209600 seconds = 14 days (2 weeks)
             SendChatCommand(channel, ChatCommand.Timeout, user_nick, duration_seconds.Clamp<uint>(1, 1209600), reason);
@@ -660,11 +678,12 @@ TwitchNet.Clients.Irc
         /// </para>
         /// </param>
         /// <param name="reason">The optional reason for the time out.</param>
+        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void
         Timeout(string user_id, string uuid, string user_nick, uint duration_seconds, string reason = "")
         {
-            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
+            ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
             // 1209600 seconds = 14 days (2 weeks)
             SendChatCommand(user_id, uuid, ChatCommand.Timeout, user_nick, duration_seconds.Clamp<uint>(1, 1209600), reason);
@@ -675,10 +694,11 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
         /// <param name="user_nick">The user to un-time out.</param>
+        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
         public void
         Untimeout(string channel, string user_nick)
         {
-            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
+            ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
             SendChatCommand(channel, ChatCommand.Untimeout, user_nick);
         }
@@ -689,10 +709,11 @@ TwitchNet.Clients.Irc
         /// <param name="user_id">The id of the user who owns the chat room.</param>
         /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
         /// <param name="user_nick">The user to un-time out.</param>
+        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
         public void
         Untimeout(string user_id, string uuid, string user_nick)
         {
-            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
+            ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
             SendChatCommand(user_id, uuid, ChatCommand.Untimeout, user_nick);
         }
@@ -766,13 +787,46 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
         public void
-        EnableFollowerOnlyMode(string channel)
+        EnableFollowersOnlyMode(string channel)
         {
             SendChatCommand(channel, ChatCommand.Followers);
         }
 
-        //TODO: Make an overload that takes a raw string?
+        /// <summary>
+        /// <para>Enables follow olny mode in an IRC channel.</para>
+        /// <para>
+        /// Makes it so only users who have ben following the channel for a certain amouint of time can send messages in chat.
+        /// The broadcaster and moderators are exempt from this command.
+        /// </para>
+        /// </summary>
+        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="duration">
+        /// <para>
+        /// The amount of time the user must have been following the channel to send messages.
+        /// Clamped between the minimum and the maximum values.
+        /// </para>
+        /// <para>
+        /// Min: 0 seconds.
+        /// Max: 3 months (90 days).
+        /// </para>
+        /// </param>
+        /// <exception cref="FormatException">Thrown if the string does not meet Twitch's /followers duration format requirements.</exception>
+        public void
+        EnableFollowersOnlyMode(string channel, string duration)
+        {
+            ExceptionUtil.ThrowIfInvalidFollowersDuration(duration);
 
+            if (!TwitchUtil.TryConvertToFollowerDuratrion(duration, out TimeSpan time_span_duration))
+            {
+                // If the format is valid and it couldn't be converted, the value overflowed. Just continue using the max duration.
+                if (TwitchUtil.IsValidFollowersDurationFormat(duration))
+                {
+                    time_span_duration = new TimeSpan(90, 0, 0, 0, 0);
+                }
+            }
+
+            EnableFollowersOnlyMode(channel, time_span_duration);
+        }
 
         /// <summary>
         /// <para>Enables follow olny mode in an IRC channel.</para>
@@ -793,14 +847,9 @@ TwitchNet.Clients.Irc
         /// </para>
         /// </param>
         public void
-        EnableFollowerOnlyMode(string channel, TimeSpan duration)
+        EnableFollowersOnlyMode(string channel, TimeSpan duration)
         {
-
-            // Twtch considers 1 month = 30 days
-            if(duration.TotalDays > 90)
-            {
-                throw new ArgumentOutOfRangeException(nameof(duration), duration, "The duration cannot be more than 3 months (30 days).");
-            }
+            duration = duration.Clamp(TimeSpan.Zero, new TimeSpan(90, 0, 0, 0, 0));
 
             // manually calculate seconds in case the user used ms because Twitch doesn't support ms as a parameter.
             int seconds = duration.Seconds + duration.Milliseconds / 1000;
@@ -814,7 +863,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
         public void
-        DisableFollowerOnlyMode(string channel)
+        DisableFollowersOnlyMode(string channel)
         {
             SendChatCommand(channel, ChatCommand.FollowersOff);
         }
@@ -1034,7 +1083,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
         public void
-        EnableSubscriberOnlyMode(string channel)
+        EnableSubscribersOnlyMode(string channel)
         {
             SendChatCommand(channel, ChatCommand.Subscribers);
         }
@@ -1044,7 +1093,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
         public void
-        DisableSubscriberOnlyMode(string channel)
+        DisableSubscribersOnlyMode(string channel)
         {
             SendChatCommand(channel, ChatCommand.SubscribersOff);
         }
@@ -1070,10 +1119,11 @@ TwitchNet.Clients.Irc
         /// <param name="channel">The IRC channel. Where to send the message.</param>
         /// <param name="user_nick">The user to host.</param>
         /// <param name="tagline">A message shown to viewing parties.</param>
+        /// <exception cref="ArgumentException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
         public void
         Host(string channel, string user_nick, string tagline = "")
         {
-            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
+            ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
             SendChatCommand(channel, ChatCommand.Host, user_nick, tagline);
         }
@@ -1093,10 +1143,11 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
         /// <param name="user_nick">The user to raid.</param>
+        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
         public void
         Raid(string channel, string user_nick)
         {
-            ExceptionUtil.ThrowIfInvalidNick(user_nick, nameof(user_nick));
+            ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
             SendChatCommand(channel, ChatCommand.Raid, user_nick);
         }
@@ -1151,6 +1202,7 @@ TwitchNet.Clients.Irc
         public void
         SendChatCommand(string user_id, string uuid, ChatCommand command, params object[] arguments)
         {
+            // TODO: Move this to the ExceptionUtil?
             switch (command)
             {
                 case ChatCommand.Commercial:

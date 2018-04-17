@@ -5,7 +5,7 @@ namespace
 TwitchNet.Models.Api.Games
 {
     public class
-    TopGamesQueryParameters : QueryParametersPage, IQueryParametersPage
+    TopGamesQueryParameters : QueryParameters, IQueryParameters
     {
         private string _before;
 

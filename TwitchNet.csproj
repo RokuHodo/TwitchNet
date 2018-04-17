@@ -83,6 +83,7 @@
     <Compile Include="Enums\Api\Streams\StreamLanguage.cs" />
     <Compile Include="Enums\Api\Streams\StreamType.cs" />
     <Compile Include="Enums\Api\Users\BroadcasterType.cs" />
+    <Compile Include="Enums\Api\ResponseErrorSource.cs" />
     <Compile Include="Enums\UserType.cs" />
     <Compile Include="Enums\Debug\LogLevel.cs" />
     <Compile Include="Enums\Debug\TimeStamp.cs" />
@@ -160,7 +161,8 @@
     <Compile Include="Interfaces\Clients\Irc\Twitch\ISharedRoomStateTags.cs" />
     <Compile Include="Interfaces\Clients\Irc\Twitch\ISharedUserStateTags.cs" />
     <Compile Include="Interfaces\Clients\Irc\Twitch\ISharedPrivmsgTags.cs" />
-    <Compile Include="Models\Api\ApiResponseBundle.cs" />
+    <Compile Include="Models\Api\ClientHandler.cs" />
+    <Compile Include="Models\Api\ClientInfo.cs" />
     <Compile Include="Models\Api\Clips\ClipCreationQueryParameters.cs" />
     <Compile Include="Models\Api\Clips\CreatedClip.cs" />
     <Compile Include="Models\Api\Clips\Clip.cs" />
@@ -170,7 +172,9 @@
     <Compile Include="Models\Api\Data.cs" />
     <Compile Include="Models\Api\Games\TopGamesQueryParameters.cs" />
     <Compile Include="Models\Api\Headers.cs" />
-    <Compile Include="Models\Api\StatusHandlingSettings.cs" />
+    <Compile Include="Models\Api\RequestInfo.cs" />
+    <Compile Include="Models\Api\ResponseError.cs" />
+    <Compile Include="Models\Api\StatusCodeSettings.cs" />
     <Compile Include="Models\Api\Streams\Hearthstone.cs" />
     <Compile Include="Models\Api\Streams\HearthstoneHero.cs" />
     <Compile Include="Models\Api\Streams\Player.cs" />
@@ -184,14 +188,14 @@
     <Compile Include="Models\Api\Entitlements\EntitlementQueryParameters.cs" />
     <Compile Include="Helpers\ClampedNumber.cs" />
     <Compile Include="Models\Api\Games\GamesQueryParameters.cs" />
-    <Compile Include="Models\Api\QueryParametersPage.cs" />
+    <Compile Include="Models\Api\QueryParameters.cs" />
     <Compile Include="Models\Api\QueryParameter.cs" />
     <Compile Include="Helpers\ClampedList.cs" />
     <Compile Include="Models\Api\QueryParameterAttribute.cs" />
     <Compile Include="Models\Api\Streams\StreamsQueryParameters.cs" />
     <Compile Include="Models\Api\Users\FollowsQueryParameters.cs" />
     <Compile Include="Interfaces\Api\IApiResponse.cs" />
-    <Compile Include="Interfaces\Api\IQueryParametersPage.cs" />
+    <Compile Include="Interfaces\Api\IQueryParameters.cs" />
     <Compile Include="Models\Api\Pagination.cs" />
     <Compile Include="Models\Api\ApiError.cs" />
     <Compile Include="Models\Api\ApiResponse.cs" />

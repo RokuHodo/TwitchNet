@@ -10,7 +10,6 @@ using TwitchNet.Enums;
 using TwitchNet.Enums.Debug;
 using TwitchNet.Enums.Api;
 using TwitchNet.Extensions;
-using TwitchNet.Helpers.Json;
 using TwitchNet.Interfaces.Api;
 using TwitchNet.Models.Api;
 
@@ -20,138 +19,81 @@ using RestSharp;
 namespace 
 TwitchNet.Utilities
 {
-    // TODO: Make the base URL customizable to accomodate for any future API revisions that may use different URL's.
-
     internal static class
     RestRequestUtil
     {
         #region Execute methods
 
-        /// <summary>
-        /// Asynchronously executes a rest request.
-        /// </summary>
-        /// <typeparam name="result_type">The type of the <see cref="IRestResponse{T}.Data"/> object.</typeparam>
-        /// <param name="endpoint">The endpoint URL.</param>
-        /// <param name="method">The HTTP request method.</param>
-        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A list of individual query parameters to customize the request.</param>
-        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns an instance of the <see cref="ApiResponse{result_type}"/> class.</returns>
-        public static async Task<ApiResponse<result_type>>
-        ExecuteRequestAsync<result_type>(string endpoint, Method method, string bearer_token, string client_id, IList<QueryParameter> query_parameters, ApiRequestSettings api_request_settings)
+        public static async Task<IApiResponse<result_type>>
+        ExecutetAsync<result_type>(ClientInfo client_info, RequestInfo request_info, IList<QueryParameter> query_parameters, ApiRequestSettings settings)
         {
-            if (api_request_settings.IsNull())
+            if (settings.IsNull())
             {
-                api_request_settings = new ApiRequestSettings();
+                settings = new ApiRequestSettings();
             }
 
-            RestRequest request = Request(endpoint, method, bearer_token, client_id, api_request_settings);
+            RestRequest request = CreateRequest(request_info, settings);
             request = PagingUtil.AddPaging(request, query_parameters);
 
-            ApiResponseBundle<result_type> response_bundle = await ExecuteRequestAsync<result_type>(request, api_request_settings);            
-            ApiResponse<result_type> api_response = new ApiResponse<result_type>(response_bundle);
+            IApiResponse<result_type> api_response = await ExecuteAsync<result_type>(client_info, request, settings);            
 
             return api_response;
         }
 
-        /// <summary>
-        /// Asynchronously executes a rest request.
-        /// </summary>
-        /// <typeparam name="result_type">The type of the <see cref="IRestResponse{T}.Data"/> object.</typeparam>
-        /// <typeparam name="query_parameters_type">
-        /// The type of the <paramref name="query_parameters"/> object.
-        /// Restricted to a class.
-        /// </typeparam>
-        /// <param name="endpoint">The endpoint URL.</param>
-        /// <param name="method">The HTTP request method.</param>
-        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns an instance of the <see cref="ApiResponse{result_type}"/> class.</returns>
-        public static async Task<ApiResponse<result_type>>
-        ExecuteRequestAsync<result_type, query_parameters_type>(string endpoint, Method method, string bearer_token, string client_id, query_parameters_type query_parameters, ApiRequestSettings api_request_settings)
+        public static async Task<IApiResponse<result_type>>
+        ExecuteAsync<result_type, query_parameters_type>(ClientInfo client_info, RequestInfo request_info, query_parameters_type query_parameters, ApiRequestSettings settings)
         where query_parameters_type : class, new()
         {
-            if (api_request_settings.IsNull())
+            if (settings.IsNull())
             {
-                api_request_settings = new ApiRequestSettings();
+                settings = new ApiRequestSettings();
             }
 
-            RestRequest request = Request(endpoint, method, bearer_token, client_id, api_request_settings);
+            RestRequest request = CreateRequest(request_info, settings);
             request = PagingUtil.AddPaging(request, query_parameters);
 
-            ApiResponseBundle<result_type> response_bundle = await ExecuteRequestAsync<result_type>(request, api_request_settings);
-            ApiResponse<result_type> api_response = new ApiResponse<result_type>(response_bundle);
+            IApiResponse<result_type> api_response = await ExecuteAsync<result_type>(client_info, request, settings);
 
             return api_response;
         }
 
-        /// <summary>
-        /// Asynchronously executes a rest request.
-        /// </summary>
-        /// <typeparam name="result_type">The type of the <see cref="IRestResponse{T}.Data"/> object.</typeparam>
-        /// <param name="endpoint">The endpoint URL.</param>
-        /// <param name="method">The HTTP request method.</param>
-        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns an instance of the <see cref="ApiResponse{result_type}"/> class.</returns>
-        public static async Task<ApiResponse<result_type>>
-        ExecuteRequestAsync<result_type>(string endpoint, Method method, string bearer_token, string client_id, QueryParametersPage query_parameters, ApiRequestSettings api_request_settings)
+        public static async Task<IApiResponse<result_type>>
+        ExecuteAsync<result_type>(ClientInfo client_info, RequestInfo request_info, QueryParameters query_parameters, ApiRequestSettings settings)
         {
-            if (api_request_settings.IsNull())
+            if (settings.IsNull())
             {
-                api_request_settings = new ApiRequestSettings();
+                settings = new ApiRequestSettings();
             }
 
-            RestRequest request = Request(endpoint, method, bearer_token, client_id, api_request_settings);
+            RestRequest request = CreateRequest(request_info, settings);
             request = PagingUtil.AddPaging(request, query_parameters);
 
-            ApiResponseBundle<result_type> response_bundle = await ExecuteRequestAsync<result_type>(request, api_request_settings);
-            ApiResponse<result_type> api_response = new ApiResponse<result_type>(response_bundle);
+            IApiResponse<result_type> api_response = await ExecuteAsync<result_type>(client_info, request, settings);
 
             return api_response;
         }
 
-        /// <summary>
-        /// Asynchronously executes a multi-page rest request.
-        /// </summary>
-        /// <typeparam name="data_type">
-        /// The generic type passed through to the <see cref="Data{data_type}"/> class.
-        /// This is the object type that the <code>data[{data_type}]</code> structure from Twitch will deserialize into.
-        /// </typeparam>
-        /// <typeparam name="result_type">The type of the <see cref="IRestResponse{T}.Data"/> object.</typeparam>
-        /// <param name="endpoint">The endpoint URL.</param>
-        /// <param name="method">The HTTP request method.</param>
-        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
-        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns an instance of the <see cref="ApiResponse{result_type}"/> class.</returns>
-        public static async Task<ApiResponse<result_type>>
-        ExecuteRequestPagesAsync<data_type, result_type>(string endpoint, Method method, string bearer_token, string client_id, QueryParametersPage query_parameters, ApiRequestSettings api_request_settings)
+        public static async Task<IApiResponse<result_type>>
+        ExecutePagesAsync<data_type, result_type>(ClientInfo client_info, RequestInfo request_info, QueryParameters query_parameters, ApiRequestSettings settings)
         where result_type : DataPage<data_type>, IDataPage<data_type>, new()
         {
-            ApiResponse<result_type> api_response = new ApiResponse<result_type>();     
+            IApiResponse<result_type> api_response = new ApiResponse<result_type>();     
             List<data_type> data = new List<data_type>();
 
-            if (query_parameters.IsNullOrDefault())
+            if (query_parameters.IsNull())
             {
-                query_parameters = new QueryParametersPage();
+                query_parameters = new QueryParameters();
             }
 
-            if (api_request_settings.IsNullOrDefault())
+            if (settings.IsNullOrDefault())
             {
-                api_request_settings = new ApiRequestSettings();
+                settings = new ApiRequestSettings();
             }
 
             bool requesting = true;
             do
             {
-                ApiResponse<result_type> api_page_response = await ExecuteRequestAsync<result_type>(endpoint, method, bearer_token, client_id, query_parameters, api_request_settings);
+                IApiResponse<result_type> api_page_response = await ExecuteAsync<result_type>(client_info, request_info, query_parameters, settings);
                 if (api_page_response.result.data.IsValid())
                 {
                     data.AddRange(api_page_response.result.data);
@@ -170,105 +112,95 @@ TwitchNet.Utilities
             }
             while (requesting);            
 
-            // reset after in case the same set of query parameters are used for more than one request
-            query_parameters.after = string.Empty;
+            return api_response;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static async Task<IApiResponse<result_type>>
+        ExecuteAsync<result_type>(ClientInfo client_info, IRestRequest request, ApiRequestSettings settings)
+        {
+            if (settings.IsNull())
+            {
+                settings = new ApiRequestSettings();
+            }
+
+            RestClient client = CreateClient(client_info);
+            IRestResponse<result_type> rest_response = await client.ExecuteTaskAsync<result_type>(request, settings.cancelation_token);
+
+            IApiResponse<result_type> api_response = new ApiResponse<result_type>(rest_response);
+            api_response = await HandleResponse(client_info, rest_response, api_response, settings);
 
             return api_response;
         }
 
-        /// <summary>
-        /// Asynchronously executes a rest request.
-        /// </summary>
-        /// <typeparam name="result_type">The type of the <see cref="IRestResponse{T}.Data"/> object.</typeparam>
-        /// <param name="rest_request">The rest request to execute.</param>
-        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
-        /// <returns>An instance of the <see cref="ApiResponseBundle{result_type}"/> class.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static async Task<ApiResponseBundle<result_type>>
-        ExecuteRequestAsync<result_type>(IRestRequest rest_request, ApiRequestSettings api_request_settings)
-        {
-            RestClient client = Client();
-            IRestResponse<result_type> rest_response = await client.ExecuteTaskAsync<result_type>(rest_request);
-
-            ApiResponse api_response = new ApiResponse(rest_response);
-            api_response.exception = rest_response.ErrorException;
-
-            if(api_request_settings.internal_error_handling == ErrorHandling.Error && !rest_response.ErrorException.IsNullOrDefault())
-            {
-                throw rest_response.ErrorException;
-            }
-
-            ApiResponseBundle<result_type> response_bundle = await HandleStatus(rest_response, api_response, api_request_settings);
-
-            return response_bundle;
-        }
-
         #endregion
 
-        #region Status handling
+        #region Response handling
 
-        /// <summary>
-        /// Handles the status code returned with the rest response.
-        /// </summary>
-        /// <typeparam name="result_type">The type of the <see cref="IRestResponse{T}.Data"/> object.</typeparam>
-        /// <param name="rest_response">The rest response.</param>
-        /// <param name="api_response">The base response assembled from the <see cref="IRestResponse{T}"/> object.</param>
-        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
-        /// <returns>An instance of the <see cref="ApiResponseBundle{result_type}"/> class.</returns>
-        private static async Task<ApiResponseBundle<result_type>>
-        HandleStatus<result_type>(IRestResponse<result_type> rest_response, ApiResponse api_response, ApiRequestSettings api_request_settings)
+        private static async Task<IApiResponse<result_type>>
+        HandleResponse<result_type>(ClientInfo client_info, IRestResponse<result_type> rest_response, IApiResponse<result_type> api_response, ApiRequestSettings settings)
         {
-            ushort status_code = (ushort)api_response.status_code;
-            string status_prefix = "'" + status_code + "' " + api_response.status_description + ".";
-
-            Exception exception = null;
-            api_response.exception = exception;
-
-            // no error, return the valid response
-            if (!api_response.status_error.IsValid() && rest_response.IsSuccessful)
+            switch (api_response.error.source)
             {
-                Log.PrintLine(status_prefix + ", Requests remaining: " + api_response.rate_limit.remaining);
+                case ResponseErrorSource.None:
+                {
+                    Log.PrintLine(api_response.status_code + ". Requests remaining: " + api_response.rate_limit.remaining);
 
-                return new ApiResponseBundle<result_type>(rest_response, api_response);
+                    return api_response;
+                }
+
+                case ResponseErrorSource.Internal:
+                {
+                    if (settings.internal_error_handling == ErrorHandling.Error)
+                    {
+                        throw api_response.error.exception;
+                    }
+                    else
+                    {
+                        return api_response;
+                    }
+                }
+
+                case ResponseErrorSource.Api:
+                {
+                    api_response = await HandleApiError(client_info, rest_response, api_response, settings);
+                }
+                break;                
             }
 
-            // small hack to use the deault handler '000' since it isn't a real status code
-            if (!api_request_settings._status_handlers_settings.ContainsKey(status_code))
-            {
-                status_code = 000;
-            }
+            return api_response;
+        }
 
-            string exception_message = status_prefix;
-            if (api_response.status_error_message.IsValid())
-            {
-                exception_message += " " + api_response.status_error_message + ".";
-            }
-
-            switch (api_request_settings._status_handlers_settings[status_code].handling)
+        private static async Task<IApiResponse<result_type>>
+        HandleApiError<result_type>(ClientInfo client_info, IRestResponse<result_type> rest_response, IApiResponse<result_type> api_response, ApiRequestSettings settings)
+        {
+            int code = (int)api_response.status_code;
+            switch (settings.status_codes[code].handling)
             {
                 case StatusHandling.Error:
-                {                    
-                    exception = new Exception(exception_message);
-                    api_response.exception = exception;
+                {
+                    throw api_response.error.exception;
+                }
 
-                    throw exception;
+                case StatusHandling.Return:
+                {
+                    return api_response;
                 }
 
                 case StatusHandling.Retry:
                 {
-                    lock (api_request_settings)
+                    lock (settings)
                     {
-                        ++api_request_settings._status_handlers_settings[status_code].retry_count;
-                        if(api_request_settings._status_handlers_settings[status_code].retry_count > api_request_settings._status_handlers_settings[status_code].retry_limit.value && api_request_settings._status_handlers_settings[status_code].retry_limit.value != -1)
+                        ++settings.status_codes[code].retry_count;
+                        if (settings.status_codes[code].retry_count > settings.status_codes[code].retry_limit && settings.status_codes[code].retry_limit != -1)
                         {
-                            Log.PrintLine(TimeStamp.TimeLong, status_prefix + " receieved from Twitch. Retry limit " + api_request_settings._status_handlers_settings[status_code].retry_limit.value + " exceeded. Cancelling request.");
-                            api_request_settings._status_handlers_settings[status_code].retry_count = 0;
+                            settings.status_codes[code].retry_count = 0;
 
-                            exception_message += " Retry limit exceeded.";
-                            exception = new Exception(exception_message);
-                            api_response.exception = exception;
+                            Exception inner_exception = new Exception("Message here.");
+                            api_response.error.exception = new Exception(api_response.error.exception.Message, inner_exception);
 
-                            throw exception;
+                            // TODO: Throw instead of return, or go by internal setting?
+                            return api_response;
                         }
                     }
 
@@ -281,71 +213,65 @@ TwitchNet.Utilities
                         Log.PrintLine(TimeStamp.TimeLong, "Resuming request.");
                     }
 
-                    ApiResponseBundle<result_type> response_bundle = await ExecuteRequestAsync<result_type>(rest_response.Request, api_request_settings);
-                    rest_response = response_bundle.rest_response;
-                    api_response = response_bundle.api_response;
+                    api_response = await ExecuteAsync<result_type>(client_info, rest_response.Request, settings);
                 }
-                break;
+                break;                
+            }
 
-                case StatusHandling.Ignore:
-                default:
-                {
-                    exception = new Exception(exception_message);
-                    api_response.exception = exception;
-                }
-                break;
-            }            
-
-            return new ApiResponseBundle<result_type>(rest_response, api_response);
+            return api_response;
         }
 
         #endregion
 
         #region Helper methods
 
-        /// <summary>
-        /// Creates a new instance of a <see cref="RestRequest"/> which holds the information to request.
-        /// </summary>        
-        /// <param name="endpoint">The endpoint URL.</param>
-        /// <param name="method">The HTTP method used when making the request.</param>
-        /// <param name="bearer_token">The Bearer token or Client Id to authorize the request when only either is provided. If both are being provided, this is assumed to be the Bearer token.</param>
-        /// <param name="client_id">The Client Id if both the Bearer token and Client Id are being provided.</param>
-        /// <param name="api_request_settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns in instance of the <see cref="RestRequest"/> with the added bearer_token, client id, or both.</returns>
-        /// <exception cref="ArgumentException">Thrown if both the <paramref name="bearer_token"/> and <paramref name="client_id"/> are invalid.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static RestRequest
-        Request(string endpoint, Method method, string bearer_token, string client_id, ApiRequestSettings api_request_settings)
+        CreateRequest(RequestInfo info, ApiRequestSettings settings)
         {
-            if(api_request_settings.input_hanlding == InputHandling.Error && !bearer_token.IsValid() && !client_id.IsValid())
+            ExceptionUtil.ThrowIfInvalid(info.endpoint, nameof(info.endpoint));
+
+            if (settings.input_hanlding == InputHandling.Error && !info.bearer_token.IsValid() && !info.client_id.IsValid())
             {
-                throw new ArgumentException("A valid " + nameof(bearer_token) + " or " + nameof(client_id) + " must be provided.");
+                throw new ArgumentException("A valid " + nameof(info.bearer_token) + " or " + nameof(info.client_id) + " must be provided.");
             }
 
-            RestRequest request = new RestRequest(endpoint, method);
-            if (bearer_token.IsValid())
+            RestRequest request = new RestRequest(info.endpoint, info.method);
+            if (info.bearer_token.IsValid())
             {
-                request.AddHeader("Authorization", "Bearer " + bearer_token);
+                request.AddHeader("Authorization", "Bearer " + info.bearer_token);
             }
-            if (client_id.IsValid())
+
+            if (info.oauth_token.IsValid())
             {
-                request.AddHeader("Client-ID", client_id);
+                request.AddHeader("Authorization", "OAuth " + info.oauth_token);
+            }
+
+            if (info.client_id.IsValid())
+            {
+                request.AddHeader("Client-ID", info.client_id);
             }
 
             return request;
         }
 
-        /// <summary>
-        /// Creates a new instance of a <see cref="RestClient"/> to execute the rest request to the Twitch API.
-        /// </summary>
-        /// <returns>Returns an instance of the <see cref="RestClient"/> configured to make requests to the Twitch API.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static RestClient
-        Client()
+        CreateClient(ClientInfo info)
         {
-            RestClient client = new RestClient("https://api.twitch.tv/helix");
-            client.AddHandler("application/json", new JsonDeserializer());
-            client.AddHandler("application/xml", new JsonDeserializer());
+            ExceptionUtil.ThrowIfInvalid(info.base_url, nameof(info.base_url));
+            ExceptionUtil.ThrowIfInvalid(info.handlers, nameof(info.handlers));
+
+            RestClient client = new RestClient(info.base_url);
+            foreach (ClientHandler handler in info.handlers)
+            {
+                if (!handler.content_type.IsValid() || handler.deserializer.IsNullOrDefault())
+                {
+                    continue;
+                }
+
+                client.AddHandler(handler.content_type, handler.deserializer);
+            }
 
             return client;
         }

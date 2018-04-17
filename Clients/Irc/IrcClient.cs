@@ -30,8 +30,6 @@ TwitchNet.Clients.Irc
         private ushort  _port;
         private string  _host;
 
-        private IrcUser _irc_user;
-
         private Socket  socket;
         private Stream  stream;
 
@@ -80,29 +78,17 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// The IRC user's credentials.
         /// </summary>
-        /// <exception cref="ArgumentNullException">Thrown if the irc_user is null.</exception>
-        public IrcUser irc_user
-        {
-            get
-            {
-                return _irc_user;
-            }
-            set
-            {
-                ExceptionUtil.ThrowIfNull(value, nameof(irc_user));
-                _irc_user = value;
-            }
-        }
+        public IrcUser irc_user     { get; private set; }
 
         /// <summary>
         /// The current state of the IRC client.
         /// </summary>
-        public ClientState state { get; private set; }
+        public ClientState state    { get; private set; }
 
         /// <summary>
         /// Determines whether or not to automatically respond to a PING with a PONG.
         /// </summary>
-        public bool auto_pong { get; set; }
+        public bool auto_pong       { get; set; }
 
         #endregion
 
@@ -115,12 +101,12 @@ TwitchNet.Clients.Irc
         /// <param name="port">The port number of the remote host.</param>
         /// <param name="irc_user">The IRC user's credentials.</param>
         public
-        IrcClient(string host, ushort port, IrcUser irc_user) : this()
+        IrcClient(string host, ushort port, IrcUser user) : this()
         {
             this.host = host;
             this.port = port;
 
-            this.irc_user = irc_user;
+            irc_user = user;
         }
 
         /// <summary>

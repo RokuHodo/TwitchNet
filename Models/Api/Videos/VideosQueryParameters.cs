@@ -12,7 +12,7 @@ namespace
 TwitchNet.Models.Api.Videos
 {
     public class
-    VideosQueryParameters : QueryParametersPage, IQueryParametersPage
+    VideosQueryParameters : QueryParameters, IQueryParameters
     {
         #region Fields
 

@@ -12,19 +12,6 @@ TwitchNet.Interfaces.Api
     public interface
     IApiResponse
     {
-
-        /// <summary>
-        /// The status error returned by Twitch when a request is unsuccessful.
-        /// This typically coincides with traditional HTTP status codes.
-        /// </summary>
-        string                      status_error            { get; }
-
-        /// <summary>
-        /// The status error message returned by Twitch when a request is unsuccessful.
-        /// This can be blank even if a status error is returned by twitch.
-        /// </summary>
-        string                      status_error_message    { get; }
-
         /// <summary>
         /// The description of the status code.
         /// </summary>
@@ -46,9 +33,9 @@ TwitchNet.Interfaces.Api
         RateLimit                   rate_limit              { get; }
 
         /// <summary>
-        /// The exception that was encountered while making the request, if any.
+        /// The details of the error if one occured.
         /// </summary>
-        Exception                   exception               { get; }
+        ResponseError               error                   { get; }
     }
 
     public interface

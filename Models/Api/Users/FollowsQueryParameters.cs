@@ -5,7 +5,7 @@ namespace
 TwitchNet.Models.Api.Users
 {
     public class
-    FollowsQueryParameters : QueryParametersPage, IQueryParametersPage
+    FollowsQueryParameters : QueryParameters, IQueryParameters
     {
         #region Fields
 

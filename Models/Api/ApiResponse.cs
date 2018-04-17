@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 
 // project namespaces
+using TwitchNet.Enums.Api;
 using TwitchNet.Interfaces.Api;
 
 // imported .dll's
@@ -17,18 +18,6 @@ TwitchNet.Models.Api
     internal class
     ApiResponse : IApiResponse
     {
-        /// <summary>
-        /// The status error returned by Twitch when a request is unsuccessful.
-        /// This typically coincides with traditional HTTP status codes.
-        /// </summary>
-        public string                       status_error        { get; internal set; }
-
-        /// <summary>
-        /// The status error message returned by Twitch when a request is unsuccessful.
-        /// This can be blank even if a status error is returned by twitch.
-        /// </summary>
-        public string                       status_error_message { get; internal set; }
-
         /// <summary>
         /// The description of the status code.
         /// </summary>
@@ -49,27 +38,17 @@ TwitchNet.Models.Api
         /// </summary>
         public RateLimit                    rate_limit          { get; internal set; }
 
-        /// <summary>
-        /// The exception that was encountered or thrown while making the request, if any.
-        /// </summary>
-        public Exception                    exception           { get; internal set; }
+        public ResponseError                error               { get; internal set; }        
 
-        public ApiResponse()
+        public ApiResponse(IRestResponse response)
         {
+            error = new ResponseError(response); 
 
-        }
-
-        public ApiResponse(IRestResponse rest_response)
-        {           
-            ApiError api_error      = JsonConvert.DeserializeObject<ApiError>(rest_response.Content);
-            status_error            = api_error.error ?? string.Empty;
-            status_error_message    = api_error.message ?? string.Empty;
-
-            status_description = rest_response.StatusDescription;
-            status_code = rest_response.StatusCode;
+            status_description = response.StatusDescription;
+            status_code = response.StatusCode;
 
             headers = new Dictionary<string, string>();
-            foreach(Parameter header in rest_response.Headers)
+            foreach(Parameter header in response.Headers)
             {
                 headers.Add(header.Name, header.Value.ToString());
             }
@@ -77,15 +56,9 @@ TwitchNet.Models.Api
             rate_limit = new RateLimit(headers);
         }
 
-        public ApiResponse(IApiResponse api_response)
+        public ApiResponse()
         {
-            status_code         = api_response.status_code;
-            status_description  = api_response.status_description;
-            status_error        = api_response.status_error;
 
-            headers             = api_response.headers;
-
-            rate_limit          = api_response.rate_limit;
         }
     }
 
@@ -97,24 +70,28 @@ TwitchNet.Models.Api
         /// </summary>
         public result_type result { get; internal set; }
 
+        public ApiResponse(IApiResponse response)
+        {
+            status_description = response.status_description;
+            status_code = response.status_code;
+
+            headers = response.headers;
+
+            rate_limit = response.rate_limit;
+
+            error = response.error;
+
+            result = default(result_type);
+        }
+
+        public ApiResponse(IRestResponse<result_type> api_response) : base(api_response)
+        {
+            result = api_response.Data;
+        }        
+
         public ApiResponse()
         {
 
-        }
-
-        public ApiResponse(IApiResponse api_response) : base(api_response)
-        {
-
-        }
-
-        public ApiResponse(IApiResponse<result_type> api_response) : base(api_response)
-        {
-            result = api_response.result;
-        }
-
-        public ApiResponse(ApiResponseBundle<result_type> response_bundle) : base(response_bundle.api_response)
-        {
-            result = response_bundle.rest_response.Data;
         }
     }
 }

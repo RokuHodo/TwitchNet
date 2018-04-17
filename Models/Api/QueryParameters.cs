@@ -6,7 +6,7 @@ namespace
 TwitchNet.Models.Api
 {
     public class
-    QueryParametersPage : IQueryParametersPage
+    QueryParameters : IQueryParameters
     {
         private ClampedNumber<ushort>   _first  = new ClampedNumber<ushort>(1, 100, 20);
 

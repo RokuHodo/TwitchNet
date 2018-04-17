@@ -1,12 +1,10 @@
 ﻿// project namespaces
 using TwitchNet.Utilities;
 
-using System;
-
 namespace
 TwitchNet.Models.Clients.Irc
 {
-    public class
+    public struct
     IrcUser
     {
         private string _nick;
@@ -15,16 +13,16 @@ TwitchNet.Models.Clients.Irc
         /// <summary>
         /// The nick name of the Irc user.
         /// </summary>
-        /// <exception cref="ArgumentException">Thrown if the nick is null, emtpy, or whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the string is not between 2 and 24 characters long, and does not only contian alpha-numeric characters.</exception>
         public string nick
         {
             get
             {
+                ExceptionUtil.ThrowIfInvalidNick(_nick);
                 return _nick;
             }
             set
             {
-                ExceptionUtil.ThrowIfInvalid(value, nameof(nick));
                 _nick = value;
             }
         }
@@ -37,24 +35,22 @@ TwitchNet.Models.Clients.Irc
         {
             get
             {
+                ExceptionUtil.ThrowIfInvalid(_pass, nameof(_pass));
                 return _pass;
             }
             set
             {
-                ExceptionUtil.ThrowIfInvalid(value, nameof(pass));
                 _pass = value;
             }
         }
 
-        public IrcUser(string nick, string pass)
+        public IrcUser(string user_nick, string user_pass)
         {
-            this.nick = nick;
-            this.pass = pass;
-        }
+            _nick   = user_nick;
+            _pass   = user_pass;
 
-        public IrcUser()
-        {
-
+            nick    = _nick;
+            pass    = user_pass;
         }
     }
 }

@@ -162,6 +162,92 @@ TwitchNet.Utilities
         }
 
         /// <summary>
+        /// Throws if an <see cref="ArgumentException"/> if an object that implements <see cref="IDictionary{TKey, TValue}"/> is null or does not have at least one key value pair.
+        /// </summary>
+        /// <typeparam name="key_type">The type of the <see cref="IDictionary"/> key.</typeparam>
+        /// <typeparam name="key_value">The type of the <see cref="IDictionary"/> value.</typeparam>
+        /// <param name="parameter">The parameter to check.</param>
+        /// <param name="parameter_name">The name of the parameter.</param>
+        /// <param name="callback">The action to perform if an exception would be thrown, before the excpetion is actually thrown.</param>
+        /// <exception cref="ArgumentException">Thrown if an object that implements <see cref="IDictionary{TKey, TValue}"/> is null or does not have at least one key value pair.</exception>
+        public static void
+        ThrowIfInvalid<key_type, key_value>(IDictionary<key_type, key_value> parameter, string parameter_name, Action callback = null)
+        {
+            ThrowIfInvalid(parameter, parameter_name, parameter_name + " cannot be null and must havce at least one key value pair.", callback);
+        }
+
+        /// <summary>
+        /// Throws if an <see cref="ArgumentException"/> if an object that implements <see cref="IDictionary{TKey, TValue}"/> is null or does not have at least one key value pair.
+        /// </summary>
+        /// <typeparam name="key_type">The type of the <see cref="IDictionary"/> key.</typeparam>
+        /// <typeparam name="key_value">The type of the <see cref="IDictionary"/> value.</typeparam>
+        /// <param name="parameter">The parameter to check.</param>
+        /// <param name="parameter_name">The name of the parameter.</param>
+        /// <param name="message">The excpetion message.</param>
+        /// <param name="callback">The action to perform if an exception would be thrown, before the excpetion is actually thrown.</param>
+        /// <exception cref="ArgumentException">Thrown if an object that implements <see cref="IDictionary{TKey, TValue}"/> is null or does not have at least one key value pair.</exception>
+        public static void
+        ThrowIfInvalid<key_type, key_value>(IDictionary<key_type, key_value> parameter, string parameter_name, string message, Action callback = null)
+        {
+            if (parameter.IsValid())
+            {
+                return;
+            }
+
+            if (!callback.IsNull())
+            {
+                callback();
+            }
+
+            throw new ArgumentException(message, parameter_name);
+        }
+
+        /// <summary>
+        /// Throws if an <see cref="ArgumentOutOfRangeException"/> if an object that implements <see cref="IComparable{T}"/> is outside of the valid range.
+        /// </summary>
+        /// <typeparam name="type">The type of the <see cref="IComparable{T}"/>.</typeparam>
+        /// <param name="parameter_name">The name of the parameter.</param>
+        /// <param name="parameter">The parameter to check.</param>
+        /// <param name="minimum">The lowest possible value.</param>
+        /// <param name="maximum">The largets possible value.</param>
+        /// <param name="callback">The action to perform if an exception would be thrown, before the excpetion is actually thrown.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if if an object that implements <see cref="IComparable{T}"/> is outside of the valid range..</exception>
+        public static void
+        ThrowIfOutOfRange<type>(string parameter_name, type parameter, type minimum, type maximum, Action callback = null)
+        where type : IComparable<type>
+        {
+            ThrowIfOutOfRange(parameter_name, parameter, minimum, maximum, parameter_name + " is out of range. " + parameter_name + " must be between " + minimum + " and " + maximum);
+        }
+
+        /// <summary>
+        /// Throws if an <see cref="ArgumentOutOfRangeException"/> if an object that implements <see cref="IComparable{T}"/> is outside of the valid range.
+        /// </summary>
+        /// <typeparam name="type">The type of the <see cref="IComparable{T}"/>.</typeparam>
+        /// <param name="parameter_name">The name of the parameter.</param>
+        /// <param name="parameter">The parameter to check.</param>
+        /// <param name="minimum">The lowest possible value.</param>
+        /// <param name="maximum">The largets possible value.</param>
+        /// <param name="message">The excpetion message.</param>
+        /// <param name="callback">The action to perform if an exception would be thrown, before the excpetion is actually thrown.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if if an object that implements <see cref="IComparable{T}"/> is outside of the valid range..</exception>
+        public static void
+        ThrowIfOutOfRange<type>(string parameter_name, type parameter, type minimum, type maximum, string message, Action callback = null)
+        where type : IComparable<type>
+        {
+            if (parameter.IsInRange(minimum, maximum))
+            {
+                return;
+            }
+
+            if (!callback.IsNull())
+            {
+                callback();
+            }
+
+            throw new ArgumentOutOfRangeException(parameter_name, parameter, message);
+        }
+
+        /// <summary>
         /// Throws if an <see cref="FormatException"/> if a string does not meet Twitch's user name format requirements.
         /// </summary>
         /// <param name="parameter">The parameter to check.</param>

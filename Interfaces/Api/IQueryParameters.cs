@@ -5,7 +5,7 @@ namespace
 TwitchNet.Interfaces.Api
 {
     public interface
-    IQueryParametersPage
+    IQueryParameters
     {
         /// <summary>
         /// Maximum number of objects to return.

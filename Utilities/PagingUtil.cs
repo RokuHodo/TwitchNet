@@ -18,11 +18,11 @@ TwitchNet.Utilities
     PagingUtil
     {
         /// <summary>
-        /// Adds a set optional of query string parameters to a customize the <see cref="RestRequest"/>.
+        /// Adds query parameters to the <see cref="RestRequest"/>.
         /// </summary>
-        /// <param name="request">The rest request to add the query parameters to.</param>
-        /// <param name="query_parameters">The optional query string parameters to be added to the request.</param>
-        /// <returns>Returns a <see cref="RestRequest"/> instance with the added <paramref name="query_parameters"/>.</returns>
+        /// <param name="request">The rest request.</param>
+        /// <param name="query_parameters">The query string parameters to add.</param>
+        /// <returns>Returns the <see cref="RestRequest"/> with the added <paramref name="query_parameters"/>.</returns>
         public static RestRequest
         AddPaging(RestRequest request, IList<QueryParameter> query_parameters)
         {
@@ -45,12 +45,12 @@ TwitchNet.Utilities
         }
 
         /// <summary>
-        /// Adds a set optional of query string parameters to a customize the <see cref="RestRequest"/>.
+        /// Adds query parameters to the <see cref="RestRequest"/>.
         /// </summary>
         /// <typeparam name="parameters_type">The object type of the parameters class</typeparam>
-        /// <param name="request">The rest request to add the query parameters to.</param>
-        /// <param name="query_parameters">The optional query string parameters to be added to the request.</param>
-        /// <returns>Returns a <see cref="RestRequest"/> instance with the added <paramref name="query_parameters"/>.</returns>
+        /// <param name="request">The rest request.</param>
+        /// <param name="query_parameters">The query string parameters to add.</param>
+        /// <returns>Returns the <see cref="RestRequest"/> with the added <paramref name="query_parameters"/>.</returns>
         public static RestRequest
         AddPaging<parameters_type>(RestRequest request, parameters_type query_parameters)
         where parameters_type : class, new()
@@ -61,6 +61,11 @@ TwitchNet.Utilities
             }
 
             PropertyInfo[] properties = query_parameters.GetType().GetProperties<QueryParameterAttribute>();
+            if (!properties.IsValid())
+            {
+                return request;
+            }
+
             foreach (PropertyInfo property in properties)
             {                
                 object value = property.GetValue(query_parameters);
@@ -96,6 +101,7 @@ TwitchNet.Utilities
                         {
                             if (property_value_enum.HasFlag(flag))
                             {
+                                // TODO: This is EXTREMELY slow. Go through any enum used in paging and add it to the cache.
                                 string enum_value = flag.ToEnumString();
                                 request = AddQueryParameter(request, attribute, enum_value);
                             }
@@ -120,20 +126,20 @@ TwitchNet.Utilities
         /// <summary>
         /// Adds an object as a query parameter to a <see cref="RestRequest"/>.
         /// </summary>
-        /// <param name="request">The rest request to add the query parameters to.</param>
+        /// <param name="request">The rest request.</param>
         /// <param name="attribute">The attribute that contains the query name and conversion settings.</param>
-        /// <param name="value">The object value to be added as a query parameter.</param>
-        /// <returns>Returns a <see cref="RestRequest"/> instance with the added query parameter.</returns>
+        /// <param name="value">The query parameter value.</param>
+        /// <returns>Returns the <see cref="RestRequest"/> with the added query parameters.</returns>
         private static RestRequest
         AddQueryParameter(RestRequest request, QueryParameterAttribute attribute, object value)
         {
-            if (value.IsNull())
+            if (attribute.IsNull() || !attribute.query_name.IsValid())
             {
                 return request;
             }
 
             string query_value = value.ToString();
-            if (!attribute.query_name.IsValid() || !query_value.IsValid())
+            if (value.IsNull() || !query_value.IsValid())
             {
                 return request;
             }

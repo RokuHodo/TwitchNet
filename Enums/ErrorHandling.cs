@@ -10,8 +10,8 @@ TwitchNet.Enums
         Error   = 0,
 
         /// <summary>
-        /// Ignore the <see cref="Exception"/> and attempt to continue.
+        /// Don't throw the the <see cref="Exception"/> but cancel the request with the error attached.
         /// </summary>
-        Ignore  = 1,
+        Return  = 1,
     }
 }

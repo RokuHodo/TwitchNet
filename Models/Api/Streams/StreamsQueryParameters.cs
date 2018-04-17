@@ -12,7 +12,7 @@ namespace
 TwitchNet.Models.Api.Streams
 {
     public class
-    StreamsQueryParameters : QueryParametersPage, IQueryParametersPage
+    StreamsQueryParameters : QueryParameters, IQueryParameters
     {
         #region Fields        
 

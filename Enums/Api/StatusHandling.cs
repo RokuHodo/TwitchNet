@@ -10,9 +10,9 @@ TwitchNet.Enums.Api
         Error   = 0,
 
         /// <summary>
-        /// Ignore the API error and return any previously obtained data in the case of a multi-page request.
+        /// Don't throw the the <see cref="Exception"/> but cancel the request with the error attached.
         /// </summary>
-        Ignore  = 1,
+        Return = 1,
 
         /// <summary>
         /// Execute the request until a limit is reached (if any) or the request succeeds.

@@ -21,17 +21,17 @@ TwitchNet.Utilities
         /// Adds query parameters to the <see cref="RestRequest"/>.
         /// </summary>
         /// <param name="request">The rest request.</param>
-        /// <param name="query_parameters">The query string parameters to add.</param>
-        /// <returns>Returns the <see cref="RestRequest"/> with the added <paramref name="query_parameters"/>.</returns>
+        /// <param name="parameters">The query string parameters to add.</param>
+        /// <returns>Returns the <see cref="RestRequest"/> with the added <paramref name="parameters"/>.</returns>
         public static RestRequest
-        AddPaging(RestRequest request, IList<QueryParameter> query_parameters)
+        AddPaging(RestRequest request, IList<QueryParameter> parameters)
         {
-            if (!query_parameters.IsValid())
+            if (!parameters.IsValid())
             {
                 return request;
             }
 
-            foreach(QueryParameter query_parameter in query_parameters)
+            foreach(QueryParameter query_parameter in parameters)
             {
                 if (!query_parameter.name.IsValid() || !query_parameter.value.IsValid())
                 {
@@ -49,18 +49,17 @@ TwitchNet.Utilities
         /// </summary>
         /// <typeparam name="parameters_type">The object type of the parameters class</typeparam>
         /// <param name="request">The rest request.</param>
-        /// <param name="query_parameters">The query string parameters to add.</param>
-        /// <returns>Returns the <see cref="RestRequest"/> with the added <paramref name="query_parameters"/>.</returns>
+        /// <param name="parameters">The query string parameters to add.</param>
+        /// <returns>Returns the <see cref="RestRequest"/> with the added <paramref name="parameters"/>.</returns>
         public static RestRequest
-        AddPaging<parameters_type>(RestRequest request, parameters_type query_parameters)
-        where parameters_type : class, new()
+        AddPaging(RestRequest request, object parameters)
         {
-            if (query_parameters.IsNull())
+            if (parameters.IsNull())
             {
-                query_parameters = new parameters_type();
+                return request;
             }
 
-            PropertyInfo[] properties = query_parameters.GetType().GetProperties<QueryParameterAttribute>();
+            PropertyInfo[] properties = parameters.GetType().GetProperties<QueryParameterAttribute>();
             if (!properties.IsValid())
             {
                 return request;
@@ -68,7 +67,7 @@ TwitchNet.Utilities
 
             foreach (PropertyInfo property in properties)
             {                
-                object value = property.GetValue(query_parameters);
+                object value = property.GetValue(parameters);
                 if (value.IsNull())
                 {
                     continue;

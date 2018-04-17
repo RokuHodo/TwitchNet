@@ -30,13 +30,13 @@ TwitchNet.Api
         /// Asynchronously gets information about a clip.
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         public static async Task<IApiResponse<Data<Clip>>>
-        GetClipAsync(string client_id, ClipQueryParameters query_parameters, ApiRequestSettings settings = settings_default)
+        GetClipAsync(string client_id, ClipQueryParameters parameters, ApiRequestSettings settings = settings_default)
         {
-            IApiResponse<Data<Clip>> clip = await TwitchApiInternal.GetClipAsync(bearer_token_default, client_id, query_parameters, settings);
+            IApiResponse<Data<Clip>> clip = await TwitchApiInternal.GetClipAsync(bearer_token_default, client_id, parameters, settings);
 
             return clip;
         }
@@ -49,13 +49,13 @@ TwitchNet.Api
         /// Asynchronously gets information about a list of games.
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         public static async Task<IApiResponse<Data<Game>>>
-        GetGamesAsync(string client_id, GamesQueryParameters query_parameters, ApiRequestSettings settings = settings_default)
+        GetGamesAsync(string client_id, GamesQueryParameters parameters, ApiRequestSettings settings = settings_default)
         {
-            IApiResponse<Data<Game>> games = await TwitchApiInternal.GetGamesAsync(bearer_token_default, client_id, query_parameters, settings);
+            IApiResponse<Data<Game>> games = await TwitchApiInternal.GetGamesAsync(bearer_token_default, client_id, parameters, settings);
 
             return games;
         }
@@ -82,13 +82,13 @@ TwitchNet.Api
         /// Asynchronously gets a single page of top games, most popular first.
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         public static async Task<IApiResponse<DataPage<Game>>>
-        GetTopGamesPageAsync(string client_id, TopGamesQueryParameters query_parameters, ApiRequestSettings settings = settings_default)
+        GetTopGamesPageAsync(string client_id, TopGamesQueryParameters parameters, ApiRequestSettings settings = settings_default)
         {
-            IApiResponse<DataPage<Game>> top_games = await TwitchApiInternal.GetTopGamesPageAsync(bearer_token_default, client_id, query_parameters, settings);
+            IApiResponse<DataPage<Game>> top_games = await TwitchApiInternal.GetTopGamesPageAsync(bearer_token_default, client_id, parameters, settings);
 
             return top_games;
         }
@@ -111,13 +111,13 @@ TwitchNet.Api
         /// Asynchronously gets a complete list of top games, most popular first.
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         public static async Task<IApiResponse<DataPage<Game>>>
-        GetTopGamesAsync(string client_id, TopGamesQueryParameters query_parameters, ApiRequestSettings settings = settings_default)
+        GetTopGamesAsync(string client_id, TopGamesQueryParameters parameters, ApiRequestSettings settings = settings_default)
         {
-            IApiResponse<DataPage<Game>> top_games = await TwitchApiInternal.GetTopGamesAsync(bearer_token_default, client_id, query_parameters, settings);
+            IApiResponse<DataPage<Game>> top_games = await TwitchApiInternal.GetTopGamesAsync(bearer_token_default, client_id, parameters, settings);
 
             return top_games;
         }
@@ -144,13 +144,13 @@ TwitchNet.Api
         /// Asynchronously gets a single page of streams.
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         public static async Task<IApiResponse<DataPage<Stream>>>
-        GetStreamsPageAsync(string client_id, StreamsQueryParameters query_parameters, ApiRequestSettings settings = settings_default)
+        GetStreamsPageAsync(string client_id, StreamsQueryParameters parameters, ApiRequestSettings settings = settings_default)
         {
-            IApiResponse<DataPage<Stream>> streams = await TwitchApiInternal.GetStreamsPageAsync(bearer_token_default, client_id, query_parameters, settings);
+            IApiResponse<DataPage<Stream>> streams = await TwitchApiInternal.GetStreamsPageAsync(bearer_token_default, client_id, parameters, settings);
 
             return streams;
         }
@@ -173,13 +173,13 @@ TwitchNet.Api
         /// Asynchronously gets a complete list of streams.
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         public static async Task<IApiResponse<DataPage<Stream>>>
-        GetStreamsAsync(string client_id, StreamsQueryParameters query_parameters, ApiRequestSettings settings = settings_default)
+        GetStreamsAsync(string client_id, StreamsQueryParameters parameters, ApiRequestSettings settings = settings_default)
         {
-            IApiResponse<DataPage<Stream>> streams = await TwitchApiInternal.GetStreamsAsync(bearer_token_default, client_id, query_parameters, settings);
+            IApiResponse<DataPage<Stream>> streams = await TwitchApiInternal.GetStreamsAsync(bearer_token_default, client_id, parameters, settings);
 
             return streams;
         }
@@ -221,13 +221,13 @@ TwitchNet.Api
         /// Asynchronously gets a single page of metadata about streams playing either Overwatch or Hearthstone.
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         public static async Task<IApiResponse<DataPage<Metadata>>>
-        GetStreamsMetadataPageAsync(string client_id, StreamsQueryParameters query_parameters, ApiRequestSettings settings = settings_default)
+        GetStreamsMetadataPageAsync(string client_id, StreamsQueryParameters parameters, ApiRequestSettings settings = settings_default)
         {
-            IApiResponse<DataPage<Metadata>> metadata = await TwitchApiInternal.GetStreamsMetadataPageAsync(bearer_token_default, client_id, query_parameters, settings);
+            IApiResponse<DataPage<Metadata>> metadata = await TwitchApiInternal.GetStreamsMetadataPageAsync(bearer_token_default, client_id, parameters, settings);
 
             return metadata;
         }
@@ -250,13 +250,13 @@ TwitchNet.Api
         /// Asynchronously gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         public static async Task<IApiResponse<DataPage<Metadata>>>
-        GetStreamsMetadataAsync(string client_id, StreamsQueryParameters query_parameters, ApiRequestSettings settings = settings_default)
+        GetStreamsMetadataAsync(string client_id, StreamsQueryParameters parameters, ApiRequestSettings settings = settings_default)
         {
-            IApiResponse<DataPage<Metadata>> metadata = await TwitchApiInternal.GetStreamsMetadataAsync(bearer_token_default, client_id, query_parameters, settings);
+            IApiResponse<DataPage<Metadata>> metadata = await TwitchApiInternal.GetStreamsMetadataAsync(bearer_token_default, client_id, parameters, settings);
 
             return metadata;
         }
@@ -269,13 +269,13 @@ TwitchNet.Api
         /// Asynchronously gets the information of one or more users by their id or login.
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         public static async Task<IApiResponse<Data<User>>>
-        GetUsersAsync(string client_id, UsersQueryParameters query_parameters, ApiRequestSettings settings = settings_default)
+        GetUsersAsync(string client_id, UsersQueryParameters parameters, ApiRequestSettings settings = settings_default)
         {
-            IApiResponse<Data<User>> users = await TwitchApiInternal.GetUsersAsync(bearer_token_default, client_id, query_parameters, settings);
+            IApiResponse<Data<User>> users = await TwitchApiInternal.GetUsersAsync(bearer_token_default, client_id, parameters, settings);
 
             return users;
         }
@@ -336,16 +336,16 @@ TwitchNet.Api
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="from_id">The user to get the following list from.</param>
-        /// <param name="query_parameters">
+        /// <param name="parameters">
         /// A set of query parameters to customize the request.
-        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="query_parameters"/> are ignored if specified.
+        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="parameters"/> are ignored if specified.
         /// </param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         public static async Task<IApiResponse<FollowsDataPage<Follow>>>
-        GetUserFollowingPageAsync(string client_id, string from_id, FollowsQueryParameters query_parameters, ApiRequestSettings settings = settings_default)
+        GetUserFollowingPageAsync(string client_id, string from_id, FollowsQueryParameters parameters, ApiRequestSettings settings = settings_default)
         {
-            IApiResponse<FollowsDataPage<Follow>> following = await TwitchApiInternal.GetUserRelationshipPageAsync(bearer_token_default, client_id, from_id, string.Empty, query_parameters, settings);
+            IApiResponse<FollowsDataPage<Follow>> following = await TwitchApiInternal.GetUserRelationshipPageAsync(bearer_token_default, client_id, from_id, string.Empty, parameters, settings);
 
             return following;
         }
@@ -370,16 +370,16 @@ TwitchNet.Api
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="from_id">The user to get the following list from.</param>
-        /// <param name="query_parameters">
+        /// <param name="parameters">
         /// A set of query parameters to customize the request.
-        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="query_parameters"/> are ignored if specified.
+        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="parameters"/> are ignored if specified.
         /// </param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         public static async Task<IApiResponse<FollowsDataPage<Follow>>>
-        GetUserFollowingAsync(string client_id, string from_id, FollowsQueryParameters query_parameters, ApiRequestSettings settings = settings_default)
+        GetUserFollowingAsync(string client_id, string from_id, FollowsQueryParameters parameters, ApiRequestSettings settings = settings_default)
         {
-            IApiResponse<FollowsDataPage<Follow>> following = await TwitchApiInternal.GetUserRelationshipAsync(bearer_token_default, client_id, from_id, string.Empty, query_parameters, settings);
+            IApiResponse<FollowsDataPage<Follow>> following = await TwitchApiInternal.GetUserRelationshipAsync(bearer_token_default, client_id, from_id, string.Empty, parameters, settings);
 
             return following;
         }
@@ -404,16 +404,16 @@ TwitchNet.Api
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="to_id">The user to get the followers for.</param>
-        /// <param name="query_parameters">
+        /// <param name="parameters">
         /// A set of query parameters to customize the request.
-        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="query_parameters"/> are ignored if specified.
+        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="parameters"/> are ignored if specified.
         /// </param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         public static async Task<IApiResponse<FollowsDataPage<Follow>>>
-        GetUserFollowersPageAsync(string client_id, string to_id, FollowsQueryParameters query_parameters, ApiRequestSettings settings = settings_default)
+        GetUserFollowersPageAsync(string client_id, string to_id, FollowsQueryParameters parameters, ApiRequestSettings settings = settings_default)
         {
-            IApiResponse<FollowsDataPage<Follow>> followers = await TwitchApiInternal.GetUserRelationshipPageAsync(bearer_token_default, client_id, string.Empty, to_id, query_parameters, settings);
+            IApiResponse<FollowsDataPage<Follow>> followers = await TwitchApiInternal.GetUserRelationshipPageAsync(bearer_token_default, client_id, string.Empty, to_id, parameters, settings);
 
             return followers;
         }
@@ -438,16 +438,16 @@ TwitchNet.Api
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
         /// <param name="to_id">The user to get the followers for.</param>
-        /// <param name="query_parameters">
+        /// <param name="parameters">
         /// A set of query parameters to customize the request.
-        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="query_parameters"/> are ignored if specified.
+        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="parameters"/> are ignored if specified.
         /// </param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         public static async Task<IApiResponse<FollowsDataPage<Follow>>>
-        GetUserFollowersAsync(string client_id, string to_id, FollowsQueryParameters query_parameters, ApiRequestSettings settings = settings_default)
+        GetUserFollowersAsync(string client_id, string to_id, FollowsQueryParameters parameters, ApiRequestSettings settings = settings_default)
         {
-            IApiResponse<FollowsDataPage<Follow>> followers = await TwitchApiInternal.GetUserRelationshipAsync(bearer_token_default, client_id, string.Empty, to_id, query_parameters, settings);
+            IApiResponse<FollowsDataPage<Follow>> followers = await TwitchApiInternal.GetUserRelationshipAsync(bearer_token_default, client_id, string.Empty, to_id, parameters, settings);
 
             return followers;
         }
@@ -460,13 +460,13 @@ TwitchNet.Api
         /// Asynchronously gets a single page of information on one or more videos.
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         public static async Task<IApiResponse<DataPage<Video>>>
-        GetVideosPageAsync(string client_id, VideosQueryParameters query_parameters, ApiRequestSettings settings = settings_default)
+        GetVideosPageAsync(string client_id, VideosQueryParameters parameters, ApiRequestSettings settings = settings_default)
         {
-            IApiResponse<DataPage<Video>> videos = await TwitchApiInternal.GetVideosPageAsync(bearer_token_default, client_id, query_parameters, settings);
+            IApiResponse<DataPage<Video>> videos = await TwitchApiInternal.GetVideosPageAsync(bearer_token_default, client_id, parameters, settings);
 
             return videos;
         }
@@ -475,13 +475,13 @@ TwitchNet.Api
         /// Asynchronously gets a complete list of information on one or more videos.
         /// </summary>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         public static async Task<IApiResponse<DataPage<Video>>>
-        GetVideosAsync(string client_id, VideosQueryParameters query_parameters, ApiRequestSettings settings = settings_default)
+        GetVideosAsync(string client_id, VideosQueryParameters parameters, ApiRequestSettings settings = settings_default)
         {
-            IApiResponse<DataPage<Video>> videos = await TwitchApiInternal.GetVideosAsync(bearer_token_default, client_id, query_parameters, settings);
+            IApiResponse<DataPage<Video>> videos = await TwitchApiInternal.GetVideosAsync(bearer_token_default, client_id, parameters, settings);
 
             return videos;
         }

@@ -43,30 +43,28 @@ TwitchNet.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         internal static async Task<IApiResponse<Data<CreatedClip>>>
-        CreateClipAsync(string bearer_token, string client_id, ClipCreationQueryParameters query_parameters, ApiRequestSettings settings = null)
+        CreateClipAsync(string bearer_token, string client_id, ClipCreationQueryParameters parameters, ApiRequestSettings settings = null)
         {
             if (settings.IsNull())
             {
-                settings = new ApiRequestSettings();
+                settings = ApiRequestSettings.Default;
             }            
 
             if (settings.input_hanlding == InputHandling.Error)
             {
-                ExceptionUtil.ThrowIfNullOrDefault(query_parameters, nameof(query_parameters));
-                ExceptionUtil.ThrowIfInvalid(query_parameters.broadcaster_id, nameof(query_parameters.broadcaster_id));
+                ExceptionUtil.ThrowIfNull(parameters, nameof(parameters));
+                ExceptionUtil.ThrowIfInvalid(parameters.broadcaster_id, nameof(parameters.broadcaster_id));
             }
 
-            RequestInfo request_info    = new RequestInfo();
-            request_info.endpoint       = "clips";
-            request_info.method         = Method.POST;
+            RequestInfo request_info    = new RequestInfo("clips", Method.POST);
             request_info.bearer_token   = bearer_token;
             request_info.client_id      = client_id;
 
-            IApiResponse<Data<CreatedClip>> clip_creation = await RestRequestUtil.ExecuteAsync<Data<CreatedClip>, ClipCreationQueryParameters>(client_info, request_info, query_parameters, settings);
+            IApiResponse<Data<CreatedClip>> clip_creation = await RestRequestUtil.ExecuteAsync<Data<CreatedClip>>(client_info, request_info, parameters, settings);
 
             return clip_creation;
         }
@@ -76,30 +74,28 @@ TwitchNet.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         internal static async Task<IApiResponse<Data<Clip>>>
-        GetClipAsync(string bearer_token, string client_id, ClipQueryParameters query_parameters, ApiRequestSettings settings)
+        GetClipAsync(string bearer_token, string client_id, ClipQueryParameters parameters, ApiRequestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = new ApiRequestSettings();
+                settings = ApiRequestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error)
             {
-                ExceptionUtil.ThrowIfNullOrDefault(query_parameters, nameof(query_parameters));
-                ExceptionUtil.ThrowIfInvalid(query_parameters.id, nameof(query_parameters.id));
+                ExceptionUtil.ThrowIfNull(parameters, nameof(parameters));
+                ExceptionUtil.ThrowIfInvalid(parameters.id, nameof(parameters.id));
             }
 
-            RequestInfo request_info    = new RequestInfo();
-            request_info.endpoint       = "clips";
-            request_info.method         = Method.GET;
+            RequestInfo request_info    = new RequestInfo("clips", Method.GET);
             request_info.bearer_token   = bearer_token;
             request_info.client_id      = client_id;
 
-            IApiResponse<Data<Clip>> clip = await RestRequestUtil.ExecuteAsync<Data<Clip>, ClipQueryParameters>(client_info, request_info, query_parameters, settings);
+            IApiResponse<Data<Clip>> clip = await RestRequestUtil.ExecuteAsync<Data<Clip>>(client_info, request_info, parameters, settings);
 
             return clip;
         }
@@ -113,35 +109,30 @@ TwitchNet.Api
         /// </summary>
         /// <param name="app_access_token">The application access token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         internal static async Task<IApiResponse<Data<Url>>>
-        CreateEntitlementGrantsUploadUrlAsync(string app_access_token, string client_id, EntitlementQueryParameters query_parameters, ApiRequestSettings settings)
+        CreateEntitlementGrantsUploadUrlAsync(string app_access_token, string client_id, EntitlementQueryParameters parameters, ApiRequestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = new ApiRequestSettings();
+                settings = ApiRequestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error)
             {
-                ExceptionUtil.ThrowIfNullOrDefault(query_parameters, nameof(query_parameters));
-                ExceptionUtil.ThrowIfInvalid(query_parameters.manifest_id, nameof(query_parameters.manifest_id));
-                if (!query_parameters.manifest_id.Length.IsInRange(1, 64))
-                {
-                    throw new ArgumentOutOfRangeException(nameof(query_parameters.manifest_id), query_parameters.manifest_id, nameof(query_parameters.manifest_id) + " must be between 1 and 64 characters, inclusive.");
-                }
-                ExceptionUtil.ThrowIfNull(query_parameters.type, nameof(query_parameters.type));
+                ExceptionUtil.ThrowIfNull(parameters, nameof(parameters));
+                ExceptionUtil.ThrowIfInvalid(parameters.manifest_id, nameof(parameters.manifest_id));
+                ExceptionUtil.ThrowIfOutOfRange(nameof(parameters.manifest_id), parameters.manifest_id.Length, 1, 64);
+                ExceptionUtil.ThrowIfNull(parameters.type, nameof(parameters.type));
             }
 
-            RequestInfo request_info    = new RequestInfo();
-            request_info.endpoint       = "entitlements/upload";
-            request_info.method         = Method.POST;
+            RequestInfo request_info    = new RequestInfo("entitlements/upload", Method.POST);
             request_info.bearer_token   = app_access_token;
             request_info.client_id      = client_id;
 
-            IApiResponse<Data<Url>> url = await RestRequestUtil.ExecuteAsync<Data<Url>, EntitlementQueryParameters>(client_info, request_info, query_parameters, settings);
+            IApiResponse<Data<Url>> url = await RestRequestUtil.ExecuteAsync<Data<Url>>(client_info, request_info, parameters, settings);
 
             return url;
         }
@@ -155,33 +146,31 @@ TwitchNet.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         internal static async Task<IApiResponse<Data<Game>>>
-        GetGamesAsync(string bearer_token, string client_id, GamesQueryParameters query_parameters, ApiRequestSettings settings)
+        GetGamesAsync(string bearer_token, string client_id, GamesQueryParameters parameters, ApiRequestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = new ApiRequestSettings();
+                settings = ApiRequestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error)
             {
-                ExceptionUtil.ThrowIfNullOrDefault(query_parameters, nameof(query_parameters));
-                if(!query_parameters.ids.IsValid() && !query_parameters.names.IsValid())
+                ExceptionUtil.ThrowIfNull(parameters, nameof(parameters));
+                if(!parameters.ids.IsValid() && !parameters.names.IsValid())
                 {
                     throw new ArgumentException("At least one valid game name or ID must be provided.");
                 }
             }
 
-            RequestInfo request_info    = new RequestInfo();
-            request_info.endpoint       = "games";
-            request_info.method         = Method.GET;
+            RequestInfo request_info    = new RequestInfo("games", Method.GET);
             request_info.bearer_token   = bearer_token;
             request_info.client_id      = client_id;
 
-            IApiResponse<Data<Game>> games = await RestRequestUtil.ExecuteAsync<Data<Game>, GamesQueryParameters>(client_info, request_info, query_parameters, settings);
+            IApiResponse<Data<Game>> games = await RestRequestUtil.ExecuteAsync<Data<Game>>(client_info, request_info, parameters, settings);
 
             return games;
         }
@@ -195,19 +184,17 @@ TwitchNet.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         internal static async Task<IApiResponse<DataPage<Game>>>
-        GetTopGamesPageAsync(string bearer_token, string client_id, TopGamesQueryParameters query_parameters, ApiRequestSettings settings)
+        GetTopGamesPageAsync(string bearer_token, string client_id, TopGamesQueryParameters parameters, ApiRequestSettings settings)
         {
-            RequestInfo request_info    = new RequestInfo();
-            request_info.endpoint       = "games/top";
-            request_info.method         = Method.GET;
+            RequestInfo request_info    = new RequestInfo("games/top", Method.GET);
             request_info.bearer_token   = bearer_token;
             request_info.client_id      = client_id;
 
-            IApiResponse<DataPage<Game>> top_games = await RestRequestUtil.ExecuteAsync<DataPage<Game>>(client_info, request_info, query_parameters, settings);
+            IApiResponse<DataPage<Game>> top_games = await RestRequestUtil.ExecuteAsync<DataPage<Game>>(client_info, request_info, parameters, settings);
 
             return top_games;
         }
@@ -217,19 +204,17 @@ TwitchNet.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         internal static async Task<IApiResponse<DataPage<Game>>>
-        GetTopGamesAsync(string bearer_token, string client_id, TopGamesQueryParameters query_parameters, ApiRequestSettings settings)
+        GetTopGamesAsync(string bearer_token, string client_id, TopGamesQueryParameters parameters, ApiRequestSettings settings)
         {
-            RequestInfo request_info    = new RequestInfo();
-            request_info.endpoint       = "games/top";
-            request_info.method         = Method.GET;
+            RequestInfo request_info    = new RequestInfo("games/top", Method.GET);
             request_info.bearer_token   = bearer_token;
             request_info.client_id      = client_id;
 
-            IApiResponse<DataPage<Game>> top_games = await RestRequestUtil.ExecutePagesAsync<Game, DataPage<Game>>(client_info, request_info, query_parameters, settings);
+            IApiResponse<DataPage<Game>> top_games = await RestRequestUtil.ExecutePagesAsync<Game, DataPage<Game>>(client_info, request_info, parameters, settings);
 
             return top_games;
         }
@@ -243,19 +228,17 @@ TwitchNet.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         internal static async Task<IApiResponse<DataPage<Stream>>>
-        GetStreamsPageAsync(string bearer_token, string client_id, StreamsQueryParameters query_parameters, ApiRequestSettings settings)
+        GetStreamsPageAsync(string bearer_token, string client_id, StreamsQueryParameters parameters, ApiRequestSettings settings)
         {
-            RequestInfo request_info    = new RequestInfo();
-            request_info.endpoint       = "streams";
-            request_info.method         = Method.GET;
+            RequestInfo request_info    = new RequestInfo("streams", Method.GET);
             request_info.bearer_token   = bearer_token;
             request_info.client_id      = client_id;
 
-            IApiResponse<DataPage<Stream>> streams = await RestRequestUtil.ExecuteAsync<DataPage<Stream>>(client_info, request_info, query_parameters, settings);
+            IApiResponse<DataPage<Stream>> streams = await RestRequestUtil.ExecuteAsync<DataPage<Stream>>(client_info, request_info, parameters, settings);
 
             return streams;
         }
@@ -265,19 +248,17 @@ TwitchNet.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         internal static async Task<IApiResponse<DataPage<Stream>>>
-        GetStreamsAsync(string bearer_token, string client_id, StreamsQueryParameters query_parameters, ApiRequestSettings settings)
+        GetStreamsAsync(string bearer_token, string client_id, StreamsQueryParameters parameters, ApiRequestSettings settings)
         {
-            RequestInfo request_info    = new RequestInfo();
-            request_info.endpoint       = "streams";
-            request_info.method         = Method.GET;
+            RequestInfo request_info    = new RequestInfo("streams", Method.GET);
             request_info.bearer_token   = bearer_token;
             request_info.client_id      = client_id;
 
-            IApiResponse<DataPage<Stream>> streams = await RestRequestUtil.ExecutePagesAsync<Stream, DataPage<Stream>>(client_info, request_info, query_parameters, settings);
+            IApiResponse<DataPage<Stream>> streams = await RestRequestUtil.ExecutePagesAsync<Stream, DataPage<Stream>>(client_info, request_info, parameters, settings);
 
             return streams;
         }
@@ -293,7 +274,7 @@ TwitchNet.Api
         internal static async Task<IApiResponse<bool>>
         IsStreamLiveAsync(string bearer_token, string client_id, string user_id, ApiRequestSettings settings)
         {
-            StreamsQueryParameters query_parameters = new StreamsQueryParameters()
+            StreamsQueryParameters parameters = new StreamsQueryParameters()
             {
                 user_ids = new List<string>()
                 {
@@ -301,7 +282,7 @@ TwitchNet.Api
                 }
             };
 
-            IApiResponse<DataPage<Stream>> streams = await GetStreamsPageAsync(bearer_token, client_id, query_parameters, settings);
+            IApiResponse<DataPage<Stream>> streams = await GetStreamsPageAsync(bearer_token, client_id, parameters, settings);
 
             ApiResponse<bool> is_live = new ApiResponse<bool>(streams);
             is_live.result = streams.result.data.IsValid();
@@ -318,19 +299,17 @@ TwitchNet.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         internal static async Task<IApiResponse<DataPage<Metadata>>>
-        GetStreamsMetadataPageAsync(string bearer_token, string client_id, StreamsQueryParameters query_parameters, ApiRequestSettings settings)
+        GetStreamsMetadataPageAsync(string bearer_token, string client_id, StreamsQueryParameters parameters, ApiRequestSettings settings)
         {
-            RequestInfo request_info    = new RequestInfo();
-            request_info.endpoint       = "streams/metadata";
-            request_info.method         = Method.GET;
+            RequestInfo request_info    = new RequestInfo("streams/metadata", Method.GET);
             request_info.bearer_token   = bearer_token;
             request_info.client_id      = client_id;
 
-            IApiResponse<DataPage<Metadata>> metadata = await RestRequestUtil.ExecuteAsync<DataPage<Metadata>>(client_info, request_info, query_parameters, settings);
+            IApiResponse<DataPage<Metadata>> metadata = await RestRequestUtil.ExecuteAsync<DataPage<Metadata>>(client_info, request_info, parameters, settings);
 
             return metadata;
         }
@@ -340,19 +319,17 @@ TwitchNet.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         internal static async Task<IApiResponse<DataPage<Metadata>>>
-        GetStreamsMetadataAsync(string bearer_token, string client_id, StreamsQueryParameters query_parameters, ApiRequestSettings settings)
+        GetStreamsMetadataAsync(string bearer_token, string client_id, StreamsQueryParameters parameters, ApiRequestSettings settings)
         {
-            RequestInfo request_info    = new RequestInfo();
-            request_info.endpoint       = "streams/metadata";
-            request_info.method         = Method.GET;
+            RequestInfo request_info    = new RequestInfo("streams/metadata", Method.GET);
             request_info.bearer_token   = bearer_token;
             request_info.client_id      = client_id;
 
-            IApiResponse<DataPage<Metadata>> metadata = await RestRequestUtil.ExecutePagesAsync<Metadata, DataPage<Metadata>>(client_info, request_info, query_parameters, settings);
+            IApiResponse<DataPage<Metadata>> metadata = await RestRequestUtil.ExecutePagesAsync<Metadata, DataPage<Metadata>>(client_info, request_info, parameters, settings);
 
             return metadata;
         }
@@ -364,7 +341,7 @@ TwitchNet.Api
         /// <summary>
         /// <para>
         /// Asynchronously gets the information of one or more users by their id or login.
-        /// If no <paramref name="query_parameters"/> are specified, the user is looked up by the token provided if it is an Bearer token.
+        /// If no <paramref name="parameters"/> are specified, the user is looked up by the token provided if it is an Bearer token.
         /// </para>
         /// <para>
         /// Optional Scope: 'user:read:email'.
@@ -373,19 +350,17 @@ TwitchNet.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>/// <param name="query_parameters">The users to look up either by id or by login.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>/// <param name="parameters">The users to look up either by id or by login.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         internal static async Task<IApiResponse<Data<User>>>
-        GetUsersAsync(string bearer_token, string client_id, UsersQueryParameters query_parameters, ApiRequestSettings settings)
+        GetUsersAsync(string bearer_token, string client_id, UsersQueryParameters parameters, ApiRequestSettings settings)
         {
-            RequestInfo request_info    = new RequestInfo();
-            request_info.endpoint       = "users";
-            request_info.method         = Method.GET;
+            RequestInfo request_info    = new RequestInfo("users", Method.GET);
             request_info.bearer_token   = bearer_token;
             request_info.client_id      = client_id;
 
-            IApiResponse<Data<User>> users = await RestRequestUtil.ExecuteAsync<Data<User>, UsersQueryParameters>(client_info, request_info, query_parameters, settings);
+            IApiResponse<Data<User>> users = await RestRequestUtil.ExecuteAsync<Data<User>>(client_info, request_info, parameters, settings);
 
             return users;
         }
@@ -402,7 +377,7 @@ TwitchNet.Api
         internal static async Task<IApiResponse<Data<User>>>
         SetUserDescriptionAsync(string bearer_token, string client_id, string description, ApiRequestSettings settings)
         {
-            QueryParameter[] query_parameters = new QueryParameter[]
+            QueryParameter[] parameters = new QueryParameter[]
             {
                 new QueryParameter
                 {
@@ -411,13 +386,11 @@ TwitchNet.Api
                 },
             };
 
-            RequestInfo request_info    = new RequestInfo();
-            request_info.endpoint       = "users";
-            request_info.method         = Method.PUT;
+            RequestInfo request_info    = new RequestInfo("users", Method.PUT);
             request_info.bearer_token   = bearer_token;
             request_info.client_id      = client_id;
 
-            IApiResponse<Data<User>> result = await RestRequestUtil.ExecutetAsync<Data<User>>(client_info, request_info, query_parameters, settings);
+            IApiResponse<Data<User>> result = await RestRequestUtil.ExecutetAsync<Data<User>>(client_info, request_info, parameters, settings);
 
             return result;
         }
@@ -433,18 +406,18 @@ TwitchNet.Api
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
         /// <param name="from_id">The user to compare from.</param>
         /// <param name="to_id">The user to compare to.</param>
-        /// <param name="query_parameters">
+        /// <param name="parameters">
         /// A set of query parameters to customize the request.
-        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="query_parameters"/> are ignored if specified.
+        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="parameters"/> are ignored if specified.
         /// </param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         internal static async Task<IApiResponse<FollowsDataPage<Follow>>>
-        GetUserRelationshipPageAsync(string bearer_token, string client_id, string from_id, string to_id, FollowsQueryParameters query_parameters, ApiRequestSettings settings)
+        GetUserRelationshipPageAsync(string bearer_token, string client_id, string from_id, string to_id, FollowsQueryParameters parameters, ApiRequestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = new ApiRequestSettings();
+                settings = ApiRequestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error)
@@ -455,20 +428,18 @@ TwitchNet.Api
                 }
             }
 
-            if (query_parameters.IsNull())
+            if (parameters.IsNull())
             {
-                query_parameters = new FollowsQueryParameters();
+                parameters = new FollowsQueryParameters();
             }
-            query_parameters.from_id = from_id;
-            query_parameters.to_id = to_id;
+            parameters.from_id = from_id;
+            parameters.to_id = to_id;
 
-            RequestInfo request_info    = new RequestInfo();
-            request_info.endpoint       = "users/follows";
-            request_info.method         = Method.GET;
+            RequestInfo request_info    = new RequestInfo("users/follows", Method.GET);
             request_info.bearer_token   = bearer_token;
             request_info.client_id      = client_id;
 
-            IApiResponse<FollowsDataPage<Follow>> follows = await RestRequestUtil.ExecuteAsync<FollowsDataPage<Follow>>(client_info, request_info, query_parameters, settings);
+            IApiResponse<FollowsDataPage<Follow>> follows = await RestRequestUtil.ExecuteAsync<FollowsDataPage<Follow>>(client_info, request_info, parameters, settings);
 
             return follows;
         }
@@ -480,15 +451,15 @@ TwitchNet.Api
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
         /// <param name="from_id">The user to compare from. Used to get the following list of a user.</param>
         /// <param name="to_id">The user to compare to. Used to get a user's follower list.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
+        /// <param name="parameters">A set of query parameters to customize the request. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         internal static async Task<IApiResponse<FollowsDataPage<Follow>>>
-        GetUserRelationshipAsync(string bearer_token, string client_id, string from_id, string to_id, FollowsQueryParameters query_parameters, ApiRequestSettings settings)
+        GetUserRelationshipAsync(string bearer_token, string client_id, string from_id, string to_id, FollowsQueryParameters parameters, ApiRequestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = new ApiRequestSettings();
+                settings = ApiRequestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error)
@@ -499,20 +470,18 @@ TwitchNet.Api
                 }
             }
 
-            if (query_parameters.IsNull())
+            if (parameters.IsNull())
             {
-                query_parameters = new FollowsQueryParameters();
+                parameters = new FollowsQueryParameters();
             }            
-            query_parameters.from_id = from_id;
-            query_parameters.to_id = to_id;
+            parameters.from_id = from_id;
+            parameters.to_id = to_id;
 
-            RequestInfo request_info    = new RequestInfo();
-            request_info.endpoint       = "users/follows";
-            request_info.method         = Method.GET;
+            RequestInfo request_info    = new RequestInfo("users/follows", Method.GET);
             request_info.bearer_token   = bearer_token;
             request_info.client_id      = client_id;
 
-            IApiResponse<FollowsDataPage<Follow>> follows = await RestRequestUtil.ExecutePagesAsync<Follow, FollowsDataPage<Follow>>(client_info, request_info, query_parameters, settings);
+            IApiResponse<FollowsDataPage<Follow>> follows = await RestRequestUtil.ExecutePagesAsync<Follow, FollowsDataPage<Follow>>(client_info, request_info, parameters, settings);
 
             return follows;
         }
@@ -531,7 +500,7 @@ TwitchNet.Api
         {
             if (settings.IsNull())
             {
-                settings = new ApiRequestSettings();
+                settings = ApiRequestSettings.Default;
             }
 
             if(settings.input_hanlding == InputHandling.Error)
@@ -557,34 +526,32 @@ TwitchNet.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         internal static async Task<IApiResponse<DataPage<Video>>>
-        GetVideosPageAsync(string bearer_token, string client_id, VideosQueryParameters query_parameters, ApiRequestSettings settings)
+        GetVideosPageAsync(string bearer_token, string client_id, VideosQueryParameters parameters, ApiRequestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = new ApiRequestSettings();
+                settings = ApiRequestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error) 
             {
-                ExceptionUtil.ThrowIfNull(query_parameters, nameof(query_parameters));
-                if((query_parameters.ids.IsValid() && (query_parameters.user_id.IsValid() || query_parameters.game_id.IsValid())) ||
-                   (query_parameters.user_id.IsValid() && query_parameters.game_id.IsValid()))
+                ExceptionUtil.ThrowIfNull(parameters, nameof(parameters));
+                if((parameters.ids.IsValid() && (parameters.user_id.IsValid() || parameters.game_id.IsValid())) ||
+                   (parameters.user_id.IsValid() && parameters.game_id.IsValid()))
                 {
                     throw new ArgumentException("Only one or more video ID's, one user ID, or one game ID can be provided.");
                 }
             }
 
-            RequestInfo request_info    = new RequestInfo();
-            request_info.endpoint       = "videos";
-            request_info.method         = Method.GET;
+            RequestInfo request_info    = new RequestInfo("videos", Method.GET);
             request_info.bearer_token   = bearer_token;
             request_info.client_id      = client_id;
 
-            IApiResponse<DataPage<Video>> videos = await RestRequestUtil.ExecuteAsync<DataPage<Video>>(client_info, request_info, query_parameters, settings);
+            IApiResponse<DataPage<Video>> videos = await RestRequestUtil.ExecuteAsync<DataPage<Video>>(client_info, request_info, parameters, settings);
 
             return videos;
         }
@@ -594,34 +561,32 @@ TwitchNet.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="query_parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
         internal static async Task<IApiResponse<DataPage<Video>>>
-        GetVideosAsync(string bearer_token, string client_id, VideosQueryParameters query_parameters, ApiRequestSettings settings)
+        GetVideosAsync(string bearer_token, string client_id, VideosQueryParameters parameters, ApiRequestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = new ApiRequestSettings();
+                settings = ApiRequestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error)
             {
-                ExceptionUtil.ThrowIfNull(query_parameters, nameof(query_parameters));
-                if ((query_parameters.ids.IsValid() && (query_parameters.user_id.IsValid() || query_parameters.game_id.IsValid())) ||
-                   (query_parameters.user_id.IsValid() && query_parameters.game_id.IsValid()))
+                ExceptionUtil.ThrowIfNull(parameters, nameof(parameters));
+                if ((parameters.ids.IsValid() && (parameters.user_id.IsValid() || parameters.game_id.IsValid())) ||
+                   (parameters.user_id.IsValid() && parameters.game_id.IsValid()))
                 {
                     throw new ArgumentException("Only one or more video ID's, one user ID, or one game ID can be provided.");
                 }
             }
 
-            RequestInfo request_info    = new RequestInfo();
-            request_info.endpoint       = "videos";
-            request_info.method         = Method.GET;
+            RequestInfo request_info    = new RequestInfo("videos", Method.GET);
             request_info.bearer_token   = bearer_token;
             request_info.client_id      = client_id;
 
-            IApiResponse<DataPage<Video>> videos = await RestRequestUtil.ExecutePagesAsync<Video, DataPage<Video>>(client_info, request_info, query_parameters, settings);
+            IApiResponse<DataPage<Video>> videos = await RestRequestUtil.ExecutePagesAsync<Video, DataPage<Video>>(client_info, request_info, parameters, settings);
 
             return videos;
         }

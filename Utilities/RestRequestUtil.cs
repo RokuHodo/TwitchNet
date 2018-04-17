@@ -25,94 +25,77 @@ TwitchNet.Utilities
         #region Execute methods
 
         public static async Task<IApiResponse<result_type>>
-        ExecutetAsync<result_type>(ClientInfo client_info, RequestInfo request_info, IList<QueryParameter> query_parameters, ApiRequestSettings settings)
+        ExecutetAsync<result_type>(ClientInfo client_info, RequestInfo request_info, IList<QueryParameter> parameters, ApiRequestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = new ApiRequestSettings();
+                settings = ApiRequestSettings.Default;
             }
 
             RestRequest request = CreateRequest(request_info, settings);
-            request = PagingUtil.AddPaging(request, query_parameters);
+            request = PagingUtil.AddPaging(request, parameters);
 
-            IApiResponse<result_type> api_response = await ExecuteAsync<result_type>(client_info, request, settings);            
+            IApiResponse<result_type> response = await ExecuteAsync<result_type>(client_info, request, settings);            
 
-            return api_response;
+            return response;
         }
 
         public static async Task<IApiResponse<result_type>>
-        ExecuteAsync<result_type, query_parameters_type>(ClientInfo client_info, RequestInfo request_info, query_parameters_type query_parameters, ApiRequestSettings settings)
-        where query_parameters_type : class, new()
+        ExecuteAsync<result_type>(ClientInfo client_info, RequestInfo request_info, object parameters, ApiRequestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = new ApiRequestSettings();
+                settings = ApiRequestSettings.Default;
             }
 
             RestRequest request = CreateRequest(request_info, settings);
-            request = PagingUtil.AddPaging(request, query_parameters);
+            request = PagingUtil.AddPaging(request, parameters);
 
-            IApiResponse<result_type> api_response = await ExecuteAsync<result_type>(client_info, request, settings);
+            IApiResponse<result_type> response = await ExecuteAsync<result_type>(client_info, request, settings);
 
-            return api_response;
+            return response;
         }
 
         public static async Task<IApiResponse<result_type>>
-        ExecuteAsync<result_type>(ClientInfo client_info, RequestInfo request_info, QueryParameters query_parameters, ApiRequestSettings settings)
-        {
-            if (settings.IsNull())
-            {
-                settings = new ApiRequestSettings();
-            }
-
-            RestRequest request = CreateRequest(request_info, settings);
-            request = PagingUtil.AddPaging(request, query_parameters);
-
-            IApiResponse<result_type> api_response = await ExecuteAsync<result_type>(client_info, request, settings);
-
-            return api_response;
-        }
-
-        public static async Task<IApiResponse<result_type>>
-        ExecutePagesAsync<data_type, result_type>(ClientInfo client_info, RequestInfo request_info, QueryParameters query_parameters, ApiRequestSettings settings)
+        ExecutePagesAsync<data_type, result_type>(ClientInfo client_info, RequestInfo request_info, QueryParameters parameters, ApiRequestSettings settings)
         where result_type : DataPage<data_type>, IDataPage<data_type>, new()
         {
-            IApiResponse<result_type> api_response = new ApiResponse<result_type>();     
+            IApiResponse<result_type> response = new ApiResponse<result_type>();     
             List<data_type> data = new List<data_type>();
 
-            if (query_parameters.IsNull())
+            if (parameters.IsNull())
             {
-                query_parameters = new QueryParameters();
+                parameters = new QueryParameters();
             }
 
             if (settings.IsNullOrDefault())
             {
-                settings = new ApiRequestSettings();
+                settings = ApiRequestSettings.Default;
             }
 
             bool requesting = true;
             do
             {
-                IApiResponse<result_type> api_page_response = await ExecuteAsync<result_type>(client_info, request_info, query_parameters, settings);
-                if (api_page_response.result.data.IsValid())
+                IApiResponse<result_type> page = await ExecuteAsync<result_type>(client_info, request_info, parameters, settings);
+                if (page.result.data.IsValid())
                 {
-                    data.AddRange(api_page_response.result.data);
+                    data.AddRange(page.result.data);
                 }                
 
-                requesting = api_page_response.result.data.IsValid() && api_page_response.result.pagination.cursor.IsValid();
+                requesting = page.result.data.IsValid() && page.result.pagination.cursor.IsValid();
                 if (requesting)
                 {
-                    query_parameters.after = api_page_response.result.pagination.cursor;
+                    parameters.after = page.result.pagination.cursor;
                 }
                 else
                 {
-                    api_response = api_page_response;
-                    api_response.result.data = data;
+                    response = page;
+                    response.result.data = data;
                 }
             }
             while (requesting);            
 
-            return api_response;
+            return response;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -121,7 +104,7 @@ TwitchNet.Utilities
         {
             if (settings.IsNull())
             {
-                settings = new ApiRequestSettings();
+                settings = ApiRequestSettings.Default;
             }
 
             RestClient client = CreateClient(client_info);

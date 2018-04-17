@@ -31,6 +31,21 @@ namespace TwitchNet.Models.Api
         /// <summary>
         /// The Client-ID if both the Bearer token and Client Id are being provided.
         /// </summary>
-        public string client_id;        
+        public string client_id;      
+        
+        /// <summary>
+        /// Creates an instance of the <see cref="RequestInfo"/> struct.
+        /// </summary>
+        /// <param name="endpoint">The API endpoint.</param>
+        /// <param name="method">The HTTP request method.</param>
+        public RequestInfo(string endpoint, Method method)
+        {
+            this.endpoint   = endpoint;
+            this.method     = method;
+
+            bearer_token    = string.Empty;
+            oauth_token     = string.Empty;
+            client_id       = string.Empty;
+        }
     }
 }

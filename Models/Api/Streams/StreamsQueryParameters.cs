@@ -12,21 +12,12 @@ namespace
 TwitchNet.Models.Api.Streams
 {
     public class
-    StreamsQueryParameters : QueryParameters, IQueryParameters
+    StreamsQueryParameters : QueryParametersPage, IQueryParameters
     {
-        #region Fields        
-
-        private StreamLanguage?     _language;
-        private StreamType?         _type;
-
         private ClampedList<string> _community_ids  = new ClampedList<string>();
         private ClampedList<string> _game_ids       = new ClampedList<string>();
         private ClampedList<string> _user_ids       = new ClampedList<string>();
         private ClampedList<string> _user_logins    = new ClampedList<string>();
-
-        #endregion
-
-        #region Properties
 
         /// <summary>
         /// A list of communities on Twitch.
@@ -70,33 +61,13 @@ TwitchNet.Models.Api.Streams
         /// Bitfield enum.
         /// </summary>
         [QueryParameter("language")]
-        public StreamLanguage? language
-        {
-            get
-            {
-                return _language;
-            }
-            set
-            {
-                _language = value;
-            }
-        }
+        public StreamLanguage? language { get; set; }
 
         /// <summary>
         /// The stream type. Bitfield enum.
         /// </summary>
         [QueryParameter("type")]
-        public StreamType? type
-        {
-            get
-            {
-                return _type;
-            }
-            set
-            {
-                _type = value;
-            }
-        }
+        public StreamType? type { get; set; }
 
         /// <summary>
         /// A list of user ID's.
@@ -134,15 +105,12 @@ TwitchNet.Models.Api.Streams
             }
         }
 
-        #endregion
-
-        #region Contstructors
-
+        /// <summary>
+        /// Creates a new blank instance of the <see cref="StreamsQueryParameters"/> class.
+        /// </summary>
         public StreamsQueryParameters()
         {
 
         }
-
-        #endregion
     }
 }

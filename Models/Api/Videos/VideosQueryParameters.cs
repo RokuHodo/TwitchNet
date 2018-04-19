@@ -12,74 +12,29 @@ namespace
 TwitchNet.Models.Api.Videos
 {
     public class
-    VideosQueryParameters : QueryParameters, IQueryParameters
+    VideosQueryParameters : QueryParametersPage, IQueryParameters
     {
-        #region Fields
-
-        private string              _before;
-        private string              _user_id;
-        private string              _game_id;
-
         private ClampedList<string> _ids = new ClampedList<string>();
-
-        private BroadcasterLanguage?      _language;
-        private VideoPeriod?        _period;
-        private VideoSort?          _sort;
-        private VideoType?          _type;
-
-        #endregion
-
-        #region Properties
 
         /// <summary>
         /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
         /// </summary>
-        [QueryParameter("before", false)]
-        public string before
-        {
-            get
-            {
-                return _before;
-            }
-            set
-            {
-                _before = value;
-            }
-        }
+        [QueryParameter("before")]
+        public string               before      { get; set; }
 
         /// <summary>
         /// The ID of a user.
         /// Only one or more video ID, one user ID, or one game ID can be provided with each request.
         /// </summary>
         [QueryParameter("user_id")]
-        public string user_id
-        {
-            get
-            {
-                return _user_id;
-            }
-            set
-            {
-                _user_id = value;
-            }
-        }
+        public string               user_id     { get; set; }
 
         /// <summary>
         /// The ID of a game.
         /// Only one or more video ID, one user ID, or one game ID can be provided with each request.
         /// </summary>
         [QueryParameter("game_id")]
-        public string game_id
-        {
-            get
-            {
-                return _game_id;
-            }
-            set
-            {
-                _game_id = value;
-            }
-        }
+        public string               game_id     { get; set; }
 
         /// <summary>
         /// <para>
@@ -110,75 +65,32 @@ TwitchNet.Models.Api.Videos
         /// This is the language selected in the Twitch dashboard or in the video information editor, not the language selected at the home page.
         /// </summary>
         [QueryParameter("language")]
-        public BroadcasterLanguage? language
-        {
-            get
-            {
-                return _language;
-            }
-            set
-            {
-                _language = value;
-            }
-        }
+        public BroadcasterLanguage? language    { get; set; }
 
         /// <summary>
         /// The period when the video was created.
         /// </summary>
         [QueryParameter("period")]
-        public VideoPeriod? period
-        {
-            get
-            {
-                return _period;
-            }
-            set
-            {
-                _period = value;
-            }
-        }
+        public VideoPeriod?         period      { get; set; }
 
         /// <summary>
         /// The soprt order of the videos.
         /// </summary>
         [QueryParameter("sort")]
-        public VideoSort? sort
-        {
-            get
-            {
-                return _sort;
-            }
-            set
-            {
-                _sort = value;
-            }
-        }
+        public VideoSort?           sort        { get; set; }
 
         /// <summary>
         /// The type of the video.
         /// </summary>
         [QueryParameter("type")]
-        public VideoType? type
-        {
-            get
-            {
-                return _type;
-            }
-            set
-            {
-                _type = value;
-            }
-        }
+        public VideoType?           type        { get; set; }
 
-        #endregion
-
-        #region Contstructors
-
+        /// <summary>
+        /// Creates a new blank instance of the <see cref="VideosQueryParameters"/> class.
+        /// </summary>
         public VideosQueryParameters()
         {
 
         }
-
-        #endregion
     }
 }

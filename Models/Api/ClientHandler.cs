@@ -9,12 +9,12 @@ namespace TwitchNet.Models.Api
         /// <summary>
         /// The handler's content type.
         /// </summary>
-        public string content_type;
+        public string           content_type;
 
         /// <summary>
         /// The content type's deserializer.
         /// </summary>
-        public IDeserializer deserializer;
+        public IDeserializer    deserializer;
 
         /// <summary>
         /// Creates a new instance of the <see cref="ClientHandler"/> struct.
@@ -23,9 +23,9 @@ namespace TwitchNet.Models.Api
         /// <param name="deserializer">The content type's deserializer.</param>
         public ClientHandler(string content_type, IDeserializer deserializer)
         {
-            this.content_type = content_type;
+            this.content_type   = content_type;
 
-            this.deserializer = deserializer;
+            this.deserializer   = deserializer;
         }
     }
 }

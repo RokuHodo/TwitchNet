@@ -5,26 +5,17 @@ namespace
 TwitchNet.Models.Api.Games
 {
     public class
-    TopGamesQueryParameters : QueryParameters, IQueryParameters
+    TopGamesQueryParameters : QueryParametersPage, IQueryParameters
     {
-        private string _before;
-
         /// <summary>
         /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
         /// </summary>
-        [QueryParameter("before", false)]
-        public string before
-        {
-            get
-            {
-                return _before;
-            }
-            set
-            {
-                _before = value;
-            }
-        }
+        [QueryParameter("before")]
+        public string before { get; set; }
 
+        /// <summary>
+        /// Creates a new blank instance of the <see cref="TopGamesQueryParameters"/> class.
+        /// </summary>
         public TopGamesQueryParameters()
         {
 

@@ -1,57 +1,28 @@
-﻿// project namespaces
-using TwitchNet.Extensions;
-
-namespace
+﻿namespace
 TwitchNet.Models.Api
 {
-    public class
+    public struct
     QueryParameter
     {
-        private string _name;
-        private string _name_default = string.Empty;
-
-        private string _value;
-        private string _value_default = string.Empty;
+        /// <summary>
+        /// The string value to be added as a query parameter.
+        /// </summary>
+        public string name;
 
         /// <summary>
         /// The string value to be added as a query parameter.
         /// </summary>
-        public string name
-        {
-            get
-            {
-                return _name.IsValid() ? _name : _name_default;
-            }
-            set
-            {
-                _name = value;
-            }
-        }
+        public string value;
 
         /// <summary>
-        /// The string value to be added as a query parameter.
+        /// Creates a new instance of the <see cref="QueryParameter"/> struct;
         /// </summary>
-        public string value
-        {
-            get
-            {
-                return _value.IsValid() ? _value : _value_default;
-            }
-            set
-            {
-                _value = value;
-            }
-        }
-
-        public QueryParameter()
-        {
-
-        }
-
+        /// <param name="name">The name of the query parameter.</param>
+        /// <param name="value">The value of the query parameter.</param>
         public QueryParameter(string name, string value)
         {
-            this.name = name;
-            this.value = value;
+            this.name   = name;
+            this.value  = value;
         }
     }
 }

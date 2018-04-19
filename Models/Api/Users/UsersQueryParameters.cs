@@ -10,14 +10,8 @@ TwitchNet.Models.Api.Users
     public class
     UsersQueryParameters
     {
-        #region Fields
-
         private ClampedList<string> _ids    = new ClampedList<string>();
         private ClampedList<string> _logins = new ClampedList<string>();
-
-        #endregion
-
-        #region Properties
 
         /// <summary>
         /// <para>A list of user id's names to get information about.</para>
@@ -26,7 +20,7 @@ TwitchNet.Models.Api.Users
         /// If more than 100 id's are specified, only the first 100 will be added.
         /// </para>
         /// </summary>
-        [QueryParameter("id", false)]
+        [QueryParameter("id")]
         public List<string> ids
         {
             get
@@ -59,15 +53,12 @@ TwitchNet.Models.Api.Users
             }
         }
 
-        #endregion
-
-        #region Contstructors
-
+        /// <summary>
+        /// Creates a new blank instance of the <see cref="UsersQueryParameters"/> class.
+        /// </summary>
         public UsersQueryParameters()
         {
 
         }
-
-        #endregion
     }
 }

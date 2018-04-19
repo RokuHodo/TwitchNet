@@ -5,60 +5,28 @@ namespace
 TwitchNet.Models.Api.Users
 {
     public class
-    FollowsQueryParameters : QueryParameters, IQueryParameters
+    FollowsQueryParameters : QueryParametersPage, IQueryParameters
     {
-        #region Fields
-
-        private string _from_id;
-        private string _to_id;
-
-        #endregion
-
-        #region Properties
-
         /// <summary>
         /// A user's id.
         /// The request returns information about users who are being followed by the this user.
         /// </summary>
         [QueryParameter("from_id")]
-        public string from_id
-        {
-            get
-            {
-                return _from_id;
-            }
-            set
-            {
-                _from_id = value;
-            }
-        }
+        public string from_id   { get; set; }
 
         /// <summary>
         /// A user's id.
         /// The request returns information about users who are following this user.
         /// </summary>
         [QueryParameter("to_id")]
-        public string to_id
-        {
-            get
-            {
-                return _to_id;
-            }
-            set
-            {
-                _to_id = value;
-            }
-        }
+        public string to_id     { get; set; }
 
-        #endregion
-
-        #region Contstructors
-
+        /// <summary>
+        /// Creates a new blank instance of the <see cref="FollowsQueryParameters"/> class.
+        /// </summary>
         public FollowsQueryParameters()
         {
 
         }
-
-        #endregion
     }
 }

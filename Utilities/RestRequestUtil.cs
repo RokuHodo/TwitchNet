@@ -1,5 +1,6 @@
 ﻿// standard namespaces
 using System;
+using System.Net;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -27,13 +28,8 @@ TwitchNet.Utilities
         public static async Task<IApiResponse<result_type>>
         ExecutetAsync<result_type>(ClientInfo client_info, RequestInfo request_info, IList<QueryParameter> parameters, ApiRequestSettings settings)
         {
-            if (settings.IsNull())
-            {
-                settings = ApiRequestSettings.Default;
-            }
-
             RestRequest request = CreateRequest(request_info, settings);
-            request = PagingUtil.AddPaging(request, parameters);
+            request = PagingUtil.Add(request, parameters);
 
             IApiResponse<result_type> response = await ExecuteAsync<result_type>(client_info, request, settings);            
 
@@ -43,13 +39,8 @@ TwitchNet.Utilities
         public static async Task<IApiResponse<result_type>>
         ExecuteAsync<result_type>(ClientInfo client_info, RequestInfo request_info, object parameters, ApiRequestSettings settings)
         {
-            if (settings.IsNull())
-            {
-                settings = ApiRequestSettings.Default;
-            }
-
             RestRequest request = CreateRequest(request_info, settings);
-            request = PagingUtil.AddPaging(request, parameters);
+            request = PagingUtil.Add(request, parameters);
 
             IApiResponse<result_type> response = await ExecuteAsync<result_type>(client_info, request, settings);
 
@@ -57,7 +48,7 @@ TwitchNet.Utilities
         }
 
         public static async Task<IApiResponse<result_type>>
-        ExecutePagesAsync<data_type, result_type>(ClientInfo client_info, RequestInfo request_info, QueryParameters parameters, ApiRequestSettings settings)
+        ExecutePagesAsync<data_type, result_type>(ClientInfo client_info, RequestInfo request_info, IQueryParameters parameters, ApiRequestSettings settings)
         where result_type : DataPage<data_type>, IDataPage<data_type>, new()
         {
             IApiResponse<result_type> response = new ApiResponse<result_type>();     
@@ -65,10 +56,10 @@ TwitchNet.Utilities
 
             if (parameters.IsNull())
             {
-                parameters = new QueryParameters();
+                parameters = new QueryParametersPage();
             }
 
-            if (settings.IsNullOrDefault())
+            if (settings.IsNull())
             {
                 settings = ApiRequestSettings.Default;
             }
@@ -77,20 +68,20 @@ TwitchNet.Utilities
             do
             {
                 IApiResponse<result_type> page = await ExecuteAsync<result_type>(client_info, request_info, parameters, settings);
-                if (page.result.data.IsValid())
+                if (page.Result.data.IsValid())
                 {
-                    data.AddRange(page.result.data);
+                    data.AddRange(page.Result.data);
                 }                
 
-                requesting = page.result.data.IsValid() && page.result.pagination.cursor.IsValid();
+                requesting = page.Result.data.IsValid() && page.Result.pagination.cursor.IsValid();
                 if (requesting)
                 {
-                    parameters.after = page.result.pagination.cursor;
+                    parameters.after = page.Result.pagination.cursor;
                 }
                 else
                 {
                     response = page;
-                    response.result.data = data;
+                    response.Result.data = data;
                 }
             }
             while (requesting);            
@@ -123,20 +114,20 @@ TwitchNet.Utilities
         private static async Task<IApiResponse<result_type>>
         HandleResponse<result_type>(ClientInfo client_info, IRestResponse<result_type> rest_response, IApiResponse<result_type> api_response, ApiRequestSettings settings)
         {
-            switch (api_response.error.source)
+            switch (api_response.exception.error_source)
             {
-                case ResponseErrorSource.None:
+                case ApiErrorSource.None:
                 {
                     Log.PrintLine(api_response.status_code + ". Requests remaining: " + api_response.rate_limit.remaining);
 
                     return api_response;
                 }
 
-                case ResponseErrorSource.Internal:
+                case ApiErrorSource.Internal:
                 {
                     if (settings.internal_error_handling == ErrorHandling.Error)
                     {
-                        throw api_response.error.exception;
+                        throw api_response.exception;
                     }
                     else
                     {
@@ -144,7 +135,7 @@ TwitchNet.Utilities
                     }
                 }
 
-                case ResponseErrorSource.Api:
+                case ApiErrorSource.Api:
                 {
                     api_response = await HandleApiError(client_info, rest_response, api_response, settings);
                 }
@@ -162,7 +153,7 @@ TwitchNet.Utilities
             {
                 case StatusHandling.Error:
                 {
-                    throw api_response.error.exception;
+                    throw api_response.exception;
                 }
 
                 case StatusHandling.Return:
@@ -172,23 +163,21 @@ TwitchNet.Utilities
 
                 case StatusHandling.Retry:
                 {
-                    lock (settings)
+                    ++settings.status_codes[code].retry_count;
+                    if (settings.status_codes[code].retry_count > settings.status_codes[code].retry_limit && settings.status_codes[code].retry_limit != -1)
                     {
-                        ++settings.status_codes[code].retry_count;
-                        if (settings.status_codes[code].retry_count > settings.status_codes[code].retry_limit && settings.status_codes[code].retry_limit != -1)
+                        if(settings.status_codes[code].retry_limit_reached_handling == ErrorHandling.Error)
                         {
-                            settings.status_codes[code].retry_count = 0;
-
-                            Exception inner_exception = new Exception("Message here.");
-                            api_response.error.exception = new Exception(api_response.error.exception.Message, inner_exception);
-
-                            // TODO: Throw instead of return, or go by internal setting?
+                            throw api_response.exception;
+                        }
+                        else
+                        {
                             return api_response;
                         }
                     }
 
                     // this should only ever be a concern when '429 - Too Many Requests' is receieved
-                    TimeSpan time = api_response.rate_limit.reset - DateTime.Now;
+                    TimeSpan time = api_response.rate_limit.reset_time - DateTime.Now;
                     if (api_response.rate_limit.remaining == 0 && time.TotalMilliseconds > 0)
                     {
                         Log.PrintLine(TimeStamp.TimeLong, "Request rate limit reached. Waiting " + time.TotalMilliseconds + "ms to execute the request again.");
@@ -248,7 +237,7 @@ TwitchNet.Utilities
             RestClient client = new RestClient(info.base_url);
             foreach (ClientHandler handler in info.handlers)
             {
-                if (!handler.content_type.IsValid() || handler.deserializer.IsNullOrDefault())
+                if (!handler.content_type.IsValid() || handler.deserializer.IsNull())
                 {
                     continue;
                 }

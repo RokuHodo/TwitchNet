@@ -10,14 +10,8 @@ TwitchNet.Models.Api.Games
     public class
     GamesQueryParameters
     {
-        #region Fields
-
         private ClampedList<string> _ids    = new ClampedList<string>();
         private ClampedList<string> _names  = new ClampedList<string>();
-
-        #endregion
-
-        #region Properties
 
         /// <summary>
         /// <para>A list of game id's to get information about.</para>
@@ -62,15 +56,12 @@ TwitchNet.Models.Api.Games
             }
         }
 
-        #endregion
-
-        #region Contstructors
-
+        /// <summary>
+        /// Creates a new blank instance of the <see cref="GamesQueryParameters"/> class.
+        /// </summary>
         public GamesQueryParameters()
         {
 
         }
-
-        #endregion
     }
 }

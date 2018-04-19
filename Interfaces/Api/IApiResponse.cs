@@ -1,5 +1,4 @@
 ﻿// standad namespaces
-using System;
 using System.Collections.Generic;
 using System.Net;
 
@@ -15,27 +14,27 @@ TwitchNet.Interfaces.Api
         /// <summary>
         /// The description of the status code.
         /// </summary>
-        string                      status_description      { get; }
+        string                      status_description   { get; }
 
         /// <summary>
         /// The HTTP status code of the response.
         /// </summary>
-        HttpStatusCode              status_code             { get; }
+        HttpStatusCode              status_code          { get; }
 
         /// <summary>
         /// The response headers from the request.
         /// </summary>
-        Dictionary<string, string>  headers                 { get; }
+        Dictionary<string, string>  headers             { get; }
 
         /// <summary>
         /// The request limit, remaining requests, and when the rate limit resets.
         /// </summary>
-        RateLimit                   rate_limit              { get; }
+        RateLimit                   rate_limit           { get; }
 
         /// <summary>
         /// The details of the error if one occured.
         /// </summary>
-        ResponseError               error                   { get; }
+        ApiException                exception           { get; }
     }
 
     public interface
@@ -44,6 +43,6 @@ TwitchNet.Interfaces.Api
         /// <summary>
         /// Contains the deserialized result from the Twitch API.
         /// </summary>
-        result_type                 result                  { get; }
+        result_type                 Result              { get; }
     }
 }

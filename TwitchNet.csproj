@@ -83,7 +83,7 @@
     <Compile Include="Enums\Api\Streams\StreamLanguage.cs" />
     <Compile Include="Enums\Api\Streams\StreamType.cs" />
     <Compile Include="Enums\Api\Users\BroadcasterType.cs" />
-    <Compile Include="Enums\Api\ResponseErrorSource.cs" />
+    <Compile Include="Enums\Api\ApiErrorSource.cs" />
     <Compile Include="Enums\UserType.cs" />
     <Compile Include="Enums\Debug\LogLevel.cs" />
     <Compile Include="Enums\Debug\TimeStamp.cs" />
@@ -171,9 +171,8 @@
     <Compile Include="Models\Api\DataPage.cs" />
     <Compile Include="Models\Api\Data.cs" />
     <Compile Include="Models\Api\Games\TopGamesQueryParameters.cs" />
-    <Compile Include="Models\Api\Headers.cs" />
     <Compile Include="Models\Api\RequestInfo.cs" />
-    <Compile Include="Models\Api\ResponseError.cs" />
+    <Compile Include="Models\Api\ApiException.cs" />
     <Compile Include="Models\Api\StatusCodeSettings.cs" />
     <Compile Include="Models\Api\Streams\Hearthstone.cs" />
     <Compile Include="Models\Api\Streams\HearthstoneHero.cs" />
@@ -188,7 +187,7 @@
     <Compile Include="Models\Api\Entitlements\EntitlementQueryParameters.cs" />
     <Compile Include="Helpers\ClampedNumber.cs" />
     <Compile Include="Models\Api\Games\GamesQueryParameters.cs" />
-    <Compile Include="Models\Api\QueryParameters.cs" />
+    <Compile Include="Models\Api\QueryParametersPage.cs" />
     <Compile Include="Models\Api\QueryParameter.cs" />
     <Compile Include="Helpers\ClampedList.cs" />
     <Compile Include="Models\Api\QueryParameterAttribute.cs" />

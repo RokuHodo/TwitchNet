@@ -1,7 +1,7 @@
 ﻿namespace TwitchNet.Enums.Api
 {
     public enum
-    ResponseErrorSource
+    ApiErrorSource
     {
         None = 0,
 

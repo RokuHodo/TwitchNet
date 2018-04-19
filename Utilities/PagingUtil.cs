@@ -24,7 +24,7 @@ TwitchNet.Utilities
         /// <param name="parameters">The query string parameters to add.</param>
         /// <returns>Returns the <see cref="RestRequest"/> with the added <paramref name="parameters"/>.</returns>
         public static RestRequest
-        AddPaging(RestRequest request, IList<QueryParameter> parameters)
+        Add(RestRequest request, IList<QueryParameter> parameters)
         {
             if (!parameters.IsValid())
             {
@@ -52,7 +52,7 @@ TwitchNet.Utilities
         /// <param name="parameters">The query string parameters to add.</param>
         /// <returns>Returns the <see cref="RestRequest"/> with the added <paramref name="parameters"/>.</returns>
         public static RestRequest
-        AddPaging(RestRequest request, object parameters)
+        Add(RestRequest request, object parameters)
         {
             if (parameters.IsNull())
             {
@@ -132,7 +132,7 @@ TwitchNet.Utilities
         private static RestRequest
         AddQueryParameter(RestRequest request, QueryParameterAttribute attribute, object value)
         {
-            if (attribute.IsNull() || !attribute.query_name.IsValid())
+            if (attribute.IsNull() || !attribute.name.IsValid())
             {
                 return request;
             }
@@ -148,7 +148,7 @@ TwitchNet.Utilities
                 query_value = query_value.ToLower();
             }
 
-            request.AddQueryParameter(attribute.query_name, query_value);
+            request.AddQueryParameter(attribute.name, query_value);
 
             return request;
         }

@@ -3,7 +3,7 @@ TwitchNet.Enums.Api
 {
     public enum
     StatusHandling
-    {
+    {        
         /// <summary>
         /// Throw an intenral <see cref="Exception"/> when an API error is returned.
         /// </summary>

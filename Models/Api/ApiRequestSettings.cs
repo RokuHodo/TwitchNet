@@ -17,26 +17,28 @@ TwitchNet.Models.Api
         public static readonly ApiRequestSettings Default = new ApiRequestSettings();
 
         /// <summary>
-        /// The token used to cancel the request.
+        /// <para>The token used to cancel the request.</para>
+        /// <para>Default: <see cref="CancellationToken.None"/>.</para>
         /// </summary>
-        public CancellationToken    cancelation_token       { get; set; }
+        public CancellationToken    cancelation_token                   { get; set; }
 
         /// <summary>
-        /// The settings to handle the various HTTP status codes.
+        /// <para>The settings to handle the various HTTP status codes.</para>
+        /// <para>Default: <see cref="StatusCodeSettings.Default"/>.</para>
         /// </summary>
-        public StatusCodeSettings   status_codes            { get; set; }
+        public StatusCodeSettings   status_codes                        { get; set; }        
 
         /// <summary>
         /// <para>Determine whether or not to check and verify inputs by the user upon request execution.</para>
         /// <para>Default: <see cref="InputHandling.Error"/>.</para>
         /// </summary>
-        public InputHandling        input_hanlding          { get; set; }
+        public InputHandling        input_hanlding                      { get; set; }
 
         /// <summary>
         /// <para>Determine how to handle any exceptions that are encountered internally witin the library.</para>
         /// <para>Default: <see cref="ErrorHandling.Error"/>.</para>
         /// </summary>
-        public ErrorHandling        internal_error_handling { get; set; }
+        public ErrorHandling        internal_error_handling             { get; set; }
 
         /// <summary>
         /// Creates a new instance of the <see cref="ApiRequestSettings"/> class.
@@ -51,7 +53,7 @@ TwitchNet.Models.Api
         /// </summary>
         public void
         Reset()
-        {
+        {           
             cancelation_token       = CancellationToken.None;
 
             status_codes            = StatusCodeSettings.Default;

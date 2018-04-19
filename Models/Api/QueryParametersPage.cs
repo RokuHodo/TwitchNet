@@ -6,11 +6,9 @@ namespace
 TwitchNet.Models.Api
 {
     public class
-    QueryParameters : IQueryParameters
+    QueryParametersPage : IQueryParameters
     {
         private ClampedNumber<ushort>   _first  = new ClampedNumber<ushort>(1, 100, 20);
-
-        private string                  _after  = string.Empty;
 
         /// <summary>
         /// <para>Maximum number of objects to return.</para>
@@ -38,16 +36,6 @@ TwitchNet.Models.Api
         /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
         /// </summary>
         [QueryParameter("after", false)]
-        public string after
-        {
-            get
-            {
-                return _after;
-            }
-            set
-            {
-                _after = value;
-            }
-        }
+        public string after { get; set; }
     }
 }

@@ -9,12 +9,12 @@ namespace TwitchNet.Models.Api
         /// <summary>
         /// The base API URL.
         /// </summary>
-        public string base_url;
+        public string           base_url;
 
         /// <summary>
         /// The handlers used while deserializing the HTTP response.
         /// </summary>
-        public ClientHandler[] handlers;
+        public ClientHandler[]  handlers;
 
         /// <summary>
         /// Creates a new instance of the <see cref="ClientInfo"/> struct.
@@ -23,29 +23,22 @@ namespace TwitchNet.Models.Api
         /// <param name="handlers">The handlers used while deserializing the HTTP response.</param>
         public ClientInfo(string base_url, ClientHandler[] handlers)
         {
-            this.base_url = base_url;
+            this.base_url   = base_url;
 
-            this.handlers = handlers;
+            this.handlers   = handlers;
         }
 
         /// <summary>
         /// Returns the default Helix API <see cref="ClientInfo"/>.
         /// </summary>
-        public static
-        ClientInfo DefaultHelix
+        public static readonly ClientInfo DefaultHelix = new ClientInfo()
         {
-            get
+            base_url = "https://api.twitch.tv/helix",
+            handlers = new ClientHandler[]
             {
-                return new ClientInfo
-                {
-                    base_url = "https://api.twitch.tv/helix",
-                    handlers = new ClientHandler[]
-                    {
-                        new ClientHandler("application/json", new JsonDeserializer()),
-                        new ClientHandler("application/xml", new JsonDeserializer()),
-                    }
-                };
+                new ClientHandler("application/json", new JsonDeserializer()),
+                new ClientHandler("application/xml", new JsonDeserializer()),
             }
-        }
+        };
     }
 }

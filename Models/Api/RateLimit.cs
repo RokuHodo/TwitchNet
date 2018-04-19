@@ -5,9 +5,6 @@ using System.Collections.Generic;
 // project namespaces
 using TwitchNet.Extensions;
 
-// imported .dll's
-using RestSharp;
-
 namespace
 TwitchNet.Models.Api
 {
@@ -27,13 +24,12 @@ TwitchNet.Models.Api
         /// <summary>A 
         /// When the rate-limit window will reset.
         /// </summary>
-        public DateTime reset       { get; protected set; }
+        public DateTime reset_time  { get; protected set; }
 
-        public RateLimit()
-        {
-
-        }
-
+        /// <summary>
+        /// Creates a new instance of the <see cref="RateLimit"/> class.
+        /// </summary>
+        /// <param name="headers">The headers from the <see cref="IRestResponse"/>.</param>
         public RateLimit(Dictionary<string, string> headers)
         {
             if (headers.ContainsKey("Ratelimit-Limit"))
@@ -49,7 +45,7 @@ TwitchNet.Models.Api
             if (headers.ContainsKey("Ratelimit-Reset"))
             {
                 long reset_double = Convert.ToInt64(headers["Ratelimit-Reset"]);
-                reset = reset_double.FromUnixEpochSeconds();
+                reset_time = reset_double.FromUnixEpochSeconds();
             }
         }
     }

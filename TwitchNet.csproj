@@ -61,8 +61,9 @@
     <Compile Include="Clients\Irc\IrcClient.cs" />
     <Compile Include="Clients\Irc\TwitchIrcClient.Handlers.cs" />
     <Compile Include="Clients\Irc\TwitchIrcClient.cs" />
-    <Compile Include="Debug\Error.cs" />
-    <Compile Include="Debug\Log.cs" />
+    <Compile Include="Debugger\Benchmark.cs" />
+    <Compile Include="Debugger\Error.cs" />
+    <Compile Include="Debugger\Debug.cs" />
     <Compile Include="Enums\Api\Entitlements\EntitlementType.cs" />
     <Compile Include="Enums\Clients\ClientState.cs" />
     <Compile Include="Enums\Clients\Irc\Twitch\CommercialLength.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="Enums\Clients\Irc\Twitch\UserNoticeType.cs" />
     <Compile Include="Enums\Clients\Irc\Twitch\RoomStateType.cs" />
     <Compile Include="Enums\Clients\Irc\Twitch\BadgeType.cs" />
+    <Compile Include="Enums\Debug\ErrorLevel.cs" />
     <Compile Include="Enums\InputHandling.cs" />
     <Compile Include="Enums\ErrorHandling.cs" />
     <Compile Include="Enums\Api\StatusHandling.cs" />
@@ -85,7 +87,7 @@
     <Compile Include="Enums\Api\Users\BroadcasterType.cs" />
     <Compile Include="Enums\Api\ApiErrorSource.cs" />
     <Compile Include="Enums\UserType.cs" />
-    <Compile Include="Enums\Debug\LogLevel.cs" />
+    <Compile Include="Enums\Debug\DebugLevel.cs" />
     <Compile Include="Enums\Debug\TimeStamp.cs" />
     <Compile Include="Enums\Api\Videos\VideoType.cs" />
     <Compile Include="Enums\Api\Videos\VideoSort.cs" />
@@ -207,6 +209,7 @@
     <Compile Include="Models\Api\Videos\VideosQueryParameters.cs" />
     <Compile Include="Models\Clients\Irc\IrcMessage.cs" />
     <Compile Include="Models\Clients\Irc\IrcUser.cs" />
+    <Compile Include="Models\Clients\Irc\TagAttribute.cs" />
     <Compile Include="Models\Clients\Irc\Twitch\GiftedSubscriberTags.cs" />
     <Compile Include="Models\Clients\Irc\Twitch\ChatRoomPrivmsgTags.cs" />
     <Compile Include="Models\Clients\Irc\Twitch\ChatRoomUserStateTags.cs" />

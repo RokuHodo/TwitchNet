@@ -21,56 +21,66 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// <summary>
         /// Whether or not the sender has Twitch turbo.
         /// </summary>
+        [Tag("turbo")]
         public bool     turbo           { get; protected set; }
 
         /// <summary>
         /// <para>The display name of the sender.</para>
         /// <para>This is empty if it was never set by the sender.</para>
         /// </summary>
+        [Tag("display-name")]
         public string   display_name    { get; protected set; }
 
         /// <summary>
         /// The user id of the sender.
         /// </summary>
+        [Tag("user-id")]
         public string   user_id         { get; protected set; }
 
         /// <summary>
         /// The id of the message.
         /// </summary>
+        [Tag("message-id")]
         public string   message_id      { get; protected set; }
 
         /// <summary>
         /// The sender id and recipient id.
         /// </summary>
+        [Tag("thread-id")]
         public string   thread_id       { get; protected set; }
 
         /// <summary>
         /// The id of the recipient.
         /// </summary>
+        [Tag("recipient-id")]
         public string   recipient_id    { get; protected set; }
 
         /// <summary>
         /// <para>The sender's user type</para>
         /// <para>Set to <see cref="UserType.None"/> if the sender has no elevated privileges.</para>
         /// </summary>
+        [Tag("user-type")]
         public UserType user_type       { get; protected set; }
 
         /// <summary>
         /// <para>The color of the sender's display name.</para>
         /// <para>The color is <see cref="Color.Empty"/> if it was never set by the sender.</para>
         /// </summary>
+        [Tag("color")]
         public Color    color           { get; protected set; }
 
         /// <summary>
         /// <para>The chat badges that the sender has, if any.</para>
         /// <para>The array is empty if the sender has no chat badges.</para>
         /// </summary>
+        [Tag("badges")]
         public Badge[]  badges          { get; protected set; }
 
         /// <summary>
         /// <para>The emotes the sender used in the message, if any.</para>
         /// <para>The array is empty if the sender did not use any emotes.</para>
         /// </summary>
+        [Tag("emotes")]
         public Emote[]  emotes          { get; protected set; }
 
         public WhisperTags(IrcMessage message)

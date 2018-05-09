@@ -90,7 +90,7 @@ TwitchNet.Models.Api
         /// <summary>
         /// Contains the deserialized result from the Twitch API.
         /// </summary>
-        public result_type Result { get; internal set; }
+        public result_type result { get; internal set; }
 
         public ApiResponse(IApiResponse response)
         {
@@ -103,7 +103,7 @@ TwitchNet.Models.Api
 
             rate_limit          = response.rate_limit;
 
-            Result              = default(result_type);
+            result              = default(result_type);
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ TwitchNet.Models.Api
         /// <param name="response">The rest response.</param>
         public ApiResponse(IRestResponse<result_type> response) : base(response)
         {
-            Result = response.Data;
+            result = response.Data;
         }        
 
         /// <summary>

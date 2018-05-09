@@ -10,6 +10,7 @@ using RestSharp;
 
 namespace TwitchNet.Models.Api
 {
+    [Serializable]
     public class
     ApiException : Exception
     {

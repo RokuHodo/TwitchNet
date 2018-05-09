@@ -470,9 +470,9 @@ TwitchNet.Clients.Irc
             if (request_user_info)
             {
                 IApiResponse<Data<User>> _twitch_user = TwitchApiBearer.GetUser(irc_user.pass);
-                if (_twitch_user.Result.data.IsValid())
+                if (_twitch_user.result.data.IsValid())
                 {
-                    twitch_user = _twitch_user.Result.data[0];
+                    twitch_user = _twitch_user.result.data[0];
                 }
             }
 

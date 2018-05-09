@@ -54,7 +54,7 @@ TwitchNet.Helpers.Json
             if(!TimeSpan.TryParse(value, out TimeSpan time_span))
             {
                 // attempt to match 00h00m00s format
-                TwitchUtil.TryGetVideoLength(value, out time_span);
+                TwitchUtil.TryConvertToVideoLength(value, out time_span);
             }
 
             return time_span;

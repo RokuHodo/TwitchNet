@@ -1,5 +1,4 @@
 ﻿// standard namespaces
-using System;
 
 // project namespaces
 using TwitchNet.Extensions;

@@ -21,29 +21,34 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// <summary>
         /// Whether or not the user is a moderator.
         /// </summary>
+        [Tag("mod")]
         public bool     mod             { get; protected set; }
 
         /// <summary>
         /// <para>The display name of the user.</para>
         /// <para>This is empty if it was never set by the user.</para>
         /// </summary>
+        [Tag("display-name")]
         public string   display_name    { get; protected set; }
 
         /// <summary>
         /// The emote sets that are available for the user to use.
         /// </summary>
+        [Tag("emote-sets")]
         public string[] emote_sets      { get; protected set; }
 
         /// <summary>
         /// <para>The user's type</para>
         /// <para>Set to <see cref="UserType.None"/> if the user has no elevated privileges.</para>
         /// </summary>
+        [Tag("user-type")]
         public UserType user_type       { get; protected set; }
 
         /// <summary>
         /// <para>The color of the user's display name.</para>
         /// <para>The color is <see cref="Color.Empty"/> if it was never set by the user.</para>
         /// </summary>
+        [Tag("color")]
         public Color    color           { get; protected set; }
 
         public ChatRoomUserStateTags(IrcMessage message)
@@ -57,7 +62,7 @@ TwitchNet.Models.Clients.Irc.Twitch
             mod             = TagsUtil.ToBool(message.tags, "mod");
 
             display_name    = TagsUtil.ToString(message.tags, "display-name");
-            emote_sets      = TagsUtil.ToArray<string>(message.tags, "emote-sets", ',');
+            emote_sets      = TagsUtil.ToStringArray(message.tags, "emote-sets", ',');
 
             user_type       = TagsUtil.ToUserType(message.tags, "user-type");
 

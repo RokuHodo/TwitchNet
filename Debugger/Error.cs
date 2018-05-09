@@ -1,5 +1,5 @@
 ﻿namespace
-TwitchNet.Debug
+TwitchNet.Debugger
 {
     internal static class
     Error

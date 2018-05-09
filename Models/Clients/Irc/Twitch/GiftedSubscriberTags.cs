@@ -11,16 +11,19 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// <summary>
         /// The id of the user who was gifted the subscription. 
         /// </summary>
+        [Tag("msg-param-recipient-id")]
         public string msg_param_recipient_id            { get; protected set; }
 
         /// <summary>
         /// The login of the user who was gifted the subscription.
         /// </summary>
+        [Tag("msg-param-recipient-user-name")]
         public string msg_param_recipient_user_name     { get; protected set; }
 
         /// <summary>
         /// The display name of the user who was gifted the subscription.
         /// </summary>
+        [Tag("msg-param-recipient-display-name")]
         public string msg_param_recipient_display_name  { get; protected set; }
 
         public GiftedSubscriberTags(IrcMessage message) : base(message)

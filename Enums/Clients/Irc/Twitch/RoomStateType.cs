@@ -1,6 +1,5 @@
 ﻿// standard namespaces
 using System;
-using System.Runtime.Serialization;
 
 namespace TwitchNet.Enums.Clients.Irc.Twitch
 {

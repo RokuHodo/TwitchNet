@@ -1,6 +1,7 @@
 ﻿// project namespaces
 using TwitchNet.Extensions;
 using TwitchNet.Models.Clients.Irc.Twitch;
+using TwitchNet.Utilities;
 
 namespace
 TwitchNet.Events.Clients.Irc.Twitch
@@ -35,6 +36,7 @@ TwitchNet.Events.Clients.Irc.Twitch
             }
 
             tags = new ChatRoomPrivmsgTags(base.tags);
+            TagsUtil.ValidateTags(tags, irc_message.tags);
         }
     }
 }

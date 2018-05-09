@@ -24,15 +24,15 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// </summary>
         BadgeType type;
 
-        public Badge(string badge_pair)
+        public Badge(string pair)
         {
 
-            if(!Int16.TryParse(badge_pair.TextAfter('/'), out version))
+            if(!Int16.TryParse(pair.TextAfter('/'), out version))
             {
                 version = -1;
             }
 
-            type = EnumCacheUtil.ToBadgeType(badge_pair.TextBefore('/'));
+            type = EnumCacheUtil.ToBadgeType(pair.TextBefore('/'));
         }
     }
 }

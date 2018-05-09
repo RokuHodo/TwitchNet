@@ -13,6 +13,7 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// <para>The amount of bits the sender cheered, if any.</para>
         /// <para>Set to 0 if the sender did not cheer.</para>
         /// </summary>
+        [Tag("bits")]
         public uint bits { get; protected set; }
 
         public StreamChatPrivmsgTags(PrivmsgEventArgs args) : base(args)

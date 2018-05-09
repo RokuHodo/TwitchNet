@@ -285,7 +285,7 @@ TwitchNet.Api
             IApiResponse<DataPage<Stream>> streams = await GetStreamsPageAsync(bearer_token, client_id, parameters, settings);
 
             ApiResponse<bool> is_live = new ApiResponse<bool>(streams);
-            is_live.Result = streams.Result.data.IsValid();
+            is_live.result = streams.result.data.IsValid();
 
             return is_live;
         }
@@ -512,7 +512,7 @@ TwitchNet.Api
             IApiResponse<FollowsDataPage<Follow>> relationship = await GetUserRelationshipPageAsync(bearer_token, client_id, from_id, to_id, default(FollowsQueryParameters), settings);
 
             ApiResponse<bool> is_following = new ApiResponse<bool>(relationship);
-            is_following.Result = relationship.Result.data.IsValid();
+            is_following.result = relationship.result.data.IsValid();
 
             return is_following;
         }

@@ -12,13 +12,15 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// <summary>
         /// Whether or not the user is subscribed to the channel.
         /// </summary>
-        public bool     subscriber      { get; protected set; }
+        [Tag("subscriber")]
+        public bool     subscriber  { get; protected set; }
 
         /// <summary>
         /// <para>The chat badges that the user has, if any.</para>
         /// <para>The array is empty if the user has no chat badges.</para>
         /// </summary>
-        public Badge[]  badges          { get; protected set; }
+        [Tag("badges")]
+        public Badge[]  badges      { get; protected set; }
 
         public UserStateTags(IrcMessage message) : base(message)
         {

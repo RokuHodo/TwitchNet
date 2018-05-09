@@ -3,6 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
+
+// project namespaces
+using TwitchNet.Utilities;
 
 namespace
 TwitchNet.Extensions
@@ -126,13 +130,35 @@ TwitchNet.Extensions
         /// Returns true if the <see cref="object"/> can be converted to the specified type.
         /// Returns false otherwise.
         /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if the obj is null.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool
         CanCovertTo(this object obj, Type type)
         {
+            ExceptionUtil.ThrowIfNull(obj, nameof(obj));
+
             bool result = TypeDescriptor.GetConverter(type).IsValid(obj);
 
             return result;
-        }  
+        }
+
+        /// <summary>
+        /// Check to see if the string matches the HTML (hex) color format #FFFFFF.
+        /// </summary>
+        /// <param name="html_color">The color to check.</param>
+        /// <returns>
+        /// Returns true if the string matches the HTML (hex) color format.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if the html color string is null.</exception>
+        public static bool
+        IsValidHtmlColor(this string html_color)
+        {
+            Regex regex = new Regex("^#([A-Fa-f0-9]{6})$");
+
+            bool result = html_color.IsValid() && regex.IsMatch(html_color);
+
+            return result;
+        }
     }
 }

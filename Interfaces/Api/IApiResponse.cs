@@ -43,6 +43,6 @@ TwitchNet.Interfaces.Api
         /// <summary>
         /// Contains the deserialized result from the Twitch API.
         /// </summary>
-        result_type                 Result              { get; }
+        result_type                 result              { get; }
     }
 }

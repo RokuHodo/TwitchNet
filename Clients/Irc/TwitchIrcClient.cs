@@ -261,7 +261,7 @@ TwitchNet.Clients.Irc
         public void
         ChangeDisplayNameColor(string channel, string html_color)
         {
-            if (!TwitchUtil.IsValidHtmlColor(html_color))
+            if (!html_color.IsValidHtmlColor())
             {
                 throw new ArgumentException(nameof(html_color) + " is not a valid HTML color name", nameof(html_color));
             }
@@ -280,9 +280,9 @@ TwitchNet.Clients.Irc
         public void
         ChangeDisplayNameColor(string user_id, string uuid, string html_color)
         {
-            if (!TwitchUtil.IsValidHtmlColor(html_color))
+            if (!html_color.IsValidHtmlColor())
             {
-                throw new Exception(nameof(html_color) + " is not a valid HTML color name");
+                throw new ArgumentException(nameof(html_color) + " is not a valid HTML color name", nameof(html_color));
             }
 
             SendChatCommand(user_id, uuid, ChatCommand.Color, html_color);
@@ -1168,6 +1168,7 @@ TwitchNet.Clients.Irc
         /// <param name="channel">The IRC channel. Where to send the message.</param>
         /// <param name="command">The command to send.</param>
         /// <param name="arguments">Optional command arguments</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void
         SendChatCommand(string channel, ChatCommand command, params object[] arguments)
         {
@@ -1199,6 +1200,7 @@ TwitchNet.Clients.Irc
         /// </param>
         /// <param name="arguments">Optional command arguments</param>
         /// <exception cref="NotSupportedException">Thrown if an unsupported chat command is attempted to be used.</exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void
         SendChatCommand(string user_id, string uuid, ChatCommand command, params object[] arguments)
         {

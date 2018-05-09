@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 // project namespaces
-using TwitchNet.Debug;
+using TwitchNet.Debugger;
 using TwitchNet.Enums.Clients;
 using TwitchNet.Events.Clients.Irc;
 using TwitchNet.Extensions;
@@ -95,7 +95,7 @@ TwitchNet.Clients.Irc
         #region Constructors
 
         /// <summary>
-        /// Creates a new instance of the <see cref="IrcClient"/> that is ready to connect to the IRC server.
+        /// Creates a new instance of the <see cref="IrcClient"/> class that is ready to connect to the IRC server.
         /// </summary>
         /// <param name="host">The name of the remote host.</param>
         /// <param name="port">The port number of the remote host.</param>
@@ -110,7 +110,7 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// Creates a new instance of the <see cref="IrcClient"/>.
+        /// Creates a new instance of the <see cref="IrcClient"/> class.
         /// </summary>
         public
         IrcClient()
@@ -413,19 +413,19 @@ TwitchNet.Clients.Irc
             {
                 case ClientState.Connected:
                 {
-                    Log.PrintLine("Cannot connect to " + host + ": already connected");
+                        Debug.WriteLine("Cannot connect to " + host + ": already connected");
                 }
                 break;
 
                 case ClientState.Connecting:
                 {
-                    Log.PrintLine("Cannot connect to " + host + ": currently connecting");
+                        Debug.WriteLine("Cannot connect to " + host + ": currently connecting");
                 }
                 break;
 
                 case ClientState.Disconnecting:
                 {
-                    Log.PrintLine("Cannot connect to " + host + ": currently disconnecting");
+                        Debug.WriteLine("Cannot connect to " + host + ": currently disconnecting");
                 }
                 break;
 
@@ -452,19 +452,19 @@ TwitchNet.Clients.Irc
             {
                 case ClientState.Connecting:
                 {
-                    Log.PrintLine("Cannot disconnect from " + host + ": currently connecting");
+                        Debug.WriteLine("Cannot disconnect from " + host + ": currently connecting");
                 }
                 break;
 
                 case ClientState.Disconnecting:
                 {
-                    Log.PrintLine("Cannot disconnect from " + host + ": already connecting");
+                        Debug.WriteLine("Cannot disconnect from " + host + ": already connecting");
                 }
                 break;
 
                 case ClientState.Disconnected:
                 {
-                    Log.PrintLine("Cannot disconnect from " + host + ": already disconnected");
+                        Debug.WriteLine("Cannot disconnect from " + host + ": already disconnected");
                 }
                 break;
 
@@ -758,7 +758,7 @@ TwitchNet.Clients.Irc
                 return;
             }
 
-            Console.WriteLine(raw);
+            Debug.WriteLine(raw);
             OnDataReceived.Raise(this, new DataEventArgs(data, raw));
 
             IrcMessage irc_message = new IrcMessage(data, raw);

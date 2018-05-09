@@ -27,21 +27,21 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// </summary>
         Range[] ranges;
 
-        public Emote(string emote_pair)
+        public Emote(string pair)
         {
             id = string.Empty;
             ranges = new Range[0];
 
-            if (emote_pair.IsValid())
+            if (pair.IsValid())
             {
-                id = emote_pair.TextBefore(':');
+                id = pair.TextBefore(':');
 
                 List<Range> ranges_list = new List<Range>();
 
-                string[] range_pairs = emote_pair.TextAfter(':').StringToArray<string>(',');
-                foreach(string range_pair in range_pairs)
+                string[] _ranges = pair.TextAfter(':').StringToArray<string>(',');
+                foreach(string _range in _ranges)
                 {
-                    Range range = new Range(range_pair);
+                    Range range = new Range(_range);
                     ranges_list.Add(range);
                 }
 

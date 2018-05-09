@@ -1,12 +1,11 @@
 ﻿// standard namespaces
 using System;
-using System.Net;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 // project namespaces
-using TwitchNet.Debug;
+using TwitchNet.Debugger;
 using TwitchNet.Enums;
 using TwitchNet.Enums.Debug;
 using TwitchNet.Enums.Api;
@@ -17,7 +16,7 @@ using TwitchNet.Models.Api;
 // imported .dll's
 using RestSharp;
 
-namespace 
+namespace
 TwitchNet.Utilities
 {
     internal static class
@@ -68,20 +67,20 @@ TwitchNet.Utilities
             do
             {
                 IApiResponse<result_type> page = await ExecuteAsync<result_type>(client_info, request_info, parameters, settings);
-                if (page.Result.data.IsValid())
+                if (page.result.data.IsValid())
                 {
-                    data.AddRange(page.Result.data);
+                    data.AddRange(page.result.data);
                 }                
 
-                requesting = page.Result.data.IsValid() && page.Result.pagination.cursor.IsValid();
+                requesting = page.result.data.IsValid() && page.result.pagination.cursor.IsValid();
                 if (requesting)
                 {
-                    parameters.after = page.Result.pagination.cursor;
+                    parameters.after = page.result.pagination.cursor;
                 }
                 else
                 {
                     response = page;
-                    response.Result.data = data;
+                    response.result.data = data;
                 }
             }
             while (requesting);            
@@ -97,6 +96,8 @@ TwitchNet.Utilities
             {
                 settings = ApiRequestSettings.Default;
             }
+
+            Debug.WriteError(ErrorLevel.Critical, "Test error from API util.");
 
             RestClient client = CreateClient(client_info);
             IRestResponse<result_type> rest_response = await client.ExecuteTaskAsync<result_type>(request, settings.cancelation_token);
@@ -118,7 +119,7 @@ TwitchNet.Utilities
             {
                 case ApiErrorSource.None:
                 {
-                    Log.PrintLine(api_response.status_code + ". Requests remaining: " + api_response.rate_limit.remaining);
+                        Debug.WriteLine(api_response.status_code + ". Requests remaining: " + api_response.rate_limit.remaining);
 
                     return api_response;
                 }
@@ -180,9 +181,9 @@ TwitchNet.Utilities
                     TimeSpan time = api_response.rate_limit.reset_time - DateTime.Now;
                     if (api_response.rate_limit.remaining == 0 && time.TotalMilliseconds > 0)
                     {
-                        Log.PrintLine(TimeStamp.TimeLong, "Request rate limit reached. Waiting " + time.TotalMilliseconds + "ms to execute the request again.");
+                            Debug.WriteLine(TimeStamp.TimeLong, "Request rate limit reached. Waiting " + time.TotalMilliseconds + "ms to execute the request again.");
                         await Task.Delay(time);
-                        Log.PrintLine(TimeStamp.TimeLong, "Resuming request.");
+                            Debug.WriteLine(TimeStamp.TimeLong, "Resuming request.");
                     }
 
                     api_response = await ExecuteAsync<result_type>(client_info, rest_response.Request, settings);

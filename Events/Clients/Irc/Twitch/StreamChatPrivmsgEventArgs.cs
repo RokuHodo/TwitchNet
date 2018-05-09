@@ -1,7 +1,6 @@
 ﻿// project namespaces
-using TwitchNet.Enums.Clients.Irc.Twitch;
-using TwitchNet.Extensions;
 using TwitchNet.Models.Clients.Irc.Twitch;
+using TwitchNet.Utilities;
 
 namespace
 TwitchNet.Events.Clients.Irc.Twitch
@@ -12,32 +11,33 @@ TwitchNet.Events.Clients.Irc.Twitch
         /// <summary>
         /// The user who sent the message.
         /// </summary>
-        public string           sender          { get; protected set; }
+        public string                   sender      { get; protected set; }
 
         /// <summary>
         /// The channel the message was sent in.
         /// </summary>
-        public string           channel         { get; protected set; }        
+        public string                   channel     { get; protected set; }        
 
         /// <summary>
         /// The body of the message.
         /// </summary>
-        public string           body            { get; protected set; }
+        public string                   body        { get; protected set; }
 
         /// <summary>
         /// <para>The tags attached to the message, if any.</para>
         /// <para>Check the <code>is_valid</code> property to determine if tags were attached to the message.</para>
         /// </summary>
-        public virtual StreamChatPrivmsgTags tags { get; protected set; }
+        public StreamChatPrivmsgTags    tags        { get; protected set; }
 
         public StreamChatPrivmsgEventArgs(PrivmsgEventArgs args) : base(args.irc_message)
         {
-            sender = args.nick;
+            sender  = args.nick;
             channel = args.channel;
 
-            body = args.body;
+            body    = args.body;
 
-            tags = new StreamChatPrivmsgTags(args);
+            tags    = new StreamChatPrivmsgTags(args);
+            TagsUtil.ValidateTags(tags, args.irc_message.tags);
         }
     }
 }

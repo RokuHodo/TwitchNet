@@ -2,6 +2,7 @@
 using TwitchNet.Extensions;
 using TwitchNet.Models.Clients.Irc;
 using TwitchNet.Models.Clients.Irc.Twitch;
+using TwitchNet.Utilities;
 
 namespace
 TwitchNet.Events.Clients.Irc.Twitch
@@ -36,6 +37,7 @@ TwitchNet.Events.Clients.Irc.Twitch
             }
 
             tags = new ChatRoomRoomStateTags(base.tags);
+            TagsUtil.ValidateTags(tags, irc_message.tags);
         }
     }
 }

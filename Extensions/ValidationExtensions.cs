@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
@@ -81,6 +82,14 @@ TwitchNet.Extensions
         IsValid<type>(this IList<type> list)
         {
             bool result = !list.IsNull() && list.Count > 0;
+
+            return result;
+        }
+
+        public static bool
+        Contains<type>(this IList<type> list, type element)
+        {
+            bool result = list.Any(temp => EqualityComparer<type>.Default.Equals(temp, element));
 
             return result;
         }

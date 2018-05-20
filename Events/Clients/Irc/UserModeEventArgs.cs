@@ -1,4 +1,6 @@
 ﻿// project namespaces
+using TwitchNet.Debugger;
+using TwitchNet.Enums.Debugger;
 using TwitchNet.Extensions;
 using TwitchNet.Models.Clients.Irc;
 
@@ -11,22 +13,26 @@ TwitchNet.Events.Clients.Irc
         /// <summary>
         /// The name of the user whose mode was changed.
         /// </summary>
+        [ValidateMember(Check.IsValid)]
         public string   nick     { get; protected set; }
 
         /// <summary>
         /// Denotes the whether the mode was added '+', or removed '-'.
         /// </summary>
+        [ValidateMember(Check.IsNotNullOrDefault)]
         public char     modifier    { get; protected set; }
 
         /// <summary>
         /// The change that occured to either the channel or the user.
         /// </summary>
+        [ValidateMember(Check.IsNotNullOrDefault)]
         public char     mode        { get; protected set; }
 
         /// <summary>
         /// A combination of the 'modifier' and the 'mode_set'.
         /// The complete change that occured.
         /// </summary>
+        [ValidateMember(Check.IsValid)]
         public string   mode_set    { get; protected set; }
 
         public UserModeEventArgs(IrcMessage message) : base(message)

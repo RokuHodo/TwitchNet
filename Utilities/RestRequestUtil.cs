@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 // project namespaces
 using TwitchNet.Debugger;
 using TwitchNet.Enums;
-using TwitchNet.Enums.Debug;
+using TwitchNet.Enums.Debugger;
 using TwitchNet.Enums.Api;
 using TwitchNet.Extensions;
 using TwitchNet.Interfaces.Api;

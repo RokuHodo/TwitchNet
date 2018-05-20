@@ -1,4 +1,5 @@
 ﻿// project namespaces
+using TwitchNet.Debugger;
 using TwitchNet.Enums.Clients.Irc.Twitch;
 using TwitchNet.Extensions;
 using TwitchNet.Interfaces.Clients.Irc;
@@ -19,7 +20,7 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// The id that describes the notice from the server.
         /// <para>Set to <see cref="UserNoticeType.None"/> if the id could not be parsed.</para>
         /// </summary>
-        [Tag("msg-id")]
+        [ValidateTag("msg-id")]
         public NoticeType   msg_id      { get; protected set; }
 
         public NoticeTags(IrcMessage message)

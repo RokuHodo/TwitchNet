@@ -1,6 +1,6 @@
 ﻿// standard namespaces
-
-// project namespaces
+using TwitchNet.Debugger;
+using TwitchNet.Enums.Debugger;
 using TwitchNet.Models.Clients.Irc;
 
 namespace
@@ -12,6 +12,7 @@ TwitchNet.Events.Clients.Irc
         /// <summary>
         /// The IRC server's message of the day.
         /// </summary>
+        [ValidateMember(Check.IsValid)]
         public string motd { get; protected set; }
 
         public MotdEventArgs(IrcMessage message) : base(message)

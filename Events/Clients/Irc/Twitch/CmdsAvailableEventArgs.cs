@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 
 // project namespaces
+using TwitchNet.Debugger;
 using TwitchNet.Enums.Clients.Irc.Twitch;
+using TwitchNet.Enums.Debugger;
 using TwitchNet.Extensions;
 using TwitchNet.Utilities;
 
@@ -11,15 +13,17 @@ TwitchNet.Events.Clients.Irc.Twitch
 {
     public class
     CmdsAvailableEventArgs : IrcMessageEventArgs
-    {        
+    {
         /// <summary>
         /// The channel that the NOTICE was sent to.
         /// </summary>
+        [ValidateMember(Check.IsValid)]
         public string           channel     { get; protected set; }
 
         /// <summary>
         /// The  commands that can be used in chat.
         /// </summary>
+        [ValidateMember(Check.IsValid)]
         public ChatCommand[]    commands    { get; protected set; }
 
         public CmdsAvailableEventArgs(NoticeEventArgs args) : base(args.irc_message)

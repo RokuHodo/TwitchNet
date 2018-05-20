@@ -1,17 +1,22 @@
 ﻿// standard namespaces
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 // project namespaces
-using TwitchNet.Enums.Debug;
+using TwitchNet.Enums.Debugger;
 using TwitchNet.Extensions;
+using TwitchNet.Models.Clients.Irc;
 
 namespace
 TwitchNet.Debugger
 {
-    internal static class
+    internal static partial class
     Debug
     {
         #region Fields
@@ -179,18 +184,18 @@ TwitchNet.Debugger
         /// <param name="error_level">The severity of the warning.</param>
         /// <param name="value">The text to write.</param>
         /// <param name="caller">The name of the caller.</param>
-        /// <param name="line_number">The line the warning originated on.</param>
+        /// <param name="line">The line the warning originated on.</param>
         [Conditional("DEBUG")]
         public static void
-        WriteWarning(ErrorLevel error_level, string value, [CallerMemberName] string caller = "", [CallerLineNumber] int line_number = 0)
+        WriteWarning(ErrorLevel error_level, string value, [CallerMemberName] string caller = "", [CallerFilePath] string source = "", [CallerLineNumber] int line = -1)
         {
             StackTrace trace = new StackTrace();
             StackFrame frame = trace.GetFrame(1);
 
-            string message = "[ WARNING ] :: " + error_level.ToString()                 + Environment.NewLine +
-                             "> Caller:  " + caller                                     + Environment.NewLine +
-                             "> Source:  " + frame.GetMethod().DeclaringType.FullName   + Environment.NewLine +
-                             "> Line:    " + line_number                                + Environment.NewLine +
+            string message = "[ WARNING ] :: " + error_level.ToString() + Environment.NewLine +
+                             "> Caller:  " + caller                     + Environment.NewLine +
+                             "> Source:  " + source                     + Environment.NewLine +
+                             "> Line:    " + line                       + Environment.NewLine +
                              "> Message: " + value;
             _WriteLine(DebugLevel.Warning, error_level, ConsoleColor.Yellow, TimeStamp.TimeShort, message);
         }
@@ -201,18 +206,18 @@ TwitchNet.Debugger
         /// <param name="error_level">The severity of the error.</param>
         /// <param name="value">The text to write.</param>
         /// <param name="caller">The name of the caller.</param>
-        /// <param name="line_number">The line the warning originated on.</param>
+        /// <param name="line">The line the warning originated on.</param>
         [Conditional("DEBUG")]
         public static void
-        WriteError(ErrorLevel error_level, string value, [CallerMemberName] string caller = "", [CallerLineNumber] int line_number = 0)
+        WriteError(ErrorLevel error_level, string value, [CallerMemberName] string caller = "", [CallerFilePath] string source = "", [CallerLineNumber] int line = -1)
         {            
             StackTrace trace = new StackTrace();
             StackFrame frame = trace.GetFrame(1);
 
-            string message = "[ ERROR ] :: " + error_level.ToString()                   + Environment.NewLine +
-                             "> Caller:  " + caller                                     + Environment.NewLine +
-                             "> Source:  " + frame.GetMethod().DeclaringType.FullName   + Environment.NewLine +
-                             "> Line:    " + line_number                                + Environment.NewLine +
+            string message = "[ ERROR ] :: " + error_level.ToString()   + Environment.NewLine +
+                             "> Caller:  " + caller                     + Environment.NewLine +
+                             "> Source:  " + source                     + Environment.NewLine +
+                             "> Line:    " + line                       + Environment.NewLine +
                              "> Message: " + value;
             _WriteLine(DebugLevel.Error, error_level, ConsoleColor.Red, TimeStamp.TimeShort, message);
         }
@@ -384,5 +389,6 @@ TwitchNet.Debugger
         }
 
         #endregion
+        
     }
 }

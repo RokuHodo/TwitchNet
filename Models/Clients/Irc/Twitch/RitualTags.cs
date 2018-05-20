@@ -1,4 +1,5 @@
 ﻿// project namespaces
+using TwitchNet.Debugger;
 using TwitchNet.Enums.Clients.Irc.Twitch;
 using TwitchNet.Interfaces.Clients.Irc;
 using TwitchNet.Utilities;
@@ -12,7 +13,7 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// <summary>
         /// The ritual type.
         /// </summary>
-        [Tag("msg-param-ritual-name")]
+        [ValidateTag("msg-param-ritual-name")]
         public RitualType msg_param_ritual_name { get; protected set; }
 
         public RitualTags(IrcMessage message) : base(message)

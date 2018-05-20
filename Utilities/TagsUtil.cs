@@ -2,18 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 
 //project namespaces
-using TwitchNet.Debugger;
 using TwitchNet.Enums;
 using TwitchNet.Enums.Api.Videos;
 using TwitchNet.Enums.Clients.Irc.Twitch;
-using TwitchNet.Enums.Debug;
 using TwitchNet.Extensions;
-using TwitchNet.Models.Clients.Irc;
 using TwitchNet.Models.Clients.Irc.Twitch;
 
 namespace
@@ -463,90 +458,6 @@ TwitchNet.Utilities
             }
 
             return valid;
-        }
-
-        [System.Diagnostics.Conditional("DEBUG")]
-        internal static void
-        ValidateTags(object obj, Dictionary<string, string> tags)
-        {
-            PropertyInfo[] info = obj.GetType().GetProperties<TagAttribute>();
-
-            List<string> processed_tags = new List<string>();
-            foreach (PropertyInfo element in info)
-            {
-                processed_tags.Add(element.GetAttribute<TagAttribute>().name);
-            }
-
-            string[] missing = GetMissingTags(tags, processed_tags.ToArray());
-            if (missing.Length != 0)
-            {
-                string message = "Tags are missing and not being parsed in " + obj.GetType().Name + Environment.NewLine + 
-                                 "> Tags: " + string.Join(",", missing);
-                Debug.WriteWarning(ErrorLevel.Minor, message);
-            }
-
-            //string[] extra = GetExtraTags(tags, processed_tags.ToArray());
-            //if (extra.Length != 0)
-            //{
-            //    string message = "Tags are being parsed that don't exist in " + obj.GetType().Name + Environment.NewLine +
-            //                     "> Tags: " + string.Join(",", extra);
-            //    Debug.WriteWarning(ErrorLevel.Minor, message);
-            //}
-        }
-
-        /// <summary>
-        /// Gets the tags that were present in the irc message but was not processed.
-        /// </summary>
-        /// <param name="message_tags">The tags in the irc message.</param>
-        /// <param name="processed_tags">The tags that were processed.</param>
-        /// <returns>Returns an array with the tags that were present in the irc message but was not processed.</returns>
-        internal static string[]
-        GetMissingTags(Dictionary<string, string> message_tags, string[] processed_tags)
-        {
-            List<string> missing_tags = new List<string>();
-
-            if (processed_tags.Length == 0)
-            {
-                return message_tags.Keys.ToArray();
-            }
-
-            // make sure we aren't dealing with any duplicates
-            processed_tags = processed_tags.Distinct().ToArray();
-
-            foreach (string key in message_tags.Keys)
-            {
-                if (!Array.Exists(processed_tags, element => element == key))
-                {
-                    missing_tags.Add(key);
-                }
-            }
-
-            return missing_tags.ToArray();
-        }
-
-        /// <summary>
-        /// Gets the tags that were attempted to be processed but were not present in the irc message.
-        /// </summary>
-        /// <param name="message_tags">The tags in the irc message.</param>
-        /// <param name="processed_tags">The tags that were processed.</param>
-        /// <returns>Returns an array with the tags that were attempted to be processed but were not present in the irc message.</returns>
-        internal static string[]
-        GetExtraTags(Dictionary<string, string> message_tags, string[] processed_tags)
-        {
-            List<string> extra_tags = new List<string>();
-
-            // make sure we aren't dealing with any duplicates
-            processed_tags = processed_tags.Distinct().ToArray();
-
-            foreach (string tag in processed_tags)
-            {
-                if (!message_tags.ContainsKey(tag))
-                {
-                    extra_tags.Add(tag);
-                }
-            }
-
-            return extra_tags.ToArray();
-        }
+        }        
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Drawing;
 
 // project namespaces
+using TwitchNet.Debugger;
 using TwitchNet.Enums;
 using TwitchNet.Enums.Clients.Irc.Twitch;
 using TwitchNet.Extensions;
@@ -23,97 +24,97 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// <summary>
         /// Whether or not the user is a moderator.
         /// </summary>
-        [Tag("mod")]
+        [ValidateTag("mod")]
         public bool             mod             { get; protected set; }
 
         /// <summary>
         /// Whether or not the user is subscribed to the channel.
         /// </summary>
-        [Tag("subscriber")]
+        [ValidateTag("subscriber")]
         public bool             subscriber      { get; protected set; }
 
         /// <summary>
         /// Whether or not the user has Twitch turbo.
         /// </summary>
-        [Tag("turbo")]
+        [ValidateTag("turbo")]
         public bool             turbo           { get; protected set; }
 
         /// <summary>
         /// <para>The display name of the user.</para>
         /// <para>This is empty if it was never set by the user.</para>
         /// </summary>
-        [Tag("display-name")]
+        [ValidateTag("display-name")]
         public string           display_name    { get; protected set; }
 
         /// <summary>
         /// The unique message id.
         /// </summary>
-        [Tag("id")]
+        [ValidateTag("id")]
         public string           id              { get; protected set; }
 
         /// <summary>
         /// The login name of the user.
         /// </summary>
-        [Tag("login")]
+        [ValidateTag("login")]
         public string           login           { get; protected set; }
 
         /// <summary>
         /// The id of the channel the user notice was sent in.
         /// </summary>
-        [Tag("room-id")]
+        [ValidateTag("room-id")]
         public string           room_id         { get; protected set; }
 
         /// <summary>
         /// The message printed in chat along with its notice.
         /// </summary>
-        [Tag("system-msg")]
+        [ValidateTag("system-msg")]
         public string           system_msg      { get; protected set; }
 
         /// <summary>
         /// The id of the user who triggered the user notice.
         /// </summary>
-        [Tag("user-id")]
+        [ValidateTag("user-id")]
         public string           user_id         { get; protected set; }
 
         /// <summary>
         /// <para>The type of the user notice.</para>
         /// <para>Set to <see cref="UserNoticeType.None"/> if the tag could not be parsed.</para>
         /// </summary>
-        [Tag("msg-id")]
+        [ValidateTag("msg-id")]
         public UserNoticeType   msg_id          { get; protected set; }
 
         /// <summary>
         /// <para>The type of the user.</para>
         /// <para>Set to <see cref="UserType.None"/> if the user has no elevated privileges.</para>
         /// </summary>
-        [Tag("user-type")]
+        [ValidateTag("user-type")]
         public UserType         user_type       { get; protected set; }
 
         /// <summary>
         /// <para>The color of the user's display name.</para>
         /// <para>The color is <see cref="Color.Empty"/> if it was never set by the sender.</para>
         /// </summary>
-        [Tag("color")]
+        [ValidateTag("color")]
         public Color            color           { get; protected set; }
 
         /// <summary>
         /// The time the user notice was sent.
         /// </summary>
-        [Tag("tmi-sent-ts")]
+        [ValidateTag("tmi-sent-ts")]
         public DateTime         tmi_sent_ts     { get; protected set; }
 
         /// <summary>
         /// <para>The chat badges that the user has, if any.</para>
         /// <para>The array is empty if the user has no chat badges.</para>
         /// </summary>
-        [Tag("badges")]
+        [ValidateTag("badges")]
         public Badge[]          badges          { get; protected set; }
 
         /// <summary>
         /// <para>The emotes the user used in the message, if any.</para>
         /// <para>The array is empty if the user did not use any emotes.</para>
         /// </summary>
-        [Tag("emotes")]
+        [ValidateTag("emotes")]
         public Emote[]          emotes          { get; protected set; }
 
         public UserNoticeTags(IrcMessage message)

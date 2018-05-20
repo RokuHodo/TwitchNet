@@ -51,16 +51,21 @@ namespace TwitchNet.Utilities
         private static
         Dictionary<string, BadgeType> to_badge_cache = new Dictionary<string, BadgeType>
         {
-            { "",               BadgeType.None },
-            { "admin",          BadgeType.Admin },
-            { "bits",           BadgeType.Bits },
-            { "broadcaster",    BadgeType.Broadcaster },
-            { "global_mod",     BadgeType.GlobalMod },
-            { "moderator",      BadgeType.Moderator },
-            { "subscriber",     BadgeType.Subscriber },
-            { "premium",        BadgeType.Premium },
-            { "turbo",          BadgeType.Turbo },
-            { "staff",          BadgeType.Staff },
+            { "",                           BadgeType.None },
+            { "admin",                      BadgeType.Admin },
+            { "bits",                       BadgeType.Bits },
+            { "broadcaster",                BadgeType.Broadcaster },
+            { "global_mod",                 BadgeType.GlobalMod },
+            { "moderator",                  BadgeType.Moderator },
+            { "subscriber",                 BadgeType.Subscriber },
+            { "premium",                    BadgeType.Premium },
+            { "turbo",                      BadgeType.Turbo },
+            { "staff",                      BadgeType.Staff },
+            { "partner",                    BadgeType.Partner },
+            { "sub-gifter",                 BadgeType.SubGifter },
+            { "clip-champ",                 BadgeType.ClipChamp },
+            { "twitchcon2017",              BadgeType.Twitchcon2017 },
+            { "overwatch-league-insider_1", BadgeType.OverwatchLeagueInsider },
         };
 
         private static

@@ -1,4 +1,6 @@
 ﻿// project namespaces
+using TwitchNet.Debugger;
+using TwitchNet.Enums.Debugger;
 using TwitchNet.Extensions;
 using TwitchNet.Models.Clients.Irc;
 
@@ -11,11 +13,13 @@ TwitchNet.Events.Clients.Irc
         /// <summary>
         /// The unsupported IRC command.
         /// </summary>
+        [ValidateMember(Check.IsValid)]
         public string command       { get; protected set; }
 
         /// <summary>
         /// The error description.
         /// </summary>
+        [ValidateMember(Check.IsValid)]
         public string description   { get; protected set; }
 
         public UnknownCommandEventArgs(IrcMessage message) : base(message)

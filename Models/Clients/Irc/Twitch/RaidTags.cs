@@ -1,4 +1,5 @@
 ﻿// project namespaces
+using TwitchNet.Debugger;
 using TwitchNet.Interfaces.Clients.Irc;
 using TwitchNet.Utilities;
 
@@ -11,20 +12,20 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// <summary>
         /// The number of viewers participating the the raid.
         /// </summary>
-        [Tag("msg-param-viewer-count")]
+        [ValidateTag("msg-param-viewer-count")]
         public ulong    msg_param_viewer_count  { get; protected set; }
 
         /// <summary>
         /// <para>The display name of the channel that is raiding.</para>
         /// <para>This is empty if it was never set by the raider.</para>
         /// </summary>
-        [Tag("msg-param-display-name")]
+        [ValidateTag("msg-param-display-name")]
         public string   msg_param_display_name  { get; protected set; }
 
         /// <summary>
         /// The login name of the channel that is raiding.
         /// </summary>
-        [Tag("msg-param-login")]
+        [ValidateTag("msg-param-login")]
         public string   msg_param_login         { get; protected set; }
 
         public RaidTags(IrcMessage message) : base(message)

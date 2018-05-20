@@ -135,13 +135,14 @@ TwitchNet.Models.Clients.Irc
             string[] array = all_tags.StringToArray<string>(';');
             foreach (string element in array)
             {
-                string[] tag = element.StringToArray<string>('=');
-                if(tag.IsNull() || tag.Length != 2)
+                string tag = element.TextBefore('=');
+                string value = element.TextAfter('=');
+                if(!tag.IsValid())
                 {
                     continue;
                 }
 
-                tags[tag[0]] = tag[1];
+                tags[tag] = value;
             }
 
             // Get rid of the tags to make later parsing easier

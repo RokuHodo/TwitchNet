@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 
 // project namespaces
+using TwitchNet.Debugger;
+using TwitchNet.Enums.Debugger;
 using TwitchNet.Extensions;
 using TwitchNet.Models.Clients.Irc;
 
@@ -14,11 +16,13 @@ TwitchNet.Events.Clients.Irc
         /// <summary>
         /// The IRC channel that the clients have joined.
         /// </summary>
+        [ValidateMember(Check.IsValid)]
         public string   channel     { get; protected set; }
 
         /// <summary>
         /// The complete list of client nicks that have joined the channel.
         /// </summary>
+        [ValidateMember(Check.IsValid)]
         public string[] names       { get; protected set; }
 
         public EndOfNamesEventArgs(IrcMessage message, Dictionary<string, List<string>> names) : base(message)

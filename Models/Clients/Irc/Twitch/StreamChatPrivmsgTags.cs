@@ -1,4 +1,6 @@
 ﻿// project namespaces
+using TwitchNet.Debugger;
+using TwitchNet.Enums.Debugger;
 using TwitchNet.Events.Clients.Irc;
 using TwitchNet.Interfaces.Clients.Irc.Twitch;
 using TwitchNet.Utilities;
@@ -13,7 +15,7 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// <para>The amount of bits the sender cheered, if any.</para>
         /// <para>Set to 0 if the sender did not cheer.</para>
         /// </summary>
-        [Tag("bits")]
+        [ValidateTag("bits", Check.IsNotEqualTo, 0u)]
         public uint bits { get; protected set; }
 
         public StreamChatPrivmsgTags(PrivmsgEventArgs args) : base(args)

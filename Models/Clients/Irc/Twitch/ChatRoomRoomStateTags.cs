@@ -1,4 +1,5 @@
 ﻿// project namespaces
+using TwitchNet.Debugger;
 using TwitchNet.Enums.Clients.Irc.Twitch;
 using TwitchNet.Extensions;
 using TwitchNet.Interfaces.Clients.Irc.Twitch;
@@ -18,27 +19,27 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// <summary>
         /// Whether or not the room is in emote only mode.
         /// </summary>
-        [Tag("emote-only")]
+        [ValidateTag("emote-only")]
         public bool     emote_only  { get; protected set; }
 
         /// <summary>
         /// Whether or r9k mode is enabled.
         /// When enabled, messages 9 characters or longer must be unique from other messages.
         /// </summary>
-        [Tag("r9k")]
+        [ValidateTag("r9k")]
         public bool     r9k         { get; protected set; }
 
         /// <summary>
         /// <para>How frequently, in seconds, non-elevated users can send messages.</para>
         /// <para>Set to 0 if slow mode is disabled.</para>
         /// </summary>
-        [Tag("slow")]
+        [ValidateTag("slow")]
         public uint     slow        { get; protected set; }
 
         /// <summary>
         /// The id of the room whose state has changed and/or the client has joined.
         /// </summary>
-        [Tag("room-id")]
+        [ValidateTag("room-id")]
         public string   room_id     { get; protected set; }
 
         /// <summary>

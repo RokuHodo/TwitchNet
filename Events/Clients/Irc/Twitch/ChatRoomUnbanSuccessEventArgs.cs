@@ -1,4 +1,6 @@
 ﻿// project namespaces
+using TwitchNet.Debugger;
+using TwitchNet.Enums.Debugger;
 using TwitchNet.Extensions;
 
 namespace
@@ -10,11 +12,13 @@ TwitchNet.Events.Clients.Irc.Twitch
         /// <summary>
         /// The id of the user who the chat room belongs to.
         /// </summary>
+        [ValidateMember(Check.IsValid)]
         public string channel_user_id   { get; protected set; }
 
         /// <summary>
         /// The unique UUID of the chat room.
         /// </summary>
+        [ValidateMember(Check.IsValid)]
         public string channel_uuid      { get; protected set; }
 
         public ChatRoomUnbanSuccessEventArgs(NoticeEventArgs args) : base(args)

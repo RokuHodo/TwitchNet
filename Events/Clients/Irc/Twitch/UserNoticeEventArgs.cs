@@ -1,4 +1,6 @@
 ﻿// project namespaces
+using TwitchNet.Debugger;
+using TwitchNet.Enums.Debugger;
 using TwitchNet.Extensions;
 using TwitchNet.Models.Clients.Irc;
 using TwitchNet.Models.Clients.Irc.Twitch;
@@ -8,23 +10,26 @@ TwitchNet.Events.Clients.Irc.Twitch
 {
     public class
     UserNoticeEventArgs : IrcMessageEventArgs
-    {        
+    {
         /// <summary>
         /// <para>The messsage sent by the user.</para>
         /// <para>This is empty if the user did not send a message.</para>
         /// </summary>
+        [ValidateMember(Check.IsValid)]
         public string           body    { get; protected set; }
 
         /// <summary>
         /// The channel that the user notice was sent in.
         /// Always valid.
         /// </summary>
+        [ValidateMember(Check.IsValid)]
         public string           channel { get; protected set; }
 
         /// <summary>
         /// <para>The tags attached to the message, if any.</para>
         /// <para>Check the <code>is_valid</code> property to determine if tags were attached to the message.</para>
         /// </summary>
+        [ValidateMember(Check.Tags)]
         public UserNoticeTags   tags    { get; protected set; }
 
         public UserNoticeEventArgs(IrcMessage message) : base(message)

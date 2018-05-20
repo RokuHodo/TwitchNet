@@ -16,54 +16,84 @@ namespace TwitchNet.Enums.Clients.Irc.Twitch
         /// Admin badge.
         /// </summary>
         [EnumMember(Value = "admin")]
-        Admin       = 1,
+        Admin,
 
         /// <summary>
         /// Bits badge.
         /// </summary>
         [EnumMember(Value = "bits")]
-        Bits        = 2,
+        Bits,
 
         /// <summary>
         /// Broadcaster badge.
         /// </summary>
         [EnumMember(Value = "broadcaster")]
-        Broadcaster = 3,
+        Broadcaster,
 
         /// <summary>
         /// Global mod badge.
         /// </summary>
         [EnumMember(Value = "global_mod")]
-        GlobalMod   = 4,
+        GlobalMod,
 
         /// <summary>
         /// Moderator badge.
         /// </summary>
         [EnumMember(Value = "moderator")]
-        Moderator   = 5,
+        Moderator,
 
         /// <summary>
         /// Subscriber badge.
         /// </summary>
         [EnumMember(Value = "subscriber")]
-        Subscriber  = 6,
+        Subscriber,
 
         /// <summary>
         /// Staff badge.
         /// </summary>
         [EnumMember(Value = "staff")]
-        Staff       = 7,
+        Staff,
 
         /// <summary>
-        /// Trwitch Prime badge.
+        /// Trwitch prime badge.
         /// </summary>
         [EnumMember(Value = "premium")]
-        Premium     = 8,
+        Premium,
 
         /// <summary>
-        /// Twitch Turbo badge.
+        /// Twitch turbo badge.
         /// </summary>
         [EnumMember(Value = "turbo")]
-        Turbo       = 9,
+        Turbo,
+
+        /// <summary>
+        /// Twitch partner badge.
+        /// </summary>
+        [EnumMember(Value = "partner")]
+        Partner,
+
+        /// <summary>
+        /// Twitch partner badge.
+        /// </summary>
+        [EnumMember(Value = "sub-gifter")]
+        SubGifter,
+
+        /// <summary>
+        /// Clip champ badge.
+        /// </summary>
+        [EnumMember(Value = "clip-champ")]
+        ClipChamp,
+
+        /// <summary>
+        /// Clip champ badge.
+        /// </summary>
+        [EnumMember(Value = "twitchcon2017")]
+        Twitchcon2017,
+
+        /// <summary>
+        /// Clip champ badge.
+        /// </summary>
+        [EnumMember(Value = "overwatch-league-insider_1")]
+        OverwatchLeagueInsider,
     }
 }

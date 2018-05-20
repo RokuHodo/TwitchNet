@@ -769,8 +769,8 @@ TwitchNet.Clients.Irc
                 default:
                 {
                     OnUserNotice.Raise(this, new UserNoticeEventArgs(message));
-                    break;
                 }
+                break;
             }
         }
 

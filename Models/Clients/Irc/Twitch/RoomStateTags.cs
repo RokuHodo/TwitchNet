@@ -1,4 +1,5 @@
 ﻿// project namespaces
+using TwitchNet.Debugger;
 using TwitchNet.Enums.Api.Videos;
 using TwitchNet.Enums.Clients.Irc.Twitch;
 using TwitchNet.Extensions;
@@ -19,34 +20,27 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// <summary>
         /// Whether or not the room is in emote only mode.
         /// </summary>
-        [Tag("emote-only")]
+        [ValidateTag("emote-only")]
         public bool                 emote_only          { get; protected set; }
-
-        /// <summary>
-        /// Whether or not an ancient emote mode is enabled.
-        /// Legend has it, someone actually knows what this is.
-        /// </summary>
-        [Tag("mercury")]
-        public bool                 mercury             { get; protected set; }
 
         /// <summary>
         /// Whether or r9k mode is enabled.
         /// When enabled, messages 9 characters or longer must be unique from other messages.
         /// </summary>
-        [Tag("r9k")]
+        [ValidateTag("r9k")]
         public bool                 r9k                 { get; protected set; }
 
         /// <summary>
         /// Whether or not rituals are enabled.
         /// </summary>
-        [Tag("rituals")]
+        [ValidateTag("rituals")]
         public bool                 rituals             { get; protected set; }
 
         /// <summary>
         /// Whether or not the room is in sub only mode.
         /// When enabled, only subs can sent chat messages.
         /// </summary>
-        [Tag("subs-only")]
+        [ValidateTag("subs-only")]
         public bool                 subs_only           { get; protected set; }
 
         /// <summary>
@@ -56,20 +50,20 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// Set to -1 when follower only mode is disabled.
         /// </para>
         /// </summary>
-        [Tag("followers-only")]
+        [ValidateTag("followers-only")]
         public int                  followers_only      { get; protected set; }
 
         /// <summary>
         /// <para>How frequently, in seconds, non-elevated users can send messages.</para>
         /// <para>Set to 0 if slow mode is disabled.</para>
         /// </summary>
-        [Tag("slow")]
+        [ValidateTag("slow")]
         public uint                 slow                { get; protected set; }
 
         /// <summary>
         /// The id of the room whose state has changed and/or the client has joined.
         /// </summary>
-        [Tag("room-id")]
+        [ValidateTag("room-id")]
         public string               room_id             { get; protected set; }
 
         /// <summary>
@@ -79,7 +73,7 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// </para>
         /// <para>Set to <see cref="BroadcasterLanguage.None"/> if the room is not language restricted.</para>
         /// </summary>
-        [Tag("broadcaster-lang")]
+        [ValidateTag("broadcaster-lang")]
         public BroadcasterLanguage  broadcaster_lang    { get; protected set; }
 
         /// <summary>
@@ -103,12 +97,6 @@ TwitchNet.Models.Clients.Irc.Twitch
             {
                 emote_only = TagsUtil.ToBool(message.tags, "emote-only");
                 changed_states |= RoomStateType.EmoteOnly;
-            }
-
-            if (TagsUtil.IsTagValid(message.tags, "mercury"))
-            {
-                mercury = TagsUtil.ToBool(message.tags, "mercury");
-                changed_states |= RoomStateType.Mercury;
             }
 
             if (TagsUtil.IsTagValid(message.tags, "r9k"))

@@ -2,6 +2,7 @@
 using System.Drawing;
 
 // project namespaces
+using TwitchNet.Debugger;
 using TwitchNet.Enums;
 using TwitchNet.Extensions;
 using TwitchNet.Interfaces.Clients.Irc.Twitch;
@@ -21,34 +22,34 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// <summary>
         /// Whether or not the user is a moderator.
         /// </summary>
-        [Tag("mod")]
+        [ValidateTag("mod")]
         public bool     mod             { get; protected set; }
 
         /// <summary>
         /// <para>The display name of the user.</para>
         /// <para>This is empty if it was never set by the user.</para>
         /// </summary>
-        [Tag("display-name")]
+        [ValidateTag("display-name")]
         public string   display_name    { get; protected set; }
 
         /// <summary>
         /// The emote sets that are available for the user to use.
         /// </summary>
-        [Tag("emote-sets")]
+        [ValidateTag("emote-sets")]
         public string[] emote_sets      { get; protected set; }
 
         /// <summary>
         /// <para>The user's type</para>
         /// <para>Set to <see cref="UserType.None"/> if the user has no elevated privileges.</para>
         /// </summary>
-        [Tag("user-type")]
+        [ValidateTag("user-type")]
         public UserType user_type       { get; protected set; }
 
         /// <summary>
         /// <para>The color of the user's display name.</para>
         /// <para>The color is <see cref="Color.Empty"/> if it was never set by the user.</para>
         /// </summary>
-        [Tag("color")]
+        [ValidateTag("color")]
         public Color    color           { get; protected set; }
 
         public ChatRoomUserStateTags(IrcMessage message)

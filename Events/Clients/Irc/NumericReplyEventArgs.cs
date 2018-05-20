@@ -1,4 +1,6 @@
 ﻿// project namespaces
+using TwitchNet.Debugger;
+using TwitchNet.Enums.Debugger;
 using TwitchNet.Extensions;
 using TwitchNet.Models.Clients.Irc;
 
@@ -11,6 +13,7 @@ TwitchNet.Events.Clients.Irc
         /// <summary>
         /// The IRC client nick.
         /// </summary>
+        [ValidateMember(Check.IsValid)]
         public string client { get; protected set; }
 
         public NumericReplyEventArgs(IrcMessage message) : base(message)

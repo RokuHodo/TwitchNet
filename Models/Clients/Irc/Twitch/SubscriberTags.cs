@@ -1,4 +1,5 @@
 ﻿// project namespaces
+using TwitchNet.Debugger;
 using TwitchNet.Enums.Clients.Irc.Twitch;
 using TwitchNet.Interfaces.Clients.Irc;
 using TwitchNet.Utilities;
@@ -13,20 +14,20 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// <para>How many months the recipient has been subscribed to the channel.</para>
         /// <para>Set to 0 if the recipient has subscribed for the first time.</para>
         /// </summary>
-        [Tag("msg-param-months")]
+        [ValidateTag("msg-param-months")]
         public ushort           msg_param_months        { get; protected set; }
 
         /// <summary>
         /// The display name of the subscription plan.
         /// </summary>
-        [Tag("msg-param-sub-plan-name")]
+        [ValidateTag("msg-param-sub-plan-name")]
         public string           msg_param_sub_plan_name { get; protected set; }
 
         /// <summary>
         /// <para>The subscription tier.</para>
         /// <para>Set to <see cref="SubscriptionPlan.None"/> if the plan could not be parsed.</para>
         /// </summary>
-        [Tag("msg-param-sub-plan")]
+        [ValidateTag("msg-param-sub-plan")]
         public SubscriptionPlan msg_param_sub_plan      { get; protected set; }
 
         public SubscriberTags(IrcMessage message) : base(message)

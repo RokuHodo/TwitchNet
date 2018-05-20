@@ -341,6 +341,40 @@ TwitchNet.Extensions
             return result.IsValid() ? result.ToArray() : default(type[]);
         }
 
+        /// <summary>
+        /// Wraps a string in quote.
+        /// </summary>
+        /// <param name="str">The string to wrap.</param>
+        /// <returns>Returns a string wrapped in quotes.</returns>
+        public static string
+        WrapQuotes(this string str)
+        {
+            if (str.IsNull())
+            {
+                return "\"\"";
+            }
+
+            return "\"" + str + "\"";
+
+        }
+
+        /// <summary>
+        /// Wraps a string in quote.
+        /// </summary>
+        /// <param name="character">The string to wrap.</param>
+        /// <returns>Returns a string wrapped in quotes.</returns>
+        public static string
+        WrapQuotes(this char character)
+        {
+            if (character.IsNull())
+            {
+                return "\"\"";
+            }
+
+            return "\"" + character + "\"";
+
+        }
+
         #endregion
     }
 }

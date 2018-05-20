@@ -2,6 +2,7 @@
 using System;
 
 // project namespaces
+using TwitchNet.Debugger;
 using TwitchNet.Extensions;
 using TwitchNet.Interfaces.Clients.Irc;
 using TwitchNet.Utilities;
@@ -22,32 +23,32 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// <para>The length of the ban, in seconds.</para>
         /// <para>Set to zero if the ban is permanent.</para>
         /// </summary>
-        [Tag("ban-duration")]
+        [ValidateTag("ban-duration")]
         public uint     ban_duration    { get; protected set; }
 
         /// <summary>
         /// <para>The moderator’s reason for the timeout or ban.</para>
         /// <para>Empty if the moderator gave no reason.</para>
         /// </summary>
-        [Tag("ban-reason")]
+        [ValidateTag("ban-reason")]
         public string   ban_reason      { get; protected set; }
 
         /// <summary>
         /// The id of the room where the user got timed out or banned.
         /// </summary>
-        [Tag("room-id")]
+        [ValidateTag("room-id")]
         public string   room_id         { get; protected set; }
 
         /// <summary>
         /// The id of the user who got timed out or banned.
         /// </summary>
-        [Tag("target-user-id")]
+        [ValidateTag("target-user-id")]
         public string   target_user_id  { get; protected set; }
 
         /// <summary>
         /// The time message was sent.
         /// </summary>
-        [Tag("tmi-sent-ts")]
+        [ValidateTag("tmi-sent-ts")]
         public DateTime tmi_sent_ts     { get; protected set; }
 
         public ClearChatTags(IrcMessage message)

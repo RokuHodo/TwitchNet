@@ -16,7 +16,7 @@ TwitchNet.Events.Clients.Irc
         /// <summary>
         /// The character that specifies if the channel is public, secret, or private.
         /// </summary>
-        [ValidateMember(Check.IsValid)]
+        [ValidateMember(Check.IsNotNullOrDefault)]
         public char     status      { get; protected set; }
 
         /// <summary>
@@ -49,6 +49,10 @@ TwitchNet.Events.Clients.Irc
         [ValidateMember(Check.IsNotNull)]
         public bool     is_private  { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="NamReplyEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public NamReplyEventArgs(IrcMessage message) : base(message)
         {
             names = message.trailing.StringToArray<string>(' ', StringSplitOptions.RemoveEmptyEntries);

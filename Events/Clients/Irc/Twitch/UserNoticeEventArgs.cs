@@ -32,6 +32,10 @@ TwitchNet.Events.Clients.Irc.Twitch
         [ValidateMember(Check.Tags)]
         public UserNoticeTags   tags    { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="UserNoticeEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public UserNoticeEventArgs(IrcMessage message) : base(message)
         {
             if (message.parameters.IsValid())

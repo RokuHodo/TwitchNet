@@ -2,12 +2,15 @@
 using System.Diagnostics;
 
 namespace TwitchNet.Debugger
-{
+{    
     internal class
     Benchmark
     {
         private Stopwatch watch;
 
+        /// <summary>
+        /// The elapsed time in seconds.
+        /// </summary>
         public double elapsed_seconds
         {
             get
@@ -16,6 +19,9 @@ namespace TwitchNet.Debugger
             }
         }
 
+        /// <summary>
+        /// The elapsed time in milliseconds.
+        /// </summary>
         public double elapsed_milliseconds
         {
             get
@@ -24,6 +30,9 @@ namespace TwitchNet.Debugger
             }
         }
 
+        /// <summary>
+        /// The elapsed time in micro seconds.
+        /// </summary>
         public double elapsed_microseconds
         {
             get
@@ -32,6 +41,9 @@ namespace TwitchNet.Debugger
             }
         }
 
+        /// <summary>
+        /// The elapsed ticks.
+        /// </summary>
         public long elapsed_ticks
         {
             get
@@ -40,29 +52,49 @@ namespace TwitchNet.Debugger
             }
         }
 
-        internal Benchmark()
+        /// <summary>
+        /// Creates a new instance of the <see cref="Benchmark"/> class.
+        /// </summary>
+        public Benchmark()
         {
             watch = new Stopwatch();
         }
 
-        internal void Start()
+        /// <summary>
+        /// Starts the benchmark.
+        /// </summary>
+        [Conditional("DEBUG")]
+        public void Start()
         {
             watch.Start();
         }
 
-        internal void
+        /// <summary>
+        /// Stops the benchmark.
+        /// </summary>
+        [Conditional("DEBUG")]
+        public void
         Stop()
         {
             watch.Stop();
         }
 
-        internal void
+        /// <summary>
+        /// Resets the benchmark.
+        /// </summary>
+        [Conditional("DEBUG")]
+        public void
         Reset()
         {
             watch.Reset();
         }
 
-        internal void Print()
+        /// <summary>
+        /// Prints the benchamrk results.
+        /// </summary>
+        [Conditional("DEBUG")]
+        public void
+        Print()
         {
             Debug.WriteLine(ConsoleColor.Cyan, "[ Benchmarch Results ]");
             Debug.WriteLine("Elapsed seconds:       " + elapsed_seconds + " s");

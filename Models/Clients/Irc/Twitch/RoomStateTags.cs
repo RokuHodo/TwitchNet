@@ -85,6 +85,10 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// </summary>
         public RoomStateType        changed_states      { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="RoomStateTags"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public RoomStateTags(IrcMessage message)
         {
             is_valid = message.tags.IsValid();

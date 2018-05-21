@@ -16,6 +16,10 @@ TwitchNet.Events.Clients.Irc
         [ValidateMember(Check.IsValid)]
         public string client { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="NumericReplyEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public NumericReplyEventArgs(IrcMessage message) : base(message)
         {
             if (!message.parameters.IsValid())

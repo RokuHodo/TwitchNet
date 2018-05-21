@@ -33,11 +33,15 @@ TwitchNet.Events.Clients.Irc.Twitch
         public string       channel_uuid    { get; protected set; }
 
         /// <summary>
-        /// The user who was attempted to be banned or timed out, but is alreayd banned or timed out.
+        /// The unsupported chat command that was attempted to be used in a chat room.
         /// </summary>
         [ValidateMember(Check.IsNotEqualTo, ChatCommand.Other)]
         public ChatCommand  command         { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="UnsupportedChatRoomCmdEventArgs"/> class.
+        /// </summary>
+        /// <param name="args">The event arguments to parse.</param>
         public UnsupportedChatRoomCmdEventArgs(NoticeEventArgs args) : base(args.irc_message)
         {
             channel = args.channel;

@@ -17,38 +17,42 @@ TwitchNet.Events.Clients.Irc
         /// The optional tags prefixed to the message.
         /// </summary>
         [ValidateMember(Check.IsValid)]
-        public Dictionary<string, string> tags { get; protected set; }
+        public Dictionary<string, string>   tags    { get; protected set; }
 
         /// <summary>
         /// The nick of the client who sent the message.
         /// </summary>
         [ValidateMember(Check.IsValid)]
-        public string nick { get; protected set; }
+        public string                       nick    { get; protected set; }
 
         /// <summary>
         /// The irc user.
         /// </summary>
         [ValidateMember(Check.IsValid)]
-        public string user { get; protected set; }
+        public string                       user    { get; protected set; }
 
         /// <summary>
         /// The irc host.
         /// </summary>
         [ValidateMember(Check.IsValid)]
-        public string host { get; protected set; }
+        public string                       host    { get; protected set; }
 
         /// <summary>
         /// The channel the message was sent in.
         /// </summary>
         [ValidateMember(Check.IsValid)]
-        public string channel { get; protected set; }
+        public string                       channel { get; protected set; }
 
         /// <summary>
         /// The body of the message.
         /// </summary>
         [ValidateMember(Check.IsValid)]
-        public string body { get; protected set; }
+        public string                       body    { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="PrivmsgEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public PrivmsgEventArgs(IrcMessage message) : base(message)
         {
             tags = message.tags;

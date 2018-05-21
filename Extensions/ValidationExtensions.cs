@@ -15,6 +15,8 @@ TwitchNet.Extensions
     internal static class
     ValidationExtensions
     {
+        #region Value checks
+
         /// <summary>
         /// Verifies that an <see cref="object"/> is null.
         /// </summary>  
@@ -84,15 +86,7 @@ TwitchNet.Extensions
             bool result = !list.IsNull() && list.Count > 0;
 
             return result;
-        }
-
-        public static bool
-        Contains<type>(this IList<type> list, type element)
-        {
-            bool result = list.Any(temp => EqualityComparer<type>.Default.Equals(temp, element));
-
-            return result;
-        }
+        }        
 
         /// <summary>
         /// Verifies that a <see cref="string"/> is not null, empty, or contains only whitespace.
@@ -130,6 +124,10 @@ TwitchNet.Extensions
             return result;
         }
 
+        #endregion
+
+        #region Type checks
+
         /// <summary>
         /// Checks to see if an <see cref="object"/> can be convereted to certain type.
         /// </summary>
@@ -151,6 +149,10 @@ TwitchNet.Extensions
             return result;
         }
 
+        #endregion
+
+        #region Regex checks
+
         /// <summary>
         /// Check to see if the string matches the HTML (hex) color format #FFFFFF.
         /// </summary>
@@ -169,5 +171,29 @@ TwitchNet.Extensions
 
             return result;
         }
+
+        #endregion
+
+        #region Search checks
+
+        /// <summary>
+        /// Checks to see if an <see cref="IList{T}"/> contains a specified value.
+        /// </summary>
+        /// <typeparam name="type">The generic type of the <see cref="IList{T}"/>.</typeparam>
+        /// <param name="list">The list to search in.</param>
+        /// <param name="value">The value to search for.</param>
+        /// <returns>
+        /// Returns true of the list contains the value.
+        /// Returns false otherwise.
+        /// </returns>
+        public static bool
+        Contains<type>(this IList<type> list, type value)
+        {
+            bool result = list.Any(temp => EqualityComparer<type>.Default.Equals(temp, value));
+
+            return result;
+        }
+
+        #endregion
     }
 }

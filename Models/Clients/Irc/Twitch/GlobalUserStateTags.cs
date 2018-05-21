@@ -59,6 +59,10 @@ TwitchNet.Models.Clients.Irc.Twitch
         [ValidateTag("badges")]
         public Badge[]  badges          { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="GlobalUserStateTags"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public GlobalUserStateTags(IrcMessage message)
         {
             is_valid = message.tags.IsValid();

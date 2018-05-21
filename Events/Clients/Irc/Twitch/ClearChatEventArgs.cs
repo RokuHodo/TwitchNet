@@ -31,6 +31,10 @@ TwitchNet.Events.Clients.Irc.Twitch
         [ValidateMember(Check.Tags)]
         public ClearChatTags    tags    { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="AlreadyBannedEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public ClearChatEventArgs(IrcMessage message) : base(message)
         {
             if (message.parameters.IsValid())

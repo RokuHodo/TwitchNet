@@ -75,13 +75,22 @@ TwitchNet.Models.Clients.Irc
 
         #endregion
 
-        #region Constructor
+        #region Constructors
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="IrcMessage"/> class.
+        /// </summary>
+        /// <param name="data">The data received from the socket.</param>
+        /// <param name="raw">The UTF-8 encoded byte data received from the socket.</param>
         public IrcMessage(byte[] data, string raw) : this(raw)
         {
             this.data = data;
         }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="IrcMessage"/> class.
+        /// </summary>
+        /// <param name="raw">The UTF-8 encoded byte data received from the socket.</param>
         public IrcMessage(string raw)
         {
 

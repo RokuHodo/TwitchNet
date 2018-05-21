@@ -41,6 +41,10 @@ TwitchNet.Events.Clients.Irc
         [ValidateMember(Check.IsValid)]
         public string   arguments   { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="ChannelModeEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public ChannelModeEventArgs(IrcMessage message) : base(message)
         {
             if (!message.parameters.IsValid() || message.parameters.Length < 3)

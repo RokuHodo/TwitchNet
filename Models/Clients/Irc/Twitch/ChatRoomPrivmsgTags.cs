@@ -5,7 +5,6 @@ using System.Drawing;
 // project namespaces
 using TwitchNet.Debugger;
 using TwitchNet.Enums;
-using TwitchNet.Enums.Debugger;
 using TwitchNet.Extensions;
 using TwitchNet.Events.Clients.Irc;
 using TwitchNet.Interfaces.Clients.Irc.Twitch;
@@ -105,6 +104,10 @@ TwitchNet.Models.Clients.Irc.Twitch
         [ValidateTag("emotes")]
         public Emote[]  emotes          { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="ChatRoomPrivmsgTags"/> class.
+        /// </summary>
+        /// <param name="args">The event arguments to parse.</param>
         public ChatRoomPrivmsgTags(PrivmsgEventArgs args)
         {
             is_valid = args.tags.IsValid();
@@ -132,6 +135,10 @@ TwitchNet.Models.Clients.Irc.Twitch
             emotes          = TagsUtil.ToEmotes(args.tags, "emotes");
         }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="ChatRoomPrivmsgTags"/> class.
+        /// </summary>
+        /// <param name="tags">The tags to copy the values from.</param>
         public ChatRoomPrivmsgTags(StreamChatPrivmsgTags tags)
         {
             if (!tags.is_valid)

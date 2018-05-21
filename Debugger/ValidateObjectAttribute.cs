@@ -10,6 +10,9 @@ TwitchNet.Debugger
     internal class
     ValidateObjectAttribute : Attribute
     {
+        /// <summary>
+        /// Creates a new instance of the <see cref="ValidateObjectAttribute"/> class.
+        /// </summary>
         public ValidateObjectAttribute()
         {
 

@@ -44,6 +44,11 @@ TwitchNet.Models.Clients.Irc
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="IrcUser"/> struct.
+        /// </summary>
+        /// <param name="user_nick">The client nick.</param>
+        /// <param name="user_pass">The client pass.</param>
         public IrcUser(string user_nick, string user_pass)
         {
             _nick   = user_nick;

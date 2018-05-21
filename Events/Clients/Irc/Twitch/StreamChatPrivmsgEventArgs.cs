@@ -34,6 +34,10 @@ TwitchNet.Events.Clients.Irc.Twitch
         [ValidateMember(Check.Tags)]
         public StreamChatPrivmsgTags    tags        { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="StreamChatPrivmsgEventArgs"/> class.
+        /// </summary>
+        /// <param name="args">The event arguments to parse.</param>
         public StreamChatPrivmsgEventArgs(PrivmsgEventArgs args) : base(args.irc_message)
         {
             sender  = args.nick;

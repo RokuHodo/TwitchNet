@@ -18,6 +18,10 @@ TwitchNet.Models.Clients.Irc.Twitch
         [ValidateTag("bits", Check.IsNotEqualTo, 0u)]
         public uint bits { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="StreamChatPrivmsgTags"/> class.
+        /// </summary>
+        /// <param name="args">The event arguments to parse.</param>
         public StreamChatPrivmsgTags(PrivmsgEventArgs args) : base(args)
         {
             if (!is_valid)

@@ -27,6 +27,10 @@ TwitchNet.Models.Clients.Irc.Twitch
         [ValidateTag("msg-param-recipient-display-name")]
         public string msg_param_recipient_display_name  { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="GiftedSubscriberTags"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public GiftedSubscriberTags(IrcMessage message) : base(message)
         {
             if (!is_valid)

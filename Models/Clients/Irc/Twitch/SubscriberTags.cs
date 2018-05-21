@@ -30,6 +30,10 @@ TwitchNet.Models.Clients.Irc.Twitch
         [ValidateTag("msg-param-sub-plan")]
         public SubscriptionPlan msg_param_sub_plan      { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="SubscriberTags"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public SubscriberTags(IrcMessage message) : base(message)
         {
             if (!is_valid)

@@ -25,6 +25,10 @@ TwitchNet.Events.Clients.Irc.Twitch
         [ValidateMember(Check.IsNotEqualTo, -1)]
         public int      host_rate_limit { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="BadHostRateExceededEventArgs"/> class.
+        /// </summary>
+        /// <param name="args">The event arguments to parse.</param>
         public BadHostRateExceededEventArgs(NoticeEventArgs args) : base(args.irc_message)
         {
             channel = args.channel;

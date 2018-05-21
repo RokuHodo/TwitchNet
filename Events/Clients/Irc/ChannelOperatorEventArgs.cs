@@ -26,6 +26,10 @@ TwitchNet.Events.Clients.Irc
         [ValidateMember(Check.IsValid)]
         public string   channel     { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="ChannelOperatorEventArgs"/> class.
+        /// </summary>
+        /// <param name="args">The event arguments to parse.</param>
         public ChannelOperatorEventArgs(ChannelModeEventArgs args) : base(args.irc_message)
         {
             is_operator = args.modifier == '+' ? true : false;

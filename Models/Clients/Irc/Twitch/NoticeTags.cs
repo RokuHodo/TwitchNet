@@ -23,6 +23,10 @@ TwitchNet.Models.Clients.Irc.Twitch
         [ValidateTag("msg-id")]
         public NoticeType   msg_id      { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="NoticeTags"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public NoticeTags(IrcMessage message)
         {
             is_valid = message.tags.IsValid();

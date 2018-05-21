@@ -22,6 +22,10 @@ TwitchNet.Events.Clients.Irc
         [ValidateMember(Check.IsValid)]
         public string channel   { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="JoinEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public JoinEventArgs(IrcMessage message) : base(message)
         {
             nick = message.server_or_nick;

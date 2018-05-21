@@ -63,7 +63,6 @@
     <Compile Include="Clients\Irc\TwitchIrcClient.cs" />
     <Compile Include="Debugger\Benchmark.cs" />
     <Compile Include="Debugger\Debug.Writing.cs" />
-    <Compile Include="Debugger\Error.cs" />
     <Compile Include="Debugger\Debug.Validation.cs" />
     <Compile Include="Debugger\ValidateObjectAttribute.cs" />
     <Compile Include="Debugger\ValidateMemberAttribute.cs" />
@@ -235,6 +234,7 @@
     <Compile Include="Utilities\EnumCacheUtil.cs" />
     <Compile Include="Utilities\ExceptionUtil.cs" />
     <Compile Include="Utilities\PagingUtil.cs" />
+    <Compile Include="Utilities\RegexPatternUtil.cs" />
     <Compile Include="Utilities\RestRequestUtil.cs" />
     <Compile Include="Utilities\TagsUtil.cs" />
     <Compile Include="Utilities\TwitchUtil.cs" />

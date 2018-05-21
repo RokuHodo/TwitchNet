@@ -14,18 +14,44 @@ TwitchNet.Debugger
     internal class
     ValidateMemberAttribute : Attribute
     {
-        public string caller;
+        /// <summary>
+        /// The severity of the warning or error if the check validation fails.
+        /// </summary>
+        public ErrorLevel level         { get; protected set; }
 
-        public string source;
+        /// <summary>
+        /// How to validate the field or property.
+        /// </summary>
+        public Check        check       { get; protected set; }
 
-        public int line;
+        /// <summary>
+        /// The value to compare the field or property against when the check is set to <see cref="Check.IsEqualTo"/> or <see cref="Check.IsNotEqualTo"/>.
+        /// </summary>
+        public object       compare_to  { get; protected set; }
 
-        public ErrorLevel level;
+        /// <summary>
+        /// The name of the field or property.
+        /// </summary>
+        public string       caller      { get; protected set; }
 
-        public Check check;
+        /// <summary>
+        /// The source file of the caller.
+        /// </summary>
+        public string       source      { get; protected set; }
 
-        public object compare_to;
+        /// <summary>
+        /// The line of the caller.
+        /// </summary>
+        public int          line        { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="ValidateMemberAttribute"/> class.
+        /// </summary>
+        /// <param name="check">How to validate the field or property.</param>
+        /// <param name="compare_to">The value to compare the field or property against when the check is set to <see cref="Check.IsEqualTo"/> or <see cref="Check.IsNotEqualTo"/>.</param>
+        /// <param name="caller">The name of the field or property.</param>
+        /// <param name="source">The source file of the caller.</param>
+        /// <param name="line">The line of the caller.</param>
         public ValidateMemberAttribute(Check check, object compare_to = null, [CallerMemberName] string caller = "", [CallerFilePath] string source = "", [CallerLineNumber] int line = -1)
         {
             this.check = check;
@@ -37,6 +63,15 @@ TwitchNet.Debugger
             this.source = source;
         }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="ValidateMemberAttribute"/> class.
+        /// </summary>
+        /// <param name="level">The severity of the warning or error if the check validation fails.</param>
+        /// <param name="check">How to validate the field or property.</param>
+        /// <param name="compare_to">The value to compare the field or property against when the check is set to <see cref="Check.IsEqualTo"/> or <see cref="Check.IsNotEqualTo"/>.</param>
+        /// <param name="caller">The name of the field or property.</param>
+        /// <param name="source">The source file of the caller.</param>
+        /// <param name="line">The line of the caller.</param>
         public ValidateMemberAttribute(ErrorLevel level, Check check, object value = null, [CallerMemberName] string caller = "", [CallerFilePath] string source = "", [CallerLineNumber] int line = 0) : this(check, value, caller, source, line)
         {
             this.level = level;

@@ -51,6 +51,10 @@ TwitchNet.Models.Clients.Irc.Twitch
         [ValidateTag("tmi-sent-ts")]
         public DateTime tmi_sent_ts     { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="ClearChatTags"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public ClearChatTags(IrcMessage message)
         {
             is_valid = message.tags.IsValid();

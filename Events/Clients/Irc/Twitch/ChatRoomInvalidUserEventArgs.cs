@@ -2,6 +2,7 @@
 using TwitchNet.Debugger;
 using TwitchNet.Enums.Debugger;
 using TwitchNet.Extensions;
+using TwitchNet.Utilities;
 
 namespace
 TwitchNet.Events.Clients.Irc.Twitch
@@ -18,9 +19,13 @@ TwitchNet.Events.Clients.Irc.Twitch
         /// <summary>
         /// The unique UUID of the chat room.
         /// </summary>
-        [ValidateMember(Check.IsValid)]
+        [ValidateMember(Check.RegexIsMatch, RegexPatternUtil.UUID)]
         public string channel_uuid      { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="ChatRoomInvalidUserEventArgs"/> class.
+        /// </summary>
+        /// <param name="args">The event arguments to parse.</param>
         public ChatRoomInvalidUserEventArgs(NoticeEventArgs args) : base(args)
         {
             channel_user_id = channel.TextBetween(':', ':');

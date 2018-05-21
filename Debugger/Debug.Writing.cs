@@ -1,17 +1,12 @@
 ﻿// standard namespaces
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 
 // project namespaces
 using TwitchNet.Enums.Debugger;
 using TwitchNet.Extensions;
-using TwitchNet.Models.Clients.Irc;
 
 namespace
 TwitchNet.Debugger
@@ -183,8 +178,9 @@ TwitchNet.Debugger
         /// </summary>
         /// <param name="error_level">The severity of the warning.</param>
         /// <param name="value">The text to write.</param>
-        /// <param name="caller">The name of the caller.</param>
-        /// <param name="line">The line the warning originated on.</param>
+        /// <param name="caller">The caller of the method.</param>
+        /// <param name="source">The source file the caller is located in.</param>
+        /// <param name="line">The line of the caller.</param>
         [Conditional("DEBUG")]
         public static void
         WriteWarning(ErrorLevel error_level, string value, [CallerMemberName] string caller = "", [CallerFilePath] string source = "", [CallerLineNumber] int line = -1)
@@ -205,8 +201,9 @@ TwitchNet.Debugger
         /// </summary>
         /// <param name="error_level">The severity of the error.</param>
         /// <param name="value">The text to write.</param>
-        /// <param name="caller">The name of the caller.</param>
-        /// <param name="line">The line the warning originated on.</param>
+        /// <param name="caller">The caller of the method.</param>
+        /// <param name="source">The source file the caller is located in.</param>
+        /// <param name="line">The line of the caller.</param>
         [Conditional("DEBUG")]
         public static void
         WriteError(ErrorLevel error_level, string value, [CallerMemberName] string caller = "", [CallerFilePath] string source = "", [CallerLineNumber] int line = -1)
@@ -389,6 +386,5 @@ TwitchNet.Debugger
         }
 
         #endregion
-        
     }
 }

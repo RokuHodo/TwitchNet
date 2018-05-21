@@ -511,7 +511,7 @@ TwitchNet.Clients.Irc
         private void
         Callback_OnPrivmsg(object sender, PrivmsgEventArgs args)
         {
-            if (args.channel.TextBefore(':') == "#chatrooms")
+            if (IsChatRoom(args.channel))
             {
                 OnChatRoomPrivmsg.Raise(this, new ChatRoomPrivmsgEventArgs(args));
             }
@@ -533,7 +533,7 @@ TwitchNet.Clients.Irc
                 return;
             }
 
-            if (message.parameters[2].TextBefore(':') == "#chatrooms")
+            if (IsChatRoom(message, 2))
             {
                 ChatRoomNamReplyEventArgs args = new ChatRoomNamReplyEventArgs(message);
                 AddNames(args.channel, args.names);
@@ -566,7 +566,7 @@ TwitchNet.Clients.Irc
         protected override void
         HandleEndOfNames(IrcMessage message)
         {
-            if (message.parameters[1].TextBefore(':') == "#chatrooms")
+            if (IsChatRoom(message, 1))
             {
                 ChatRoonEndOfNamesEventArgs args = new ChatRoonEndOfNamesEventArgs(message, names);
                 RemoveNames(args.channel);
@@ -594,12 +594,7 @@ TwitchNet.Clients.Irc
         protected override void
         HandleJoin(IrcMessage message)
         {
-            if (!message.parameters[0].IsValid())
-            {
-                return;
-            }
-
-            if (message.parameters[0].TextBefore(':') == "#chatrooms")
+            if (IsChatRoom(message))
             {
                 OnChatRoomJoin.Raise(this, new ChatRoomJoinEventArgs(message));
             }
@@ -612,12 +607,7 @@ TwitchNet.Clients.Irc
         protected override void
         HandlePart(IrcMessage message)
         {
-            if (!message.parameters[0].IsValid())
-            {
-                return;
-            }
-
-            if (message.parameters[0].TextBefore(':') == "#chatrooms")
+            if (IsChatRoom(message))
             {
                 OnChatRoomPart.Raise(this, new ChatRoomPartEventArgs(message));
             }
@@ -682,12 +672,7 @@ TwitchNet.Clients.Irc
         private void
         HandleClearChat(IrcMessage message)
         {
-            if (!message.parameters[0].IsValid())
-            {
-                return;
-            }
-
-            if (message.parameters[0].TextBefore(':') == "#chatrooms")
+            if (IsChatRoom(message))
             {
                 OnChatRoomClearchat.Raise(this, new ChatRoomClearChatEventArgs(message));
             }
@@ -715,12 +700,7 @@ TwitchNet.Clients.Irc
         private void
         HandleRoomState(IrcMessage message)
         {
-            if (!message.parameters[0].IsValid())
-            {
-                return;
-            }
-
-            if (message.parameters[0].TextBefore(':') == "#chatrooms")
+            if (IsChatRoom(message))
             {
                 OnChatRoomRoomState.Raise(this, new ChatRoomRoomStateEventArgs(message));
             }
@@ -781,12 +761,7 @@ TwitchNet.Clients.Irc
         private void
         HandleUserState(IrcMessage message)
         {
-            if (!message.parameters[0].IsValid())
-            {
-                return;
-            }
-
-            if (message.parameters[0].TextBefore(':') == "#chatrooms")
+            if (IsChatRoom(message))
             {
                 OnChatRoomUserState.Raise(this, new ChatRoomUserStateEventArgs(message));
             }
@@ -823,12 +798,7 @@ TwitchNet.Clients.Irc
         private void
         HandleNotice(IrcMessage message)
         {
-            if (!message.parameters[0].IsValid())
-            {
-                return;
-            }
-
-            if (message.parameters[0].TextBefore(':') == "#chatrooms")
+            if (IsChatRoom(message))
             {
                 ChatRoomNoticeEventArgs args = new ChatRoomNoticeEventArgs(message);
                 OnChatRoomNotice.Raise(this, args);
@@ -968,6 +938,63 @@ TwitchNet.Clients.Irc
             }            
         }
 
-        #endregion        
+        #endregion
+
+        #region Helpers
+
+        /// <summary>
+        /// Checks if the message originated from a chat room.
+        /// </summary>
+        /// <param name="channel">The IRC channel to check.</param>
+        /// <returns>
+        /// Returns false if channel is null, empty, or whitepsace, or if the channel does not start with #chatrooms.
+        /// Returns true if the parameter element starts with #chatrooms.
+        /// </returns>
+        private bool
+        IsChatRoom(string channel)
+        {
+            bool result = channel.IsValid() && channel.TextBefore(':') == "#chatrooms";
+
+            return result;
+        }
+
+        /// <summary>
+        /// Checks if the message originated from a chat room.
+        /// </summary>
+        /// <param name="message">The message to check.</param>
+        /// <param name="index">The index of the message parameters to check.</param>
+        /// <returns>
+        /// Returns false if message is null or default, if the message parameters are null or empty, if the index is out of range, or if the parameter element does not start with #chatrooms.
+        /// Returns true if the parameter element starts with #chatrooms.
+        /// </returns>
+        private bool
+        IsChatRoom(IrcMessage message, int index = 0)
+        {
+            if (message.IsNullOrDefault())
+            {
+                return false;
+            }
+
+            if (index < 0)
+            {
+                return false;
+            }
+
+            if (!message.parameters.IsValid())
+            {
+                return false;
+            }
+
+            if (!index.IsInRange(0, message.parameters.Length - 1))
+            {
+                return false;
+            }
+
+            bool result = message.parameters[index].TextBefore(':') == "#chatrooms";
+
+            return result;
+        }        
+
+        #endregion
     }
 }

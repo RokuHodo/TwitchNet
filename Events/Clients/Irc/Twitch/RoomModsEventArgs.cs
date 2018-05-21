@@ -24,6 +24,10 @@ TwitchNet.Events.Clients.Irc.Twitch
         [ValidateMember(Check.IsValid)]
         public string[] user_nicks  { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="RoomModsEventArgs"/> class.
+        /// </summary>
+        /// <param name="args">The event arguments to parse.</param>
         public RoomModsEventArgs(NoticeEventArgs args) : base(args.irc_message)
         {
             channel = args.channel;

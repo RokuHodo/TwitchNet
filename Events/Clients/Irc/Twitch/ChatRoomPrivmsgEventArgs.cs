@@ -3,6 +3,7 @@ using TwitchNet.Debugger;
 using TwitchNet.Enums.Debugger;
 using TwitchNet.Extensions;
 using TwitchNet.Models.Clients.Irc.Twitch;
+using TwitchNet.Utilities;
 
 namespace
 TwitchNet.Events.Clients.Irc.Twitch
@@ -19,7 +20,7 @@ TwitchNet.Events.Clients.Irc.Twitch
         /// <summary>
         /// The unique UUID of the chat room.
         /// </summary>
-        [ValidateMember(Check.IsValid)]
+        [ValidateMember(Check.RegexIsMatch, RegexPatternUtil.UUID)]
         public      string              channel_uuid    { get; protected set; }
 
         /// <summary>
@@ -28,6 +29,10 @@ TwitchNet.Events.Clients.Irc.Twitch
         [ValidateMember(Check.Tags)]
         public new  ChatRoomPrivmsgTags tags            { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="ChatRoomPrivmsgEventArgs"/> class.
+        /// </summary>
+        /// <param name="args">The event arguments to parse.</param>
         public ChatRoomPrivmsgEventArgs(PrivmsgEventArgs args) : base(args)
         {
             channel_user_id = channel.TextBetween(':', ':');

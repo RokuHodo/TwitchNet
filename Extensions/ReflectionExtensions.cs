@@ -33,15 +33,15 @@ TwitchNet.Extensions
 
             return null;
         }
-        
+
         /// <summary>
-        /// Returns all the public properties of the current <see cref="Type"/> with a specified <see cref="Attribute"/>.
+        /// Returns all public properties of the current <see cref="Type"/> with a specified <see cref="Attribute"/>.
         /// </summary>
         /// <typeparam name="attribute_type">The type of the attribute to search for.</typeparam>
-        /// <param name="type">The current type.</param>
+        /// <param name="type">The object's type.</param>
         /// <returns>
-        /// Returns an array of all public properties of a <see cref="Type"/> with a specified <see cref="Attribute"/>.
-        /// Returns an empty property array otherwise.
+        /// Returns all public properties marked with the specified <see cref="Attribute"/>.
+        /// Returns an empty array otherwise.
         /// </returns>
         public static PropertyInfo[]
         GetProperties<attribute_type>(this Type type)
@@ -71,6 +71,15 @@ TwitchNet.Extensions
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Returns all public members of the current <see cref="Type"/> with a specified <see cref="Attribute"/>.
+        /// </summary>
+        /// <typeparam name="attribute_type">The type of the attribute to search for.</typeparam>
+        /// <param name="type">The object's type.</param>
+        /// <returns>
+        /// Returns all public members marked with the specified <see cref="Attribute"/>.
+        /// Returns an empty array otherwise.
+        /// </returns>
         public static MemberInfo[]
         GetMembers<attribute_type>(this Type type)
         where attribute_type : Attribute
@@ -100,40 +109,28 @@ TwitchNet.Extensions
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Filters and keeps members that are marked with at least one of the <see cref="Attribute"/> types to include.
+        /// </summary>
+        /// <param name="members">The members to filter.</param>
+        /// <param name="include">The <see cref="Attribute"/> types to keep.</param>
+        /// <returns>
+        /// Returns an array of all members that are marked with at least one of the <see cref="Attribute"/> types to include.
+        /// Returns the members if no <see cref="Attribute"/> types are specified.
+        /// Returns an empty array otherwise.
+        /// </returns>
         public static MemberInfo[]
-        GetMembers<attribute_type>(this Type type, params Type[] exclude)
-        where attribute_type : Attribute
+        FilterMembersByAttribute(this MemberInfo[] members, params Type[] include)
         {
-            MemberInfo[] members = type.GetMembers<attribute_type>();
-            if (!exclude.IsValid())
+            if (members.IsNull())
+            {
+                return new MemberInfo[0];
+            }
+
+            if (include.IsNull())
             {
                 return members;
-            }
-
-            List<MemberInfo> result = new List<MemberInfo>();
-            foreach (MemberInfo member in members)
-            {
-                foreach (Type element in exclude)
-                {
-                    if (typeof(Attribute).IsAssignableFrom(element) && member.HasAttribute(element))
-                    {
-                        continue;
-                    }
-
-                    result.Add(member);
-                }
-            }
-
-            return result.ToArray();
-        }
-
-        public static MemberInfo[]
-        FilterMembers(this MemberInfo[] members, params Type[] include)
-        {
-            if (!include.IsValid())
-            {
-                return members;
-            }
+            }            
 
             List<MemberInfo> result = new List<MemberInfo>();
             foreach (MemberInfo member in members)
@@ -146,30 +143,53 @@ TwitchNet.Extensions
                     }
 
                     result.Add(member);
+
+                    break;
                 }
             }
 
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Filters and removes members that are marked with at least one of the <see cref="Attribute"/> types to exclude.
+        /// </summary>
+        /// <param name="members">The members to filter.</param>
+        /// <param name="exclude">The <see cref="Attribute"/> types to filter out.</param>
+        /// <returns>
+        /// Returns an array of all members that are not marked with any of the <see cref="Attribute"/> types to exclude.
+        /// Returns the members if no <see cref="Attribute"/> types are specified.
+        /// Returns an empty array otherwise.
+        /// </returns>
         public static MemberInfo[]
-        ExcludeMembers(this MemberInfo[] members, params Type[] exclude)
+        ExcludeMembersByAttribute(this MemberInfo[] members, params Type[] exclude)
         {
             if (!exclude.IsValid())
             {
                 return members;
             }
 
+            if (members.IsNull())
+            {
+                return new MemberInfo[0];
+            }
+
             List<MemberInfo> result = new List<MemberInfo>();
             foreach (MemberInfo member in members)
             {
+                bool add = true;
                 foreach (Type element in exclude)
                 {
                     if (member.HasAttribute(element))
                     {
-                        continue;
-                    }
+                        add = false;
 
+                        break;
+                    }
+                }
+
+                if (add)
+                {
                     result.Add(member);
                 }
             }
@@ -177,9 +197,8 @@ TwitchNet.Extensions
             return result.ToArray();
         }
 
-
         /// <summary>
-        /// Checks to see if a <see cref="Type"/> has a custom attribute.
+        /// Checks to see if a <see cref="Type"/> is marked with a custom <see cref="Attribute"/>.
         /// </summary>
         /// <typeparam name="attribute_type">The <see cref="Attribute"/> type.</typeparam>
         /// <param name="type">The <see cref="Type"/> of the object</param>
@@ -213,6 +232,12 @@ TwitchNet.Extensions
             return result;
         }
 
+        /// <summary>
+        /// Checks to see if a <see cref="Type"/> is marked with a custom <see cref="Attribute"/>.
+        /// </summary>
+        /// <param name="member">The member to check.</param>
+        /// <param name="attribute">The <see cref="Attribute"/> type.</param>
+        /// <returns></returns>
         public static bool
         HasAttribute(this MemberInfo member, Type attribute)
         {
@@ -244,7 +269,7 @@ TwitchNet.Extensions
         }
 
         /// <summary>
-        /// Checks to see if a member has a custom attribute.
+        /// Checks to see if a <see cref="MemberInfo"/> is marked with a custom <see cref="Attribute"/>.
         /// </summary>
         /// <typeparam name="attribute_type">The <see cref="Attribute"/> type.</typeparam>
         /// <param name="member">The member to check.</param>

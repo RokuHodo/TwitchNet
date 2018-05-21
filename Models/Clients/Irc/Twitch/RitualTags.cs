@@ -16,6 +16,10 @@ TwitchNet.Models.Clients.Irc.Twitch
         [ValidateTag("msg-param-ritual-name")]
         public RitualType msg_param_ritual_name { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="RitualTags"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public RitualTags(IrcMessage message) : base(message)
         {
             if (!is_valid)

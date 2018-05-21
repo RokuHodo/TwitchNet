@@ -22,6 +22,10 @@ TwitchNet.Events.Clients.Irc.Twitch
         [ValidateMember(Check.IsValid)]
         public string user_nick { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="AlreadyBannedEventArgs"/> class.
+        /// </summary>
+        /// <param name="args">The event arguments to parse.</param>
         public AlreadyBannedEventArgs(NoticeEventArgs args) : base(args.irc_message)
         {
             channel     = args.channel;

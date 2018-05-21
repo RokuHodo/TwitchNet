@@ -11,8 +11,6 @@ TwitchNet.Events.Clients.Irc.Twitch
     public class
     NoticeEventArgs : IrcMessageEventArgs
     {
-
-
         /// <summary>
         /// <para>The channel notice was sent in.</para>
         /// </summary>
@@ -32,6 +30,10 @@ TwitchNet.Events.Clients.Irc.Twitch
         [ValidateMember(Check.Tags)]
         public NoticeTags   tags    { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="NoticeEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public NoticeEventArgs(IrcMessage message) : base(message)
         {
             if (message.parameters.IsValid())

@@ -52,6 +52,10 @@ TwitchNet.Models.Clients.Irc.Twitch
         [ValidateTag("color")]
         public Color    color           { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="ChatRoomUserStateTags"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public ChatRoomUserStateTags(IrcMessage message)
         {
             is_valid = message.tags.IsValid();
@@ -70,6 +74,10 @@ TwitchNet.Models.Clients.Irc.Twitch
             color           = TagsUtil.FromtHtml(message.tags, "color");
         }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="ChatRoomUserStateTags"/> class.
+        /// </summary>
+        /// <param name="tags">The tags to copy the values from.</param>
         public ChatRoomUserStateTags(UserStateTags tags)
         {
             is_valid = tags.is_valid;

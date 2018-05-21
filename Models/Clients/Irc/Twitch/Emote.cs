@@ -11,7 +11,7 @@ namespace
 TwitchNet.Models.Clients.Irc.Twitch
 {
     [ValidateObject]
-    public struct
+    public class
     Emote
     {
         /// <summary>
@@ -19,7 +19,7 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// <para>The id is empty if the tag is invalid.</para>
         /// </summary>
         [ValidateMember(Check.IsValid)]
-        public string id;
+        public string   id      { get; protected set; }
 
         /// <summary>
         /// <para>The character index range(s) where the emote was used.</para>
@@ -29,8 +29,12 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// </para>
         /// </summary>
         [ValidateMember(Check.IsValid)]
-        public Range[] ranges;
+        public Range[]  ranges  { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="Emote"/> class.
+        /// </summary>
+        /// <param name="pair">The emote tag pair to parse.</param>
         public Emote(string pair)
         {
             id = string.Empty;
@@ -55,7 +59,7 @@ TwitchNet.Models.Clients.Irc.Twitch
     }
 
     [ValidateObject]
-    public struct
+    public class
     Range
     {
         /// <summary>
@@ -66,7 +70,7 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// </para>
         /// </summary>
         [ValidateMember(Check.IsNotEqualTo, -1)]
-        public int index_start;
+        public int index_start  { get; protected set; }
 
         /// <summary>
         /// <para>The index in the message where the last emote character is located.</para>
@@ -76,19 +80,25 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// </para>
         /// </summary>
         [ValidateMember(Check.IsNotEqualTo, -1)]
-        public int index_end;
+        public int index_end    { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="Range"/> class.
+        /// </summary>
+        /// <param name="pair">The range tag value pair to parse.</param>
         public Range(string range_pair)
         {
-            if(!Int32.TryParse(range_pair.TextBefore('-'), out index_start))
+            if(!Int32.TryParse(range_pair.TextBefore('-'), out int _index_start))
             {
-                index_start = -1;
+                _index_start = -1;
             }
+            index_start = _index_start;
 
-            if(!Int32.TryParse(range_pair.TextAfter('-'), out index_end))
+            if (!Int32.TryParse(range_pair.TextAfter('-'), out int _index_end))
             {
-                index_end = -1;
+                _index_end = -1;
             }
+            index_end = _index_end;
         }
     }
 }

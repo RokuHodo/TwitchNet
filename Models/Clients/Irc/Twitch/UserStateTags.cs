@@ -23,6 +23,10 @@ TwitchNet.Models.Clients.Irc.Twitch
         [ValidateTag("badges")]
         public Badge[]  badges      { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="UserStateTags"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public UserStateTags(IrcMessage message) : base(message)
         {
             is_valid = message.tags.IsValid();
@@ -37,12 +41,3 @@ TwitchNet.Models.Clients.Irc.Twitch
         }
     }
 }
-
-/*
-color=#FF0000;
-display-name=RokuHodo_;
-emote-sets=0,33,140,168,1570,1630,2963,4391,16595,19194,32154,33563;
-mod=1;
-user-type=mod
-:tmi.twitch.tv USERSTATE #chatrooms:45947671:3361582d-4944-4110-9ea3-506ade6867ff
-*/

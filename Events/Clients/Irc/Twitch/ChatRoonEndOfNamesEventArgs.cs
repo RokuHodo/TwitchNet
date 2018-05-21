@@ -6,6 +6,7 @@ using TwitchNet.Debugger;
 using TwitchNet.Enums.Debugger;
 using TwitchNet.Extensions;
 using TwitchNet.Models.Clients.Irc;
+using TwitchNet.Utilities;
 
 namespace
 TwitchNet.Events.Clients.Irc.Twitch
@@ -22,9 +23,14 @@ TwitchNet.Events.Clients.Irc.Twitch
         /// <summary>
         /// The unique UUID of the chat room.
         /// </summary>
-        [ValidateMember(Check.IsValid)]
+        [ValidateMember(Check.RegexIsMatch, RegexPatternUtil.UUID)]
         public string channel_uuid { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="ChatRoonEndOfNamesEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The event arguments to parse.</param>
+        /// <param name="names">The complete list of client nicks that have joined the channel.</param>
         public ChatRoonEndOfNamesEventArgs(IrcMessage message, Dictionary<string, List<string>> names) : base(message, names)
         {
             channel_user_id = channel.TextBetween(':', ':');

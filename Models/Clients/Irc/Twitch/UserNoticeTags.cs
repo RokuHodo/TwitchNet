@@ -117,6 +117,10 @@ TwitchNet.Models.Clients.Irc.Twitch
         [ValidateTag("emotes")]
         public Emote[]          emotes          { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="UserNoticeTags"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public UserNoticeTags(IrcMessage message)
         {
             is_valid = message.tags.IsValid();

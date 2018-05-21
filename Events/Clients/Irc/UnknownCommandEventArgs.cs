@@ -22,6 +22,10 @@ TwitchNet.Events.Clients.Irc
         [ValidateMember(Check.IsValid)]
         public string description   { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="UnknownCommandEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public UnknownCommandEventArgs(IrcMessage message) : base(message)
         {
             description = message.trailing;

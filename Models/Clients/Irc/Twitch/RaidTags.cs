@@ -28,6 +28,10 @@ TwitchNet.Models.Clients.Irc.Twitch
         [ValidateTag("msg-param-login")]
         public string   msg_param_login         { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="RaidTags"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public RaidTags(IrcMessage message) : base(message)
         {
             if (!is_valid)

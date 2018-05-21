@@ -51,6 +51,10 @@ TwitchNet.Models.Clients.Irc.Twitch
         /// </summary>
         public RoomStateType        changed_states      { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="ChatRoomRoomStateTags"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public ChatRoomRoomStateTags(IrcMessage message)
         {
             is_valid = message.tags.IsValid();
@@ -80,6 +84,10 @@ TwitchNet.Models.Clients.Irc.Twitch
             room_id = TagsUtil.ToString(message.tags, "room-id");
         }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="ChatRoomRoomStateTags"/> class.
+        /// </summary>
+        /// <param name="tags">The tags to copy the values from.</param>
         public ChatRoomRoomStateTags(RoomStateTags tags)
         {
             is_valid = tags.is_valid;

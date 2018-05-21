@@ -17,6 +17,10 @@ TwitchNet.Events.Clients.Irc.Twitch
         [ValidateMember(Check.Tags)]
         public GlobalUserStateTags tags { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="GlobalUserStateEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public GlobalUserStateEventArgs(IrcMessage message) : base(message)
         {
             tags = new GlobalUserStateTags(message);

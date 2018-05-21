@@ -36,6 +36,10 @@ TwitchNet.Events.Clients.Irc.Twitch
         [ValidateMember(Check.Tags)]
         public WhisperTags  tags        { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="WhisperEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public WhisperEventArgs(IrcMessage message) : base(message)
         {
             sender = message.server_or_nick;

@@ -18,7 +18,7 @@ TwitchNet.Events.Clients.Irc.Twitch
         /// <para>The number of viewers watching hosting channel.</para>
         /// <para>Set to -1 if this value was not inlcuded in the message.</para>
         /// </summary>
-        [ValidateMember(Check.IsNotEqualTo, 1)]
+        [ValidateMember(Check.IsNotEqualTo, -1)]
         public int      viewer_count    { get; protected set; }
 
         /// <summary>
@@ -41,6 +41,10 @@ TwitchNet.Events.Clients.Irc.Twitch
         [ValidateMember(Check.IsNotEqualTo, HostTargetType.None)]
         public HostTargetType target_type { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="HostTargetEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public HostTargetEventArgs(IrcMessage message) : base(message)
         {
             target_type = HostTargetType.None;

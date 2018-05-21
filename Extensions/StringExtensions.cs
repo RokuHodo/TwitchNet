@@ -8,7 +8,7 @@ TwitchNet.Extensions
     internal static class
     StringExtensions
     {
-        #region String parsing
+        #region Parsing
 
         /// <summary>
         /// Gets the text after a sub <see cref="char"/> in a <see cref="string"/>.
@@ -357,6 +357,10 @@ TwitchNet.Extensions
             return "\"" + str + "\"";
 
         }
+
+        #endregion
+
+        #region Formatting
 
         /// <summary>
         /// Wraps a string in quote.

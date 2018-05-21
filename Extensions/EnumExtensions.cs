@@ -29,8 +29,8 @@ TwitchNet.Extensions
             }
 
             Type type = value.GetType();
-
             name = Enum.GetName(type, value);
+
             if(type.GetField(name).TryGetAttribute(out EnumMemberAttribute attribute))
             {
                 name = attribute.Value;

@@ -17,6 +17,10 @@ TwitchNet.Events.Clients.Irc.Twitch
         [ValidateMember(Check.Tags)]
         public new GiftedSubscriberTags tags { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="GiftedSubscriberEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public GiftedSubscriberEventArgs(IrcMessage message) : base(message)
         {
             tags = new GiftedSubscriberTags(message);

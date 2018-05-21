@@ -2,9 +2,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 // project namespaces
 using TwitchNet.Enums.Debugger;
@@ -19,6 +21,12 @@ TwitchNet.Debugger
     {
         #region Member validation
 
+        /// <summary>
+        /// Recursively validates the members of an object marked with <see cref="ValidateMemberAttribute"/>.
+        /// Any member whose type is marked with <see cref="ValidateObjectAttribute"/> will also be recursively validated.
+        /// </summary>
+        /// <param name="obj">The object to validate.</param>
+        [Conditional("DEBUG")]
         public static void
         ValidateMembers(object obj)
         {
@@ -30,8 +38,8 @@ TwitchNet.Debugger
                 return;
             }
 
-            MemberInfo[] members_enter      = obj.GetType().GetMembers().ExcludeMembers(typeof(ValidateTagAttribute));
-            MemberInfo[] members_validate   = members_enter.FilterMembers(typeof(ValidateMemberAttribute));
+            MemberInfo[] members_enter      = obj.GetType().GetMembers().ExcludeMembersByAttribute(typeof(ValidateTagAttribute));
+            MemberInfo[] members_validate   = members_enter.FilterMembersByAttribute(typeof(ValidateMemberAttribute));
 
             if (!members_validate.IsValid())
             {
@@ -45,11 +53,18 @@ TwitchNet.Debugger
                 }
             }
 
-            ValidateNestedMembers(obj, members_enter);
+            ValidateMembers(obj, members_enter);
         }
 
-        private static void
-        ValidateNestedMembers(object obj, MemberInfo[] members)
+        /// <summary>
+        /// Scans the specified members of an object that may <see cref="ValidateObjectAttribute"/>.
+        /// Any member marked with <see cref="ValidateObjectAttribute"/> will then be validated using <see cref="ValidateMembers(object)"/>.
+        /// </summary>
+        /// <param name="obj">The object that constains the specified members.</param>
+        /// <param name="members">The members to scan.</param>
+        [Conditional("DEBUG")]
+        public static void
+        ValidateMembers(object obj, MemberInfo[] members)
         {
             if (!members.IsValid())
             {
@@ -80,8 +95,14 @@ TwitchNet.Debugger
             }
         }
 
-        private static void
-        ValidateMember(object parent, MemberInfo member)
+        /// <summary>
+        /// Validates a member marked with <see cref="ValidateMemberAttribute"/>.
+        /// </summary>
+        /// <param name="obj">The object that constains the specified member.</param>
+        /// <param name="member">The member to validate./</param>
+        [Conditional("DEBUG")]
+        public static void
+        ValidateMember(object obj, MemberInfo member)
         {
             if (!member.TryGetAttributes(out ValidateMemberAttribute[] attributes))
             {
@@ -90,19 +111,26 @@ TwitchNet.Debugger
 
             foreach(ValidateMemberAttribute attribute in attributes)
             {
-                ValidateMember(parent, member, attribute);
+                ValidateMember(obj, member, attribute);
             }
         }
 
-        private static void
-        ValidateMember(object parent, MemberInfo member, ValidateMemberAttribute attribute)
+        /// <summary>
+        /// Validates a member marked with <see cref="ValidateMemberAttribute"/> using the specified <see cref="ValidateMemberAttribute"/>.
+        /// </summary>
+        /// <param name="obj">The object that constains the specified member.</param>
+        /// <param name="member">The member to validate.</param>
+        /// <param name="attribute">The attribute containing the validation information.</param>
+        [Conditional("DEBUG")]
+        public static void
+        ValidateMember(object obj, MemberInfo member, ValidateMemberAttribute attribute)
         {
             if (attribute.IsNull())
             {
                 return;
             }
 
-            if(!TryCastMember(parent, member, out string name, out Type type, out object value))
+            if(!TryCastMember(obj, member, out string name, out Type type, out object value))
             {
                 return;
             }            
@@ -147,7 +175,13 @@ TwitchNet.Debugger
 
                 case Check.IsValid:
                 {
-                    ValidationHandler_IsValid(parent, name, type, value, attribute);
+                    ValidationHandler_IsValid(obj, name, type, value, attribute);
+                }
+                break;
+
+                case Check.IsInvalid:
+                {
+                    ValidationHandler_IsInvalid(obj, name, type, value, attribute);
                 }
                 break;
 
@@ -163,9 +197,21 @@ TwitchNet.Debugger
                 }
                 break;
 
+                case Check.RegexIsMatch:
+                {
+                    ValidationHandler_RegexIsMatch(name, value, attribute);
+                }
+                break;
+
+                case Check.RegexNoMatch:
+                {
+                    ValidationHandler_RegexNoMatch(name, value, attribute);
+                }
+                break;
+
                 case Check.Tags:
                 {
-                    ValidationHandler_Tags(parent, name, type, value, attribute);
+                    ValidationHandler_Tags(obj, name, type, value, attribute);
                 }
                 break;
 
@@ -182,6 +228,12 @@ TwitchNet.Debugger
 
         #region Member validation handlers
 
+        /// <summary>
+        /// The validation handler for the check, <see cref="Check.IsNull"/>.
+        /// </summary>
+        /// <param name="name">The member's name.</param>
+        /// <param name="value">The value of the member.</param>
+        /// <param name="attribute">The assiciated validation attribute.</param>
         private static void
         ValidationHandler_IsNull(string name, object value, ValidateMemberAttribute attribute)
         {
@@ -193,6 +245,12 @@ TwitchNet.Debugger
             WriteError(attribute.level, name.WrapQuotes() + " must be null.", attribute.caller, attribute.source, attribute.line);
         }
 
+        /// <summary>
+        /// The validation handler for the check, <see cref="Check.IsNotNull"/>.
+        /// </summary>
+        /// <param name="name">The member's name.</param>
+        /// <param name="value">The value of the member.</param>
+        /// <param name="attribute">The assiciated validation attribute.</param>
         private static void
         ValidationHandler_IsNotNull(string name, object value, ValidateMemberAttribute attribute)
         {
@@ -204,6 +262,13 @@ TwitchNet.Debugger
             WriteError(attribute.level, name.WrapQuotes() + " cannot be null.", attribute.caller, attribute.source, attribute.line);
         }
 
+        /// <summary>
+        /// The validation handler for the check, <see cref="Check.IsDefault"/>.
+        /// </summary>
+        /// <param name="name">The member's name.</param>
+        /// <param name="type">The member's non-reflected type.</param>
+        /// <param name="value">The value of the member.</param>
+        /// <param name="attribute">The assiciated validation attribute.</param>
         private static void
         ValidationHandler_IsDefault(string name, Type type, object value, ValidateMemberAttribute attribute)
         {
@@ -215,6 +280,13 @@ TwitchNet.Debugger
             WriteError(attribute.level, name.WrapQuotes() + " must be equal to the default value for " + type.Name + ", " + type.GetDefaultValue().ToString().WrapQuotes() + ".", attribute.caller, attribute.source, attribute.line);
         }
 
+        /// <summary>
+        /// The validation handler for the check, <see cref="Check.IsNotDefault"/>.
+        /// </summary>
+        /// <param name="name">The member's name.</param>
+        /// <param name="type">The member's non-reflected type.</param>
+        /// <param name="value">The value of the member.</param>
+        /// <param name="attribute">The assiciated validation attribute.</param>
         private static void
         ValidationHandler_IsNotDefault(string name, Type type, object value, ValidateMemberAttribute attribute)
         {
@@ -226,6 +298,13 @@ TwitchNet.Debugger
             WriteError(attribute.level, name.WrapQuotes() + " cannot be equal to the default value for " + type.Name + ", " + type.GetDefaultValue().ToString().WrapQuotes() + ".", attribute.caller, attribute.source, attribute.line);
         }
 
+        /// <summary>
+        /// The validation handler for the check, <see cref="Check.IsNullOrDefault"/>.
+        /// </summary>
+        /// <param name="name">The member's name.</param>
+        /// <param name="type">The member's non-reflected type.</param>
+        /// <param name="value">The value of the member.</param>
+        /// <param name="attribute">The assiciated validation attribute.</param>
         private static void
         ValidationHandler_IsNullOrDefault(string name, Type type, object value, ValidateMemberAttribute attribute)
         {
@@ -237,6 +316,13 @@ TwitchNet.Debugger
             WriteError(attribute.level, name.WrapQuotes() + " must be null or equal to the default value for " + type.Name + ", " + type.GetDefaultValue().ToString().WrapQuotes() + ".", attribute.caller, attribute.source, attribute.line);
         }
 
+        /// <summary>
+        /// The validation handler for the check, <see cref="Check.IsNotNullOrDefault"/>.
+        /// </summary>
+        /// <param name="name">The member's name.</param>
+        /// <param name="type">The member's non-reflected type.</param>
+        /// <param name="value">The value of the member.</param>
+        /// <param name="attribute">The assiciated validation attribute.</param>
         private static void
         ValidationHandler_IsNotNullOrDefault(string name, Type type, object value, ValidateMemberAttribute attribute)
         {
@@ -248,34 +334,14 @@ TwitchNet.Debugger
             WriteError(attribute.level, name.WrapQuotes() + " cannot be null or equal to the default value for " + type.Name + ", " + type.GetDefaultValue().ToString().WrapQuotes() + ".", attribute.caller, attribute.source, attribute.line);
         }
 
-        private static void
-        ValidationHandler_IsEqualTo(string name, object value, ValidateMemberAttribute attribute)
-        {
-            if (value.Equals(attribute.compare_to))
-            {
-                return;
-            }
-
-            string compare_from = value.IsNull() ? "null" : value.ToString();
-            string compare_to = attribute.compare_to.IsNull() ? "null" : attribute.compare_to.ToString();
-
-            string message = name.WrapQuotes() + " is not equal to " + compare_to.WrapQuotes() + "." + Environment.NewLine +
-                             "> Value: " + compare_from;
-            WriteError(attribute.level, message, attribute.caller, attribute.source, attribute.line);
-        }
-
-        private static void
-        ValidationHandler_IsNotEqualTo(string name, object value, ValidateMemberAttribute attribute)
-        {
-            if (!value.Equals(attribute.compare_to))
-            {
-                return;
-            }
-
-            string compare_from = value.IsNull() ? "null" : value.ToString();
-            WriteError(attribute.level, name.WrapQuotes() + " cannot be equal to " + attribute.compare_to.ToString().WrapQuotes() + ".", attribute.caller, attribute.source, attribute.line);
-        }
-
+        /// <summary>
+        /// The validation handler for the check, <see cref="Check.IsValid"/>.
+        /// </summary>
+        /// <param name="obj">The object that contains the member.</param>
+        /// <param name="name">The member's name.</param>
+        /// <param name="type">The member's non-reflected type.</param>
+        /// <param name="value">The value of the member.</param>
+        /// <param name="attribute">The assiciated validation attribute.</param>
         private static void
         ValidationHandler_IsValid(object obj, string name, Type type, object value, ValidateMemberAttribute attribute)
         {
@@ -309,24 +375,179 @@ TwitchNet.Debugger
             }
         }
 
+        /// <summary>
+        /// The validation handler for the check, <see cref="Check.IsInvalid"/>.
+        /// </summary>
+        /// <param name="obj">The object that contains the member.</param>
+        /// <param name="name">The member's name.</param>
+        /// <param name="type">The member's non-reflected type.</param>
+        /// <param name="value">The value of the member.</param>
+        /// <param name="attribute">The assiciated validation attribute.</param>
         private static void
-        ValidationHandler_Tags(object parent, string name, Type type, object value, ValidateMemberAttribute attribute)
+        ValidationHandler_IsInvalid(object obj, string name, Type type, object value, ValidateMemberAttribute attribute)
+        {
+            if (type == typeof(string))
+            {
+                string temp = value.ToString();
+                if (temp.IsValid())
+                {
+                    WriteError(attribute.level, name.WrapQuotes() + " must be null, empty, or only contains whitespace.", attribute.caller, attribute.source, attribute.line);
+                }
+            }
+            else
+            {
+                Type[] interfaces = type.GetInterfaces();
+                if (interfaces.Contains(typeof(IList)))
+                {
+                    IList temp = value as IList;
+                    if (!temp.IsNull() || temp.Count > 0)
+                    {
+                        WriteError(attribute.level, name.WrapQuotes() + " must be null or an empty array.", attribute.caller, attribute.source, attribute.line);
+                    }
+                }
+                else if (interfaces.Contains(typeof(IDictionary)))
+                {
+                    IDictionary temp = value as IDictionary;
+                    if (!temp.IsNull() || temp.Keys.Count > 0)
+                    {
+                        WriteError(attribute.level, name.WrapQuotes() + " must be null or an empty dictionary.", attribute.caller, attribute.source, attribute.line);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// The validation handler for the check, <see cref="Check.IsEqualTo"/>.
+        /// </summary>
+        /// <param name="name">The member's name.</param>
+        /// <param name="value">The value of the member.</param>
+        /// <param name="attribute">The assiciated validation attribute.</param>
+        private static void
+        ValidationHandler_IsEqualTo(string name, object value, ValidateMemberAttribute attribute)
+        {
+            if (value.Equals(attribute.compare_to))
+            {
+                return;
+            }
+
+            string compare_from = value.IsNull() ? "null" : value.ToString();
+            string compare_to = attribute.compare_to.IsNull() ? "null" : attribute.compare_to.ToString();
+
+            string message = name.WrapQuotes() + " is not equal to " + compare_to.WrapQuotes() + "." + Environment.NewLine +
+                             "> Value: " + compare_from;
+            WriteError(attribute.level, message, attribute.caller, attribute.source, attribute.line);
+        }
+
+        /// <summary>
+        /// The validation handler for the check, <see cref="Check.IsNotEqualTo"/>.
+        /// </summary>
+        /// <param name="name">The member's name.</param>
+        /// <param name="value">The value of the member.</param>
+        /// <param name="attribute">The assiciated validation attribute.</param>
+        private static void
+        ValidationHandler_IsNotEqualTo(string name, object value, ValidateMemberAttribute attribute)
+        {
+            if (!value.Equals(attribute.compare_to))
+            {
+                return;
+            }
+
+            string compare_from = value.IsNull() ? "null" : value.ToString();
+            WriteError(attribute.level, name.WrapQuotes() + " cannot be equal to " + attribute.compare_to.ToString().WrapQuotes() + ".", attribute.caller, attribute.source, attribute.line);
+        }
+
+        /// <summary>
+        /// The validation handler for the check, <see cref="Check.RegexIsMatch"/>.
+        /// </summary>
+        /// <param name="name">The member's name.</param>
+        /// <param name="value">The value of the member.</param>
+        /// <param name="attribute">The assiciated validation attribute.</param>
+        private static void
+        ValidationHandler_RegexIsMatch(string name, object value, ValidateMemberAttribute attribute)
+        {
+            string pattern = attribute.compare_to.ToString();
+            if (pattern.IsNull())
+            {
+                WriteError(ErrorLevel.Major, "Failed to validate " + name.WrapQuotes() + " via regex. The regex pattern is null.", attribute.caller, attribute.source, attribute.line);
+
+                return;
+            }
+
+            if (value.IsNull())
+            {
+                WriteError(ErrorLevel.Major, "Failed to validate " + name.WrapQuotes() + " via regex. The regex input is null.", attribute.caller, attribute.source, attribute.line);
+
+                return;
+            }
+
+            Regex regex = new Regex(attribute.compare_to.ToString());
+            if (regex.IsMatch(value.ToString()))
+            {
+                return;
+            }
+
+            WriteError(attribute.level, name.WrapQuotes() + " did not match the regex " + pattern.WrapQuotes(), attribute.caller, attribute.source, attribute.line);
+        }
+
+        /// <summary>
+        /// The validation handler for the check, <see cref="Check.RegexNoMatch"/>.
+        /// </summary>
+        /// <param name="name">The member's name.</param>
+        /// <param name="value">The value of the member.</param>
+        /// <param name="attribute">The assiciated validation attribute.</param>
+        private static void
+        ValidationHandler_RegexNoMatch(string name, object value, ValidateMemberAttribute attribute)
+        {
+            string pattern = attribute.compare_to.ToString();
+            if (pattern.IsNull())
+            {
+                WriteError(ErrorLevel.Major, "Failed to validate " + name.WrapQuotes() + " via regex. The regex pattern is null.", attribute.caller, attribute.source, attribute.line);
+
+                return;
+            }
+
+            if (value.IsNull())
+            {
+                WriteError(ErrorLevel.Major, "Failed to validate " + name.WrapQuotes() + " via regex. The regex input is null.", attribute.caller, attribute.source, attribute.line);
+
+                return;
+            }
+
+            Regex regex = new Regex(attribute.compare_to.ToString());
+            if (!regex.IsMatch(value.ToString()))
+            {
+                return;
+            }
+
+            WriteError(attribute.level, name.WrapQuotes() + " cannot match the regex " + pattern.WrapQuotes(), attribute.caller, attribute.source, attribute.line);
+        }
+
+        /// <summary>
+        /// The validation handler for the check, <see cref="Check.Tags"/>.
+        /// </summary>
+        /// <param name="obj">The object that contains the member.</param>
+        /// <param name="name">The member's name.</param>
+        /// <param name="type">The member's non-reflected type.</param>
+        /// <param name="value">The value of the member.</param>
+        /// <param name="attribute">The assiciated validation attribute.</param>
+        private static void
+        ValidationHandler_Tags(object obj, string name, Type type, object value, ValidateMemberAttribute attribute)
         {
             IrcMessage irc_message = null;
 
             string target = "irc_message";
-            MemberInfo[] members = parent.GetType().GetMember(target);
+            MemberInfo[] members = obj.GetType().GetMember(target);
             foreach(MemberInfo member in members)
             {
                 PropertyInfo property = member as PropertyInfo;
                 FieldInfo field = member as FieldInfo;
                 if (!property.IsNull() && property.PropertyType == typeof(IrcMessage))
                 {
-                    irc_message = (IrcMessage)(property.GetValue(parent));
+                    irc_message = (IrcMessage)(property.GetValue(obj));
                 }
                 else if (!field.IsNull() && field.FieldType == typeof(IrcMessage))
                 {
-                    irc_message = (IrcMessage)(field.GetValue(parent));
+                    irc_message = (IrcMessage)(field.GetValue(obj));
                 }
 
                 if (!irc_message.IsNull())
@@ -349,8 +570,19 @@ TwitchNet.Debugger
 
         #region Tag validation
 
-        internal static void
-        ValidateTags(object obj, IrcMessage irc_message, bool validate_members = false, [CallerMemberName] string caller = "", [CallerFilePath] string source = "", [CallerLineNumber] int line = -1)
+        /// <summary>
+        /// Validates the members of an object marked with <see cref="ValidateTagAttribute"/>.
+        /// Members marked with <see cref="ValidateTagAttribute"/> are then validated normally if the associated tag exists within the <see cref="IrcMessage"/>.
+        /// </summary>
+        /// <param name="obj">The object to validate.</param>
+        /// <param name="message">The IRC message containing the existing tags.</param>
+        /// <param name="validate_normal_members">Whether or not to also validate members marked with <see cref="ValidateMemberAttribute"/>.</param>
+        /// <param name="caller">The caller of the method.</param>
+        /// <param name="source">The source file of the caller.</param>
+        /// <param name="line">The line of the caller.</param>
+        [Conditional("DEBUG")]
+        public static void
+        ValidateTags(object obj, IrcMessage message, bool validate_normal_members = false, [CallerMemberName] string caller = "", [CallerFilePath] string source = "", [CallerLineNumber] int line = -1)
         {
             string obj_name = obj.GetType().Name.WrapQuotes();
             if (obj.IsNull())
@@ -360,21 +592,21 @@ TwitchNet.Debugger
                 return;
             }
 
-            if (validate_members)
+            if (validate_normal_members)
             {
                 ValidateMembers(obj);
             }
 
-            if (irc_message.IsNull())
+            if (message.IsNull())
             {
-                WriteError(ErrorLevel.Major, "Failed to validate the IRC tags for " + obj_name + ". " + nameof(irc_message).WrapQuotes() + " is null.");
+                WriteError(ErrorLevel.Major, "Failed to validate the IRC tags for " + obj_name + ". " + nameof(message).WrapQuotes() + " is null.");
 
                 return;
             }            
 
-            if (!irc_message.tags.IsValid())
+            if (!message.tags.IsValid())
             {
-                WriteWarning(ErrorLevel.Minor, "Failed to validate the IRC tags for " + obj_name + ". " + nameof(irc_message).WrapQuotes() + " does not contain tags.");
+                WriteWarning(ErrorLevel.Minor, "Failed to validate the IRC tags for " + obj_name + ". " + nameof(message).WrapQuotes() + " does not contain tags.");
 
                 return;
             }
@@ -397,21 +629,22 @@ TwitchNet.Debugger
             }
 
             // Check for any missing tags
-            if (TryGetMissingTags(irc_message, processed_tags_names, out string[] missing_tag_names))
+            if (TryGetMissingTags(message, processed_tags_names, out string[] missing_tag_names))
             {
-                string message = "Tags are missing and not being parsed in " + obj_name + Environment.NewLine +
-                                 "> Missing tags: " + string.Join(",", missing_tag_names);
-                WriteError(ErrorLevel.Major, message, caller, source, line);
+                string error = "Tags are missing and not being parsed in " + obj_name + Environment.NewLine +
+                               "> Missing tags: " + string.Join(",", missing_tag_names);
+                WriteError(ErrorLevel.Major, error, caller, source, line);
             }
 
             // Check for any extra tags
-            if (TryGetExtraTags(irc_message, processed_tags_names, out string[] extra_tag_names))
+            if (TryGetExtraTags(message, processed_tags_names, out string[] extra_tag_names))
             {
-                string message = "Tags are being parsed that don't exist in " + obj_name + Environment.NewLine +
+                string warning = "Tags are being parsed that don't exist in " + obj_name + Environment.NewLine +
                                  "> Extra tags: " + string.Join(",", extra_tag_names);
-                WriteWarning(ErrorLevel.Minor, message, caller, source, line);
+                WriteWarning(ErrorLevel.Minor, warning, caller, source, line);
             }
 
+            // Perform validation checks on tags that exist and were processed
             List<MemberInfo> members_enter = new List<MemberInfo>();
             for(int index = 0; index < members.Length; index++)
             {
@@ -425,10 +658,22 @@ TwitchNet.Debugger
                 ValidateMember(obj, members[index], attributes[index]);
             }
 
-            ValidateNestedMembers(obj, members_enter.ToArray());
+            ValidateMembers(obj, members_enter.ToArray());
         }
 
-
+        /// <summary>
+        /// Attempts to get tags that are included in the <see cref="IrcMessage"/> but were not processed by members marked with <see cref="ValidateTagAttribute"/>.
+        /// </summary>
+        /// <param name="message">The IRC message containing the existing tags.</param>
+        /// <param name="processed_tags_names">The list of tags that were attempted to be processed.</param>
+        /// <param name="missing_tag_names">
+        /// <para>The tags that were included in the <see cref="IrcMessage"/> but were not processed.</para>
+        /// <para>Set to an empty array if the <see cref="IrcMessage"/> contains no tags or no tags were processed.</para>
+        /// </param>
+        /// <returns>
+        /// Returns true if at least one tag was not processed in the <see cref="IrcMessage"/>.
+        /// Returns false otherwise.
+        /// </returns>
         private static bool
         TryGetMissingTags(IrcMessage message, List<string> processed_tags_names, out string[] missing_tag_names)
         {
@@ -462,6 +707,19 @@ TwitchNet.Debugger
             return missing_tag_names.IsValid();
         }
 
+        /// <summary>
+        /// Attempts to get tags that were processed by members marked with <see cref="ValidateTagAttribute"/> but are not included in the <see cref="IrcMessage"/>.
+        /// </summary>
+        /// <param name="message">The IRC message containing the existing tags.</param>
+        /// <param name="processed_tags_names">The list of tags that were attempted to be processed.</param>
+        /// <param name="extra_tag_names">
+        /// <para>The tags that were processed but not included in the <see cref="IrcMessage"/>.</para>
+        /// <para>Set to an empty array if no tags were processed or no extra tags were processed.</para>
+        /// </param>
+        /// <returns>
+        /// Returns true if at least one tag was processed that does not exist in the <see cref="IrcMessage"/>.
+        /// Returns false otherwise.
+        /// </returns>
         private static bool
         TryGetExtraTags(IrcMessage message, List<string> processed_tags_names, out string[] extra_tag_names)
         {
@@ -495,10 +753,24 @@ TwitchNet.Debugger
             return extra_tag_names.IsValid();
         }
 
+        #endregion
+
         #region Helpers
 
+        /// <summary>
+        /// Attempts to cast a member to a property or field.
+        /// </summary>
+        /// <param name="obj">The object that constains the member.</param>
+        /// <param name="member">The member to cast.</param>
+        /// <param name="name">The member's name.</param>
+        /// <param name="type">The member's non-reflected type.</param>
+        /// <param name="value">The member's value.</param>
+        /// <returns>
+        /// Returns true if the memebr was able to be cast to a property or member.
+        /// Returns false otherwise.
+        /// </returns>
         private static bool
-        TryCastMember(object parent, MemberInfo member, out string name, out Type type, out object value)
+        TryCastMember(object obj, MemberInfo member, out string name, out Type type, out object value)
         {
             name = string.Empty;
             type = null;
@@ -516,22 +788,20 @@ TwitchNet.Debugger
             if (!property.IsNull())
             {
                 type = property.PropertyType;
-                value = property.GetValue(parent);
+                value = property.GetValue(obj);
 
                 return true;
             }
             else if (!field.IsNull())
             {
                 type = field.FieldType;
-                value = field.GetValue(parent);
+                value = field.GetValue(obj);
 
                 return true;
             }
 
             return false;
         }
-
-        #endregion
 
         #endregion
     }

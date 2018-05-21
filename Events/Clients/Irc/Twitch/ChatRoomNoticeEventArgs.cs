@@ -3,6 +3,7 @@ using TwitchNet.Debugger;
 using TwitchNet.Enums.Debugger;
 using TwitchNet.Extensions;
 using TwitchNet.Models.Clients.Irc;
+using TwitchNet.Utilities;
 
 namespace
 TwitchNet.Events.Clients.Irc.Twitch
@@ -14,14 +15,18 @@ TwitchNet.Events.Clients.Irc.Twitch
         /// The id of the user who the chat room belongs to.
         /// </summary>
         [ValidateMember(Check.IsValid)]
-        public string channel_user_id { get; protected set; }
+        public string channel_user_id   { get; protected set; }
 
         /// <summary>
         /// The unique UUID of the chat room.
         /// </summary>
-        [ValidateMember(Check.IsValid)]
-        public string channel_uuid { get; protected set; }
+        [ValidateMember(Check.RegexIsMatch, RegexPatternUtil.UUID)]
+        public string channel_uuid      { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="ChatRoomNoticeEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public ChatRoomNoticeEventArgs(IrcMessage message) : base(message)
         {
             channel_user_id = channel.TextBetween(':', ':');

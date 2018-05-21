@@ -19,11 +19,15 @@
 
         IsValid,
 
-        IsNotValid,
+        IsInvalid,
 
         IsEqualTo,
 
         IsNotEqualTo,
+
+        RegexIsMatch,
+
+        RegexNoMatch,
 
         Tags
     }

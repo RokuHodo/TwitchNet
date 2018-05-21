@@ -16,15 +16,19 @@ TwitchNet.Events.Clients.Irc.Twitch
         /// Always valid.
         /// </summary>
         [ValidateMember(Check.IsValid)]
-        public string           channel             { get; protected set; }
+        public string           channel { get; protected set; }
 
         /// <summary>
         /// <para>The tags attached to the message, if any.</para>
         /// <para>Check the <code>is_valid</code> property to determine if tags were attached to the message.</para>
         /// </summary>
         [ValidateMember(Check.Tags)]
-        public RoomStateTags    tags { get; protected set; }
+        public RoomStateTags    tags    { get; protected set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="RoomStateEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
         public RoomStateEventArgs(IrcMessage message) : base(message)
         {
             if (message.parameters.IsValid())

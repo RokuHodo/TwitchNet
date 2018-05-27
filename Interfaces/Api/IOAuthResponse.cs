@@ -9,7 +9,7 @@ namespace
 TwitchNet.Interfaces.Api
 {
     public interface
-    IApiResponse
+    IOAuthResponse
     {
         /// <summary>
         /// The description of the status code.
@@ -27,21 +27,16 @@ TwitchNet.Interfaces.Api
         Dictionary<string, string>  headers             { get; }
 
         /// <summary>
-        /// The request limit, remaining requests, and when the rate limit resets.
-        /// </summary>
-        RateLimit                   rate_limit           { get; }
-
-        /// <summary>
         /// The details of the error if one occured.
         /// </summary>
-        ApiException                exception           { get; }
+        RestException               exception           { get; }
     }
 
     public interface
-    IApiResponse<result_type> : IApiResponse
+    IOAuthResponse<result_type> : IOAuthResponse
     {
         /// <summary>
-        /// Contains the deserialized result from the Twitch API.
+        /// The deserialized content.
         /// </summary>
         result_type                 result              { get; }
     }

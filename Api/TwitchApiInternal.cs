@@ -32,7 +32,6 @@ TwitchNet.Api
         #endregion
 
         // TODO: /analytics/games
-
         // TODO: /bits/leaderboard
 
         #region /clips
@@ -41,17 +40,16 @@ TwitchNet.Api
         /// <para>Asynchronously creates a clip.</para>
         /// <para>Required Scope: 'clips:edit'.</para>
         /// </summary>
-        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<Data<CreatedClip>>>
-        CreateClipAsync(string bearer_token, string client_id, ClipCreationQueryParameters parameters, ApiRequestSettings settings = null)
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<Data<CreatedClip>>>
+        CreateClipAsync(HelixInfo helix_info, ClipCreationQueryParameters parameters, RestSettings settings = null)
         {
             if (settings.IsNull())
             {
-                settings = ApiRequestSettings.Default;
+                settings = RestSettings.Default;
             }            
 
             if (settings.input_hanlding == InputHandling.Error)
@@ -60,29 +58,29 @@ TwitchNet.Api
                 ExceptionUtil.ThrowIfInvalid(parameters.broadcaster_id, nameof(parameters.broadcaster_id));
             }
 
-            RequestInfo request_info    = new RequestInfo("clips", Method.POST);
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestRequest request = RestUtil.CretaeHelixRequest("clips", Method.POST, helix_info, settings);
+            request = request.AddPaging(parameters);
 
-            IApiResponse<Data<CreatedClip>> clip_creation = await RestRequestUtil.ExecuteAsync<Data<CreatedClip>>(client_info, request_info, parameters, settings);
+            Tuple<IRestResponse<Data<CreatedClip>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<CreatedClip>>(client_info, request, settings);
 
-            return clip_creation;
+            IHelixResponse<Data<CreatedClip>> respose = new HelixResponse<Data<CreatedClip>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return respose;
         }
 
         /// <summary>
         /// Asynchronously gets information about a clip.
         /// </summary>
-        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<Data<Clip>>>
-        GetClipAsync(string bearer_token, string client_id, ClipQueryParameters parameters, ApiRequestSettings settings)
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<Data<Clip>>>
+        GetClipAsync(HelixInfo helix_info, ClipQueryParameters parameters, RestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = ApiRequestSettings.Default;
+                settings = RestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error)
@@ -91,13 +89,14 @@ TwitchNet.Api
                 ExceptionUtil.ThrowIfInvalid(parameters.id, nameof(parameters.id));
             }
 
-            RequestInfo request_info    = new RequestInfo("clips", Method.GET);
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestRequest request = RestUtil.CretaeHelixRequest("clips", Method.GET, helix_info, settings);
+            request = request.AddPaging(parameters);
 
-            IApiResponse<Data<Clip>> clip = await RestRequestUtil.ExecuteAsync<Data<Clip>>(client_info, request_info, parameters, settings);
+            Tuple<IRestResponse<Data<Clip>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<Clip>>(client_info, request, settings);
 
-            return clip;
+            IHelixResponse<Data<Clip>> response = new HelixResponse<Data<Clip>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return response;
         }
 
         #endregion
@@ -107,17 +106,16 @@ TwitchNet.Api
         /// <summary>
         /// Asynchronously creates a URL where you can upload a manifest file and notify users that they have an entitlement.
         /// </summary>
-        /// <param name="app_access_token">The application access token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<Data<Url>>>
-        CreateEntitlementGrantsUploadUrlAsync(string app_access_token, string client_id, EntitlementQueryParameters parameters, ApiRequestSettings settings)
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<Data<Url>>>
+        CreateEntitlementGrantsUploadUrlAsync(HelixInfo helix_info, EntitlementQueryParameters parameters, RestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = ApiRequestSettings.Default;
+                settings = RestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error)
@@ -128,13 +126,14 @@ TwitchNet.Api
                 ExceptionUtil.ThrowIfNull(parameters.type, nameof(parameters.type));
             }
 
-            RequestInfo request_info    = new RequestInfo("entitlements/upload", Method.POST);
-            request_info.bearer_token   = app_access_token;
-            request_info.client_id      = client_id;
+            RestRequest request = RestUtil.CretaeHelixRequest("entitlements/upload", Method.POST, helix_info, settings);
+            request = request.AddPaging(parameters);
 
-            IApiResponse<Data<Url>> url = await RestRequestUtil.ExecuteAsync<Data<Url>>(client_info, request_info, parameters, settings);
+            Tuple<IRestResponse<Data<Url>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<Url>>(client_info, request, settings);
 
-            return url;
+            IHelixResponse<Data<Url>> response = new HelixResponse<Data<Url>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return response;
         }
 
         #endregion
@@ -144,17 +143,16 @@ TwitchNet.Api
         /// <summary>
         /// Asynchronously information about a list of games.
         /// </summary>
-        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<Data<Game>>>
-        GetGamesAsync(string bearer_token, string client_id, GamesQueryParameters parameters, ApiRequestSettings settings)
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<Data<Game>>>
+        GetGamesAsync(HelixInfo helix_info, GamesQueryParameters parameters, RestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = ApiRequestSettings.Default;
+                settings = RestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error)
@@ -166,13 +164,14 @@ TwitchNet.Api
                 }
             }
 
-            RequestInfo request_info    = new RequestInfo("games", Method.GET);
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestRequest request = RestUtil.CretaeHelixRequest("games", Method.GET, helix_info, settings);
+            request = request.AddPaging(parameters);
 
-            IApiResponse<Data<Game>> games = await RestRequestUtil.ExecuteAsync<Data<Game>>(client_info, request_info, parameters, settings);
+            Tuple<IRestResponse<Data<Game>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<Game>>(client_info, request, settings);
 
-            return games;
+            IHelixResponse<Data<Game>> response = new HelixResponse<Data<Game>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return response;
         }
 
         #endregion
@@ -182,41 +181,41 @@ TwitchNet.Api
         /// <summary>
         /// Asynchronously gets a single page of top games, most popular first.
         /// </summary>
-        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<DataPage<Game>>>
-        GetTopGamesPageAsync(string bearer_token, string client_id, TopGamesQueryParameters parameters, ApiRequestSettings settings)
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<DataPage<Game>>>
+        GetTopGamesPageAsync(HelixInfo helix_info, TopGamesQueryParameters parameters, RestSettings settings)
         {
-            RequestInfo request_info    = new RequestInfo("games/top", Method.GET);
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestRequest request = RestUtil.CretaeHelixRequest("games/top", Method.GET, helix_info, settings);
+            request = request.AddPaging(parameters);
 
-            IApiResponse<DataPage<Game>> top_games = await RestRequestUtil.ExecuteAsync<DataPage<Game>>(client_info, request_info, parameters, settings);
+            Tuple<IRestResponse<DataPage<Game>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<DataPage<Game>>(client_info, request, settings);
 
-            return top_games;
+            IHelixResponse<DataPage<Game>> response = new HelixResponse<DataPage<Game>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return response;
         }
 
         /// <summary>
         /// Asynchronously gets a complete list of top games, most popular first.
         /// </summary>
-        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<DataPage<Game>>>
-        GetTopGamesAsync(string bearer_token, string client_id, TopGamesQueryParameters parameters, ApiRequestSettings settings)
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<DataPage<Game>>>
+        GetTopGamesAsync(HelixInfo helix_info, TopGamesQueryParameters parameters, RestSettings settings)
         {
-            RequestInfo request_info    = new RequestInfo("games/top", Method.GET);
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestRequest request = RestUtil.CretaeHelixRequest("games/top", Method.GET, helix_info, settings);
+            request = request.AddPaging(parameters);
 
-            IApiResponse<DataPage<Game>> top_games = await RestRequestUtil.ExecutePagesAsync<Game, DataPage<Game>>(client_info, request_info, parameters, settings);
+            Tuple<IRestResponse<DataPage<Game>>, RestException, RateLimit> tuple = await RestUtil.TraceExecuteAsync<Game, DataPage<Game>>(client_info, request, parameters, settings);
 
-            return top_games;
+            IHelixResponse<DataPage<Game>> response = new HelixResponse<DataPage<Game>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return response;
         }
 
         #endregion
@@ -226,54 +225,63 @@ TwitchNet.Api
         /// <summary>
         /// Asynchronously gets a single page of streams.
         /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<DataPage<Stream>>>
-        GetStreamsPageAsync(string bearer_token, string client_id, StreamsQueryParameters parameters, ApiRequestSettings settings)
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<DataPage<Stream>>>
+        GetStreamsPageAsync(HelixInfo helix_info, StreamsQueryParameters parameters, RestSettings settings)
         {
-            RequestInfo request_info    = new RequestInfo("streams", Method.GET);
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestRequest request = RestUtil.CretaeHelixRequest("streams", Method.GET, helix_info, settings);
+            request = request.AddPaging(parameters);
 
-            IApiResponse<DataPage<Stream>> streams = await RestRequestUtil.ExecuteAsync<DataPage<Stream>>(client_info, request_info, parameters, settings);
+            Tuple<IRestResponse<DataPage<Stream>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<DataPage<Stream>>(client_info, request, settings);
 
-            return streams;
+            IHelixResponse<DataPage<Stream>> response = new HelixResponse<DataPage<Stream>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return response;
         }
 
         /// <summary>
         /// Asynchronously gets a complete list of streams.
         /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<DataPage<Stream>>>
-        GetStreamsAsync(string bearer_token, string client_id, StreamsQueryParameters parameters, ApiRequestSettings settings)
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<DataPage<Stream>>>
+        GetStreamsAsync(HelixInfo helix_info, StreamsQueryParameters parameters, RestSettings settings)
         {
-            RequestInfo request_info    = new RequestInfo("streams", Method.GET);
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestRequest request = RestUtil.CretaeHelixRequest("streams", Method.GET, helix_info, settings);
+            request = request.AddPaging(parameters);
 
-            IApiResponse<DataPage<Stream>> streams = await RestRequestUtil.ExecutePagesAsync<Stream, DataPage<Stream>>(client_info, request_info, parameters, settings);
+            Tuple<IRestResponse<DataPage<Stream>>, RestException, RateLimit> tuple = await RestUtil.TraceExecuteAsync<Stream, DataPage<Stream>>(client_info, request, parameters, settings);
 
-            return streams;
+            IHelixResponse<DataPage<Stream>> response = new HelixResponse<DataPage<Stream>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return response;
         }
 
         /// <summary>
         /// Asynchronously checks to see if a user is streaming.
         /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="user_id">The user to check if they are live.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<bool>>
-        IsStreamLiveAsync(string bearer_token, string client_id, string user_id, ApiRequestSettings settings)
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<bool>>
+        IsStreamLiveAsync(HelixInfo helix_info, string user_id, RestSettings settings)
         {
+            if (settings.IsNull())
+            {
+                settings = RestSettings.Default;
+            }
+
+            if(settings.input_hanlding == InputHandling.Error)
+            {
+                ExceptionUtil.ThrowIfInvalid(user_id, nameof(user_id));
+            }
+
             StreamsQueryParameters parameters = new StreamsQueryParameters()
             {
                 user_ids = new List<string>()
@@ -282,10 +290,8 @@ TwitchNet.Api
                 }
             };
 
-            IApiResponse<DataPage<Stream>> streams = await GetStreamsPageAsync(bearer_token, client_id, parameters, settings);
-
-            ApiResponse<bool> is_live = new ApiResponse<bool>(streams);
-            is_live.result = streams.result.data.IsValid();
+            IHelixResponse<DataPage<Stream>> response = await GetStreamsPageAsync(helix_info, parameters, settings);
+            IHelixResponse<bool> is_live = new HelixResponse<bool>(response, response.result.data.IsValid());
 
             return is_live;
         }
@@ -297,41 +303,41 @@ TwitchNet.Api
         /// <summary>
         /// Asynchronously gets a single page of metadata about streams playing either Overwatch or Hearthstone.
         /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<DataPage<Metadata>>>
-        GetStreamsMetadataPageAsync(string bearer_token, string client_id, StreamsQueryParameters parameters, ApiRequestSettings settings)
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<DataPage<Metadata>>>
+        GetStreamsMetadataPageAsync(HelixInfo helix_info, StreamsQueryParameters parameters, RestSettings settings)
         {
-            RequestInfo request_info    = new RequestInfo("streams/metadata", Method.GET);
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestRequest request = RestUtil.CretaeHelixRequest("streams/metadata", Method.GET, helix_info, settings);
+            request = request.AddPaging(parameters);
 
-            IApiResponse<DataPage<Metadata>> metadata = await RestRequestUtil.ExecuteAsync<DataPage<Metadata>>(client_info, request_info, parameters, settings);
+            Tuple<IRestResponse<DataPage<Metadata>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<DataPage<Metadata>>(client_info, request, settings);
 
-            return metadata;
+            IHelixResponse<DataPage<Metadata>> response = new HelixResponse<DataPage<Metadata>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return response;
         }
 
         /// <summary>
         /// Asynchronously gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
         /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<DataPage<Metadata>>>
-        GetStreamsMetadataAsync(string bearer_token, string client_id, StreamsQueryParameters parameters, ApiRequestSettings settings)
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<DataPage<Metadata>>>
+        GetStreamsMetadataAsync(HelixInfo helix_info, StreamsQueryParameters parameters, RestSettings settings)
         {
-            RequestInfo request_info    = new RequestInfo("streams/metadata", Method.GET);
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestRequest request = RestUtil.CretaeHelixRequest("streams/metadata", Method.GET, helix_info, settings);
+            request = request.AddPaging(parameters);
 
-            IApiResponse<DataPage<Metadata>> metadata = await RestRequestUtil.ExecutePagesAsync<Metadata, DataPage<Metadata>>(client_info, request_info, parameters, settings);
+            Tuple<IRestResponse<DataPage<Metadata>>, RestException, RateLimit> tuple = await RestUtil.TraceExecuteAsync<Metadata, DataPage<Metadata>>(client_info, request, parameters, settings);
 
-            return metadata;
+            IHelixResponse<DataPage<Metadata>> response = new HelixResponse<DataPage<Metadata>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return response;
         }
 
         #endregion
@@ -348,51 +354,43 @@ TwitchNet.Api
         /// If provided, the user's email is included in the response.
         /// </para>
         /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>/// <param name="parameters">The users to look up either by id or by login.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<Data<User>>>
-        GetUsersAsync(string bearer_token, string client_id, UsersQueryParameters parameters, ApiRequestSettings settings)
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<Data<User>>>
+        GetUsersAsync(HelixInfo helix_info, UsersQueryParameters parameters, RestSettings settings)
         {
-            RequestInfo request_info    = new RequestInfo("users", Method.GET);
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestRequest request = RestUtil.CretaeHelixRequest("users", Method.GET, helix_info, settings);
+            request = request.AddPaging(parameters);
 
-            IApiResponse<Data<User>> users = await RestRequestUtil.ExecuteAsync<Data<User>>(client_info, request_info, parameters, settings);
+            Tuple<IRestResponse<Data<User>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<User>>(client_info, request, settings);
 
-            return users;
+            IHelixResponse<Data<User>> response = new HelixResponse<Data<User>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return response;
         }
 
         /// <summary>
         /// <para>Asynchronously sets the description of a user specified by the Bearer token.</para>
         /// <para>Required Scope: 'user:edit'</para>
         /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="description">The new description to set.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<Data<User>>>
-        SetUserDescriptionAsync(string bearer_token, string client_id, string description, ApiRequestSettings settings)
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<Data<User>>>
+        SetUserDescriptionAsync(HelixInfo helix_info, string description, RestSettings settings)
         {
-            QueryParameter[] parameters = new QueryParameter[]
-            {
-                new QueryParameter
-                {
-                    name = "description",
-                    value = description
-                },
-            };
+            RestRequest request = RestUtil.CretaeHelixRequest("users", Method.PUT, helix_info, settings);
+            string value = description.IsValid() ? description : string.Empty;
+            request.AddQueryParameter("description", value);
 
-            RequestInfo request_info    = new RequestInfo("users", Method.PUT);
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            Tuple<IRestResponse<Data<User>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<User>>(client_info, request, settings);
 
-            IApiResponse<Data<User>> result = await RestRequestUtil.ExecutetAsync<Data<User>>(client_info, request_info, parameters, settings);
+            IHelixResponse<Data<User>> response = new HelixResponse<Data<User>>(tuple.Item1, tuple.Item2, tuple.Item3);
 
-            return result;
+            return response;
         }
 
         #endregion
@@ -402,8 +400,7 @@ TwitchNet.Api
         /// <summary>
         /// Asynchronously gets the relationship between two users, or a single page of the following/follower lists of one user.
         /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="from_id">The user to compare from.</param>
         /// <param name="to_id">The user to compare to.</param>
         /// <param name="parameters">
@@ -411,13 +408,13 @@ TwitchNet.Api
         /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="parameters"/> are ignored if specified.
         /// </param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<FollowsDataPage<Follow>>>
-        GetUserRelationshipPageAsync(string bearer_token, string client_id, string from_id, string to_id, FollowsQueryParameters parameters, ApiRequestSettings settings)
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<FollowsDataPage<Follow>>>
+        GetUserRelationshipPageAsync(HelixInfo helix_info, string from_id, string to_id, FollowsQueryParameters parameters, RestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = new ApiRequestSettings();
+                settings = new RestSettings();
             }
 
             if (settings.input_hanlding == InputHandling.Error)
@@ -435,31 +432,31 @@ TwitchNet.Api
             parameters.from_id = from_id;
             parameters.to_id = to_id;
 
-            RequestInfo request_info    = new RequestInfo("users/follows", Method.GET);
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestRequest request = RestUtil.CretaeHelixRequest("users/follows", Method.GET, helix_info, settings);
+            request = request.AddPaging(parameters);
 
-            IApiResponse<FollowsDataPage<Follow>> follows = await RestRequestUtil.ExecuteAsync<FollowsDataPage<Follow>>(client_info, request_info, parameters, settings);
+            Tuple<IRestResponse<FollowsDataPage<Follow>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<FollowsDataPage<Follow>>(client_info, request, settings);
 
-            return follows;
+            IHelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return response;
         }
 
         /// <summary>
         /// Asynchronously gets the relationship between two users, or the complete following/follower lists of one user.
         /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="from_id">The user to compare from. Used to get the following list of a user.</param>
         /// <param name="to_id">The user to compare to. Used to get a user's follower list.</param>
         /// <param name="parameters">A set of query parameters to customize the request. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<FollowsDataPage<Follow>>>
-        GetUserRelationshipAsync(string bearer_token, string client_id, string from_id, string to_id, FollowsQueryParameters parameters, ApiRequestSettings settings)
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<FollowsDataPage<Follow>>>
+        GetUserRelationshipAsync(HelixInfo helix_info, string from_id, string to_id, FollowsQueryParameters parameters, RestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = ApiRequestSettings.Default;
+                settings = RestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error)
@@ -477,30 +474,30 @@ TwitchNet.Api
             parameters.from_id = from_id;
             parameters.to_id = to_id;
 
-            RequestInfo request_info    = new RequestInfo("users/follows", Method.GET);
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestRequest request = RestUtil.CretaeHelixRequest("users/follows", Method.GET, helix_info, settings);
+            request = request.AddPaging(parameters);
 
-            IApiResponse<FollowsDataPage<Follow>> follows = await RestRequestUtil.ExecutePagesAsync<Follow, FollowsDataPage<Follow>>(client_info, request_info, parameters, settings);
+            Tuple<IRestResponse<FollowsDataPage<Follow>>, RestException, RateLimit> tuple = await RestUtil.TraceExecuteAsync<Follow, FollowsDataPage<Follow>>(client_info, request, parameters, settings);
 
-            return follows;
+            IHelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return response;
         }
 
         /// <summary>
         /// Asynchronously checks to see if <paramref name="from_id"/> is following <paramref name="to_id"/>.
         /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="from_id">The user to compare from.</param>
         /// <param name="to_id">The user to compare to.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<bool>>
-        IsUserFollowingAsync(string bearer_token, string client_id, string from_id, string to_id, ApiRequestSettings settings)
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<bool>>
+        IsUserFollowingAsync(HelixInfo helix_info, string from_id, string to_id, RestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = ApiRequestSettings.Default;
+                settings = RestSettings.Default;
             }
 
             if(settings.input_hanlding == InputHandling.Error)
@@ -509,10 +506,8 @@ TwitchNet.Api
                 ExceptionUtil.ThrowIfInvalid(to_id, nameof(to_id));
             }
 
-            IApiResponse<FollowsDataPage<Follow>> relationship = await GetUserRelationshipPageAsync(bearer_token, client_id, from_id, to_id, default(FollowsQueryParameters), settings);
-
-            ApiResponse<bool> is_following = new ApiResponse<bool>(relationship);
-            is_following.result = relationship.result.data.IsValid();
+            IHelixResponse<FollowsDataPage<Follow>> response = await GetUserRelationshipPageAsync(helix_info, from_id, to_id, default(FollowsQueryParameters), settings);
+            IHelixResponse<bool> is_following = new HelixResponse<bool>(response, response.result.data.IsValid());
 
             return is_following;
         }
@@ -524,17 +519,16 @@ TwitchNet.Api
         /// <summary>
         /// Asynchronously gets information on one or more videos.
         /// </summary>
-        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<DataPage<Video>>>
-        GetVideosPageAsync(string bearer_token, string client_id, VideosQueryParameters parameters, ApiRequestSettings settings)
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<DataPage<Video>>>
+        GetVideosPageAsync(HelixInfo helix_info, VideosQueryParameters parameters, RestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = ApiRequestSettings.Default;
+                settings = RestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error) 
@@ -547,29 +541,29 @@ TwitchNet.Api
                 }
             }
 
-            RequestInfo request_info    = new RequestInfo("videos", Method.GET);
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestRequest request = RestUtil.CretaeHelixRequest("videos", Method.GET, helix_info, settings);
+            request = request.AddPaging(parameters);
 
-            IApiResponse<DataPage<Video>> videos = await RestRequestUtil.ExecuteAsync<DataPage<Video>>(client_info, request_info, parameters, settings);
+            Tuple<IRestResponse<DataPage<Video>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<DataPage<Video>>(client_info, request, settings);
 
-            return videos;
+            IHelixResponse<DataPage<Video>> response = new HelixResponse<DataPage<Video>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return response;
         }
 
         /// <summary>
         /// Asynchronously gets a complete list of information on one or more videos.
         /// </summary>
-        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IApiResponse{type}"/> interface.</returns>
-        internal static async Task<IApiResponse<DataPage<Video>>>
-        GetVideosAsync(string bearer_token, string client_id, VideosQueryParameters parameters, ApiRequestSettings settings)
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<DataPage<Video>>>
+        GetVideosAsync(HelixInfo helix_info, VideosQueryParameters parameters, RestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = ApiRequestSettings.Default;
+                settings = RestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error)
@@ -582,13 +576,14 @@ TwitchNet.Api
                 }
             }
 
-            RequestInfo request_info    = new RequestInfo("videos", Method.GET);
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestRequest request = RestUtil.CretaeHelixRequest("videos", Method.GET, helix_info, settings);
+            request = request.AddPaging(parameters);
 
-            IApiResponse<DataPage<Video>> videos = await RestRequestUtil.ExecutePagesAsync<Video, DataPage<Video>>(client_info, request_info, parameters, settings);
+            Tuple<IRestResponse<DataPage<Video>>, RestException, RateLimit> tuple = await RestUtil.TraceExecuteAsync<Video, DataPage<Video>>(client_info, request, parameters, settings);
 
-            return videos;
+            IHelixResponse<DataPage<Video>> response = new HelixResponse<DataPage<Video>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return response;
         }
 
         #endregion

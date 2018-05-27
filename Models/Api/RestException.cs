@@ -6,18 +6,19 @@ using System.Net;
 using TwitchNet.Enums.Api;
 
 // imported .dll's
+
 using RestSharp;
 
 namespace TwitchNet.Models.Api
 {
     [Serializable]
     public class
-    ApiException : Exception
+    RestException : Exception
     {
         /// <summary>
         /// The origin of the error.
         /// </summary>
-        public ApiErrorSource   error_source     { get; protected set; }
+        public RestErrorSource  error_source     { get; protected set; }
 
         /// <summary>
         /// The HTTP status code.
@@ -38,16 +39,16 @@ namespace TwitchNet.Models.Api
         /// <summary>
         /// Returns an empty api error.
         /// </summary>
-        public static readonly ApiException None = new ApiException();
+        public static readonly RestException None = new RestException();
 
         /// <summary>
-        /// Creates an instance of the <see cref="ApiException"/> error using the <see cref="IRestResponse"/>.
+        /// Creates an instance of the <see cref="RestException"/> error using the <see cref="IRestResponse"/>.
         /// </summary>
         /// <param name="response">The rest response.</param>
         /// <param name="source">The source of the error.</param>
         /// <param name="message">The error message. This is not the same as the normal exception message.</param>
         /// <param name="inner_exception">The inner exception encountered.</param>
-        public ApiException(IRestResponse response, ApiErrorSource source, string message, Exception inner_exception) : base(message, inner_exception)
+        public RestException(IRestResponse response, RestErrorSource source, string message, Exception inner_exception) : base(message, inner_exception)
         {
             error_source     = source;
 
@@ -57,12 +58,12 @@ namespace TwitchNet.Models.Api
         }
 
         /// <summary>
-        /// Creates an instance of the <see cref="ApiException"/> error using the <see cref="IRestResponse"/> and <see cref="ApiError"/>.
+        /// Creates an instance of the <see cref="RestException"/> error using the <see cref="IRestResponse"/> and <see cref="RestError"/>.
         /// </summary>
         /// <param name="response">The rest response.</param>
         /// <param name="source">The source of the error.</param>
         /// <param name="error">The error returned by the API.</param>
-        public ApiException(IRestResponse response, ApiErrorSource source, ApiError error)
+        public RestException(IRestResponse response, RestErrorSource source, RestError error)
         {               
             error_source     = source;
 
@@ -72,13 +73,14 @@ namespace TwitchNet.Models.Api
         }
 
         /// <summary>
-        /// Creates a blank instance of the <see cref="ApiException"/> error.
+        /// Creates a blank instance of the <see cref="RestException"/> error.
         /// </summary>
-        public ApiException()
+        public RestException()
         {
-            error_source     = ApiErrorSource.None;
+            error_source     = RestErrorSource.None;
 
             status_code      = 0;
+
             status_error     = string.Empty;
             error_message    = string.Empty;
         }

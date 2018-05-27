@@ -9,12 +9,12 @@ namespace
 TwitchNet.Models.Api
 {
     public class
-    ApiRequestSettings
+    RestSettings
     {
         /// <summary>
-        /// Returns the default API request settings.
+        /// Returns the default rest request settings.
         /// </summary>
-        public static readonly ApiRequestSettings Default = new ApiRequestSettings();
+        public static readonly RestSettings Default = new RestSettings();
 
         /// <summary>
         /// <para>The token used to cancel the request.</para>
@@ -41,9 +41,9 @@ TwitchNet.Models.Api
         public ErrorHandling        internal_error_handling             { get; set; }
 
         /// <summary>
-        /// Creates a new instance of the <see cref="ApiRequestSettings"/> class.
+        /// Creates a new instance of the <see cref="RestSettings"/> class.
         /// </summary>
-        public ApiRequestSettings()
+        public RestSettings()
         {
             Reset();
         }

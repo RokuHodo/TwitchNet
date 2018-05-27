@@ -1,12 +1,12 @@
 ﻿namespace TwitchNet.Enums.Api
 {
     public enum
-    ApiErrorSource
+    RestErrorSource
     {
         None = 0,
 
         Internal,
 
-        Api,
+        Request,
     }
 }

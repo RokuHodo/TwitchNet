@@ -40,5 +40,18 @@ namespace TwitchNet.Models.Api
                 new ClientHandler("application/xml", new JsonDeserializer()),
             }
         };
+
+        /// <summary>
+        /// Returns the default OAuth2 <see cref="ClientInfo"/>.
+        /// </summary>
+        public static readonly ClientInfo DefaultOAuth2 = new ClientInfo()
+        {
+            base_url = "https://id.twitch.tv/oauth2",
+            handlers = new ClientHandler[]
+            {
+                new ClientHandler("application/json", new JsonDeserializer()),
+                new ClientHandler("application/xml", new JsonDeserializer()),
+            }
+        };
     }
 }

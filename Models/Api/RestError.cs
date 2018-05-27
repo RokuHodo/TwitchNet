@@ -5,7 +5,7 @@ namespace
 TwitchNet.Models.Api
 {
     public class
-    ApiError
+    RestError
     {
         /// <summary>
         /// The error associated with the status code, i.e., the status description.

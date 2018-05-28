@@ -5,7 +5,6 @@ using System.IO;
 using System.Runtime.CompilerServices;
 
 // project namespaces
-using TwitchNet.Enums.Debugger;
 using TwitchNet.Extensions;
 
 namespace

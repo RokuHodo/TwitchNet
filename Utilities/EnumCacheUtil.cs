@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 
 // project namespaces
-using TwitchNet.Enums;
-using TwitchNet.Enums.Api.Videos;
-using TwitchNet.Enums.Clients.Irc.Twitch;
+using TwitchNet.Rest.Api.Videos;
+using TwitchNet.Clients.Irc.Twitch;
 using TwitchNet.Extensions;
 
-namespace TwitchNet.Utilities
+namespace
+TwitchNet.Utilities
 {
-    public static class
+    internal static class
     EnumCacheUtil
     {
         #region Caches

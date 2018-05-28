@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace
 TwitchNet.Extensions
 {
-    public static class
+    internal static class
     EnumExtensions
     {
         /// <summary>

@@ -3,12 +3,12 @@ using System;
 using System.Text.RegularExpressions;
 
 // project namespaces
-using TwitchNet.Enums.Clients.Irc.Twitch;
+using TwitchNet.Clients.Irc.Twitch;
 using TwitchNet.Extensions;
 
 namespace TwitchNet.Utilities
-{    
-    public static class
+{
+    internal static class
     TwitchUtil
     {
         private static readonly uint FOLLOWERS_DURATION_MAX_MONTHS  = 3;

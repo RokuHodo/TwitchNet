@@ -7,13 +7,9 @@ using System.Threading.Tasks;
 
 // project namespaces
 using TwitchNet.Debugger;
-using TwitchNet.Enums;
-using TwitchNet.Enums.Debugger;
-using TwitchNet.Enums.Api;
+using TwitchNet.Rest;
+using TwitchNet.Rest.Api;
 using TwitchNet.Extensions;
-using TwitchNet.Interfaces.Api;
-using TwitchNet.Models.Api;
-using TwitchNet.Utilities;
 
 // imported .dll's
 using Newtonsoft.Json;
@@ -50,7 +46,7 @@ TwitchNet.Utilities
 
         // NOTE: Whenever a request needs to be delayed or retried, the total number elements is off by 1*n where n is number of retries/pauses. Why?
         public static async Task<Tuple<IRestResponse<result_type>, RestException, RateLimit>>
-        TraceExecuteAsync<data_type, result_type>(ClientInfo client_info, IRestRequest request, IQueryParameters parameters, RestSettings settings)
+        TraceExecuteAsync<data_type, result_type>(ClientInfo client_info, IRestRequest request, IHelixQueryParameters parameters, RestSettings settings)
         where result_type : DataPage<data_type>, IDataPage<data_type>, new()
         {
             IRestResponse<result_type> response = new RestResponse<result_type>();
@@ -65,7 +61,7 @@ TwitchNet.Utilities
 
             if (parameters.IsNull())
             {
-                parameters = new QueryParametersPage();
+                parameters = new HelixQueryParameters();
             }
 
             if (settings.IsNull())
@@ -81,8 +77,6 @@ TwitchNet.Utilities
                 {
                     data.Add(element);
                 }
-
-                Debug.WriteLine("Total elements: " + data.Count);
 
                 exception = tuple.Item2;
                 rate_limit = tuple.Item3;
@@ -109,33 +103,6 @@ TwitchNet.Utilities
         }
 
         #region Paging
-
-        /// <summary>
-        /// Adds query parameters to the <see cref="RestRequest"/>.
-        /// </summary>
-        /// <param name="request">The rest request.</param>
-        /// <param name="parameters">The query string parameters to add.</param>
-        /// <returns>Returns the <see cref="RestRequest"/> with the added <paramref name="parameters"/>.</returns>
-        public static RestRequest
-        AddPaging(RestRequest request, IList<QueryParameter> parameters)
-        {
-            if (!parameters.IsValid())
-            {
-                return request;
-            }
-
-            foreach (QueryParameter query_parameter in parameters)
-            {
-                if (!query_parameter.name.IsValid() || !query_parameter.value.IsValid())
-                {
-                    continue;
-                }
-
-                request.AddQueryParameter(query_parameter.name, query_parameter.value);
-            }
-
-            return request;
-        }
 
         /// <summary>
         /// Adds query parameters to the <see cref="RestRequest"/>.
@@ -417,8 +384,6 @@ TwitchNet.Utilities
                             return tuple;
                         }
                     }
-
-                    Debug.WriteLine("Expected number of elements: " + 120 * 99 * settings.status_codes[code].retry_count);
 
                     if (rate_limit != RateLimit.None)
                     {

@@ -1,7 +1,9 @@
-﻿using System;
+﻿// standard namespaces
+using System;
 using System.Diagnostics;
 
-namespace TwitchNet.Debugger
+namespace
+TwitchNet.Debugger
 {    
     internal class
     Benchmark

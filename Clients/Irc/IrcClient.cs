@@ -11,10 +11,7 @@ using System.Threading.Tasks;
 
 // project namespaces
 using TwitchNet.Debugger;
-using TwitchNet.Enums.Clients;
-using TwitchNet.Events.Clients.Irc;
 using TwitchNet.Extensions;
-using TwitchNet.Models.Clients.Irc;
 using TwitchNet.Utilities;
 
 namespace

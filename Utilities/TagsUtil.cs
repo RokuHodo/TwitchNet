@@ -5,16 +5,14 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 
 //project namespaces
-using TwitchNet.Enums;
-using TwitchNet.Enums.Api.Videos;
-using TwitchNet.Enums.Clients.Irc.Twitch;
+using TwitchNet.Rest.Api.Videos;
+using TwitchNet.Clients.Irc.Twitch;
 using TwitchNet.Extensions;
-using TwitchNet.Models.Clients.Irc.Twitch;
 
 namespace
 TwitchNet.Utilities
 {
-    public class
+    internal class
     TagsUtil
     {
         /// <summary>

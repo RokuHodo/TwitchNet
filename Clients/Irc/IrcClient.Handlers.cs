@@ -4,10 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 
 // project namespaces
-using TwitchNet.Enums.Clients;
-using TwitchNet.Events.Clients.Irc;
 using TwitchNet.Extensions;
-using TwitchNet.Models.Clients.Irc;
 using TwitchNet.Utilities;
 
 namespace

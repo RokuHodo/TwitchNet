@@ -9,9 +9,8 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 // project namespaces
-using TwitchNet.Enums.Debugger;
 using TwitchNet.Extensions;
-using TwitchNet.Models.Clients.Irc;
+using TwitchNet.Clients.Irc;
 
 namespace
 TwitchNet.Debugger

@@ -3,9 +3,6 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-// project namespaces
-using TwitchNet.Enums.Debugger;
-
 namespace
 TwitchNet.Debugger
 {

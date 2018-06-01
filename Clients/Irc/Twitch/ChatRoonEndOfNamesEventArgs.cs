@@ -16,13 +16,13 @@ TwitchNet.Clients.Irc.Twitch
         /// The id of the user who the chat room belongs to.
         /// </summary>
         [ValidateMember(Check.IsValid)]
-        public string channel_user_id { get; protected set; }
+        public string channel_user_id   { get; protected set; }
 
         /// <summary>
         /// The unique UUID of the chat room.
         /// </summary>
         [ValidateMember(Check.RegexIsMatch, RegexPatternUtil.UUID)]
-        public string channel_uuid { get; protected set; }
+        public string channel_uuid      { get; protected set; }
 
         /// <summary>
         /// Creates a new instance of the <see cref="ChatRoonEndOfNamesEventArgs"/> class.

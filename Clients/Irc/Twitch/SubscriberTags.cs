@@ -34,7 +34,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="message">The IRC message to parse.</param>
         public SubscriberTags(IrcMessage message) : base(message)
         {
-            if (!is_valid)
+            if (!exist)
             {
                 return;
             }

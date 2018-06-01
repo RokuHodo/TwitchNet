@@ -1,15 +1,18 @@
-﻿using System;
+﻿// standard namespaces
+using System;
 using System.Threading.Tasks;
 using System.Web;
 using TwitchNet.Rest.OAuth.Validate;
 using TwitchNet.Extensions;
+
 // project namespaces
 using TwitchNet.Utilities;
 
 // imported .dll's
 using RestSharp;
 
-namespace TwitchNet.Rest.OAuth
+namespace
+TwitchNet.Rest.OAuth
 {
     public static class
     OAuthUtil
@@ -19,7 +22,7 @@ namespace TwitchNet.Rest.OAuth
         #region /revoke
 
         public static IOAuthResponse
-        RevokeToken(string client_id, string oauth_token, RestSettings settings = default(RestSettings))
+        RevokeToken(string client_id, string oauth_token, RequestSettings settings = default(RequestSettings))
         {
             IOAuthResponse response = RevokeTokenAsync(client_id, oauth_token, settings).Result;
 
@@ -27,11 +30,11 @@ namespace TwitchNet.Rest.OAuth
         }
 
         public static async Task<IOAuthResponse>
-        RevokeTokenAsync(string client_id, string oauth_token, RestSettings settings = default(RestSettings))
+        RevokeTokenAsync(string client_id, string oauth_token, RequestSettings settings = default(RequestSettings))
         {
             if(settings.IsNull())
             {
-                settings = RestSettings.Default;
+                settings = RequestSettings.Default;
             }
 
             if(settings.input_hanlding == InputHandling.Error)
@@ -56,7 +59,7 @@ namespace TwitchNet.Rest.OAuth
         #region /refresh
 
         public static IOAuthResponse
-        RefreshToken(string client_id, string client_secret, string refresh_token, RestSettings settings = default(RestSettings))
+        RefreshToken(string client_id, string client_secret, string refresh_token, RequestSettings settings = default(RequestSettings))
         {
             IOAuthResponse response = RefreshTokenAsync(client_secret, client_secret, refresh_token, settings).Result;
 
@@ -64,11 +67,11 @@ namespace TwitchNet.Rest.OAuth
         }
 
         public static async Task<IOAuthResponse>
-        RefreshTokenAsync(string client_id, string client_secret, string refresh_token, RestSettings settings = default(RestSettings))
+        RefreshTokenAsync(string client_id, string client_secret, string refresh_token, RequestSettings settings = default(RequestSettings))
         {
             if (settings.IsNull())
             {
-                settings = RestSettings.Default;
+                settings = RequestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error)
@@ -98,7 +101,7 @@ namespace TwitchNet.Rest.OAuth
         #region /validate
 
         public static IOAuthResponse<OAuthTokenInfo>
-        ValidateToken(string oauth_token, RestSettings settings = default(RestSettings))
+        ValidateToken(string oauth_token, RequestSettings settings = default(RequestSettings))
         {
             IOAuthResponse<OAuthTokenInfo> response = ValidateTokenAsync(oauth_token, settings).Result;
 
@@ -106,11 +109,11 @@ namespace TwitchNet.Rest.OAuth
         }
 
         public static async Task<IOAuthResponse<OAuthTokenInfo>>
-        ValidateTokenAsync(string oauth_token, RestSettings settings = default(RestSettings))
+        ValidateTokenAsync(string oauth_token, RequestSettings settings = default(RequestSettings))
         {
             if (settings.IsNull())
             {
-                settings = RestSettings.Default;
+                settings = RequestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error)

@@ -54,6 +54,7 @@
     <Compile Include="Debugger\DebugLevel.cs" />
     <Compile Include="Debugger\ErrorLevel.cs" />
     <Compile Include="Debugger\TimeStamp.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Rest\Api\TwitchApi.Sync.cs" />
     <Compile Include="Rest\Api\TwitchApi.Async.cs" />
     <Compile Include="Rest\Api\TwitchApiOAuth.Sync.cs" />
@@ -205,7 +206,7 @@
     <Compile Include="Rest\Api\Users\Follow.cs" />
     <Compile Include="Rest\Api\Users\User.cs" />
     <Compile Include="Rest\RateLimit.cs" />
-    <Compile Include="Rest\RestSettings.cs" />
+    <Compile Include="Rest\RequestSettings.cs" />
     <Compile Include="Rest\Api\Users\UsersQueryParameters.cs" />
     <Compile Include="Rest\Api\Videos\VideosQueryParameters.cs" />
     <Compile Include="Clients\Irc\IrcMessage.cs" />

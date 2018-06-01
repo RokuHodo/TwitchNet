@@ -37,7 +37,7 @@ TwitchNet.Clients.Irc.Twitch
         public bool request_tags        { get; set; }
 
         /// <summary>
-        /// The client's Twitch information retrieved from the Helix API from the client's pass.
+        /// The client's Twitch information retrieved from the Helix API via the client's pass.
         /// This is only retrieved if <see cref="request_user_info"/> is set to true.
         /// </summary>
         public User twitch_user         { get; private set; }
@@ -53,9 +53,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="irc_user">The IRC user's credentials.</param>
         public TwitchIrcClient(ushort port, IrcUser irc_user) : base("irc.chat.twitch.tv", port, irc_user)
         {
-            DefaultSettings();
-            DefaultHandlers();
-
+            // TODO: Add these as handler overrides instead of using derived events
             OnSocketConnected   += new EventHandler<EventArgs>(Callback_OnSocketConnected);
             OnChannelMode       += new EventHandler<ChannelModeEventArgs>(Callback_OnChannelMode);
             OnPrivmsg           += new EventHandler<PrivmsgEventArgs>(Callback_OnPrivmsg);
@@ -69,15 +67,14 @@ TwitchNet.Clients.Irc.Twitch
         /// Sets all client settings to their default values.
         /// </summary>
         public override void
-        DefaultSettings()
+        ResetSettings()
         {
-            base.DefaultSettings();
+            auto_pong           = false;
 
-            request_user_info = false;
-
-            request_commands = false;
-            request_membership = false;
-            request_tags = false;
+            request_user_info   = false;
+            request_commands    = false;
+            request_membership  = false;
+            request_tags        = false;
         }
 
         #endregion        

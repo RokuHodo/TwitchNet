@@ -26,7 +26,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<Data<CreatedClip>>>
-        CreateClipAsync(string bearer_token, ClipCreationQueryParameters parameters, RestSettings settings = default(RestSettings))
+        CreateClipAsync(string bearer_token, ClipCreationQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token = bearer_token;
@@ -46,7 +46,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<Data<CreatedClip>>>
-        CreateClipAsync(string bearer_token, string client_id, ClipCreationQueryParameters parameters, RestSettings settings = default(RestSettings))
+        CreateClipAsync(string bearer_token, string client_id, ClipCreationQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -65,7 +65,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<Data<Clip>>>
-        GetClipAsync(string bearer_token, ClipQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetClipAsync(string bearer_token, ClipQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -84,7 +84,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<Data<Clip>>>
-        GetClipAsync(string bearer_token, string client_id, ClipQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetClipAsync(string bearer_token, string client_id, ClipQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -108,7 +108,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<Data<Url>>>
-        CreateEntitlementGrantsUploadUrlAsync(string application_token, EntitlementQueryParameters parameters, RestSettings settings = default(RestSettings))
+        CreateEntitlementGrantsUploadUrlAsync(string application_token, EntitlementQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = application_token;
@@ -128,7 +128,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<Data<Url>>>
-        CreateEntitlementGrantsUploadUrlAsync(string application_token, string client_id, EntitlementQueryParameters parameters, RestSettings settings = default(RestSettings))
+        CreateEntitlementGrantsUploadUrlAsync(string application_token, string client_id, EntitlementQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = application_token;
@@ -151,7 +151,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<Data<Game>>>
-        GetGamesAsync(string bearer_token, GamesQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetGamesAsync(string bearer_token, GamesQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -170,7 +170,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<Data<Game>>>
-        GetGamesAsync(string bearer_token, string client_id, GamesQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetGamesAsync(string bearer_token, string client_id, GamesQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -192,7 +192,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Game>>>
-        GetTopGamesPageAsync(string bearer_token, RestSettings settings = default(RestSettings))
+        GetTopGamesPageAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -210,7 +210,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Game>>>
-        GetTopGamesPageAsync(string bearer_token, TopGamesQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetTopGamesPageAsync(string bearer_token, TopGamesQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -228,7 +228,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Game>>>
-        GetTopGamesPageAsync(string bearer_token, string client_id, RestSettings settings = default(RestSettings))
+        GetTopGamesPageAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -248,7 +248,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Game>>>
-        GetTopGamesPageAsync(string bearer_token, string client_id, TopGamesQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetTopGamesPageAsync(string bearer_token, string client_id, TopGamesQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -266,7 +266,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Game>>>
-        GetTopGamesAsync(string bearer_token, RestSettings settings = default(RestSettings))
+        GetTopGamesAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -284,7 +284,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Game>>>
-        GetTopGamesAsync(string bearer_token, TopGamesQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetTopGamesAsync(string bearer_token, TopGamesQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -302,7 +302,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Game>>>
-        GetTopGamesAsync(string bearer_token, string client_id, RestSettings settings = default(RestSettings))
+        GetTopGamesAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -322,7 +322,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Game>>>
-        GetTopGamesAsync(string bearer_token, string client_id, TopGamesQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetTopGamesAsync(string bearer_token, string client_id, TopGamesQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -344,7 +344,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Stream>>>
-        GetStreamsPageAsync(string bearer_token, RestSettings settings = default(RestSettings))
+        GetStreamsPageAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -362,7 +362,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Stream>>>
-        GetStreamsPageAsync(string bearer_token, StreamsQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetStreamsPageAsync(string bearer_token, StreamsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -380,7 +380,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Stream>>>
-        GetStreamsPageAsync(string bearer_token, string client_id, RestSettings settings = default(RestSettings))
+        GetStreamsPageAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -400,7 +400,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Stream>>>
-        GetStreamsPageAsync(string bearer_token,string client_id, StreamsQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetStreamsPageAsync(string bearer_token,string client_id, StreamsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -418,7 +418,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Stream>>>
-        GetStreamsAsync(string bearer_token, RestSettings settings = default(RestSettings))
+        GetStreamsAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -436,7 +436,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Stream>>>
-        GetStreamsAsync(string bearer_token, StreamsQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetStreamsAsync(string bearer_token, StreamsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -454,7 +454,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Stream>>>
-        GetStreamsAsync(string bearer_token, string client_id, RestSettings settings = default(RestSettings))
+        GetStreamsAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -474,7 +474,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Stream>>>
-        GetStreamsAsync(string bearer_token, string client_id, StreamsQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetStreamsAsync(string bearer_token, string client_id, StreamsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -493,7 +493,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<bool>>
-        IsStreamLiveAsync(string bearer_token, string user_id, RestSettings settings = default(RestSettings))
+        IsStreamLiveAsync(string bearer_token, string user_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -512,7 +512,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<bool>>
-        IsstreamLiveAsync(string bearer_token, string client_id, string user_id, RestSettings settings = default(RestSettings))
+        IsstreamLiveAsync(string bearer_token, string client_id, string user_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -534,7 +534,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Metadata>>>
-        GetStreamsMetadataPageAsync(string bearer_token, RestSettings settings = default(RestSettings))
+        GetStreamsMetadataPageAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -552,7 +552,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Metadata>>>
-        GetStreamsMetadataPageAsync(string bearer_token, StreamsQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetStreamsMetadataPageAsync(string bearer_token, StreamsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -570,7 +570,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Metadata>>>
-        GetStreamsMetadataPageAsync(string bearer_token, string client_id, RestSettings settings = default(RestSettings))
+        GetStreamsMetadataPageAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -590,7 +590,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Metadata>>>
-        GetStreamsMetadataPageAsync(string bearer_token, string client_id, StreamsQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetStreamsMetadataPageAsync(string bearer_token, string client_id, StreamsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -608,7 +608,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Metadata>>>
-        GetStreamsMetadataAsync(string bearer_token, RestSettings settings = default(RestSettings))
+        GetStreamsMetadataAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -626,7 +626,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Metadata>>>
-        GetStreamsMetadataAsync(string bearer_token, StreamsQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetStreamsMetadataAsync(string bearer_token, StreamsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -644,7 +644,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Metadata>>>
-        GetStreamsMetadataAsync(string bearer_token, string client_id, RestSettings settings = default(RestSettings))
+        GetStreamsMetadataAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -664,7 +664,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Metadata>>>
-        GetStreamsMetadataAsync(string bearer_token, string client_id, StreamsQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetStreamsMetadataAsync(string bearer_token, string client_id, StreamsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -690,7 +690,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<Data<User>>>
-        GetUserAsync(string bearer_token, RestSettings settings = default(RestSettings))
+        GetUserAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -712,7 +712,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<Data<User>>>
-        GetUserAsync(string bearer_token, string client_id, RestSettings settings = default(RestSettings))
+        GetUserAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -738,7 +738,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<Data<User>>>
-        GetUsersAsync(string bearer_token, UsersQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetUsersAsync(string bearer_token, UsersQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -764,7 +764,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<Data<User>>>
-        GetUsersAsync(string bearer_token, string client_id, UsersQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetUsersAsync(string bearer_token, string client_id, UsersQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -784,7 +784,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<Data<User>>>
-        SetUserDescriptionAsync(string bearer_token, string description, RestSettings settings = default(RestSettings))
+        SetUserDescriptionAsync(string bearer_token, string description, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -804,7 +804,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<Data<User>>>
-        SetUserDescriptionAsync(string bearer_token, string client_id, string description, RestSettings settings = default(RestSettings))
+        SetUserDescriptionAsync(string bearer_token, string client_id, string description, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -828,7 +828,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserRelationshipAsync(string bearer_token, string from_id, string to_id, RestSettings settings = default(RestSettings))
+        GetUserRelationshipAsync(string bearer_token, string from_id, string to_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -848,7 +848,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserRelationshipAsync(string bearer_token, string client_id, string from_id, string to_id, RestSettings settings = default(RestSettings))
+        GetUserRelationshipAsync(string bearer_token, string client_id, string from_id, string to_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -867,7 +867,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowingPageAsync(string bearer_token, string from_id, RestSettings settings = default(RestSettings))
+        GetUserFollowingPageAsync(string bearer_token, string from_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -889,7 +889,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowingPageAsync(string bearer_token, string from_id, FollowsQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetUserFollowingPageAsync(string bearer_token, string from_id, FollowsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -908,7 +908,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowingPageAsync(string bearer_token, string client_id, string from_id, RestSettings settings = default(RestSettings))
+        GetUserFollowingPageAsync(string bearer_token, string client_id, string from_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -932,7 +932,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowingPageAsync(string bearer_token, string client_id, string from_id, FollowsQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetUserFollowingPageAsync(string bearer_token, string client_id, string from_id, FollowsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -951,7 +951,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowingAsync(string bearer_token, string from_id, RestSettings settings = default(RestSettings))
+        GetUserFollowingAsync(string bearer_token, string from_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -973,7 +973,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowingAsync(string bearer_token, string from_id, FollowsQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetUserFollowingAsync(string bearer_token, string from_id, FollowsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token = bearer_token;
@@ -992,7 +992,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowingAsync(string bearer_token, string client_id, string from_id, RestSettings settings = default(RestSettings))
+        GetUserFollowingAsync(string bearer_token, string client_id, string from_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -1016,7 +1016,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowingAsync(string bearer_token, string client_id, string from_id, FollowsQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetUserFollowingAsync(string bearer_token, string client_id, string from_id, FollowsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -1035,7 +1035,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowersPageAsync(string bearer_token, string to_id, RestSettings settings = default(RestSettings))
+        GetUserFollowersPageAsync(string bearer_token, string to_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -1057,7 +1057,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowersPageAsync(string bearer_token, string to_id, FollowsQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetUserFollowersPageAsync(string bearer_token, string to_id, FollowsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -1076,7 +1076,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowersPageAsync(string bearer_token, string client_id, string to_id, RestSettings settings = default(RestSettings))
+        GetUserFollowersPageAsync(string bearer_token, string client_id, string to_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -1100,7 +1100,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowersPageAsync(string bearer_token, string client_id, string to_id, FollowsQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetUserFollowersPageAsync(string bearer_token, string client_id, string to_id, FollowsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -1119,7 +1119,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowersAsync(string bearer_token, string to_id, RestSettings settings = default(RestSettings))
+        GetUserFollowersAsync(string bearer_token, string to_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -1141,7 +1141,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowersAsync(string bearer_token, string to_id, FollowsQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetUserFollowersAsync(string bearer_token, string to_id, FollowsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -1160,7 +1160,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowersAsync(string bearer_token, string client_id, string to_id, RestSettings settings = default(RestSettings))
+        GetUserFollowersAsync(string bearer_token, string client_id, string to_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -1184,7 +1184,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowersAsync(string bearer_token, string client_id, string to_id, FollowsQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetUserFollowersAsync(string bearer_token, string client_id, string to_id, FollowsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -1204,7 +1204,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<bool>>
-        IsUserFollowingAsync(string bearer_token, string from_id, string to_id, RestSettings settings = default(RestSettings))
+        IsUserFollowingAsync(string bearer_token, string from_id, string to_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -1224,7 +1224,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<bool>>
-        IsUserFollowingAsync(string bearer_token, string client_id, string from_id, string to_id, RestSettings settings = default(RestSettings))
+        IsUserFollowingAsync(string bearer_token, string client_id, string from_id, string to_id, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -1247,7 +1247,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Video>>>
-        GetVideosPageAsync(string bearer_token, VideosQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetVideosPageAsync(string bearer_token, VideosQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -1266,7 +1266,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Video>>>
-        GetVideosPageAsync(string bearer_token, string client_id, VideosQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetVideosPageAsync(string bearer_token, string client_id, VideosQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -1285,7 +1285,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Video>>>
-        GetVideosAsync(string bearer_token, VideosQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetVideosAsync(string bearer_token, VideosQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;
@@ -1304,7 +1304,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<DataPage<Video>>>
-        GetVideosAsync(string bearer_token, string client_id, VideosQueryParameters parameters, RestSettings settings = default(RestSettings))
+        GetVideosAsync(string bearer_token, string client_id, VideosQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token   = bearer_token;

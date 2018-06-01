@@ -620,16 +620,24 @@ TwitchNet.Clients.Irc.Twitch
         /// Sets all <see cref="IrcMessage"/> handlers back to the default methods.
         /// </summary>
         public override void
-        DefaultHandlers()
+        ResetHandlers()
         {
-            if (handlers.IsNull())
-            {
-                return;
-            }
+            handlers    = new Dictionary<string, MessageHandler>();
+            names       = new Dictionary<string, List<string>>();
 
-            // This is redundant on sart up since it will be called first in the base constructor,
-            // But it's easier than manually managing all base handlers that we don't override
-            base.DefaultHandlers();
+            // Base IRC handlers
+            SetHandler("001", HandleWelcome);
+            SetHandler("002", HandleYourHost);
+            SetHandler("003", HandleCreated);
+            SetHandler("004", HandleMyInfo);
+            SetHandler("372", HandleMotd);
+            SetHandler("375", HandleMotdStart);
+            SetHandler("376", HandleEndOfMotd);
+            SetHandler("421", HandleUnknownCommand);
+
+            SetHandler("MODE", HandleMode);
+            SetHandler("PING", HandlePing);
+            SetHandler("PRIVMSG", HandlePrivmsg);
 
             // IRC override handlers
             SetHandler("353", HandleNamReply);

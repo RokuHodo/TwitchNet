@@ -15,7 +15,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <summary>
         /// Whether or not tags are atached to the message.
         /// </summary>
-        public bool     is_valid        { get; protected set; }
+        public bool     exist        { get; protected set; }
 
         /// <summary>
         /// Whether or not the sender has Twitch turbo.
@@ -88,8 +88,8 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="message">The IRC message to parse.</param>
         public WhisperTags(IrcMessage message)
         {
-            is_valid = message.tags.IsValid();
-            if (!is_valid)
+            exist = message.tags.IsValid();
+            if (!exist)
             {
                 return;
             }

@@ -18,11 +18,12 @@ namespace
 TwitchNet.Clients.Irc
 {
     public partial class
-    IrcClient
+    IrcClient : IDisposable
     {
         #region Fields
 
         private bool    reading;
+        private bool    disposed;
 
         private ushort  _port;
         private string  _host;
@@ -115,13 +116,11 @@ TwitchNet.Clients.Irc
             state_mutex = new Mutex();
             SetState(ClientState.Disconnected);
 
-            reading = false;
+            reading     = false;
+            disposed    = true;
 
-            DefaultSettings();
-
-            handlers = new Dictionary<string, MessageHandler>();
-            names = new Dictionary<string, List<string>>();
-            DefaultHandlers();
+            ResetSettings();            
+            ResetHandlers();
         }
 
         #endregion
@@ -132,7 +131,7 @@ TwitchNet.Clients.Irc
         /// Sets all client settings to their default values.
         /// </summary>
         public virtual void
-        DefaultSettings()
+        ResetSettings()
         {
             auto_pong = false;
         }
@@ -154,8 +153,8 @@ TwitchNet.Clients.Irc
                 return;
             }
 
-            ExceptionUtil.ThrowIfInvalid(host, nameof(host), QuickDisconnect);
-            ExceptionUtil.ThrowIfNullOrDefault(port, nameof(port), QuickDisconnect);
+            ExceptionUtil.ThrowIfInvalid(host, nameof(host), ForceDisconnect);
+            ExceptionUtil.ThrowIfNullOrDefault(port, nameof(port), ForceDisconnect);
 
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(host, port);
@@ -176,8 +175,8 @@ TwitchNet.Clients.Irc
                 return;
             }
 
-            ExceptionUtil.ThrowIfInvalid(host, nameof(host), QuickDisconnect);
-            ExceptionUtil.ThrowIfNullOrDefault(port, nameof(port), QuickDisconnect);
+            ExceptionUtil.ThrowIfInvalid(host, nameof(host), ForceDisconnect);
+            ExceptionUtil.ThrowIfNullOrDefault(port, nameof(port), ForceDisconnect);
 
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.BeginConnect(host, port, Callback_OnBeginConnect, null);
@@ -203,9 +202,9 @@ TwitchNet.Clients.Irc
         private void
         Login()
         {
-            ExceptionUtil.ThrowIfNull(irc_user, nameof(irc_user), QuickDisconnect);
-            ExceptionUtil.ThrowIfInvalid(irc_user.nick, nameof(irc_user.nick), QuickDisconnect);
-            ExceptionUtil.ThrowIfInvalid(irc_user.pass, nameof(irc_user.pass), QuickDisconnect);
+            ExceptionUtil.ThrowIfNull(irc_user, nameof(irc_user), ForceDisconnect);
+            ExceptionUtil.ThrowIfInvalid(irc_user.nick, nameof(irc_user.nick), ForceDisconnect);
+            ExceptionUtil.ThrowIfInvalid(irc_user.pass, nameof(irc_user.pass), ForceDisconnect);
 
             stream = new NetworkStream(socket);
             if (port == 443)
@@ -213,6 +212,8 @@ TwitchNet.Clients.Irc
                 stream = new SslStream(stream, false);
                 ((SslStream)stream).AuthenticateAsClient(host);
             }
+
+            disposed = false;
 
             OnSocketConnected.Raise(this, EventArgs.Empty);
 
@@ -230,74 +231,84 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// <para>Force closes the connection to the remote host without waiting for the reader thread to stop.</para>
-        /// <para>
-        /// This method is generally unsafe and should only be called before the socket connection is fully established and the reader thread is started.
-        /// Otherwise, <see cref="Disconnect()"/> or <see cref="DisconnectAsync()"/> should be called.
-        /// </para>
+        /// Logs out from the IRC server and closes the connection from the remote host, regardless of the current state.
         /// </summary>
         private void
-        QuickDisconnect()
+        ForceDisconnect()
         {
-            OverrideState(ClientState.Disconnecting);
-
-            if (!stream.IsNull())
-            {
-                stream.Close();
-                stream = null;
-            }
-
-            if (!socket.IsNull())
-            {
-                if (socket.Connected)
-                {
-                    socket.Shutdown(SocketShutdown.Both);
-                    socket.Disconnect(false);
-                }
-                socket = null;
-            }
-
-            OverrideState(ClientState.Disconnected);
+            Disconnect(true, true);
         }
 
         /// <summary>
-        /// Closes the connection from a remote host and disconnect from the IRC server.
+        /// Logs out from the IRC server and closes the connection from the remote host.
         /// </summary>
+        /// <param name="reuse_client">
+        /// <para>Allows reuse of the client.</para>
+        /// <para>
+        /// When set to true, the client will maintain its state and is ready to reconnect.
+        /// When set to false, all managed resources will be freed the client will need to be re-instantiated to reconnect.
+        /// </para>
+        /// </param>
         public void
-        Disconnect()
+        Disconnect(bool reuse_client = false)
         {
-            if (!SetState(ClientState.Disconnecting))
+            Disconnect(false, !reuse_client);
+        }
+
+        /// <summary>
+        /// Logs out from the IRC server and closes the connection from the remote host.
+        /// </summary>
+        /// <param name="force_disconnect">Whether or not to ignore state checks while disconnecting.</param>
+        /// <param name="disposing">
+        /// <para>Whether or not to dispose of all managed resources.</para>
+        /// <para>
+        /// When set to true, all managed resources will be freed the client will need to be re-instantiated to reconnect.
+        /// When set to false, the client will maintain its state and is ready to reconnect.
+        /// </para>
+        /// </param>
+        private void
+        Disconnect(bool force_disconnect, bool disposing)
+        {
+            if (!SetState(ClientState.Disconnecting, force_disconnect))
             {
                 return;
             }
 
             Quit();
 
-            stream.Close();
+            stream.Dispose();
             stream = null;
 
             socket.Shutdown(SocketShutdown.Both);
             socket.Disconnect(false);
+            socket.Close();
             socket = null;
 
             OnSocketDisconnected.Raise(this, EventArgs.Empty);
 
-            do
+            while (reading)
             {
                 Thread.Sleep(5);
             }
-            while (reading);
+
+            Dispose(disposing);
 
             SetState(ClientState.Disconnected);
-
             OnDisconnected.Raise(this, EventArgs.Empty);
         }
 
         /// <summary>
         /// Asynchronously closes the connection from a remote host and disconnect from the IRC server.
         /// </summary>
+        /// <param name="reuse_client">
+        /// <para>Allows reuse of the client.</para>
+        /// <para>
+        /// When set to true, the client will maintain its state and is ready to reconnect.
+        /// When set to false, all managed resources will be freed the client will need to be re-instantiated to reconnect.
+        /// </para>
+        /// </param>
         public void
-        DisconnectAsync()
+        DisconnectAsync(bool reuse_client = false)
         {
             if (!SetState(ClientState.Disconnecting))
             {
@@ -310,8 +321,8 @@ TwitchNet.Clients.Irc
             stream = null;
 
             socket.Shutdown(SocketShutdown.Both);
-            socket.BeginDisconnect(false, Callback_OnBeginDisconnect, null);            
-        }
+            socket.BeginDisconnect(false, Callback_OnBeginDisconnect, reuse_client);            
+        }        
 
         /// <summary>
         /// Finish asynchronously disconnecting from the remote host.
@@ -328,11 +339,62 @@ TwitchNet.Clients.Irc
             }
 
             socket.EndDisconnect(result);
+            socket.Close();
             socket = null;
 
+            bool reuse_client = (bool)result.AsyncState;
+            Dispose(!reuse_client);
             SetState(ClientState.Disconnected);
 
             OnDisconnected.Raise(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// <para>Frees all managed resources. The client will need to be re-instantiated to reconnect.</para>
+        /// <para>Calling this method directly not recommended. Call <see cref="Disconnect(bool)"/> or <see cref="DisconnectAsync(bool)"/> to safely disconnect and dispose all resources.</para>
+        /// </summary>
+        public void
+        Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// <para>Frees all managed resources. The client will need to be re-instantiated to reconnect.</para>
+        /// </summary>
+        /// <param name="disposing">Whether or not to dispose all managed resources.</param>
+        private void
+        Dispose(bool disposing)
+        {
+            if (!disposing || disposed)
+            {
+                return;
+            }
+
+            if (!stream.IsNull())
+            {
+                stream.Dispose();
+                stream = null;
+            }
+
+            if (!socket.IsNull())
+            {
+                if (socket.Connected)
+                {
+                    socket.Shutdown(SocketShutdown.Both);
+                    socket.Disconnect(false);
+                }
+                socket.Close();
+                socket = null;
+            }
+
+            if (!state_mutex.IsNull())
+            {
+                state_mutex.ReleaseMutex();
+                state_mutex.Dispose();
+            }
+
+            disposed = true;
         }
 
         #endregion
@@ -340,53 +402,50 @@ TwitchNet.Clients.Irc
         #region State handling
 
         /// <summary>
-        /// <para>Overrides the client's state, regardless the client's current state or current operation.</para>
-        /// <para>
-        /// This is generally unsafe and should only be used when overriding the state won't cause adverse side effects to occur.
-        /// Otherwise, use <see cref="SetState(ClientState)"/> to safely change the client state.
-        /// </para>
-        /// </summary>
-        /// <param name="override_state"></param>
-        private void
-        OverrideState(ClientState override_state)
-        {
-            state_mutex.WaitOne();
-            state = override_state;
-            state_mutex.ReleaseMutex();
-        }
-
-        /// <summary>
         /// Sets the client's state.
         /// </summary>
-        /// <param name="transition_state"></param>
-        /// <returns></returns>
+        /// <param name="transition_state">The new state to set.</param>
+        /// <param name="override_state">Whether or not to ignore the checks to see if the state can safely be changed.</param>
+        /// <returns>
+        /// Returns true if the state was successfully changed to the new state.
+        /// Returns false otherwise.
+        /// </returns>
         private bool
-        SetState(ClientState transition_state)
+        SetState(ClientState transition_state, bool override_state = false)
         {
             bool success = false;
 
             state_mutex.WaitOne();
-            switch (transition_state)
+            if (state == transition_state)
             {
-                case ClientState.Connecting:
-                {
-                    success = CanConnect();
-                }
-                break;
-
-                case ClientState.Disconnecting:
-                {
-                    success = CanDisconnect();
-                }
-                break;
-
-                case ClientState.Connected:
-                case ClientState.Disconnected:
-                {
-                    success = true;
-                }
-                break;
+                return success;
             }
+
+            success = override_state;
+            if (!override_state)
+            {
+                switch (transition_state)
+                {
+                    case ClientState.Connecting:
+                    {
+                        success = CanConnect();
+                    }
+                    break;
+
+                    case ClientState.Disconnecting:
+                    {
+                        success = CanDisconnect();
+                    }
+                    break;
+
+                    case ClientState.Connected:
+                    case ClientState.Disconnected:
+                    {
+                        success = true;
+                    }
+                    break;
+                }
+            }            
 
             if (success)
             {
@@ -400,7 +459,6 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Checks to see if it is safe to connect.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool
         CanConnect()
         {
@@ -439,7 +497,6 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Checks to see if it is safe to disconnect.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool
         CanDisconnect()
         {
@@ -635,7 +692,11 @@ TwitchNet.Clients.Irc
         {
             bool result = true;
 
-            if (!socket.Connected || socket.IsNull())
+            if (disposed)
+            {
+                result = false;
+            }
+            else if (!socket.Connected || socket.IsNull())
             {
                 result = false;
             }

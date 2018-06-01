@@ -15,7 +15,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <summary>
         /// Whether or not tags were attached to the message;
         /// </summary>
-        public bool     is_valid        { get; protected set; }
+        public bool     exist           { get; protected set; }
 
         /// <summary>
         /// Whether or not the user is a moderator.
@@ -56,8 +56,8 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="message">The IRC message to parse.</param>
         public ChatRoomUserStateTags(IrcMessage message)
         {
-            is_valid = message.tags.IsValid();
-            if (!is_valid)
+            exist = message.tags.IsValid();
+            if (!exist)
             {
                 return;
             }
@@ -78,8 +78,8 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="tags">The tags to copy the values from.</param>
         public ChatRoomUserStateTags(UserStateTags tags)
         {
-            is_valid = tags.is_valid;
-            if (!is_valid)
+            exist = tags.exist;
+            if (!exist)
             {
                 return;
             }

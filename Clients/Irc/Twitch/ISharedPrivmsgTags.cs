@@ -76,6 +76,6 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>The emotes the sender used in the message, if any.</para>
         /// <para>The array is empty if the sender did not use any emotes.</para>
         /// </summary>
-        Emote[]                     emotes { get; }
+        Emote[]     emotes          { get; }
     }
 }

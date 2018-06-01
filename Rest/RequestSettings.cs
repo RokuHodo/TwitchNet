@@ -5,12 +5,12 @@ namespace
 TwitchNet.Rest
 {
     public class
-    RestSettings
+    RequestSettings
     {
         /// <summary>
         /// Returns the default rest request settings.
         /// </summary>
-        public static readonly RestSettings Default = new RestSettings();
+        public static readonly RequestSettings Default = new RequestSettings();
 
         /// <summary>
         /// <para>The token used to cancel the request.</para>
@@ -37,9 +37,9 @@ TwitchNet.Rest
         public ErrorHandling        internal_error_handling             { get; set; }
 
         /// <summary>
-        /// Creates a new instance of the <see cref="RestSettings"/> class.
+        /// Creates a new instance of the <see cref="RequestSettings"/> class.
         /// </summary>
-        public RestSettings()
+        public RequestSettings()
         {
             Reset();
         }

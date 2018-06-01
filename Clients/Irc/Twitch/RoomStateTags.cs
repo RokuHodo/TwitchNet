@@ -13,7 +13,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <summary>
         /// Whether or not tags were attached to the message;
         /// </summary>
-        public bool                 is_valid            { get; protected set; }
+        public bool                 exist               { get; protected set; }
 
         /// <summary>
         /// Whether or not the room is in emote only mode.
@@ -89,8 +89,8 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="message">The IRC message to parse.</param>
         public RoomStateTags(IrcMessage message)
         {
-            is_valid = message.tags.IsValid();
-            if (!is_valid)
+            exist = message.tags.IsValid();
+            if (!exist)
             {
                 return;
             }

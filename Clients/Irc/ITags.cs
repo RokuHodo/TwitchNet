@@ -7,6 +7,6 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Whether or not tags are atached to the message.
         /// </summary>
-        bool is_valid { get; }
+        bool exist { get; }
     }
 }

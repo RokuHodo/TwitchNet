@@ -1,7 +1,4 @@
-﻿// standard namespaces
-using System.Runtime.Serialization;
-
-namespace
+﻿namespace
 TwitchNet.Clients.Irc.Twitch
 {
     public enum
@@ -10,7 +7,6 @@ TwitchNet.Clients.Irc.Twitch
         /// <summary>
         /// There was an error parsing the host target message.
         /// </summary>
-        [EnumMember(Value = "")]
         None    = 0,
 
         /// <summary>

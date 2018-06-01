@@ -16,27 +16,27 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Set to -1 if this value was not inlcuded in the message.</para>
         /// </summary>
         [ValidateMember(Check.IsNotEqualTo, -1)]
-        public int      viewer_count    { get; protected set; }
+        public int              viewer_count    { get; protected set; }
 
         /// <summary>
         /// <para>The user that is being hosted.</para>
         /// <para>This is empty if the hosting channel stops hosting.</para>
         /// </summary>
         [ValidateMember(Check.IsValid)]
-        public string   target_user     { get; protected set; }
+        public string           target_user     { get; protected set; }
 
         /// <summary>
         /// The channel that started or stopped hosting.
         /// </summary>
         [ValidateMember(Check.IsValid)]
-        public string   hosting_channel { get; protected set; }
+        public string           hosting_channel { get; protected set; }
 
         /// <summary>
         /// <para>Whether the hosting channel started or stopped hosting a channel.</para>
         /// <para>Set to <see cref="HostTargetType.None"/> if the message could not be parsed.</para>
         /// </summary>
         [ValidateMember(Check.IsNotEqualTo, HostTargetType.None)]
-        public HostTargetType target_type { get; protected set; }
+        public HostTargetType   target_type     { get; protected set; }
 
         /// <summary>
         /// Creates a new instance of the <see cref="HostTargetEventArgs"/> class.

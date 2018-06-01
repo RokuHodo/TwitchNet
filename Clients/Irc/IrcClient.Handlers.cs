@@ -201,14 +201,10 @@ TwitchNet.Clients.Irc
         /// Sets all <see cref="IrcMessage"/> handlers back to the default methods.
         /// </summary>
         public virtual void
-        DefaultHandlers()
+        ResetHandlers()
         {
-            if (handlers.IsNull())
-            {
-                return;
-            }
-
-            handlers.Clear();
+            handlers    = new Dictionary<string, MessageHandler>();
+            names       = new Dictionary<string, List<string>>();
 
             SetHandler("001", HandleWelcome);
             SetHandler("002", HandleYourHost);

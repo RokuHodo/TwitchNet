@@ -32,7 +32,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="message">The IRC message to parse.</param>
         public GiftedSubscriberTags(IrcMessage message) : base(message)
         {
-            if (!is_valid)
+            if (!exist)
             {
                 return;
             }

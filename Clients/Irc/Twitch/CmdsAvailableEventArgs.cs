@@ -19,7 +19,7 @@ TwitchNet.Clients.Irc.Twitch
         public string           channel     { get; protected set; }
 
         /// <summary>
-        /// The  commands that can be used in chat.
+        /// The commands that can be used in chat.
         /// </summary>
         [ValidateMember(Check.IsValid)]
         public ChatCommand[]    commands    { get; protected set; }

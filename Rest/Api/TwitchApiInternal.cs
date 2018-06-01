@@ -42,11 +42,11 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         internal static async Task<IHelixResponse<Data<CreatedClip>>>
-        CreateClipAsync(HelixInfo helix_info, ClipCreationQueryParameters parameters, RestSettings settings = null)
+        CreateClipAsync(HelixInfo helix_info, ClipCreationQueryParameters parameters, RequestSettings settings = null)
         {
             if (settings.IsNull())
             {
-                settings = RestSettings.Default;
+                settings = RequestSettings.Default;
             }            
 
             if (settings.input_hanlding == InputHandling.Error)
@@ -73,11 +73,11 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         internal static async Task<IHelixResponse<Data<Clip>>>
-        GetClipAsync(HelixInfo helix_info, ClipQueryParameters parameters, RestSettings settings)
+        GetClipAsync(HelixInfo helix_info, ClipQueryParameters parameters, RequestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = RestSettings.Default;
+                settings = RequestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error)
@@ -108,11 +108,11 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         internal static async Task<IHelixResponse<Data<Url>>>
-        CreateEntitlementGrantsUploadUrlAsync(HelixInfo helix_info, EntitlementQueryParameters parameters, RestSettings settings)
+        CreateEntitlementGrantsUploadUrlAsync(HelixInfo helix_info, EntitlementQueryParameters parameters, RequestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = RestSettings.Default;
+                settings = RequestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error)
@@ -145,11 +145,11 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         internal static async Task<IHelixResponse<Data<Game>>>
-        GetGamesAsync(HelixInfo helix_info, GamesQueryParameters parameters, RestSettings settings)
+        GetGamesAsync(HelixInfo helix_info, GamesQueryParameters parameters, RequestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = RestSettings.Default;
+                settings = RequestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error)
@@ -183,7 +183,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         internal static async Task<IHelixResponse<DataPage<Game>>>
-        GetTopGamesPageAsync(HelixInfo helix_info, TopGamesQueryParameters parameters, RestSettings settings)
+        GetTopGamesPageAsync(HelixInfo helix_info, TopGamesQueryParameters parameters, RequestSettings settings)
         {
             RestRequest request = RestUtil.CretaeHelixRequest("games/top", Method.GET, helix_info, settings);
             request = request.AddPaging(parameters);
@@ -203,7 +203,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         internal static async Task<IHelixResponse<DataPage<Game>>>
-        GetTopGamesAsync(HelixInfo helix_info, TopGamesQueryParameters parameters, RestSettings settings)
+        GetTopGamesAsync(HelixInfo helix_info, TopGamesQueryParameters parameters, RequestSettings settings)
         {
             RestRequest request = RestUtil.CretaeHelixRequest("games/top", Method.GET, helix_info, settings);
             request = request.AddPaging(parameters);
@@ -227,7 +227,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         internal static async Task<IHelixResponse<DataPage<Stream>>>
-        GetStreamsPageAsync(HelixInfo helix_info, StreamsQueryParameters parameters, RestSettings settings)
+        GetStreamsPageAsync(HelixInfo helix_info, StreamsQueryParameters parameters, RequestSettings settings)
         {
             RestRequest request = RestUtil.CretaeHelixRequest("streams", Method.GET, helix_info, settings);
             request = request.AddPaging(parameters);
@@ -247,7 +247,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         internal static async Task<IHelixResponse<DataPage<Stream>>>
-        GetStreamsAsync(HelixInfo helix_info, StreamsQueryParameters parameters, RestSettings settings)
+        GetStreamsAsync(HelixInfo helix_info, StreamsQueryParameters parameters, RequestSettings settings)
         {
             RestRequest request = RestUtil.CretaeHelixRequest("streams", Method.GET, helix_info, settings);
             request = request.AddPaging(parameters);
@@ -267,11 +267,11 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         internal static async Task<IHelixResponse<bool>>
-        IsStreamLiveAsync(HelixInfo helix_info, string user_id, RestSettings settings)
+        IsStreamLiveAsync(HelixInfo helix_info, string user_id, RequestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = RestSettings.Default;
+                settings = RequestSettings.Default;
             }
 
             if(settings.input_hanlding == InputHandling.Error)
@@ -305,7 +305,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         internal static async Task<IHelixResponse<DataPage<Metadata>>>
-        GetStreamsMetadataPageAsync(HelixInfo helix_info, StreamsQueryParameters parameters, RestSettings settings)
+        GetStreamsMetadataPageAsync(HelixInfo helix_info, StreamsQueryParameters parameters, RequestSettings settings)
         {
             RestRequest request = RestUtil.CretaeHelixRequest("streams/metadata", Method.GET, helix_info, settings);
             request = request.AddPaging(parameters);
@@ -325,7 +325,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         internal static async Task<IHelixResponse<DataPage<Metadata>>>
-        GetStreamsMetadataAsync(HelixInfo helix_info, StreamsQueryParameters parameters, RestSettings settings)
+        GetStreamsMetadataAsync(HelixInfo helix_info, StreamsQueryParameters parameters, RequestSettings settings)
         {
             RestRequest request = RestUtil.CretaeHelixRequest("streams/metadata", Method.GET, helix_info, settings);
             request = request.AddPaging(parameters);
@@ -356,7 +356,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         internal static async Task<IHelixResponse<Data<User>>>
-        GetUsersAsync(HelixInfo helix_info, UsersQueryParameters parameters, RestSettings settings)
+        GetUsersAsync(HelixInfo helix_info, UsersQueryParameters parameters, RequestSettings settings)
         {
             RestRequest request = RestUtil.CretaeHelixRequest("users", Method.GET, helix_info, settings);
             request = request.AddPaging(parameters);
@@ -377,7 +377,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         internal static async Task<IHelixResponse<Data<User>>>
-        SetUserDescriptionAsync(HelixInfo helix_info, string description, RestSettings settings)
+        SetUserDescriptionAsync(HelixInfo helix_info, string description, RequestSettings settings)
         {
             RestRequest request = RestUtil.CretaeHelixRequest("users", Method.PUT, helix_info, settings);
             string value = description.IsValid() ? description : string.Empty;
@@ -407,11 +407,11 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         internal static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserRelationshipPageAsync(HelixInfo helix_info, string from_id, string to_id, FollowsQueryParameters parameters, RestSettings settings)
+        GetUserRelationshipPageAsync(HelixInfo helix_info, string from_id, string to_id, FollowsQueryParameters parameters, RequestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = new RestSettings();
+                settings = new RequestSettings();
             }
 
             if (settings.input_hanlding == InputHandling.Error)
@@ -449,11 +449,11 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         internal static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserRelationshipAsync(HelixInfo helix_info, string from_id, string to_id, FollowsQueryParameters parameters, RestSettings settings)
+        GetUserRelationshipAsync(HelixInfo helix_info, string from_id, string to_id, FollowsQueryParameters parameters, RequestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = RestSettings.Default;
+                settings = RequestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error)
@@ -490,11 +490,11 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         internal static async Task<IHelixResponse<bool>>
-        IsUserFollowingAsync(HelixInfo helix_info, string from_id, string to_id, RestSettings settings)
+        IsUserFollowingAsync(HelixInfo helix_info, string from_id, string to_id, RequestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = RestSettings.Default;
+                settings = RequestSettings.Default;
             }
 
             if(settings.input_hanlding == InputHandling.Error)
@@ -521,11 +521,11 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         internal static async Task<IHelixResponse<DataPage<Video>>>
-        GetVideosPageAsync(HelixInfo helix_info, VideosQueryParameters parameters, RestSettings settings)
+        GetVideosPageAsync(HelixInfo helix_info, VideosQueryParameters parameters, RequestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = RestSettings.Default;
+                settings = RequestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error) 
@@ -556,11 +556,11 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         internal static async Task<IHelixResponse<DataPage<Video>>>
-        GetVideosAsync(HelixInfo helix_info, VideosQueryParameters parameters, RestSettings settings)
+        GetVideosAsync(HelixInfo helix_info, VideosQueryParameters parameters, RequestSettings settings)
         {
             if (settings.IsNull())
             {
-                settings = RestSettings.Default;
+                settings = RequestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error)

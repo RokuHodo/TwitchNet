@@ -16,7 +16,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <summary>
         /// Whether or not tags are atached to the message.
         /// </summary>
-        public bool     is_valid        { get; protected set; }
+        public bool     exist        { get; protected set; }
 
         /// <summary>
         /// Whether or not the sender is a moderator.
@@ -107,8 +107,8 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="args">The event arguments to parse.</param>
         public ChatRoomPrivmsgTags(PrivmsgEventArgs args)
         {
-            is_valid = args.tags.IsValid();
-            if (!is_valid)
+            exist = args.tags.IsValid();
+            if (!exist)
             {
                 return;
             }
@@ -138,7 +138,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="tags">The tags to copy the values from.</param>
         public ChatRoomPrivmsgTags(StreamChatPrivmsgTags tags)
         {
-            if (!tags.is_valid)
+            if (!tags.exist)
             {
                 return;
             }

@@ -65,7 +65,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>The index in the message where the first emote character is located.</para>
         /// <para>
         /// Set to -1 when the index could not be parsed.
-        /// Indexing starts at the begining of the actual message and ignores the use of '\001ACTION'.
+        /// Indexing starts at the begining of the actual message and ignores the use of '\001ACTION', '/me'.
         /// </para>
         /// </summary>
         [ValidateMember(Check.IsNotEqualTo, -1)]
@@ -75,7 +75,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>The index in the message where the last emote character is located.</para>
         /// <para>
         /// Set to -1 when the index could not be parsed.
-        /// Indexing starts at the begining of the actual message and ignores the use of '\001ACTION'.
+        /// Indexing starts at the begining of the actual message and ignores the use of '\001ACTION', '/me'.
         /// </para>
         /// </summary>
         [ValidateMember(Check.IsNotEqualTo, -1)]

@@ -23,7 +23,7 @@ TwitchNet.Utilities
     RestUtil
     {
         public static async Task<Tuple<IRestResponse, RestException, RateLimit>>
-        ExecuteAsync(ClientInfo client_info, IRestRequest request, RestSettings settings)
+        ExecuteAsync(ClientInfo client_info, IRestRequest request, RequestSettings settings)
         {
             RestClient client = CreateClient(client_info);
             IRestResponse response = await client.ExecuteTaskAsync(request);
@@ -34,7 +34,7 @@ TwitchNet.Utilities
         }
 
         public static async Task<Tuple<IRestResponse<result_type>, RestException, RateLimit>>
-        ExecuteAsync<result_type>(ClientInfo client_info, IRestRequest request, RestSettings settings)
+        ExecuteAsync<result_type>(ClientInfo client_info, IRestRequest request, RequestSettings settings)
         {
             RestClient client = CreateClient(client_info);
             IRestResponse<result_type> response = await client.ExecuteTaskAsync<result_type>(request);
@@ -46,7 +46,7 @@ TwitchNet.Utilities
 
         // NOTE: Whenever a request needs to be delayed or retried, the total number elements is off by 1*n where n is number of retries/pauses. Why?
         public static async Task<Tuple<IRestResponse<result_type>, RestException, RateLimit>>
-        TraceExecuteAsync<data_type, result_type>(ClientInfo client_info, IRestRequest request, IHelixQueryParameters parameters, RestSettings settings)
+        TraceExecuteAsync<data_type, result_type>(ClientInfo client_info, IRestRequest request, IHelixQueryParameters parameters, RequestSettings settings)
         where result_type : DataPage<data_type>, IDataPage<data_type>, new()
         {
             IRestResponse<result_type> response = new RestResponse<result_type>();
@@ -56,8 +56,8 @@ TwitchNet.Utilities
 
             List<data_type> data = new List<data_type>();
 
-            RestException exception = RestException.None;
-            RateLimit rate_limit = RateLimit.None;
+            RestException exception = new RestException();
+            RateLimit rate_limit = new RateLimit();
 
             if (parameters.IsNull())
             {
@@ -66,7 +66,7 @@ TwitchNet.Utilities
 
             if (settings.IsNull())
             {
-                settings = RestSettings.Default;
+                settings = RequestSettings.Default;
             }
 
             bool requesting = true;
@@ -225,7 +225,7 @@ TwitchNet.Utilities
         #region Response handling
 
         private static async Task<Tuple<IRestResponse, RestException, RateLimit>>
-        HandleResponse(ClientInfo client_info, IRestResponse response, RestSettings settings)
+        HandleResponse(ClientInfo client_info, IRestResponse response, RequestSettings settings)
         {
             RestException exception = GetRestException(response);
             RateLimit rate_limit = new RateLimit(response.Headers);
@@ -263,7 +263,7 @@ TwitchNet.Utilities
         }
 
         private static async Task<Tuple<IRestResponse, RestException, RateLimit>>
-        HandleRequestError(ClientInfo client_info, IRestResponse response, RestException exception, RateLimit rate_limit, RestSettings settings)
+        HandleRequestError(ClientInfo client_info, IRestResponse response, RestException exception, RateLimit rate_limit, RequestSettings settings)
         {            
             Tuple<IRestResponse, RestException, RateLimit> tuple = Tuple.Create(response, exception, rate_limit);
 
@@ -315,7 +315,7 @@ TwitchNet.Utilities
         }
 
         private static async Task<Tuple<IRestResponse<result_type>, RestException, RateLimit>>
-        HandleResponse<result_type>(ClientInfo client_info, IRestResponse<result_type> response, RestSettings settings)
+        HandleResponse<result_type>(ClientInfo client_info, IRestResponse<result_type> response, RequestSettings settings)
         {
             RestException exception = GetRestException(response);
             RateLimit rate_limit = new RateLimit(response.Headers);
@@ -353,7 +353,7 @@ TwitchNet.Utilities
         }
 
         private static async Task<Tuple<IRestResponse<result_type>, RestException, RateLimit>>
-        HandleRequestError<result_type>(ClientInfo client_info, IRestResponse<result_type> response, RestException exception, RateLimit rate_limit, RestSettings settings)
+        HandleRequestError<result_type>(ClientInfo client_info, IRestResponse<result_type> response, RestException exception, RateLimit rate_limit, RequestSettings settings)
         {
             Tuple<IRestResponse<result_type>, RestException, RateLimit> tuple = Tuple.Create(response, exception, rate_limit);
 
@@ -420,7 +420,7 @@ TwitchNet.Utilities
             }
             else
             {
-                exception = RestException.None;
+                exception = new RestException();
             }
 
             return exception;
@@ -431,11 +431,11 @@ TwitchNet.Utilities
         #region Helper methods
 
         public static RestRequest
-        CretaeHelixRequest(string endpoint, Method method, HelixInfo info, RestSettings settings)
+        CretaeHelixRequest(string endpoint, Method method, HelixInfo info, RequestSettings settings)
         {
             if (settings.IsNullOrDefault())
             {
-                settings = RestSettings.Default;
+                settings = RequestSettings.Default;
             }
 
             if (settings.input_hanlding == InputHandling.Error && !info.bearer_token.IsValid() && !info.client_id.IsValid())

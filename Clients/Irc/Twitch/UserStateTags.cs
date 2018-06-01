@@ -28,8 +28,8 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="message">The IRC message to parse.</param>
         public UserStateTags(IrcMessage message) : base(message)
         {
-            is_valid = message.tags.IsValid();
-            if (!is_valid)
+            exist = message.tags.IsValid();
+            if (!exist)
             {
                 return;
             }

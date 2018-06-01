@@ -1,9 +1,11 @@
 ﻿// standard namespaces
 using System;
 using System.Net;
+using System.Runtime.Serialization;
 
 // project namespaces
 using TwitchNet.Rest.Api;
+using TwitchNet.Utilities;
 
 // imported .dll's
 using RestSharp;
@@ -35,11 +37,6 @@ TwitchNet.Rest
         /// Detailed information about the error.
         /// </summary>
         public string           error_message    { get; protected set; }
-
-        /// <summary>
-        /// Returns an empty api error.
-        /// </summary>
-        public static readonly RestException None = new RestException();
 
         /// <summary>
         /// Creates an instance of the <see cref="RestException"/> error using the <see cref="IRestResponse"/>.
@@ -83,6 +80,25 @@ TwitchNet.Rest
 
             status_error     = string.Empty;
             error_message    = string.Empty;
+        }
+
+        /// <summary>
+        /// Sets the <see cref="SerializationInfo"/> with information about the exception.
+        /// </summary>
+        /// <param name="info">The <see cref="SerializationInfo"/> that holds the serialized object data about the exception being thrown.</param>
+        /// <param name="context">The <see cref="StreamingContext"/> that contains contextual information about the source or destination.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="info"/> is null.</exception>
+        public override void
+        GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            ExceptionUtil.ThrowIfNull(info, nameof(info));
+
+            info.AddValue("error_source", error_source, typeof(RestErrorSource));
+            info.AddValue("status_code", status_code, typeof(HttpStatusCode));
+            info.AddValue("status_error", status_error, typeof(string));
+            info.AddValue("error_message", error_message, typeof(string));
+
+            base.GetObjectData(info, context);
         }
     }
 }

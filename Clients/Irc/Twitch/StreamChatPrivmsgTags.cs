@@ -21,7 +21,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="args">The event arguments to parse.</param>
         public StreamChatPrivmsgTags(PrivmsgEventArgs args) : base(args)
         {
-            if (!is_valid)
+            if (!exist)
             {
                 return;
             }

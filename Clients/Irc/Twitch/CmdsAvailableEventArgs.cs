@@ -33,7 +33,7 @@ TwitchNet.Clients.Irc.Twitch
             channel = args.channel;
 
             string _commands = args.body.TextAfter(':').Trim(' ');
-            string[] array = _commands.StringToArray<string>(' ', System.StringSplitOptions.RemoveEmptyEntries);
+            string[] array = _commands.Split(' ');
 
             List<ChatCommand> list = new List<ChatCommand>();
             foreach(string element in array)

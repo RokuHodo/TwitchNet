@@ -1,12 +1,14 @@
-﻿// imported namespaces
+﻿// project namespaces
+using TwitchNet.Helpers.Json;
+
+// imported namespaces
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace
 TwitchNet.Rest.Api.Entitlements
 {
     // TODO: Add custom converter for the deserializer.
-    [JsonConverter(typeof(StringEnumConverter))]
+    [JsonConverter(typeof(EnumCacheConverter))]
     public enum
     EntitlementType
     {

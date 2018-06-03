@@ -1,12 +1,13 @@
-﻿// imported .dll's
+﻿// project namespaces
+using TwitchNet.Helpers.Json;
+
+// imported .dll's
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace
 TwitchNet.Rest
 {
-    // TODO: Add custom converter for the deserializer.
-    [JsonConverter(typeof(StringEnumConverter))]
+    [JsonConverter(typeof(EnumCacheConverter))]
     public enum
     Scopes
     {

@@ -359,7 +359,7 @@ TwitchNet.Utilities
                 return new Badge[0];
             }
 
-            string[] badge_pairs = tags[key].StringToArray<string>(',');
+            string[] badge_pairs = tags[key].Split(',');
             if (!badge_pairs.IsValid())
             {
                 return new Badge[0];
@@ -392,7 +392,7 @@ TwitchNet.Utilities
                 return new Emote[0];
             }
 
-            string[] pairs = tags[key].StringToArray<string>('/');
+            string[] pairs = tags[key].Split('/');
             if (!pairs.IsValid())
             {
                 return new Emote[0];
@@ -425,7 +425,7 @@ TwitchNet.Utilities
                 return new string[0];
             }
 
-            string[] array = tags[key].Split(new char[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+            string[] array = tags[key].Split(separator);
 
             return array;
         }

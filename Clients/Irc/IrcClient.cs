@@ -415,12 +415,12 @@ TwitchNet.Clients.Irc
         {
             bool success = false;
 
-            state_mutex.WaitOne();
             if (state == transition_state)
             {
                 return success;
             }
 
+            state_mutex.WaitOne();
             success = override_state;
             if (!override_state)
             {

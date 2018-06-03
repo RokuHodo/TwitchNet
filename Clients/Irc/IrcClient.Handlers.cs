@@ -11,7 +11,7 @@ namespace
 TwitchNet.Clients.Irc
 {
     public partial class
-    IrcClient
+    IrcClient : IDisposable
     {
         #region Delegates
 

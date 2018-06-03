@@ -141,7 +141,7 @@ TwitchNet.Clients.Irc
             }
 
             string all_tags = message.TextBetween('@', ' ');
-            string[] array = all_tags.StringToArray<string>(';');
+            string[] array = all_tags.Split(';');
             foreach (string element in array)
             {
                 string tag = element.TextBefore('=');

@@ -54,6 +54,7 @@
     <Compile Include="Debugger\DebugLevel.cs" />
     <Compile Include="Debugger\ErrorLevel.cs" />
     <Compile Include="Debugger\TimeStamp.cs" />
+    <Compile Include="Helpers\Json\EnumCacheConverter.cs" />
     <Compile Include="Rest\Api\TwitchApi.Sync.cs" />
     <Compile Include="Rest\Api\TwitchApi.Async.cs" />
     <Compile Include="Rest\Api\TwitchApiOAuth.Sync.cs" />
@@ -153,7 +154,7 @@
     <Compile Include="Extensions\ReflectionExtensions.cs" />
     <Compile Include="Extensions\ValidationExtensions.cs" />
     <Compile Include="Helpers\Json\JsonDeserializer.cs" />
-    <Compile Include="Helpers\Json\TimeSpanConverter.cs" />
+    <Compile Include="Helpers\Json\VideoDurationConverter.cs" />
     <Compile Include="Rest\Api\IHelixQueryParameters.cs" />
     <Compile Include="Rest\ErrorHandling.cs" />
     <Compile Include="Rest\InputHandling.cs" />

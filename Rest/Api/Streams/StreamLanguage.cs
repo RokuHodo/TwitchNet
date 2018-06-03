@@ -1,16 +1,17 @@
 ﻿// standard namespaces
 using System;
 
+// project namespaces
+using TwitchNet.Helpers.Json;
+
 // imported namespaces
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace
 TwitchNet.Rest.Api.Streams
 {
-    // TODO: Add custom converter for the deserializer.
     [Flags]
-    [JsonConverter(typeof(StringEnumConverter))]
+    [JsonConverter(typeof(EnumCacheConverter))]
     public enum
     StreamLanguage
     {        

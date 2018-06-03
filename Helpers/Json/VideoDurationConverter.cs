@@ -11,7 +11,7 @@ namespace
 TwitchNet.Helpers.Json
 {
     internal class
-    TimeSpanConverter : JsonConverter
+    VideoDurationConverter : JsonConverter
     {
         /// <summary>
         /// Whether this JsonConverter can read JSON.
@@ -57,7 +57,7 @@ TwitchNet.Helpers.Json
         public override void
         WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            throw new NotImplementedException("Custom JsonWriter for converter " + nameof(TimeSpanConverter) + " not implemented because it is marked as read only. This writer will be skipped when called.");
+            throw new NotImplementedException("Custom JsonWriter for converter " + nameof(VideoDurationConverter) + " not implemented because it is marked as read only. This writer will be skipped when called.");
         }
 
         /// <summary>

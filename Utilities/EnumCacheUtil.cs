@@ -12,6 +12,10 @@ using TwitchNet.Clients.Irc.Twitch;
 using TwitchNet.Debugger;
 using TwitchNet.Extensions;
 
+// TODO: Add support for bitfield enums when converting.
+//       This should only be a concern when adding enums as query parameters during rest requests.
+//       Right now this is handled within the method that adds the parameters to the request, but we should prbably do this here to have "native" support.
+
 namespace
 TwitchNet.Utilities
 {
@@ -1678,7 +1682,7 @@ TwitchNet.Utilities
             }
             else
             {
-                Debug.WriteWarning(ErrorLevel.Minor, "The enum type " + type.Name.WrapQuotes() + " is not natively supported by the EnumCacheUtil.");
+                Debug.WriteError(ErrorLevel.Minor, "The enum type " + type.Name.WrapQuotes() + " is not natively supported by the EnumCacheUtil.");
 
                 string[] names = Enum.GetNames(type);
                 if (!names.IsValid())
@@ -1790,7 +1794,7 @@ TwitchNet.Utilities
             }
             else
             {
-                Debug.WriteWarning(ErrorLevel.Minor, "The enum type " + type.Name.WrapQuotes() + " is not natively supported by the EnumCacheUtil.");
+                Debug.WriteError(ErrorLevel.Minor, "The enum type " + type.Name.WrapQuotes() + " is not natively supported by the EnumCacheUtil.");
 
                 name = Enum.GetName(type, value);
             }

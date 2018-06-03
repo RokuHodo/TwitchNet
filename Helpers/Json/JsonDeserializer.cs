@@ -24,8 +24,6 @@ TwitchNet.Helpers.Json
         Deserialize<return_type>(IRestResponse response)
         {
             JsonSerializerSettings settings = new JsonSerializerSettings();
-            // TODO: Add converters for each custm enum type to not use reflection sicne it's very slow.
-            settings.Converters.Add(new TimeSpanConverter());
 
             settings.NullValueHandling      = NullValueHandling.Ignore;
             settings.DateParseHandling      = DateParseHandling.DateTime;

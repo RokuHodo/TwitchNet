@@ -1,5 +1,4 @@
-﻿using TwitchNet.Rest.Api;
-
+﻿
 using Newtonsoft.Json;
 
 namespace TwitchNet.Rest.OAuth.Validate

@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using TwitchNet.Extensions;
 using TwitchNet.Rest.Api.Users;
 using TwitchNet.Utilities;
-using TwitchNet.Debugger;
 
 namespace
 TwitchNet.Clients.Irc.Twitch

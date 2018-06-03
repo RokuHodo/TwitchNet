@@ -1,6 +1,8 @@
 ﻿// standard namespaces
 using System;
 
+using TwitchNet.Helpers.Json;
+
 // imported .dll's
 using Newtonsoft.Json;
 
@@ -88,6 +90,7 @@ TwitchNet.Rest.Api.Videos
         /// The duration of the video.
         /// </summary>
         [JsonProperty("duration")]
+        [JsonConverter(typeof(VideoDurationConverter))]
         public TimeSpan             duration        { get; protected set; }
     }
 }

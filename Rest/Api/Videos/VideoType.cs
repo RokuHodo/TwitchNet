@@ -1,16 +1,17 @@
-﻿// standard namespaces
+﻿// project namespaces
+using TwitchNet.Helpers.Json;
+
+// standard namespaces
 using System;
 
 // imported namespaces
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace
 TwitchNet.Rest.Api.Videos
 {
-    // TODO: Add custom converter for the deserializer.
     [Flags]
-    [JsonConverter(typeof(StringEnumConverter))]
+    [JsonConverter(typeof(EnumCacheConverter))]
     public enum
     VideoType
     {

@@ -53,7 +53,7 @@ TwitchNet.Clients.Irc
         /// <param name="message">The IRC message to parse.</param>
         public NamReplyEventArgs(IrcMessage message) : base(message)
         {
-            names = message.trailing.StringToArray<string>(' ', StringSplitOptions.RemoveEmptyEntries);
+            names = message.trailing.Split(' ');
 
             if (!message.parameters.IsValid() || message.parameters.Length < 3)
             {

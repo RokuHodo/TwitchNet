@@ -45,7 +45,7 @@ TwitchNet.Clients.Irc.Twitch
 
                 List<Range> ranges_list = new List<Range>();
 
-                string[] _ranges = pair.TextAfter(':').StringToArray<string>(',');
+                string[] _ranges = pair.TextAfter(':').Split(',');
                 foreach(string _range in _ranges)
                 {
                     Range range = new Range(_range);

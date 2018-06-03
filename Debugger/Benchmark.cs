@@ -98,7 +98,7 @@ TwitchNet.Debugger
         public void
         Print()
         {
-            Debug.WriteLine(ConsoleColor.Cyan, "[ Benchmarch Results ]");
+            Debug.WriteLine(ConsoleColor.Cyan, "[ Benchmarck Results ]");
             Debug.WriteLine("Elapsed seconds:       " + elapsed_seconds + " s");
             Debug.WriteLine("Elapsed milliseconds:  " + elapsed_milliseconds + " ms");
             Debug.WriteLine("Elapsed microseconds:  " + elapsed_microseconds + " µs");

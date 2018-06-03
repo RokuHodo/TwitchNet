@@ -13,7 +13,7 @@ TwitchNet.Rest.Api.Videos
     BroadcasterLanguage
     {
         /// <summary>
-        /// English (English)
+        /// Unsupported broadcaster language.
         /// </summary>
         [EnumMember(Value = "")]
         None    = 0,
@@ -160,7 +160,7 @@ TwitchNet.Rest.Api.Videos
         /// 中文 繁體 (Chinese - Hong Kong S.A.R)
         /// </summary>
         [EnumMember(Value = "zh-hk")]
-        Zh_Hk   = 24,
+        ZhHk   = 24,
 
         /// <summary>
         /// 日本語 (Japanese)

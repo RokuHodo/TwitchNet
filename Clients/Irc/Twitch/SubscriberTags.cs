@@ -23,7 +23,7 @@ TwitchNet.Clients.Irc.Twitch
 
         /// <summary>
         /// <para>The subscription tier.</para>
-        /// <para>Set to <see cref="SubscriptionPlan.None"/> if the plan could not be parsed.</para>
+        /// <para>Set to <see cref="SubscriptionPlan.Other"/> if the plan could not be parsed.</para>
         /// </summary>
         [ValidateTag("msg-param-sub-plan")]
         public SubscriptionPlan msg_param_sub_plan      { get; protected set; }

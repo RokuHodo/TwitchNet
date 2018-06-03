@@ -218,8 +218,6 @@ TwitchNet.Clients.Irc.Twitch
         /// </summary>
         public event EventHandler<ChatRoomUserStateEventArgs>       OnChatRoomUserState;
 
-        // NOTE: Start here and continue making the documentation consistent.
-
         /// <summary>
         /// <para>Raised when a channel starts or stops hosting another channel.</para>
         /// <para>Requires /commands.</para>
@@ -622,22 +620,7 @@ TwitchNet.Clients.Irc.Twitch
         public override void
         ResetHandlers()
         {
-            handlers    = new Dictionary<string, MessageHandler>();
-            names       = new Dictionary<string, List<string>>();
-
-            // Base IRC handlers
-            SetHandler("001", HandleWelcome);
-            SetHandler("002", HandleYourHost);
-            SetHandler("003", HandleCreated);
-            SetHandler("004", HandleMyInfo);
-            SetHandler("372", HandleMotd);
-            SetHandler("375", HandleMotdStart);
-            SetHandler("376", HandleEndOfMotd);
-            SetHandler("421", HandleUnknownCommand);
-
-            SetHandler("MODE", HandleMode);
-            SetHandler("PING", HandlePing);
-            SetHandler("PRIVMSG", HandlePrivmsg);
+            base.ResetHandlers();
 
             // IRC override handlers
             SetHandler("353", HandleNamReply);
@@ -748,7 +731,7 @@ TwitchNet.Clients.Irc.Twitch
                 }
                 break;
 
-                case UserNoticeType.None:
+                case UserNoticeType.Other:
                 default:
                 {
                     OnUserNotice.Raise(this, new UserNoticeEventArgs(message));

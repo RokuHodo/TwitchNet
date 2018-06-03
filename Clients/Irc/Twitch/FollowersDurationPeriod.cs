@@ -5,6 +5,11 @@ TwitchNet.Clients.Irc.Twitch
     FollowersDurationPeriod
     {
         /// <summary>
+        /// Unsupported duration period.
+        /// </summary>
+        Other = 0,
+
+        /// <summary>
         /// s, second, seconds
         /// </summary>
         Seconds,

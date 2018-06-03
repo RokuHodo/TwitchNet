@@ -34,7 +34,7 @@ TwitchNet.Clients.Irc
         public string   channel     { get; protected set; }
 
         /// <summary>
-        /// Any arguments, if any, associated with the mode such as masks or specific values.
+        /// Arguments, if any, associated with the mode such as masks or specific values.
         /// </summary>
         [ValidateMember(Check.IsValid)]
         public string   arguments   { get; protected set; }

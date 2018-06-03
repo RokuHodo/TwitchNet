@@ -195,12 +195,12 @@ TwitchNet.Utilities
         /// <param name="key">The tag to convert.</param>
         /// <returns>
         /// Returns the equivalent <see cref="UserNoticeType"/> value if the tag was able to be converted.
-        /// Returns <see cref="UserNoticeType.None"/> otherwise.
+        /// Returns <see cref="UserNoticeType.Other"/> otherwise.
         /// </returns>
         public static UserNoticeType
         ToUserNoticeType(Dictionary<string, string> tags, string key)
         {
-            UserNoticeType user_notice = UserNoticeType.None;
+            UserNoticeType user_notice = UserNoticeType.Other;
 
             if(!IsTagValid(tags, key))
             {
@@ -219,12 +219,12 @@ TwitchNet.Utilities
         /// <param name="key">The tag to convert.</param>
         /// <returns>
         /// Returns the equivalent <see cref="SubscriptionPlan"/> value if the tag was able to be converted.
-        /// Returns <see cref="SubscriptionPlan.None"/> otherwise.
+        /// Returns <see cref="SubscriptionPlan.Other"/> otherwise.
         /// </returns>
         public static SubscriptionPlan
         ToSubscriptionPlan(Dictionary<string, string> tags, string key)
         {
-            SubscriptionPlan plan = SubscriptionPlan.None;
+            SubscriptionPlan plan = SubscriptionPlan.Other;
 
             if (!IsTagValid(tags, key))
             {
@@ -243,12 +243,12 @@ TwitchNet.Utilities
         /// <param name="key">The tag to convert.</param>
         /// <returns>
         /// Returns the equivalent <see cref="RitualType"/> value if the tag was able to be converted.
-        /// Returns <see cref="RitualType.None"/> otherwise.
+        /// Returns <see cref="RitualType.Other"/> otherwise.
         /// </returns>
         public static RitualType
         ToRitualType(Dictionary<string, string> tags, string key)
         {
-            RitualType type = RitualType.None;
+            RitualType type = RitualType.Other;
 
             if (!IsTagValid(tags, key))
             {

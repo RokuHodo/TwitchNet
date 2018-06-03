@@ -5,6 +5,11 @@ TwitchNet.Clients.Irc.Twitch
     CommercialLength
     {
         /// <summary>
+        /// Unsupported commercial length.
+        /// </summary>
+        Other       = 0,
+
+        /// <summary>
         /// 30 seconds.
         /// </summary>
         Seconds30   = 30,

@@ -16,7 +16,7 @@ TwitchNet.Clients.Irc
         #region Delegates
 
         /// <summary>
-        /// The method signature of the IRC message handler.
+        /// The method signature of a IRC message handler.
         /// </summary>
         /// <param name="message_irc"></param>
         public delegate void MessageHandler(IrcMessage message_irc);

@@ -2,11 +2,13 @@
 using System;
 using System.Drawing;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 // project namespaces
 using TwitchNet.Extensions;
 using TwitchNet.Rest.Api.Users;
 using TwitchNet.Utilities;
+using TwitchNet.Debugger;
 
 namespace
 TwitchNet.Clients.Irc.Twitch
@@ -53,7 +55,6 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="irc_user">The IRC user's credentials.</param>
         public TwitchIrcClient(ushort port, IrcUser irc_user) : base("irc.chat.twitch.tv", port, irc_user)
         {
-            // TODO: Add these as handler overrides instead of using derived events
             OnSocketConnected   += new EventHandler<EventArgs>(Callback_OnSocketConnected);
             OnChannelMode       += new EventHandler<ChannelModeEventArgs>(Callback_OnChannelMode);
             OnPrivmsg           += new EventHandler<PrivmsgEventArgs>(Callback_OnPrivmsg);
@@ -69,7 +70,7 @@ TwitchNet.Clients.Irc.Twitch
         public override void
         ResetSettings()
         {
-            auto_pong           = false;
+            base.ResetSettings();
 
             request_user_info   = false;
             request_commands    = false;
@@ -175,8 +176,12 @@ TwitchNet.Clients.Irc.Twitch
         SendChatRoomPrivmsg(string user_id, string uuid, string format, params string[] arguments)
         {
             ExceptionUtil.ThrowIfInvalid(user_id, nameof(user_id));
-            // TODO: Check the actual format of the UUID instad of just if it is empty or null.
             ExceptionUtil.ThrowIfInvalid(uuid, nameof(uuid));
+            Regex regex = new Regex(RegexPatternUtil.UUID);
+            if (!regex.IsMatch(uuid))
+            {
+                throw new FormatException("The argument " + nameof(uuid).WrapQuotes() + " must match the regex pattern " + RegexPatternUtil.UUID.WrapQuotes());
+            }
             ExceptionUtil.ThrowIfInvalid(format, nameof(format));
 
             string trailing = !arguments.IsValid() ? format : string.Format(format, arguments);
@@ -1162,7 +1167,6 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="channel">The IRC channel. Where to send the message.</param>
         /// <param name="command">The command to send.</param>
         /// <param name="arguments">Optional command arguments</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void
         SendChatCommand(string channel, ChatCommand command, params object[] arguments)
         {
@@ -1194,11 +1198,9 @@ TwitchNet.Clients.Irc.Twitch
         /// </param>
         /// <param name="arguments">Optional command arguments</param>
         /// <exception cref="NotSupportedException">Thrown if an unsupported chat command is attempted to be used.</exception>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void
         SendChatCommand(string user_id, string uuid, ChatCommand command, params object[] arguments)
         {
-            // TODO: Move this to the ExceptionUtil?
             switch (command)
             {
                 case ChatCommand.Commercial:

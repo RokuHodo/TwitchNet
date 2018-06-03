@@ -75,7 +75,7 @@ TwitchNet.Clients.Irc.Twitch
 
         /// <summary>
         /// <para>The type of the user notice.</para>
-        /// <para>Set to <see cref="UserNoticeType.None"/> if the tag could not be parsed.</para>
+        /// <para>Set to <see cref="UserNoticeType.Other"/> if the tag could not be parsed.</para>
         /// </summary>
         [ValidateTag("msg-id")]
         public UserNoticeType   msg_id          { get; protected set; }

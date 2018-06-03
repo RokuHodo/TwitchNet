@@ -9,37 +9,6 @@ TwitchNet.Extensions
     EnumExtensions
     {
         /// <summary>
-        /// Converts an <see cref="Enum"/> value to a string.
-        /// This will prioritize <see cref="EnumMemberAttribute"/> if applicable.
-        /// </summary>
-        /// <param name="value">The value of the <see cref="Enum"/></param>
-        /// <returns>
-        /// Returns an empty <see cref="string"/> if the <see cref="Enum"/> value is null.
-        /// Returns <see cref="EnumMemberAttribute.Value"/> if the <see cref="Enum"/> value has the attribute.
-        /// Returns the name of <see cref="Enum"/> by using <see cref="Enum.ToString()"/> otherwise.
-        /// </returns>
-        public static string
-        ToEnumString(this Enum value)
-        {
-            string name = string.Empty;
-
-            if (value.IsNull())
-            {
-                return name;
-            }
-
-            Type type = value.GetType();
-            name = Enum.GetName(type, value);
-
-            if(type.GetField(name).TryGetAttribute(out EnumMemberAttribute attribute))
-            {
-                name = attribute.Value;
-            }
-
-            return name;
-        }
-
-        /// <summary>
         /// <para>
         /// Converts a string into an <see cref="Enum"/> value.
         /// This supports the use of <see cref="EnumMemberAttribute"/>.

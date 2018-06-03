@@ -84,7 +84,7 @@ TwitchNet.Utilities
                 requesting = tuple.Item1.Data.data.IsValid() && tuple.Item1.Data.pagination.cursor.IsValid();
                 if (requesting)
                 {
-                    // TODO: This is a temporary fix and will only work with Helix. Find a better solution that can be adapted to any solution.
+                    // NOTE: This is a temporary fix and will only work with Helix.
                     request.Parameters.RemoveAll(element => element.Name == "after" && element.Type == ParameterType.QueryString);
                     request = request.AddQueryParameter("after", tuple.Item1.Data.pagination.cursor);
                 }
@@ -164,18 +164,17 @@ TwitchNet.Utilities
                         Array flags = Enum.GetValues(type);
                         foreach (Enum flag in flags)
                         {
+                            // TODO: C#'s native HasFlag() is slow, replace with our own.
                             if (property_value_enum.HasFlag(flag))
                             {
-                                // TODO: This is EXTREMELY slow. Go through any enum used in paging and add it to the cache.
-                                string enum_value = flag.ToEnumString();
+                                string enum_value = EnumCacheUtil.FromEnum(flag);
                                 request = AddQueryParameter(request, attribute, enum_value);
                             }
                         }
                     }
                     else
                     {
-                        // enum is a single value
-                        string enum_value = ((Enum)value).ToEnumString();
+                        string enum_value = EnumCacheUtil.FromEnum(((Enum)value));
                         request = AddQueryParameter(request, attribute, enum_value);
                     }
                 }

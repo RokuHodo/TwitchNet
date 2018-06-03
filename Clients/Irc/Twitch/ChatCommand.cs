@@ -7,7 +7,7 @@ TwitchNet.Clients.Irc.Twitch
         #region Other
 
         /// <summary>
-        /// Represents an unsupported chat command.
+        /// Unsupported chat command.
         /// </summary>
         Other = 0,
 

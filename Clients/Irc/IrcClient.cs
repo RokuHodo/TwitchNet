@@ -570,8 +570,6 @@ TwitchNet.Clients.Irc
             Send(message);
         }
 
-        // TODO: Manually track which channels you join/leave?
-
         /// <summary>
         /// Joins one or more IRC channels.
         /// </summary>

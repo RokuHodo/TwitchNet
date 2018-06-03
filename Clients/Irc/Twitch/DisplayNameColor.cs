@@ -5,78 +5,83 @@ TwitchNet.Clients.Irc.Twitch
     DisplayNameColor
     {
         /// <summary>
+        /// Unsupported display name color.
+        /// </summary>
+        Other       = 0,
+
+        /// <summary>
         /// Blue.
         /// </summary>
-        Blue        = 1,
+        Blue,
 
         /// <summary>
         /// Blue violet.
         /// </summary>
-        BlueViolet  = 2,
+        BlueViolet,
 
         /// <summary>
         /// Cadet blue.
         /// </summary>
-        CadetBlue   = 3,
+        CadetBlue,
 
         /// <summary>
         /// Chocolate.
         /// </summary>
-        Chocloate   = 4,
+        Chocloate,
 
         /// <summary>
         /// Coral.
         /// </summary>
-        Coral       = 5,
+        Coral,
 
         /// <summary>
         /// Dodger blue.
         /// </summary>
-        DodgerBlue  = 6,
+        DodgerBlue,
 
         /// <summary>
         /// Fire brick.
         /// </summary>
-        FireBrick   = 7,
+        FireBrick,
 
         /// <summary>
         /// Golden rod.
         /// </summary>
-        GoldenRod   = 8,
+        GoldenRod,
 
         /// <summary>
         /// Green.
         /// </summary>
-        Green       = 9,
+        Green,
 
         /// <summary>
         /// Hot pink.
         /// </summary>
-        HotPink     = 10,
+        HotPink,
 
         /// <summary>
         /// Orange red.
         /// </summary>
-        OrangeRed   = 11,
+        OrangeRed,
 
         /// <summary>
         /// Red.
         /// </summary>
-        Red         = 12,
+        Red,
 
         /// <summary>
         /// Sea green.
         /// </summary>
-        SeaGreen    = 13,
+        SeaGreen,
 
         /// <summary>
         /// Spring green.
         /// </summary>
-        SpringGreen = 14,
+        SpringGreen,
 
         /// <summary>
         /// Yellow green.
         /// </summary>
-        YellowGreen = 15
+        YellowGreen,
     }
 }

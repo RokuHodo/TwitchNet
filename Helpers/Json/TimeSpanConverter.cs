@@ -17,25 +17,13 @@ TwitchNet.Helpers.Json
         /// Whether this JsonConverter can read JSON.
         /// </summary>
         public override bool
-        CanRead
-        {
-            get
-            {
-                return true;
-            }
-        }
+        CanRead => true;
 
         /// <summary>
         /// Whether this JsonConverter can write JSON.
         /// </summary>
         public override bool
-        CanWrite
-        {
-            get
-            {
-                return false;
-            }
-        }                
+        CanWrite => false;
 
         /// <summary>
         /// Converts a JSON object to a <see cref="TimeSpan"/> object.

@@ -10,11 +10,11 @@ TwitchNet.Debugger
     {
         None = 0,
 
-        Minor = 1 << 0,
+        Minor       = 1 << 0,
 
-        Major = 1 << 1,
+        Major       = 1 << 1,
 
-        Critical = 1 << 2,
+        Critical    = 1 << 2,
 
         All = Minor | Major | Critical
     }

@@ -54,7 +54,6 @@
     <Compile Include="Debugger\DebugLevel.cs" />
     <Compile Include="Debugger\ErrorLevel.cs" />
     <Compile Include="Debugger\TimeStamp.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Rest\Api\TwitchApi.Sync.cs" />
     <Compile Include="Rest\Api\TwitchApi.Async.cs" />
     <Compile Include="Rest\Api\TwitchApiOAuth.Sync.cs" />
@@ -69,7 +68,7 @@
     <Compile Include="Debugger\ValidateObjectAttribute.cs" />
     <Compile Include="Debugger\ValidateMemberAttribute.cs" />
     <Compile Include="Rest\Api\Entitlements\EntitlementType.cs" />
-    <Compile Include="Rest\Api\Scopes.cs" />
+    <Compile Include="Rest\Scopes.cs" />
     <Compile Include="Clients\ClientState.cs" />
     <Compile Include="Clients\Irc\Twitch\CommercialLength.cs" />
     <Compile Include="Clients\Irc\Twitch\ChatCommand.cs" />
@@ -149,7 +148,6 @@
     <Compile Include="Extensions\EventExtensions.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\MathExtensions .cs" />
-    <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\ReflectionExtensions.cs" />

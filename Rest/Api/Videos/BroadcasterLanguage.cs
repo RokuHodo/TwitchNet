@@ -1,13 +1,11 @@
-﻿// standard namespaces
-using System.Runtime.Serialization;
-
-// imported namespaces
+﻿// imported namespaces
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace
 TwitchNet.Rest.Api.Videos
 {
+    // TODO: Add custom converter for the deserializer.
     [JsonConverter(typeof(StringEnumConverter))]
     public enum
     BroadcasterLanguage
@@ -15,175 +13,146 @@ TwitchNet.Rest.Api.Videos
         /// <summary>
         /// Unsupported broadcaster language.
         /// </summary>
-        [EnumMember(Value = "")]
         None    = 0,
 
         /// <summary>
         /// English (English)
         /// </summary>
-        [EnumMember(Value = "en")]
-        En      = 1,
+        En,
 
         /// <summary>
         /// Dansk (Danish)
         /// </summary>
-        [EnumMember(Value = "da")]
-        Da      = 2,
+        Da,
 
         /// <summary>
         /// Deutsch (German)
         /// </summary>
-        [EnumMember(Value = "de")]
-        De      = 3,
+        De,
 
         /// <summary>
         /// Español (Spanish)
         /// </summary>
-        [EnumMember(Value = "es")]
-        Es      = 4,
+        Es,
 
         /// <summary>
         /// Français (French)
         /// </summary>
-        [EnumMember(Value = "fr")]
-        Fr      = 5,
+        Fr,
 
         /// <summary>
         /// Italiano (Italian)
         /// </summary>
-        [EnumMember(Value = "it")]
-        It      = 6,
+        It,
 
         /// <summary>
         /// Magyar (Hungarian)
         /// </summary>
-        [EnumMember(Value = "hu")]
-        Hu      = 7,
+        Hu,
 
         /// <summary>
         /// Nederlands (Netherland)
         /// </summary>
-        [EnumMember(Value = "nl")]
-        Nl      = 8,
+        Nl,
 
         /// <summary>
         /// Norsk (Norwegian)
         /// </summary>
-        [EnumMember(Value = "no")]
-        No      = 9,
+        No,
 
         /// <summary>
         /// Polski (Polish)
         /// </summary>
-        [EnumMember(Value = "pl")]
-        Pl      = 10,
+        Pl,
 
         /// <summary>
         /// Português (Portuguese)
         /// </summary>
-        [EnumMember(Value = "pt")]
-        Pt      = 11,
+        Pt,
 
         /// <summary>
         /// Slovenčina (Slovak)
         /// </summary>
-        [EnumMember(Value = "sk")]
-        Sk      = 12,
+        Sk,
 
         /// <summary>
         /// Suomi (Finish)
         /// </summary>
-        [EnumMember(Value = "fi")]
-        Fi      = 13,
+        Fi,
 
         /// <summary>
         /// Svenska (Swedish)
         /// </summary>
-        [EnumMember(Value = "sv")]
-        Sv      = 14,
+        Sv,
 
         /// <summary>
         /// Tiếng Việt (Vietnamese)
         /// </summary>
-        [EnumMember(Value = "vi")]
-        Vi      = 15,
+        Vi,
 
         /// <summary>
         /// Türkçe (Turkish)
         /// </summary>
-        [EnumMember(Value = "tr")]
-        Tr      = 16,
+        Tr,
 
         /// <summary>
         /// Čeština (Czech)
         /// </summary>
-        [EnumMember(Value = "cs")]
-        Cs      = 17,
+        Cs,
 
         /// <summary>
         /// Ελληνικά (Greek)
         /// </summary>
-        [EnumMember(Value = "el")]
-        El      = 18,
+        El,
 
         /// <summary>
         /// български (Bulgarian)
         /// </summary>
-        [EnumMember(Value = "bg")]
-        Bg      = 19,
+        Bg,
 
         /// <summary>
         /// Pусский (Slovenian)
         /// </summary>
-        [EnumMember(Value = "ru")]
-        Ru      = 20,
+        Ru,
 
         /// <summary>
         /// العربية (Arabic)
         /// </summary>
-        [EnumMember(Value = "ar")]
-        Ar      = 21,
+        Ar,
 
         /// <summary>
         /// ภาษาไทย (Thai)
         /// </summary>
-        [EnumMember(Value = "th")]
-        Th      = 22,
+        Th,
 
         /// <summary>
         /// 中文 (Chinese)
         /// </summary>
-        [EnumMember(Value = "zh")]
-        Zh      = 23,
+        Zh,
 
         /// <summary>
         /// 中文 繁體 (Chinese - Hong Kong S.A.R)
         /// </summary>
-        [EnumMember(Value = "zh-hk")]
-        ZhHk   = 24,
+        ZhHk,
 
         /// <summary>
         /// 日本語 (Japanese)
         /// </summary>
-        [EnumMember(Value = "ja")]
-        Ja      = 25,
+        Ja,
 
         /// <summary>
         /// 한국어 (Korean)
         /// </summary>
-        [EnumMember(Value = "ko")]
-        Ko      = 26,
+        Ko,
 
         /// <summary>
         /// American Sign Language
         /// </summary>
-        [EnumMember(Value = "asl")]
-        Asl     = 27,
+        Asl,
 
         /// <summary>
         /// Other
         /// </summary>
-        [EnumMember(Value = "other")]
-        Other   = 28
+        Other
     }
 }

@@ -1,10 +1,10 @@
 ﻿namespace
 TwitchNet.Rest.Api.Clips
 {
+    //TODO: Update query parameters.
     public class
     ClipCreationQueryParameters
     {
-        //TODO: Update query parameters.
         /// <summary>
         /// The user ID from which the clip will be made.
         /// </summary>

@@ -9,7 +9,7 @@ TwitchNet.Debugger
     DebugLevel
     {
         /// <summary>
-        /// Print no debug information. Overrides all other bitfields if set.
+        /// Send no messages ot the output stream.
         /// </summary>
         None        = 0,
 
@@ -34,8 +34,8 @@ TwitchNet.Debugger
         Warning     = 1 << 3,
 
         /// <summary>
-        /// Print all debug information. Overrides all other bitfields if set, except 'None'.
+        /// Send all messages ot the output stream.
         /// </summary>
-        All         = General | Error | Warning
+        All = General | Error | Warning
     }
 }

@@ -3,6 +3,10 @@ using System;
 using System.Collections.Generic;
 
 // project namespaces
+using TwitchNet.Rest;
+using TwitchNet.Rest.Api.Entitlements;
+using TwitchNet.Rest.Api.Streams;
+using TwitchNet.Rest.Api.Users;
 using TwitchNet.Rest.Api.Videos;
 using TwitchNet.Clients.Irc.Twitch;
 using TwitchNet.Debugger;
@@ -466,6 +470,128 @@ TwitchNet.Utilities
         #region Rest enum caches         
 
         private static readonly
+        Dictionary<string, EntitlementType>         CACHE_TO_ENTITLEMENTR_TYPE              = new Dictionary<string, EntitlementType>
+        {
+            { "bulk_drops_grant", EntitlementType.BulkDropsGrant }
+        };
+
+        private static readonly
+        Dictionary<EntitlementType, string>         CACHE_FROM_ENTITLEMENTR_TYPE            = new Dictionary<EntitlementType, string>
+        {
+            { EntitlementType.BulkDropsGrant, "bulk_drops_grant" }
+        };
+
+        private static readonly
+        Dictionary<string, StreamLanguage>          CACHE_TO_STREAM_LANGUAGE                = new Dictionary<string, StreamLanguage>()
+        {
+            { "",       StreamLanguage.None },
+
+            { "da",     StreamLanguage.Da   },
+            { "de",     StreamLanguage.De   },
+            { "en",     StreamLanguage.En   },
+            { "en-gb",  StreamLanguage.EnGb },
+            { "es",     StreamLanguage.Es   },
+            { "es-mx",  StreamLanguage.EsMx },
+            { "fr",     StreamLanguage.Fr   },
+            { "it",     StreamLanguage.It   },
+            { "hu",     StreamLanguage.Hu   },
+            { "nl",     StreamLanguage.Nl   },
+            { "no",     StreamLanguage.No   },
+            { "pl",     StreamLanguage.Pl   },
+            { "pt",     StreamLanguage.Pt   },
+            { "pt-br",  StreamLanguage.PtBr },
+            { "sk",     StreamLanguage.Sk   },
+            { "fi",     StreamLanguage.Fi   },
+            { "sv",     StreamLanguage.Sv   },
+            { "vi",     StreamLanguage.Vi   },
+            { "tr",     StreamLanguage.Tr   },
+            { "cs",     StreamLanguage.Cs   },
+            { "el",     StreamLanguage.El   },
+            { "bg",     StreamLanguage.Bg   },
+            { "ru",     StreamLanguage.Ru   },
+            { "ar",     StreamLanguage.Ar   },
+            { "th",     StreamLanguage.Th   },
+            { "zh-cn",  StreamLanguage.ZhCn },
+            { "zh-tw",  StreamLanguage.ZhTw },
+            { "ja",     StreamLanguage.Ja   },
+            { "ko",     StreamLanguage.Ko   },
+        };
+
+        private static readonly
+        Dictionary<StreamLanguage, string>          CACHE_FROM_STREAM_LANGUAGE              = new Dictionary<StreamLanguage, string>()
+        {
+            { StreamLanguage.None,  ""      },
+
+            { StreamLanguage.Da,    "da"    },
+            { StreamLanguage.De,    "de"    },
+            { StreamLanguage.En,    "en"    },
+            { StreamLanguage.EnGb,  "en-gb" },
+            { StreamLanguage.Es,    "es"    },
+            { StreamLanguage.EsMx,  "es-mx" },
+            { StreamLanguage.Fr,    "fr"    },
+            { StreamLanguage.It,    "it"    },
+            { StreamLanguage.Hu,    "hu"    },
+            { StreamLanguage.Nl,    "nl"    },
+            { StreamLanguage.No,    "no"    },
+            { StreamLanguage.Pl,    "pl"    },
+            { StreamLanguage.Pt,    "pt"    },
+            { StreamLanguage.PtBr,  "pt-br" },
+            { StreamLanguage.Sk,    "sk"    },
+            { StreamLanguage.Fi,    "fi"    },
+            { StreamLanguage.Sv,    "sv"    },
+            { StreamLanguage.Vi,    "vi"    },
+            { StreamLanguage.Tr,    "tr"    },
+            { StreamLanguage.Cs,    "cs"    },
+            { StreamLanguage.El,    "el"    },
+            { StreamLanguage.Bg,    "bg"    },
+            { StreamLanguage.Ru,    "ru"    },
+            { StreamLanguage.Ar,    "ar"    },
+            { StreamLanguage.Th,    "th"    },
+            { StreamLanguage.ZhCn,  "zh-cn" },
+            { StreamLanguage.ZhTw,  "zh-tw" },
+            { StreamLanguage.Ja,    "ja"    },
+            { StreamLanguage.Ko,    "ko"    },
+        };
+
+        private static readonly
+        Dictionary<string, StreamType>              CACHE_TO_STREAM_TYPE                    = new Dictionary<string, StreamType>()
+        {
+            { "",           StreamType.Other   },
+
+            { "live",       StreamType.Live    },
+            { "vodcast",    StreamType.Vodcast },
+            { "all",        StreamType.All     },
+        };
+
+        private static readonly
+        Dictionary<StreamType, string>              CACHE_FROM_STREAM_TYPE                  = new Dictionary<StreamType, string>()
+        {
+            { StreamType.Other,     ""        },
+
+            { StreamType.Live,      "live"    },
+            { StreamType.Vodcast,   "vodcast" },
+            { StreamType.All,       "all"     },
+        };
+
+        private static readonly
+        Dictionary<string, BroadcasterType>         CACHE_TO_BROADCASTER_TYPE               = new Dictionary<string, BroadcasterType>()
+        {
+            { "",           BroadcasterType.Empty     },
+
+            { "partner",    BroadcasterType.Partner   },
+            { "affiliate",  BroadcasterType.Affiliate },
+        };
+
+        private static readonly
+        Dictionary<BroadcasterType, string>         CACHE_FROM_BROADCASTER_TYPE             = new Dictionary<BroadcasterType, string>()
+        {
+            { BroadcasterType.Empty,        ""          },
+
+            { BroadcasterType.Partner,      "partner"   },
+            { BroadcasterType.Affiliate,    "affiliate" },
+        };
+
+        private static readonly
         Dictionary<string, BroadcasterLanguage>     CACHE_TO_BROADCASTER_LANGUAGE           = new Dictionary<string, BroadcasterLanguage>
         {
             { "",       BroadcasterLanguage.None  },
@@ -533,6 +659,82 @@ TwitchNet.Utilities
             { BroadcasterLanguage.Ko,       "ko"    },
             { BroadcasterLanguage.Asl,      "asl"   },
             { BroadcasterLanguage.Other,    "other" },
+        };
+
+        private static readonly
+        Dictionary<string, VideoPeriod>             CACHE_TO_VIDEO_PERIOD                   = new Dictionary<string, VideoPeriod>()
+        {
+            { "all",    VideoPeriod.All   },
+            { "day",    VideoPeriod.Day   },
+            { "week",   VideoPeriod.Week  },
+            { "month",  VideoPeriod.Month },
+        };
+        
+        private static readonly
+        Dictionary<VideoPeriod, string>             CACHE_FROM_VIDEO_PERIOD                 = new Dictionary<VideoPeriod, string>()
+        {
+            { VideoPeriod.All,      "all"   },
+            { VideoPeriod.Day,      "day"   },
+            { VideoPeriod.Week,     "week"  },
+            { VideoPeriod.Month,    "month" },
+        };
+
+        private static readonly
+        Dictionary<string, VideoSort>               CACHE_TO_VIDEO_SORT                     = new Dictionary<string, VideoSort>()
+        {
+            { "time",       VideoSort.Time     },
+            { "trending",   VideoSort.Trending },
+            { "views",      VideoSort.Views    },
+        };
+
+        private static readonly
+        Dictionary<VideoSort, string>               CACHE_FROM_VIDEO_SORT                   = new Dictionary<VideoSort, string>()
+        {
+            { VideoSort.Time,       "time"     },
+            { VideoSort.Trending,   "trending" },
+            { VideoSort.Views,      "views"    },
+        };
+
+        private static readonly
+        Dictionary<string, VideoType>               CACHE_TO_VIDEO_TYPE                     = new Dictionary<string, VideoType>()
+        {
+            { "upload",     VideoType.Upload    },
+            { "archive",    VideoType.Archive   },
+            { "highlight",  VideoType.Highlight },
+            { "all",        VideoType.All       },
+        };
+
+        private static readonly
+        Dictionary<VideoType, string>               CACHE_FROM_VIDEO_TYPE                   = new Dictionary<VideoType, string>()
+        {
+            { VideoType.Upload,     "upload"    },
+            { VideoType.Archive,    "archive"   },
+            { VideoType.Highlight,  "highlight" },
+            { VideoType.All,        "all"       },
+        };
+
+        private static readonly
+        Dictionary<string, Scopes>                  CACHE_TO_SCOPES                         = new Dictionary<string, Scopes>()
+        {
+            { "",                       Scopes.Other              },
+
+            { "analytics:read:games",   Scopes.AnalyticsReadGames },
+            { "bits:read",              Scopes.BitsRead           },
+            { "clips:edit",             Scopes.ClipsEdit          },
+            { "user:edit",              Scopes.UserEdit           },
+            { "user:read:email",        Scopes.UserReadEmail      },
+        };
+
+        private static readonly
+        Dictionary<Scopes, string>                  CACHE_FROM_SCOPES                       = new Dictionary<Scopes, string>()
+        {
+            { Scopes.Other,                 ""                     },
+
+            { Scopes.AnalyticsReadGames,    "analytics:read:games" },
+            { Scopes.BitsRead,              "bits:read"            },
+            { Scopes.ClipsEdit,             "clips:edit"           },
+            { Scopes.UserEdit,              "user:edit"            },
+            { Scopes.UserReadEmail,         "user:read:email"      },
         };
 
         #endregion
@@ -946,6 +1148,174 @@ TwitchNet.Utilities
         #region Rest enum converters
 
         /// <summary>
+        /// Converts a string into an <see cref="EntitlementType"/> value.
+        /// </summary>
+        /// <param name="str">The string to convert.</param>
+        /// <returns>
+        /// Returns the corresponding <see cref="EntitlementType"/> value if the string is found in the cache.
+        /// Returns default enum value otherwise.
+        /// </returns>
+        public static EntitlementType
+        ToEntitlementType(string str)
+        {
+            if (str.IsNull())
+            {
+                return default(EntitlementType);
+            }
+
+            CACHE_TO_ENTITLEMENTR_TYPE.TryGetValue(str, out EntitlementType value);
+
+            return value;
+        }
+
+        /// <summary>
+        /// Converts an <see cref="EntitlementType"/> value to a string.
+        /// </summary>
+        /// <param name="value">The enum value to convert.</param>
+        /// <returns>
+        /// Returns the corresponding enum name if the <see cref="EntitlementType"/> value is found in the cache.
+        /// Returns the enum name obtained from <see cref="Enum.GetName(Type, object)"/> otherwise.
+        /// </returns>
+        public static string
+        FromEntitlementType(EntitlementType value)
+        {
+            if (!CACHE_FROM_ENTITLEMENTR_TYPE.TryGetValue(value, out string name))
+            {
+                name = Enum.GetName(value.GetType(), value);
+
+                Debug.WriteWarning(ErrorLevel.Minor, "The enum value " + name.WrapQuotes() + " found in the " + nameof(EntitlementType) + " enum.");
+            }
+
+            return name;
+        }
+
+        /// <summary>
+        /// Converts a string into a <see cref="StreamLanguage"/> value.
+        /// </summary>
+        /// <param name="str">The string to convert.</param>
+        /// <returns>
+        /// Returns the corresponding <see cref="StreamLanguage"/> value if the string is found in the cache.
+        /// Returns default enum value otherwise.
+        /// </returns>
+        public static StreamLanguage
+        ToStreamLanguage(string str)
+        {
+            if (str.IsNull())
+            {
+                return default(StreamLanguage);
+            }
+
+            CACHE_TO_STREAM_LANGUAGE.TryGetValue(str, out StreamLanguage value);
+
+            return value;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="StreamLanguage"/> value to a string.
+        /// </summary>
+        /// <param name="value">The enum value to convert.</param>
+        /// <returns>
+        /// Returns the corresponding enum name if the <see cref="StreamLanguage"/> value is found in the cache.
+        /// Returns the enum name obtained from <see cref="Enum.GetName(Type, object)"/> otherwise.
+        /// </returns>
+        public static string
+        FromStreamLanguage(StreamLanguage value)
+        {
+            if (!CACHE_FROM_STREAM_LANGUAGE.TryGetValue(value, out string name))
+            {
+                name = Enum.GetName(value.GetType(), value);
+
+                Debug.WriteWarning(ErrorLevel.Minor, "The enum value " + name.WrapQuotes() + " found in the " + nameof(StreamLanguage) + " enum.");
+            }
+
+            return name;
+        }
+
+        /// <summary>
+        /// Converts a string into a <see cref="StreamType"/> value.
+        /// </summary>
+        /// <param name="str">The string to convert.</param>
+        /// <returns>
+        /// Returns the corresponding <see cref="StreamType"/> value if the string is found in the cache.
+        /// Returns default enum value otherwise.
+        /// </returns>
+        public static StreamType
+        ToStreamType(string str)
+        {
+            if (str.IsNull())
+            {
+                return default(StreamType);
+            }
+
+            CACHE_TO_STREAM_TYPE.TryGetValue(str, out StreamType value);
+
+            return value;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="StreamType"/> value to a string.
+        /// </summary>
+        /// <param name="value">The enum value to convert.</param>
+        /// <returns>
+        /// Returns the corresponding enum name if the <see cref="StreamType"/> value is found in the cache.
+        /// Returns the enum name obtained from <see cref="Enum.GetName(Type, object)"/> otherwise.
+        /// </returns>
+        public static string
+        FromStreamType(StreamType value)
+        {
+            if (!CACHE_FROM_STREAM_TYPE.TryGetValue(value, out string name))
+            {
+                name = Enum.GetName(value.GetType(), value);
+
+                Debug.WriteWarning(ErrorLevel.Minor, "The enum value " + name.WrapQuotes() + " found in the " + nameof(StreamType) + " enum.");
+            }
+
+            return name;
+        }
+
+        /// <summary>
+        /// Converts a string into a <see cref="BroadcasterType"/> value.
+        /// </summary>
+        /// <param name="str">The string to convert.</param>
+        /// <returns>
+        /// Returns the corresponding <see cref="BroadcasterType"/> value if the string is found in the cache.
+        /// Returns default enum value otherwise.
+        /// </returns>
+        public static BroadcasterType
+        ToBroadcasterType(string str)
+        {
+            if (str.IsNull())
+            {
+                return default(BroadcasterType);
+            }
+
+            CACHE_TO_BROADCASTER_TYPE.TryGetValue(str, out BroadcasterType value);
+
+            return value;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="BroadcasterType"/> value to a string.
+        /// </summary>
+        /// <param name="value">The enum value to convert.</param>
+        /// <returns>
+        /// Returns the corresponding enum name if the <see cref="BroadcasterType"/> value is found in the cache.
+        /// Returns the enum name obtained from <see cref="Enum.GetName(Type, object)"/> otherwise.
+        /// </returns>
+        public static string
+        FromBroadcasterType(BroadcasterType value)
+        {
+            if (!CACHE_FROM_BROADCASTER_TYPE.TryGetValue(value, out string name))
+            {
+                name = Enum.GetName(value.GetType(), value);
+
+                Debug.WriteWarning(ErrorLevel.Minor, "The enum value " + name.WrapQuotes() + " found in the " + nameof(BroadcasterType) + " enum.");
+            }
+
+            return name;
+        }
+
+        /// <summary>
         /// Converts a string into a <see cref="BroadcasterLanguage"/> value.
         /// </summary>
         /// <param name="str">The string to convert.</param>
@@ -982,6 +1352,174 @@ TwitchNet.Utilities
                 name = Enum.GetName(value.GetType(), value);
 
                 Debug.WriteWarning(ErrorLevel.Minor, "The enum value " + name.WrapQuotes() + " found in the " + nameof(BroadcasterLanguage) + " enum.");
+            }
+
+            return name;
+        }
+
+        /// <summary>
+        /// Converts a string into a <see cref="VideoPeriod"/> value.
+        /// </summary>
+        /// <param name="str">The string to convert.</param>
+        /// <returns>
+        /// Returns the corresponding <see cref="VideoPeriod"/> value if the string is found in the cache.
+        /// Returns default enum value otherwise.
+        /// </returns>
+        public static VideoPeriod
+        ToVideoPeriod(string str)
+        {
+            if (str.IsNull())
+            {
+                return default(VideoPeriod);
+            }
+
+            CACHE_TO_VIDEO_PERIOD.TryGetValue(str, out VideoPeriod value);
+
+            return value;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="VideoPeriod"/> value to a string.
+        /// </summary>
+        /// <param name="value">The enum value to convert.</param>
+        /// <returns>
+        /// Returns the corresponding enum name if the <see cref="VideoPeriod"/> value is found in the cache.
+        /// Returns the enum name obtained from <see cref="Enum.GetName(Type, object)"/> otherwise.
+        /// </returns>
+        public static string
+        FromVideoPeriod(VideoPeriod value)
+        {
+            if (!CACHE_FROM_VIDEO_PERIOD.TryGetValue(value, out string name))
+            {
+                name = Enum.GetName(value.GetType(), value);
+
+                Debug.WriteWarning(ErrorLevel.Minor, "The enum value " + name.WrapQuotes() + " found in the " + nameof(VideoPeriod) + " enum.");
+            }
+
+            return name;
+        }
+
+        /// <summary>
+        /// Converts a string into a <see cref="VideoSort"/> value.
+        /// </summary>
+        /// <param name="str">The string to convert.</param>
+        /// <returns>
+        /// Returns the corresponding <see cref="VideoSort"/> value if the string is found in the cache.
+        /// Returns default enum value otherwise.
+        /// </returns>
+        public static VideoSort
+        ToVideoSort(string str)
+        {
+            if (str.IsNull())
+            {
+                return default(VideoSort);
+            }
+
+            CACHE_TO_VIDEO_SORT.TryGetValue(str, out VideoSort value);
+
+            return value;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="VideoSort"/> value to a string.
+        /// </summary>
+        /// <param name="value">The enum value to convert.</param>
+        /// <returns>
+        /// Returns the corresponding enum name if the <see cref="VideoSort"/> value is found in the cache.
+        /// Returns the enum name obtained from <see cref="Enum.GetName(Type, object)"/> otherwise.
+        /// </returns>
+        public static string
+        FromVideoSort(VideoSort value)
+        {
+            if (!CACHE_FROM_VIDEO_SORT.TryGetValue(value, out string name))
+            {
+                name = Enum.GetName(value.GetType(), value);
+
+                Debug.WriteWarning(ErrorLevel.Minor, "The enum value " + name.WrapQuotes() + " found in the " + nameof(VideoSort) + " enum.");
+            }
+
+            return name;
+        }
+
+        /// <summary>
+        /// Converts a string into a <see cref="VideoType"/> value.
+        /// </summary>
+        /// <param name="str">The string to convert.</param>
+        /// <returns>
+        /// Returns the corresponding <see cref="VideoType"/> value if the string is found in the cache.
+        /// Returns default enum value otherwise.
+        /// </returns>
+        public static VideoType
+        ToVideoType(string str)
+        {
+            if (str.IsNull())
+            {
+                return default(VideoType);
+            }
+
+            CACHE_TO_VIDEO_TYPE.TryGetValue(str, out VideoType value);
+
+            return value;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="VideoType"/> value to a string.
+        /// </summary>
+        /// <param name="value">The enum value to convert.</param>
+        /// <returns>
+        /// Returns the corresponding enum name if the <see cref="VideoType"/> value is found in the cache.
+        /// Returns the enum name obtained from <see cref="Enum.GetName(Type, object)"/> otherwise.
+        /// </returns>
+        public static string
+        FromVideoType(VideoType value)
+        {
+            if (!CACHE_FROM_VIDEO_TYPE.TryGetValue(value, out string name))
+            {
+                name = Enum.GetName(value.GetType(), value);
+
+                Debug.WriteWarning(ErrorLevel.Minor, "The enum value " + name.WrapQuotes() + " found in the " + nameof(VideoType) + " enum.");
+            }
+
+            return name;
+        }
+
+        /// <summary>
+        /// Converts a string into a <see cref="Scopes"/> value.
+        /// </summary>
+        /// <param name="str">The string to convert.</param>
+        /// <returns>
+        /// Returns the corresponding <see cref="Scopes"/> value if the string is found in the cache.
+        /// Returns default enum value otherwise.
+        /// </returns>
+        public static Scopes
+        ToScopes(string str)
+        {
+            if (str.IsNull())
+            {
+                return default(Scopes);
+            }
+
+            CACHE_TO_SCOPES.TryGetValue(str, out Scopes value);
+
+            return value;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="Scopes"/> value to a string.
+        /// </summary>
+        /// <param name="value">The enum value to convert.</param>
+        /// <returns>
+        /// Returns the corresponding enum name if the <see cref="Scopes"/> value is found in the cache.
+        /// Returns the enum name obtained from <see cref="Enum.GetName(Type, object)"/> otherwise.
+        /// </returns>
+        public static string
+        FromScopes(Scopes value)
+        {
+            if (!CACHE_FROM_SCOPES.TryGetValue(value, out string name))
+            {
+                name = Enum.GetName(value.GetType(), value);
+
+                Debug.WriteWarning(ErrorLevel.Minor, "The enum value " + name.WrapQuotes() + " found in the " + nameof(Scopes) + " enum.");
             }
 
             return name;
@@ -1038,6 +1576,129 @@ TwitchNet.Utilities
         #region Universal enum converters
 
         /// <summary>
+        /// Converts a string into an <see cref="Enum"/> value.
+        /// </summary>
+        /// <param name="str">The string to convert.</param>
+        /// <param name="type">The type of the enum to convert the string into.</param>
+        /// <returns>
+        /// Returns the corresponding <see cref="Enum"/> value if the string is found in the enum's type cache, or exists in the enum names.
+        /// Returns the default value of the enum type otherwise.
+        /// </returns>
+        /// <exception cref="NotSupportedException">Thrown if the type is not an enum.</exception>
+        public static object
+        ToEnum(string str, Type type)
+        {
+            if (!type.IsEnum)
+            {
+                throw new NotSupportedException("Type " + type.Name.WrapQuotes() + " is not an enum.");
+            }
+
+            object value = type.GetDefaultValue();
+
+            if (str.IsNull())
+            {
+                return value;
+            }
+
+            if (type == typeof(BadgeType))
+            {
+                value = ToBadgeType(str);
+            }
+            else if (type == typeof(ChatCommand))
+            {
+                value = ToChatCommand(str);
+            }
+            else if (type == typeof(CommercialLength))
+            {
+                value = ToCommercialLength(str);
+            }
+            else if (type == typeof(DisplayNameColor))
+            {
+                value = ToDisplayNameColor(str);
+            }
+            else if (type == typeof(FollowersDurationPeriod))
+            {
+                value = ToFollowersDurationPeriod(str);
+            }
+            else if (type == typeof(NoticeType))
+            {
+                value = ToNoticeType(str);
+            }
+            else if (type == typeof(RitualType))
+            {
+                value = ToRitualType(str);
+            }
+            else if (type == typeof(SubscriptionPlan))
+            {
+                value = ToSubscriptionPlan(str);
+            }
+            else if (type == typeof(UserNoticeType))
+            {
+                value = ToUserNoticeType(str);
+            }
+            else if (type == typeof(EntitlementType))
+            {
+                value = ToEntitlementType(str);
+            }
+            else if (type == typeof(StreamLanguage))
+            {
+                value = ToStreamLanguage(str);
+            }
+            else if (type == typeof(StreamType))
+            {
+                value = ToStreamType(str);
+            }
+            else if (type == typeof(BroadcasterType))
+            {
+                value = ToBroadcasterType(str);
+            }
+            else if (type == typeof(BroadcasterLanguage))
+            {
+                value = ToBroadcasterLanguage(str);
+            }
+            else if (type == typeof(VideoPeriod))
+            {
+                value = ToVideoPeriod(str);
+            }
+            else if (type == typeof(VideoSort))
+            {
+                value = ToVideoSort(str);
+            }
+            else if (type == typeof(VideoType))
+            {
+                value = ToVideoType(str);
+            }
+            else if (type == typeof(Scopes))
+            {
+                value = ToScopes(str);
+            }
+            else if (type == typeof(UserType))
+            {
+                value = ToUserType(str);
+            }
+            else
+            {
+                Debug.WriteWarning(ErrorLevel.Minor, "The enum type " + type.Name.WrapQuotes() + " is not natively supported by the EnumCacheUtil.");
+
+                string[] names = Enum.GetNames(type);
+                if (!names.IsValid())
+                {
+                    return value;
+                }
+
+                HashSet<string> hash = new HashSet<string>(names);
+                if (!hash.Contains(str))
+                {
+                    return value;
+                }
+
+                value = Enum.Parse(type, str);
+            }
+
+            return value;
+        }
+
+        /// <summary>
         /// Converts an <see cref="Enum"/> value to a string.
         /// </summary>
         /// <param name="value">The enum value to convert.</param>
@@ -1051,15 +1712,15 @@ TwitchNet.Utilities
             string name = string.Empty;
 
             Type type = value.GetType();
-            if(type == typeof(BadgeType))
+            if (type == typeof(BadgeType))
             {
                 name = FromBadgeType((BadgeType)value);
             }
-            else if(type == typeof(ChatCommand))
+            else if (type == typeof(ChatCommand))
             {
                 name = FromChatCommand((ChatCommand)value);
             }
-            else if(type == typeof(CommercialLength))
+            else if (type == typeof(CommercialLength))
             {
                 name = FromCommercialLength((CommercialLength)value);
             }
@@ -1087,9 +1748,41 @@ TwitchNet.Utilities
             {
                 name = FromUserNoticeType((UserNoticeType)value);
             }
+            else if (type == typeof(EntitlementType))
+            {
+                name = FromEntitlementType((EntitlementType)value);
+            }
+            else if (type == typeof(StreamLanguage))
+            {
+                name = FromStreamLanguage((StreamLanguage)value);
+            }
+            else if (type == typeof(StreamType))
+            {
+                name = FromStreamType((StreamType)value);
+            }
+            else if (type == typeof(BroadcasterType))
+            {
+                name = FromBroadcasterType((BroadcasterType)value);
+            }
             else if (type == typeof(BroadcasterLanguage))
             {
                 name = FromBroadcasterLanguage((BroadcasterLanguage)value);
+            }
+            else if (type == typeof(VideoPeriod))
+            {
+                name = FromVideoPeriod((VideoPeriod)value);
+            }
+            else if (type == typeof(VideoSort))
+            {
+                name = FromVideoSort((VideoSort)value);
+            }
+            else if (type == typeof(VideoType))
+            {
+                name = FromVideoType((VideoType)value);
+            }
+            else if (type == typeof(Scopes))
+            {
+                name = FromScopes((Scopes)value);
             }
             else if (type == typeof(UserType))
             {
@@ -1105,6 +1798,6 @@ TwitchNet.Utilities
             return name;
         }
 
-        #endregion                                                
+        #endregion
     }
 }

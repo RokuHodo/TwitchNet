@@ -1,13 +1,11 @@
-﻿// standard namespaces
-using System.Runtime.Serialization;
-
-// imported namespaces
+﻿// imported namespaces
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace
 TwitchNet.Rest.Api.Entitlements
 {
+    // TODO: Add custom converter for the deserializer.
     [JsonConverter(typeof(StringEnumConverter))]
     public enum
     EntitlementType
@@ -15,7 +13,6 @@ TwitchNet.Rest.Api.Entitlements
         /// <summary>
         /// Bulk drops grant entitlement.
         /// </summary>
-        [EnumMember(Value = "bulk_drops_grant")]
-        Bulk_Drops_Grant = 0
+        BulkDropsGrant = 0
     }
 }

@@ -65,7 +65,7 @@ TwitchNet.Rest
             error_source     = source;
 
             status_code      = response.StatusCode;
-            status_error     = error.error;
+            status_error     = response.StatusDescription;
             error_message    = error.message;
         }
 

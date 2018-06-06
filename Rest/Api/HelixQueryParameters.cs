@@ -34,7 +34,7 @@ TwitchNet.Rest.Api
         /// <summary>
         /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
         /// </summary>
-        [QueryParameter("after", false)]
+        [QueryParameter("after")]
         public string after { get; set; }
     }
 }

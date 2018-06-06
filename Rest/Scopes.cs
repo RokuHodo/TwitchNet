@@ -19,26 +19,26 @@ TwitchNet.Rest
         /// <summary>
         /// analytics:read:games
         /// </summary>
-        AnalyticsReadGames,
+        AnalyticsReadGames  = 1 << 0,
 
         /// <summary>
         /// bits:read
         /// </summary>
-        BitsRead,
+        BitsRead            = 1 << 1,
 
         /// <summary>
         /// clips:edit
         /// </summary>
-        ClipsEdit,
+        ClipsEdit           = 1<< 2,
 
         /// <summary>
         /// user:edit
         /// </summary>
-        UserEdit,
+        UserEdit            = 1 << 3,
 
         /// <summary>
         /// user:read:email
         /// </summary>
-        UserReadEmail
+        UserReadEmail       = 1 << 4
     }
 }

@@ -6,6 +6,7 @@ using TwitchNet.Rest.OAuth.Validate;
 using TwitchNet.Extensions;
 
 // project namespaces
+using TwitchNet.Rest.OAuth.Token;
 using TwitchNet.Utilities;
 
 // imported .dll's
@@ -15,12 +16,21 @@ namespace
 TwitchNet.Rest.OAuth
 {
     public static class
-    OAuthUtil
+    OAuth
     {
         private static ClientInfo client_info = ClientInfo.DefaultOAuth2;
 
         #region /revoke
 
+        /// <summary>
+        /// Revokes the use of an OAuth token.
+        /// Once revoked, the OAuth token is invalidated and can no longer be used to make requests.
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="oauth_token">The OAuthg token to revoke.</param>
+        /// <param name="settings">Settings to customize how the request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IOAuthResponse"/> interface.</returns>
+        /// <exception cref="ArgumentException">Thrown if the <paramref name="oauth_token"/> or <paramref name="client_id"/> is null, empty, or only white space.</exception>
         public static IOAuthResponse
         RevokeToken(string client_id, string oauth_token, RequestSettings settings = default(RequestSettings))
         {
@@ -29,6 +39,15 @@ TwitchNet.Rest.OAuth
             return response;
         }
 
+        /// <summary>
+        /// Asynchronously revokes the use of an OAuth token.
+        /// Once revoked, the OAuth token is invalidated and can no longer be used to make requests.
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="oauth_token">The OAuthg token to revoke.</param>
+        /// <param name="settings">Settings to customize how the request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IOAuthResponse"/> interface.</returns>
+        /// <exception cref="ArgumentException">Thrown if the <paramref name="oauth_token"/> or <paramref name="client_id"/> is null, empty, or only white space.</exception>
         public static async Task<IOAuthResponse>
         RevokeTokenAsync(string client_id, string oauth_token, RequestSettings settings = default(RequestSettings))
         {
@@ -56,18 +75,45 @@ TwitchNet.Rest.OAuth
 
         #endregion
 
-        #region /refresh
+        #region /token
 
+        /// <summary>
+        /// <para>Tefreshes when an OAuth token expires, extending how long it is valid/can be used.</para>
+        /// <para>This only works on user access tokens and not on app access tokens or ID tokens.</para>
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="refresh_token">
+        /// The token used to refresh the OAuth token.
+        /// This is NOT the actual OAuth token being refreshed.
+        /// </param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IOAuthResponse"/> interface.</returns>
+        /// 
         public static IOAuthResponse
-        RefreshToken(string client_id, string client_secret, string refresh_token, RequestSettings settings = default(RequestSettings))
+        RefreshToken(string client_id, string refresh_token, RefreshTokenQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
-            IOAuthResponse response = RefreshTokenAsync(client_secret, client_secret, refresh_token, settings).Result;
+            IOAuthResponse response = RefreshTokenAsync(client_id, refresh_token, parameters, settings).Result;
 
             return response;
         }
 
+        /// <summary>
+        /// <para>Asynchronously refreshes when an OAuth token expires, extending how long it is valid/can be used.</para>
+        /// <para>This only works on user access tokens and not on app access tokens or ID tokens.</para>
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="refresh_token">
+        /// The token used to refresh the OAuth token.
+        /// This is NOT the actual OAuth token being refreshed.
+        /// </param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IOAuthResponse"/> interface.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="parameters"/> are null.</exception>
+        /// <exception cref="ArgumentException">Thrown if the <paramref name="client_id"/>, <paramref name="refresh_token"/>, or <see cref="RefreshTokenQueryParameters.client_secret"/> is null, empty, or only white space.</exception>
         public static async Task<IOAuthResponse>
-        RefreshTokenAsync(string client_id, string client_secret, string refresh_token, RequestSettings settings = default(RequestSettings))
+        RefreshTokenAsync(string client_id, string refresh_token, RefreshTokenQueryParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             if (settings.IsNull())
             {
@@ -77,17 +123,19 @@ TwitchNet.Rest.OAuth
             if (settings.input_hanlding == InputHandling.Error)
             {
                 ExceptionUtil.ThrowIfInvalid(client_id, nameof(client_id));
-                ExceptionUtil.ThrowIfInvalid(client_secret, nameof(client_secret));
                 ExceptionUtil.ThrowIfInvalid(refresh_token, nameof(refresh_token));
+                ExceptionUtil.ThrowIfNull(parameters, nameof(parameters));
+                ExceptionUtil.ThrowIfInvalid(parameters.client_secret, nameof(parameters.client_secret));
             }
 
             RestRequest request = new RestRequest("token", Method.POST);
             request.AddQueryParameter("client_id", client_id);
-            request.AddQueryParameter("client_secret", client_secret);
             request.AddQueryParameter("grant_type", "refresh_token");
 
             string refresh_token_encoded = HttpUtility.UrlEncode(refresh_token);
             request.AddQueryParameter("refresh_token", refresh_token_encoded);
+
+            request = request.AddPaging(parameters);
 
             Tuple<IRestResponse, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync(client_info, request, settings);
 
@@ -100,6 +148,13 @@ TwitchNet.Rest.OAuth
 
         #region /validate
 
+        /// <summary>
+        /// Validates an OAuth token and returns information associated with the token.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to validate.</param>
+        /// <param name="settings">Settings to customize how the request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IOAuthResponse{result_type}"/> interface.</returns>
+        /// <exception cref="ArgumentException">Thrown if the <paramref name="oauth_token"/> is null, empty, or only white space.</exception>
         public static IOAuthResponse<OAuthTokenInfo>
         ValidateToken(string oauth_token, RequestSettings settings = default(RequestSettings))
         {
@@ -108,6 +163,13 @@ TwitchNet.Rest.OAuth
             return response;
         }
 
+        /// <summary>
+        /// Asynchronously validates an OAuth token and returns information associated with the token.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to validate.</param>
+        /// <param name="settings">Settings to customize how the request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IOAuthResponse{result_type}"/> interface.</returns>
+        /// <exception cref="ArgumentException">Thrown if the <paramref name="oauth_token"/> is null, empty, or only white space.</exception>
         public static async Task<IOAuthResponse<OAuthTokenInfo>>
         ValidateTokenAsync(string oauth_token, RequestSettings settings = default(RequestSettings))
         {

@@ -69,6 +69,8 @@
     <Compile Include="Debugger\ValidateObjectAttribute.cs" />
     <Compile Include="Debugger\ValidateMemberAttribute.cs" />
     <Compile Include="Rest\Api\Entitlements\EntitlementType.cs" />
+    <Compile Include="Rest\OAuth\Token\RefreshTokenQueryParameters.cs" />
+    <Compile Include="Rest\QueryParameterType.cs" />
     <Compile Include="Rest\Scopes.cs" />
     <Compile Include="Clients\ClientState.cs" />
     <Compile Include="Clients\Irc\Twitch\CommercialLength.cs" />

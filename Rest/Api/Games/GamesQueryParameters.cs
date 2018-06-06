@@ -20,7 +20,7 @@ TwitchNet.Rest.Api.Games
         /// If more than 100 id's are specified, only the first 100 will be added.
         /// </para>
         /// </summary>
-        [QueryParameter("id", false)]
+        [QueryParameter("id")]
         public List<string> ids
         {
             get

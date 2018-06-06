@@ -1,6 +1,5 @@
 ﻿// project namespaces
 using System;
-using System.Collections.Generic;
 
 namespace
 TwitchNet.Extensions

@@ -1,7 +1,6 @@
 ﻿// project namespaces
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace
@@ -62,7 +61,7 @@ TwitchNet.Extensions
 
             foreach(PropertyInfo property in properties)
             {
-                if(property.HasAttribute<attribute_type>())
+                if(property.HasAttribute(typeof(attribute_type)))
                 {
                     result.Add(property);
                 }
@@ -200,70 +199,18 @@ TwitchNet.Extensions
         /// <summary>
         /// Checks to see if a <see cref="Type"/> is marked with a custom <see cref="Attribute"/>.
         /// </summary>
-        /// <typeparam name="attribute_type">The <see cref="Attribute"/> type.</typeparam>
-        /// <param name="type">The <see cref="Type"/> of the object</param>
-        /// <returns>
-        /// Returns true if the object <see cref="Type"/> has the attribute.
-        /// Returns false otherwise.
-        /// </returns>
-        public static bool
-        HasAttribute<attribute_type>(this Type type)
-        where attribute_type : Attribute
-        {
-            if (type.IsNull())
-            {
-                return false;
-            }
-
-            if (type.MemberType != MemberTypes.Constructor  &&
-                type.MemberType != MemberTypes.Property     &&
-                type.MemberType != MemberTypes.Event        &&
-                type.MemberType != MemberTypes.TypeInfo     &&
-                type.MemberType != MemberTypes.Event        &&
-                type.MemberType != MemberTypes.Field)
-            {
-                return false;
-            }
-
-            IEnumerable<attribute_type> attributes = type.GetCustomAttributes<attribute_type>();
-
-            bool result = !attributes.IsNull() && attributes.Count() > 0;
-
-            return result;
-        }
-
-        /// <summary>
-        /// Checks to see if a <see cref="Type"/> is marked with a custom <see cref="Attribute"/>.
-        /// </summary>
         /// <param name="member">The member to check.</param>
         /// <param name="attribute">The <see cref="Attribute"/> type.</param>
         /// <returns></returns>
         public static bool
         HasAttribute(this MemberInfo member, Type attribute)
         {
-            if (member.IsNull())
+            if (member.IsNull() || attribute.IsNull())
             {
                 return false;
             }
 
-            if(!typeof(Attribute).IsAssignableFrom(attribute))
-            {
-                return false;
-            }
-
-            if (member.MemberType != MemberTypes.Constructor &&
-                member.MemberType != MemberTypes.Property &&
-                member.MemberType != MemberTypes.Event &&
-                member.MemberType != MemberTypes.TypeInfo &&
-                member.MemberType != MemberTypes.Event &&
-                member.MemberType != MemberTypes.Field)
-            {
-                return false;
-            }
-
-            IEnumerable<Attribute> attributes = member.GetCustomAttributes(attribute);
-
-            bool result = !attributes.IsNull() && attributes.Count() > 0;
+            bool result = member.IsDefined(attribute, false);
 
             return result;
         }
@@ -281,22 +228,7 @@ TwitchNet.Extensions
         HasAttribute<attribute_type>(this MemberInfo member)
         where attribute_type : Attribute
         {
-            if (member.IsNull())
-            {
-                return false;
-            }
-
-            if (member.MemberType != MemberTypes.Constructor    &&
-                member.MemberType != MemberTypes.Property       &&
-                member.MemberType != MemberTypes.Event          &&
-                member.MemberType != MemberTypes.TypeInfo       &&
-                member.MemberType != MemberTypes.Event          &&
-                member.MemberType != MemberTypes.Field)
-            {
-                return false;
-            }
-
-            bool result = Attribute.GetCustomAttributes(member, typeof(attribute_type), false).IsValid();
+            bool result = member.HasAttribute(typeof(attribute_type));
 
             return result;
         }

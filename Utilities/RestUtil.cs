@@ -26,7 +26,7 @@ TwitchNet.Utilities
         ExecuteAsync(ClientInfo client_info, IRestRequest request, RequestSettings settings)
         {
             RestClient client = CreateClient(client_info);
-            IRestResponse response = await client.ExecuteTaskAsync(request);
+            IRestResponse response = await client.ExecuteTaskAsync(request, settings.cancelation_token);
 
             Tuple<IRestResponse, RestException, RateLimit> tuple = await HandleResponse(client_info, response, settings);
 
@@ -37,7 +37,7 @@ TwitchNet.Utilities
         ExecuteAsync<result_type>(ClientInfo client_info, IRestRequest request, RequestSettings settings)
         {
             RestClient client = CreateClient(client_info);
-            IRestResponse<result_type> response = await client.ExecuteTaskAsync<result_type>(request);
+            IRestResponse<result_type> response = await client.ExecuteTaskAsync<result_type>(request, settings.cancelation_token);
 
             Tuple<IRestResponse<result_type>, RestException, RateLimit> tuple = await HandleResponse(client_info, response, settings);
 
@@ -85,8 +85,7 @@ TwitchNet.Utilities
                 if (requesting)
                 {
                     // NOTE: This is a temporary fix and will only work with Helix.
-                    request.Parameters.RemoveAll(element => element.Name == "after" && element.Type == ParameterType.QueryString);
-                    request = request.AddQueryParameter("after", tuple.Item1.Data.pagination.cursor);
+                    request = request.AddOrUpdateParameter("after", tuple.Item1.Data.pagination.cursor, ParameterType.QueryString);
                 }
                 else
                 {
@@ -142,41 +141,13 @@ TwitchNet.Utilities
                 QueryParameterAttribute attribute = property.GetAttribute<QueryParameterAttribute>();
 
                 Type type = property.PropertyType.IsNullable() ? Nullable.GetUnderlyingType(property.PropertyType) : property.PropertyType;
-                if (type.IsList())
+                if (typeof(IList).IsAssignableFrom(type))
                 {
-                    IList list = value as IList;
-                    if (list.IsNull() || list.Count == 0)
-                    {
-                        continue;
-                    }
-
-                    foreach (object element in list)
-                    {
-                        request = AddQueryParameter(request, attribute, element);
-                    }
+                    AddPaging_IList(request, attribute, value);
                 }
                 else if (type.IsEnum)
                 {
-                    if (type.HasAttribute<FlagsAttribute>())
-                    {
-                        // enum is a bit field, loop through and add all flags
-                        Enum property_value_enum = (Enum)value;
-                        Array flags = Enum.GetValues(type);
-                        foreach (Enum flag in flags)
-                        {
-                            // TODO: C#'s native HasFlag() is slow, replace with our own.
-                            if (property_value_enum.HasFlag(flag))
-                            {
-                                string enum_value = EnumCacheUtil.FromEnum(flag);
-                                request = AddQueryParameter(request, attribute, enum_value);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        string enum_value = EnumCacheUtil.FromEnum(((Enum)value));
-                        request = AddQueryParameter(request, attribute, enum_value);
-                    }
+                    AddPaging_Enum(request, attribute, type, value);
                 }
                 else
                 {
@@ -185,6 +156,110 @@ TwitchNet.Utilities
             }
 
             return request;
+        }
+
+        private static IRestRequest
+        AddPaging_IList(IRestRequest request, QueryParameterAttribute attribute, object value)
+        {
+            IList list = value as IList;
+            if (list.IsNull() || list.Count == 0)
+            {
+                return request;
+            }
+
+            switch (attribute.type)
+            {
+                case QueryParameterType.Auto:
+                case QueryParameterType.Single:
+                case QueryParameterType.ListSingleValues:
+                {
+                    foreach (object element in list)
+                    {
+                        request = AddQueryParameter(request, attribute, element);
+                    }
+                }
+                break;
+
+                case QueryParameterType.ListSpaceSeparated:
+                {
+                    string _value = string.Join(" ", list);
+                    request = AddQueryParameter(request, attribute, _value);
+                }
+                break;
+
+                case QueryParameterType.ListCommaSeparated:
+                {
+                    string _value = string.Join(",", list);
+                    request = AddQueryParameter(request, attribute, _value);
+                }
+                break;
+            }            
+
+            return request;
+        }
+
+        private static IRestRequest
+        AddPaging_Enum(IRestRequest request, QueryParameterAttribute attribute, Type type, object value)
+        {
+            Enum enum_value = (Enum)value;
+            if (type.HasAttribute<FlagsAttribute>())
+            {
+                string[] flags = GetValidFlags(type, enum_value);                
+                
+                switch (attribute.type)
+                {
+                    case QueryParameterType.Auto:
+                    case QueryParameterType.Single:
+                    case QueryParameterType.ListSingleValues:
+                    {
+                        foreach(string flag in flags)
+                        {
+                            request = AddQueryParameter(request, attribute, flag);
+                        }
+                    }
+                    break;
+
+                    case QueryParameterType.ListSpaceSeparated:
+                    {
+                        string _value = string.Join(" ", flags);
+                        request = AddQueryParameter(request, attribute, _value);
+                    }
+                    break;
+
+                    case QueryParameterType.ListCommaSeparated:
+                    {
+                        string _value = string.Join(",", flags);
+                        request = AddQueryParameter(request, attribute, _value);
+                    }
+                    break;
+                }
+            }
+            else
+            {
+                string _value = EnumCacheUtil.FromEnum(enum_value);
+                request = AddQueryParameter(request, attribute, _value);
+            }
+
+            return request;
+        }
+
+        private static string[]
+        GetValidFlags(Type type, Enum value)
+        {
+            List<string> result = new List<string>();
+
+            Array flags = Enum.GetValues(type);
+            foreach (Enum flag in flags)
+            {
+                if (!value.HasFlag(flag))
+                {
+                    continue;
+                }
+
+                result.Add(EnumCacheUtil.FromEnum(flag));
+            }
+
+            return result.ToArray();
         }
 
         /// <summary>
@@ -406,14 +481,19 @@ TwitchNet.Utilities
         private static RestException
         GetRestException(IRestResponse response)
         {
-            RestError error = JsonConvert.DeserializeObject<RestError>(response.Content);
-
             RestException exception = new RestException();
+
+            RestError error = JsonConvert.DeserializeObject<RestError>(response.Content);
+            if (error.IsNull())
+            {
+                return exception;
+            }
+
             if (!response.ErrorException.IsNull())
             {
                 exception = new RestException(response, RestErrorSource.Internal, "An error was encountered by RestSharp while making the request. See the inner exception for more detials.", response.ErrorException);
             }
-            else if (error.error.IsValid())
+            else if (error.status != 0 || error.message.IsValid())
             {
                 exception = new RestException(response, RestErrorSource.Request, error);
             }

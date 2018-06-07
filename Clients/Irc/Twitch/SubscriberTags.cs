@@ -39,9 +39,9 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            msg_param_months        = TagsUtil.ToUInt16(message.tags, "msg-param-months");
-            msg_param_sub_plan_name = TagsUtil.ToString(message.tags, "msg-param-sub-plan-name").Replace("\\s", " ");
-            msg_param_sub_plan      = TagsUtil.ToSubscriptionPlan(message.tags, "msg-param-sub-plan");
+            msg_param_months        = TagsUtil.ToUInt16(message, "msg-param-months");
+            msg_param_sub_plan_name = TagsUtil.ToString(message, "msg-param-sub-plan-name").Replace("\\s", " ");
+            msg_param_sub_plan      = TagsUtil.ToSubscriptionPlan(message, "msg-param-sub-plan");
         }
     }
 }

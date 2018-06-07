@@ -5,9 +5,12 @@ using TwitchNet.Helpers.Json;
 using Newtonsoft.Json;
 
 namespace
-TwitchNet.Rest.Api.Videos
+TwitchNet
 {
-    [JsonConverter(typeof(EnumCacheConverter))]
+    /// <summary>
+    /// The language selected in the Twitch dashboard or in the video information editor, not the language selected at the home page.
+    /// </summary>
+    [JsonConverter(typeof(EnumCacheConverter))]    
     public enum
     BroadcasterLanguage
     {

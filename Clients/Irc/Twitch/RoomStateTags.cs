@@ -95,49 +95,49 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            if (TagsUtil.IsTagValid(message.tags, "emote-only"))
+            if (TagsUtil.IsTagValid(message, "emote-only"))
             {
-                emote_only = TagsUtil.ToBool(message.tags, "emote-only");
+                emote_only = TagsUtil.ToBool(message, "emote-only");
                 changed_states |= RoomStateType.EmoteOnly;
             }
 
-            if (TagsUtil.IsTagValid(message.tags, "r9k"))
+            if (TagsUtil.IsTagValid(message, "r9k"))
             {
-                r9k = TagsUtil.ToBool(message.tags, "r9k");
+                r9k = TagsUtil.ToBool(message, "r9k");
                 changed_states |= RoomStateType.R9K;
             }
 
-            if (TagsUtil.IsTagValid(message.tags, "rituals"))
+            if (TagsUtil.IsTagValid(message, "rituals"))
             {
-                rituals = TagsUtil.ToBool(message.tags, "rituals");
+                rituals = TagsUtil.ToBool(message, "rituals");
                 changed_states |= RoomStateType.Rituals;
             }
 
-            if (TagsUtil.IsTagValid(message.tags, "subs-only"))
+            if (TagsUtil.IsTagValid(message, "subs-only"))
             {
-                subs_only = TagsUtil.ToBool(message.tags, "subs-only");
+                subs_only = TagsUtil.ToBool(message, "subs-only");
                 changed_states |= RoomStateType.SubsOnly;
             }
 
-            if (TagsUtil.IsTagValid(message.tags, "followers-only"))
+            if (TagsUtil.IsTagValid(message, "followers-only"))
             {
-                followers_only = TagsUtil.ToInt32(message.tags, "followers-only");
+                followers_only = TagsUtil.ToInt32(message, "followers-only");
                 changed_states |= RoomStateType.FollowersOnly;
             }
 
-            if (TagsUtil.IsTagValid(message.tags, "slow"))
+            if (TagsUtil.IsTagValid(message, "slow"))
             {
-                slow = TagsUtil.ToUInt32(message.tags, "slow");
+                slow = TagsUtil.ToUInt32(message, "slow");
                 changed_states |= RoomStateType.Slow;
             }
 
-            if (TagsUtil.IsTagValid(message.tags, "broadcaster-lang"))
+            if (TagsUtil.IsTagValid(message, "broadcaster-lang"))
             {
-                broadcaster_lang = TagsUtil.ToBroadcasterLanguage(message.tags, "broadcaster-lang");
+                broadcaster_lang = TagsUtil.ToBroadcasterLanguage(message, "broadcaster-lang");
                 changed_states |= RoomStateType.BroadcasterLang;
             }
 
-            room_id = TagsUtil.ToString(message.tags, "room-id");
+            room_id = TagsUtil.ToString(message, "room-id");
         }
     }
 }

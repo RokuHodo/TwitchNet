@@ -5,7 +5,8 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 
 //project namespaces
-using TwitchNet.Rest.Api.Videos;
+//using TwitchNet.Rest.Api.Videos;
+using TwitchNet.Clients.Irc;
 using TwitchNet.Clients.Irc.Twitch;
 using TwitchNet.Extensions;
 
@@ -25,16 +26,16 @@ TwitchNet.Utilities
         /// Returns <see cref="string.Empty"/> otherwise.
         /// </returns>
         public static string
-        ToString(Dictionary<string, string> tags, string key)
+        ToString(in IrcMessage message, string key)
         {
             string value = string.Empty;
 
-            if(!IsTagValid(tags, key))
+            if(!IsTagValid(message, key))
             {
                 return value;
             }
 
-            value = tags[key];
+            value = message.tags[key];
 
             return value;
         }
@@ -49,16 +50,16 @@ TwitchNet.Utilities
         /// Returns 0 otherwise.
         /// </returns>
         public static ushort
-        ToUInt16(Dictionary<string, string> tags, string key)
+        ToUInt16(in IrcMessage message, string key)
         {
             ushort value = 0;
 
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return value;
             }
 
-            UInt16.TryParse(tags[key], out value);
+            UInt16.TryParse(message.tags[key], out value);
 
             return value;
         }
@@ -73,16 +74,16 @@ TwitchNet.Utilities
         /// Returns 0 otherwise.
         /// </returns>
         public static uint
-        ToUInt32(Dictionary<string, string> tags, string key)
+        ToUInt32(in IrcMessage message, string key)
         {
             uint value = 0;
 
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return value;
             }
 
-            UInt32.TryParse(tags[key], out value);
+            UInt32.TryParse(message.tags[key], out value);
 
             return value;
         }
@@ -97,16 +98,16 @@ TwitchNet.Utilities
         /// Returns -1 otherwise.
         /// </returns>
         public static int
-        ToInt32(Dictionary<string, string> tags, string key)
+        ToInt32(in IrcMessage message, string key)
         {
             int value = -1;
 
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return value;
             }
 
-            Int32.TryParse(tags[key], out value);
+            Int32.TryParse(message.tags[key], out value);
 
             return value;
         }
@@ -121,16 +122,16 @@ TwitchNet.Utilities
         /// Returns false otherwise.
         /// </returns>
         public static bool
-        ToBool(Dictionary<string, string> tags, string key)
+        ToBool(in IrcMessage message, string key)
         {
             bool value = default(bool);
 
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return value;
             }
 
-            if(!Byte.TryParse(tags[key], out byte _value))
+            if(!Byte.TryParse(message.tags[key], out byte _value))
             {
                 return value;
             }
@@ -150,16 +151,16 @@ TwitchNet.Utilities
         /// Returns <see cref="UserType.None"/> otherwise.
         /// </returns>
         public static UserType
-        ToUserType(Dictionary<string, string> tags, string key)
+        ToUserType(in IrcMessage message, string key)
         {
             UserType user_type = UserType.None;
 
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return user_type;
             }
 
-            user_type = EnumCacheUtil.ToUserType(tags[key]);
+            user_type = EnumCacheUtil.ToUserType(message.tags[key]);
 
             return user_type;
         }
@@ -174,16 +175,16 @@ TwitchNet.Utilities
         /// Returns <see cref="NoticeType.Other"/> otherwise.
         /// </returns>
         public static NoticeType
-        ToNoticeType(Dictionary<string, string> tags, string key)
+        ToNoticeType(in IrcMessage message, string key)
         {
             NoticeType notice = NoticeType.Other;
 
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return notice;
             }
 
-            notice = EnumCacheUtil.ToNoticeType(tags[key]);
+            notice = EnumCacheUtil.ToNoticeType(message.tags[key]);
 
             return notice;
         }
@@ -198,16 +199,16 @@ TwitchNet.Utilities
         /// Returns <see cref="UserNoticeType.Other"/> otherwise.
         /// </returns>
         public static UserNoticeType
-        ToUserNoticeType(Dictionary<string, string> tags, string key)
+        ToUserNoticeType(in IrcMessage message, string key)
         {
             UserNoticeType user_notice = UserNoticeType.Other;
 
-            if(!IsTagValid(tags, key))
+            if(!IsTagValid(message, key))
             {
                 return user_notice;
             }
 
-            user_notice = EnumCacheUtil.ToUserNoticeType(tags[key]);
+            user_notice = EnumCacheUtil.ToUserNoticeType(message.tags[key]);
 
             return user_notice;
         }
@@ -222,16 +223,16 @@ TwitchNet.Utilities
         /// Returns <see cref="SubscriptionPlan.Other"/> otherwise.
         /// </returns>
         public static SubscriptionPlan
-        ToSubscriptionPlan(Dictionary<string, string> tags, string key)
+        ToSubscriptionPlan(in IrcMessage message, string key)
         {
             SubscriptionPlan plan = SubscriptionPlan.Other;
 
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return plan;
             }
 
-            plan = EnumCacheUtil.ToSubscriptionPlan(tags[key]);
+            plan = EnumCacheUtil.ToSubscriptionPlan(message.tags[key]);
 
             return plan;
         }
@@ -246,16 +247,16 @@ TwitchNet.Utilities
         /// Returns <see cref="RitualType.Other"/> otherwise.
         /// </returns>
         public static RitualType
-        ToRitualType(Dictionary<string, string> tags, string key)
+        ToRitualType(in IrcMessage message, string key)
         {
             RitualType type = RitualType.Other;
 
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return type;
             }
 
-            type = EnumCacheUtil.ToRitualType(tags[key]);
+            type = EnumCacheUtil.ToRitualType(message.tags[key]);
 
             return type;
         }
@@ -270,16 +271,16 @@ TwitchNet.Utilities
         /// Returns <see cref="BroadcasterLanguage.None"/> otherwise.
         /// </returns>
         public static BroadcasterLanguage
-        ToBroadcasterLanguage(Dictionary<string, string> tags, string key)
+        ToBroadcasterLanguage(in IrcMessage message, string key)
         {
             BroadcasterLanguage language = BroadcasterLanguage.None;
 
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return language;
             }
 
-            language = EnumCacheUtil.ToBroadcasterLanguage(tags[key]);
+            language = EnumCacheUtil.ToBroadcasterLanguage(message.tags[key]);
 
             return language;
         }
@@ -294,21 +295,21 @@ TwitchNet.Utilities
         /// Returns <see cref="Color.Empty"/> otherwise.
         /// </returns>
         public static Color
-        FromtHtml(Dictionary<string, string> tags, string key)
+        FromtHtml(in IrcMessage message, string key)
         {
             Color color = Color.Empty;
 
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return color;
             }
 
-            if (!tags[key].IsValidHtmlColor())
+            if (!message.tags[key].IsValidHtmlColor())
             {
                 return color;
             }
 
-            color = ColorTranslator.FromHtml(tags[key]);
+            color = ColorTranslator.FromHtml(message.tags[key]);
 
             return color;
         }
@@ -323,16 +324,16 @@ TwitchNet.Utilities
         /// Returns <see cref="Color.Empty"/> otherwise.
         /// </returns>
         public static DateTime
-        FromUnixEpoch(Dictionary<string, string> tags, string key)
+        FromUnixEpoch(in IrcMessage message, string key)
         {
             DateTime time = DateTime.MinValue;
 
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return time;
             }
 
-            if (!Int64.TryParse(tags[key], out long time_epoch))
+            if (!Int64.TryParse(message.tags[key], out long time_epoch))
             {
                 return time;
             }
@@ -352,14 +353,14 @@ TwitchNet.Utilities
         /// Returns an empty <see cref="Badge"/> array otherwise.
         /// </returns>
         public static Badge[]
-        ToBadges(Dictionary<string, string> tags, string key)
+        ToBadges(in IrcMessage message, string key)
         {
-            if(!IsTagValid(tags, key))
+            if(!IsTagValid(message, key))
             {
                 return new Badge[0];
             }
 
-            string[] badge_pairs = tags[key].Split(',');
+            string[] badge_pairs = message.tags[key].Split(',');
             if (!badge_pairs.IsValid())
             {
                 return new Badge[0];
@@ -385,14 +386,14 @@ TwitchNet.Utilities
         /// Returns an empty <see cref="Emote"/> array otherwise.
         /// </returns>
         public static Emote[]
-        ToEmotes(Dictionary<string, string> tags, string key)
+        ToEmotes(in IrcMessage message, string key)
         {
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return new Emote[0];
             }
 
-            string[] pairs = tags[key].Split('/');
+            string[] pairs = message.tags[key].Split('/');
             if (!pairs.IsValid())
             {
                 return new Emote[0];
@@ -418,14 +419,14 @@ TwitchNet.Utilities
         /// Returns an empty <see cref="String"/> array otherwise.
         /// </returns>
         public static string[]
-        ToStringArray(Dictionary<string, string> tags, string key, char separator)
+        ToStringArray(in IrcMessage message, string key, char separator)
         {
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return new string[0];
             }
 
-            string[] array = tags[key].Split(separator);
+            string[] array = message.tags[key].Split(separator);
 
             return array;
         }
@@ -441,16 +442,21 @@ TwitchNet.Utilities
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool
-        IsTagValid(Dictionary<string, string> tags, string key)
+        IsTagValid(in IrcMessage message, string key)
         {
             bool valid = true;
 
-            if(!key.IsValid() || !tags.IsValid())
+            if (message.IsNullOrDefault())
             {
                 return false;
             }
 
-            if (!tags.ContainsKey(key) || !tags[key].IsValid())
+            if(!key.IsValid() || !message.tags.IsValid())
+            {
+                return false;
+            }
+
+            if (!message.tags.ContainsKey(key) || !message.tags[key].IsValid())
             {
                 return false;
             }

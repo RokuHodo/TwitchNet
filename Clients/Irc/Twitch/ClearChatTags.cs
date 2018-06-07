@@ -62,13 +62,13 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            ban_duration    = TagsUtil.ToUInt32(message.tags, "ban-duration");
-            ban_reason      = TagsUtil.ToString(message.tags, "ban-reason").Replace("\\s", " ");
+            ban_duration    = TagsUtil.ToUInt32(message, "ban-duration");
+            ban_reason      = TagsUtil.ToString(message, "ban-reason").Replace("\\s", " ");
 
-            room_id         = TagsUtil.ToString(message.tags, "room-id");
-            target_user_id  = TagsUtil.ToString(message.tags, "target-user-id");
+            room_id         = TagsUtil.ToString(message, "room-id");
+            target_user_id  = TagsUtil.ToString(message, "target-user-id");
 
-            tmi_sent_ts     = TagsUtil.FromUnixEpoch(message.tags, "tmi-sent-ts");
+            tmi_sent_ts     = TagsUtil.FromUnixEpoch(message, "tmi-sent-ts");
         }
     }
 }

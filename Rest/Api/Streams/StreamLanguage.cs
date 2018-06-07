@@ -10,6 +10,9 @@ using Newtonsoft.Json;
 namespace
 TwitchNet.Rest.Api.Streams
 {
+    /// <summary>
+    /// The language selected at the home page, not the language found in the Twitch dashboard or in the video information editor.
+    /// </summary>
     [Flags]
     [JsonConverter(typeof(EnumCacheConverter))]
     public enum

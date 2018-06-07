@@ -1,12 +1,13 @@
-﻿// imported namespaces
+﻿using TwitchNet.Helpers.Json;
+
+// imported namespaces
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace
 TwitchNet
 {
-    // TODO: Add custom converter for the deserializer.
-    [JsonConverter(typeof(StringEnumConverter))]
+    [JsonConverter(typeof(EnumCacheConverter))]
     public enum
     UserType
     {

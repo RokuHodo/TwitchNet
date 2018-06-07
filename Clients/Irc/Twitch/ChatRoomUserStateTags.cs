@@ -62,14 +62,14 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            mod             = TagsUtil.ToBool(message.tags, "mod");
+            mod             = TagsUtil.ToBool(message, "mod");
 
-            display_name    = TagsUtil.ToString(message.tags, "display-name");
-            emote_sets      = TagsUtil.ToStringArray(message.tags, "emote-sets", ',');
+            display_name    = TagsUtil.ToString(message, "display-name");
+            emote_sets      = TagsUtil.ToStringArray(message, "emote-sets", ',');
 
-            user_type       = TagsUtil.ToUserType(message.tags, "user-type");
+            user_type       = TagsUtil.ToUserType(message, "user-type");
 
-            color           = TagsUtil.FromtHtml(message.tags, "color");
+            color           = TagsUtil.FromtHtml(message, "color");
         }
 
         /// <summary>

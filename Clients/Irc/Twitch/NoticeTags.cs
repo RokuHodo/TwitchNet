@@ -33,7 +33,7 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            msg_id = TagsUtil.ToNoticeType(message.tags, "msg-id");
+            msg_id = TagsUtil.ToNoticeType(message, "msg-id");
         }
     }
 }

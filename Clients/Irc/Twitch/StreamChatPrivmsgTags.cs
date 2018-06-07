@@ -26,7 +26,7 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            bits = TagsUtil.ToUInt32(args.tags, "bits");
+            bits = TagsUtil.ToUInt32(args.irc_message, "bits");
         }
     }
 }

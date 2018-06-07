@@ -126,25 +126,25 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            mod             = TagsUtil.ToBool(message.tags, "mod");
-            subscriber      = TagsUtil.ToBool(message.tags, "subscriber");
-            turbo           = TagsUtil.ToBool(message.tags, "turbo");
+            mod             = TagsUtil.ToBool(message, "mod");
+            subscriber      = TagsUtil.ToBool(message, "subscriber");
+            turbo           = TagsUtil.ToBool(message, "turbo");
 
-            display_name    = TagsUtil.ToString(message.tags, "display-name");
-            id              = TagsUtil.ToString(message.tags, "id");
-            login           = TagsUtil.ToString(message.tags, "login");
-            room_id         = TagsUtil.ToString(message.tags, "room-id");
-            system_msg      = TagsUtil.ToString(message.tags, "system-msg").Replace("\\s", " ");
-            user_id         = TagsUtil.ToString(message.tags, "user-id");
+            display_name    = TagsUtil.ToString(message, "display-name");
+            id              = TagsUtil.ToString(message, "id");
+            login           = TagsUtil.ToString(message, "login");
+            room_id         = TagsUtil.ToString(message, "room-id");
+            system_msg      = TagsUtil.ToString(message, "system-msg").Replace("\\s", " ");
+            user_id         = TagsUtil.ToString(message, "user-id");
 
-            msg_id          = TagsUtil.ToUserNoticeType(message.tags, "msg-id");
-            user_type       = TagsUtil.ToUserType(message.tags, "user-type");
+            msg_id          = TagsUtil.ToUserNoticeType(message, "msg-id");
+            user_type       = TagsUtil.ToUserType(message, "user-type");
 
-            color           = TagsUtil.FromtHtml(message.tags, "color");
-            tmi_sent_ts     = TagsUtil.FromUnixEpoch(message.tags, "tmi-sent-ts");
+            color           = TagsUtil.FromtHtml(message, "color");
+            tmi_sent_ts     = TagsUtil.FromUnixEpoch(message, "tmi-sent-ts");
 
-            badges          = TagsUtil.ToBadges(message.tags, "badges");
-            emotes          = TagsUtil.ToEmotes(message.tags, "emotes");
+            badges          = TagsUtil.ToBadges(message, "badges");
+            emotes          = TagsUtil.ToEmotes(message, "emotes");
         }
     }
 }

@@ -94,20 +94,20 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            turbo           = TagsUtil.ToBool(message.tags, "turbo");
+            turbo           = TagsUtil.ToBool(message, "turbo");
 
-            display_name    = TagsUtil.ToString(message.tags, "display-name");
-            user_id         = TagsUtil.ToString(message.tags, "user-id");
-            message_id      = TagsUtil.ToString(message.tags, "message-id");
-            thread_id       = TagsUtil.ToString(message.tags, "thread-id");
+            display_name    = TagsUtil.ToString(message, "display-name");
+            user_id         = TagsUtil.ToString(message, "user-id");
+            message_id      = TagsUtil.ToString(message, "message-id");
+            thread_id       = TagsUtil.ToString(message, "thread-id");
             recipient_id    = thread_id.TextAfter('_');
 
-            user_type       = TagsUtil.ToUserType(message.tags, "user-type");
+            user_type       = TagsUtil.ToUserType(message, "user-type");
 
-            color           = TagsUtil.FromtHtml(message.tags, "color");
+            color           = TagsUtil.FromtHtml(message, "color");
 
-            badges          = TagsUtil.ToBadges(message.tags, "badges");
-            emotes          = TagsUtil.ToEmotes(message.tags, "emotes");
+            badges          = TagsUtil.ToBadges(message, "badges");
+            emotes          = TagsUtil.ToEmotes(message, "emotes");
         }
     }
 }

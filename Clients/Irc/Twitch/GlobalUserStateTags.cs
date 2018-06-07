@@ -69,15 +69,15 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            user_id         = TagsUtil.ToString(message.tags, "user-id");
-            display_name    = TagsUtil.ToString(message.tags, "display-name");
-            emote_sets      = TagsUtil.ToStringArray(message.tags, "emote-sets", ',');
+            user_id         = TagsUtil.ToString(message, "user-id");
+            display_name    = TagsUtil.ToString(message, "display-name");
+            emote_sets      = TagsUtil.ToStringArray(message, "emote-sets", ',');
 
-            user_type       = TagsUtil.ToUserType(message.tags, "user-type");
+            user_type       = TagsUtil.ToUserType(message, "user-type");
 
-            color           = TagsUtil.FromtHtml(message.tags, "color");
+            color           = TagsUtil.FromtHtml(message, "color");
 
-            badges          = TagsUtil.ToBadges(message.tags, "badges");
+            badges          = TagsUtil.ToBadges(message, "badges");
         }
     }
 }

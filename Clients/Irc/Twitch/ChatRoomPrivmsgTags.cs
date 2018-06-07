@@ -107,29 +107,29 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="args">The event arguments to parse.</param>
         public ChatRoomPrivmsgTags(PrivmsgEventArgs args)
         {
-            exist = args.tags.IsValid();
+            exist = args.irc_message.tags.IsValid();
             if (!exist)
             {
                 return;
             }
 
-            mod             = TagsUtil.ToBool(args.tags, "mod");
-            subscriber      = TagsUtil.ToBool(args.tags, "subscriber");
-            turbo           = TagsUtil.ToBool(args.tags, "turbo");
-            emote_only      = TagsUtil.ToBool(args.tags, "emote-only");
+            mod             = TagsUtil.ToBool(args.irc_message, "mod");
+            subscriber      = TagsUtil.ToBool(args.irc_message, "subscriber");
+            turbo           = TagsUtil.ToBool(args.irc_message, "turbo");
+            emote_only      = TagsUtil.ToBool(args.irc_message, "emote-only");
 
-            id              = TagsUtil.ToString(args.tags, "id");
-            display_name    = TagsUtil.ToString(args.tags, "display-name");
-            user_id         = TagsUtil.ToString(args.tags, "user-id");
-            room_id         = TagsUtil.ToString(args.tags, "room-id");
+            id              = TagsUtil.ToString(args.irc_message, "id");
+            display_name    = TagsUtil.ToString(args.irc_message, "display-name");
+            user_id         = TagsUtil.ToString(args.irc_message, "user-id");
+            room_id         = TagsUtil.ToString(args.irc_message, "room-id");
 
-            user_type       = TagsUtil.ToUserType(args.tags, "user-type");
+            user_type       = TagsUtil.ToUserType(args.irc_message, "user-type");
 
-            color           = TagsUtil.FromtHtml(args.tags, "color");
-            tmi_sent_ts     = TagsUtil.FromUnixEpoch(args.tags, "tmi-sent-ts");
+            color           = TagsUtil.FromtHtml(args.irc_message, "color");
+            tmi_sent_ts     = TagsUtil.FromUnixEpoch(args.irc_message, "tmi-sent-ts");
 
-            badges          = TagsUtil.ToBadges(args.tags, "badges");
-            emotes          = TagsUtil.ToEmotes(args.tags, "emotes");
+            badges          = TagsUtil.ToBadges(args.irc_message, "badges");
+            emotes          = TagsUtil.ToEmotes(args.irc_message, "emotes");
         }
 
         /// <summary>

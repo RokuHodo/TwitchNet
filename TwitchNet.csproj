@@ -87,7 +87,7 @@
     <Compile Include="Clients\Irc\Twitch\RoomStateType.cs" />
     <Compile Include="Clients\Irc\Twitch\BadgeType.cs" />
     <Compile Include="Rest\Api\StatusHandling.cs" />
-    <Compile Include="Rest\Api\Videos\BroadcasterLanguage.cs" />
+    <Compile Include="BroadcasterLanguage.cs" />
     <Compile Include="Rest\Api\Streams\StreamLanguage.cs" />
     <Compile Include="Rest\Api\Streams\StreamType.cs" />
     <Compile Include="Rest\Api\Users\BroadcasterType.cs" />

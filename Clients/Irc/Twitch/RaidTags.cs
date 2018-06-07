@@ -38,9 +38,9 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            msg_param_viewer_count  = TagsUtil.ToUInt32(message.tags, "msg-param-viewerCount");
-            msg_param_display_name  = TagsUtil.ToString(message.tags, "msg-param-displayName");
-            msg_param_login         = TagsUtil.ToString(message.tags, "msg-param-login");
+            msg_param_viewer_count  = TagsUtil.ToUInt32(message, "msg-param-viewerCount");
+            msg_param_display_name  = TagsUtil.ToString(message, "msg-param-displayName");
+            msg_param_login         = TagsUtil.ToString(message, "msg-param-login");
         }
     }
 }

@@ -15,63 +15,63 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// The byte data received from the socket.
         /// </summary>
-        public readonly byte[] data;
+        public readonly byte[]                      data;
 
         /// <summary>
         /// The UTF-8 encoded byte data received from the socket.
         /// </summary>
-        public readonly string raw;
+        public readonly string                      raw;
 
         /// <summary>
         /// The optional tags prefixed to the message.
         /// </summary>
-        public readonly Dictionary<string, string> tags;
+        public readonly Dictionary<string, string>  tags;
 
         /// <summary>
         /// An optional part of the message.
         /// If the prefix is provided, the server name or nick is always provided, and the user and/or host may also be included.
         /// </summary>
-        public readonly string prefix;
+        public readonly string                      prefix;
 
         /// <summary>
         /// The server name or the nick of the user.
         /// Contained within the prefix.
         /// </summary>
-        public readonly string server_or_nick;
+        public readonly string                      server_or_nick;
 
         /// <summary>
         /// The irc user.
         /// Contained within the prefix.
         /// </summary>
-        public readonly string user;
+        public readonly string                      user;
 
         /// <summary>
         /// The host of the irc.
         /// Contained within the prefix.
         /// </summary>
-        public readonly string host;
+        public readonly string                      host;
 
         /// <summary>
         /// The irc command.
         /// </summary>
-        public readonly string command;
+        public readonly string                      command;
 
         /// <summary>
         /// A message parameter.
         /// Any, possibly empty, sequence of octets not including NUL or CR or LF.
         /// </summary>
-        public readonly string trailing;
+        public readonly string                      trailing;
 
         /// <summary>
         /// An array of message parameters.
         /// Any non-empty sequence of octets not including SPACE or NUL or CR or LF.
         /// </summary>
-        public readonly string[] middle;
+        public readonly string[]                    middle;
 
         /// <summary>
         /// An array of all middle parameters and trailing.
         /// </summary>
-        public readonly string[] parameters;
+        public readonly string[]                    parameters;
 
         #endregion
 
@@ -84,28 +84,28 @@ TwitchNet.Clients.Irc
         /// <param name="raw">The UTF-8 encoded byte data received from the socket.</param>
         public IrcMessage(byte[] data, string raw)
         {
-            this.data = data;
-            this.raw = raw;
+            this.data                   = data;
+            this.raw                    = raw;
 
-            tags = new Dictionary<string, string>();
+            tags                        = new Dictionary<string, string>();
 
-            prefix = string.Empty;
-            server_or_nick = string.Empty;
-            user = string.Empty;
-            host = string.Empty;
+            prefix                      = string.Empty;
+            server_or_nick              = string.Empty;
+            user                        = string.Empty;
+            host                        = string.Empty;
 
-            command = string.Empty;
+            command                     = string.Empty;
 
-            middle = new string[0];
-            trailing = string.Empty;
-            parameters = new string[0];
+            middle                      = new string[0];
+            trailing                    = string.Empty;
+            parameters                  = new string[0];
 
-            string message_post_tags = ParseTags(raw, ref tags);
-            string message_post_prefix = ParsePrefix(message_post_tags, ref prefix, ref server_or_nick, ref user, ref host);
+            string message_post_tags    = ParseTags(raw, ref tags);
+            string message_post_prefix  = ParsePrefix(message_post_tags, ref prefix, ref server_or_nick, ref user, ref host);
             string message_post_command = ParseCommand(message_post_prefix, ref command);
 
-            middle = ParseParameters(message_post_command, ref trailing).ToArray();
-            parameters = AssembleParameters(middle, trailing);
+            middle                      = ParseParameters(message_post_command, ref trailing).ToArray();
+            parameters                  = AssembleParameters(middle, trailing);
         }
 
         #endregion        
@@ -181,14 +181,14 @@ TwitchNet.Clients.Irc
             }
             else if (user_index != -1 && host_index < 0)
             {
-                server_or_nick = prefix.TextBefore('!');
-                user = prefix.TextAfter('!');
+                server_or_nick  = prefix.TextBefore('!');
+                user            = prefix.TextAfter('!');
             }
             else
             {
-                server_or_nick = prefix.TextBefore('!');
-                user = prefix.TextBetween('!', '@');
-                host = prefix.TextAfter('@');
+                server_or_nick  = prefix.TextBefore('!');
+                user            = prefix.TextBetween('!', '@');
+                host            = prefix.TextAfter('@');
             }
 
             message_post_prefix = message_post_tags.TextAfter(' ').TrimStart(' ');
@@ -273,22 +273,22 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Combines the middle and trailing into a single parameters array.
         /// </summary>
-        /// <param name="_middle">The array of middle parameters.</param>
-        /// <param name="_trailing">The trailing parameter.</param>
+        /// <param name="middle">The array of middle parameters.</param>
+        /// <param name="trailing">The trailing parameter.</param>
         /// <returns>The combined parameters array.</returns>
         private string[]
-        AssembleParameters(string[] _middle, string _trailing)
+        AssembleParameters(string[] middle, string trailing)
         {
-            List<string> _parameters = new List<string>();
+            List<string> parameters = new List<string>();
 
-            foreach (string element in _middle)
+            foreach (string element in middle)
             {
-                _parameters.Add(element);
+                parameters.Add(element);
             }
 
-            _parameters.Add(trailing);
+            parameters.Add(trailing);
 
-            return _parameters.ToArray();
+            return parameters.ToArray();
         }
 
         #endregion

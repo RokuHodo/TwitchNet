@@ -61,25 +61,25 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            if (TagsUtil.IsTagValid(message.tags, "emote-only"))
+            if (TagsUtil.IsTagValid(message, "emote-only"))
             {
-                emote_only = TagsUtil.ToBool(message.tags, "emote-only");
+                emote_only = TagsUtil.ToBool(message, "emote-only");
                 changed_states |= RoomStateType.EmoteOnly;
             }
 
-            if (TagsUtil.IsTagValid(message.tags, "r9k"))
+            if (TagsUtil.IsTagValid(message, "r9k"))
             {
-                r9k = TagsUtil.ToBool(message.tags, "r9k");
+                r9k = TagsUtil.ToBool(message, "r9k");
                 changed_states |= RoomStateType.R9K;
             }
 
-            if (TagsUtil.IsTagValid(message.tags, "slow"))
+            if (TagsUtil.IsTagValid(message, "slow"))
             {
-                slow = TagsUtil.ToUInt32(message.tags, "slow");
+                slow = TagsUtil.ToUInt32(message, "slow");
                 changed_states |= RoomStateType.Slow;
             }
 
-            room_id = TagsUtil.ToString(message.tags, "room-id");
+            room_id = TagsUtil.ToString(message, "room-id");
         }
 
         /// <summary>

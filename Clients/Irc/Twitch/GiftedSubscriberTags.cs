@@ -37,9 +37,9 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            msg_param_recipient_id              = TagsUtil.ToString(message.tags, "msg-param-recipient-id");
-            msg_param_recipient_user_name       = TagsUtil.ToString(message.tags, "msg-param-recipient-user-name");
-            msg_param_recipient_display_name    = TagsUtil.ToString(message.tags, "msg-param-recipient-display-name");
+            msg_param_recipient_id              = TagsUtil.ToString(message, "msg-param-recipient-id");
+            msg_param_recipient_user_name       = TagsUtil.ToString(message, "msg-param-recipient-user-name");
+            msg_param_recipient_display_name    = TagsUtil.ToString(message, "msg-param-recipient-display-name");
         }
     }
 }

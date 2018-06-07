@@ -25,7 +25,7 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            msg_param_ritual_name = TagsUtil.ToRitualType(message.tags, "msg-param-ritual-name");
+            msg_param_ritual_name = TagsUtil.ToRitualType(message, "msg-param-ritual-name");
         }
     }
 }

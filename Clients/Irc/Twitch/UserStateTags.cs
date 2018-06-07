@@ -34,9 +34,9 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            subscriber  = TagsUtil.ToBool(message.tags, "subscriber");
+            subscriber  = TagsUtil.ToBool(message, "subscriber");
 
-            badges      = TagsUtil.ToBadges(message.tags, "badges");
+            badges      = TagsUtil.ToBadges(message, "badges");
         }
     }
 }

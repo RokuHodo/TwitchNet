@@ -25,7 +25,7 @@ TwitchNet.Clients.Irc.Twitch
         /// Creates a new instance of the <see cref="UserStateEventArgs"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public UserStateEventArgs(IrcMessage message) : base(message)
+        public UserStateEventArgs(in IrcMessage message) : base(message)
         {
             if (message.parameters.IsValid())
             {

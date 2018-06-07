@@ -17,7 +17,7 @@ TwitchNet.Clients.Irc
         /// Creates a new instance of the <see cref="MotdEventArgs"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public MotdEventArgs(IrcMessage message) : base(message)
+        public MotdEventArgs(in IrcMessage message) : base(message)
         {
             motd = message.trailing;
         }

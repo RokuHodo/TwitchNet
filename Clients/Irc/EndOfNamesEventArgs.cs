@@ -28,7 +28,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
         /// <param name="names">The complete list of client nicks that have joined the channel.</param>
-        public EndOfNamesEventArgs(IrcMessage message, Dictionary<string, List<string>> names) : base(message)
+        public EndOfNamesEventArgs(in IrcMessage message, Dictionary<string, List<string>> names) : base(message)
         {
             if (!message.parameters.IsValid() || message.parameters.Length < 2)
             {

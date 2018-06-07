@@ -37,7 +37,7 @@ TwitchNet.Clients.Irc
         /// Creates a new instance of the <see cref="UserModeEventArgs"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public UserModeEventArgs(IrcMessage message) : base(message)
+        public UserModeEventArgs(in IrcMessage message) : base(message)
         {
             if (!message.parameters.IsValid() || message.parameters.Length < 2)
             {

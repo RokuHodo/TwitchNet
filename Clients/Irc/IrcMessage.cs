@@ -7,7 +7,7 @@ using TwitchNet.Extensions;
 namespace
 TwitchNet.Clients.Irc
 {
-    public class
+    public readonly struct
     IrcMessage
     {
         #region Properties
@@ -15,63 +15,63 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// The byte data received from the socket.
         /// </summary>
-        public byte[]                       data            { get; protected set; }
+        public readonly byte[] data;
 
         /// <summary>
         /// The UTF-8 encoded byte data received from the socket.
         /// </summary>
-        public string                       raw             { get; protected set; }
+        public readonly string raw;
 
         /// <summary>
         /// The optional tags prefixed to the message.
         /// </summary>
-        public Dictionary<string, string>   tags            { get; protected set; }
+        public readonly Dictionary<string, string> tags;
 
         /// <summary>
         /// An optional part of the message.
         /// If the prefix is provided, the server name or nick is always provided, and the user and/or host may also be included.
         /// </summary>
-        public string                       prefix          { get; protected set; }
+        public readonly string prefix;
 
         /// <summary>
         /// The server name or the nick of the user.
         /// Contained within the prefix.
         /// </summary>
-        public string                       server_or_nick  { get; protected set; }
+        public readonly string server_or_nick;
 
         /// <summary>
         /// The irc user.
         /// Contained within the prefix.
         /// </summary>
-        public string                       user            { get; protected set; }
+        public readonly string user;
 
         /// <summary>
         /// The host of the irc.
         /// Contained within the prefix.
         /// </summary>
-        public string                       host            { get; protected set; }
+        public readonly string host;
 
         /// <summary>
         /// The irc command.
         /// </summary>
-        public string                       command         { get; protected set; }
+        public readonly string command;
 
         /// <summary>
         /// A message parameter.
         /// Any, possibly empty, sequence of octets not including NUL or CR or LF.
         /// </summary>
-        public string                       trailing        { get; protected set; }
+        public readonly string trailing;
 
         /// <summary>
         /// An array of message parameters.
         /// Any non-empty sequence of octets not including SPACE or NUL or CR or LF.
         /// </summary>
-        public string[]                     middle          { get; protected set; }
+        public readonly string[] middle;
 
         /// <summary>
         /// An array of all middle parameters and trailing.
         /// </summary>
-        public string[]                     parameters      { get; protected set; }
+        public readonly string[] parameters;
 
         #endregion
 
@@ -82,18 +82,9 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="data">The data received from the socket.</param>
         /// <param name="raw">The UTF-8 encoded byte data received from the socket.</param>
-        public IrcMessage(byte[] data, string raw) : this(raw)
+        public IrcMessage(byte[] data, string raw)
         {
             this.data = data;
-        }
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="IrcMessage"/> class.
-        /// </summary>
-        /// <param name="raw">The UTF-8 encoded byte data received from the socket.</param>
-        public IrcMessage(string raw)
-        {
-
             this.raw = raw;
 
             tags = new Dictionary<string, string>();
@@ -105,18 +96,15 @@ TwitchNet.Clients.Irc
 
             command = string.Empty;
 
+            middle = new string[0];
             trailing = string.Empty;
+            parameters = new string[0];
 
-            if (!raw.IsValid())
-            {
-                return;
-            }
+            string message_post_tags = ParseTags(raw, ref tags);
+            string message_post_prefix = ParsePrefix(message_post_tags, ref prefix, ref server_or_nick, ref user, ref host);
+            string message_post_command = ParseCommand(message_post_prefix, ref command);
 
-            string message_post_tags = ParseTags(raw);
-            string message_post_prefix = ParsePrefix(message_post_tags);
-            string message_post_command = ParseCommand(message_post_prefix);
-
-            middle = ParseParameters(message_post_command).ToArray();
+            middle = ParseParameters(message_post_command, ref trailing).ToArray();
             parameters = AssembleParameters(middle, trailing);
         }
 
@@ -130,7 +118,7 @@ TwitchNet.Clients.Irc
         /// <param name="message">The irc message to parse.</param>
         /// <returns>Returns the irc message after the tags.</returns>
         private string
-        ParseTags(string message)
+        ParseTags(string message, ref Dictionary<string, string> tags)
         {
             string message_no_tags = message;
 
@@ -146,7 +134,7 @@ TwitchNet.Clients.Irc
             {
                 string tag = element.TextBefore('=');
                 string value = element.TextAfter('=');
-                if(!tag.IsValid())
+                if (!tag.IsValid())
                 {
                     continue;
                 }
@@ -166,7 +154,7 @@ TwitchNet.Clients.Irc
         /// <param name="message_post_tags">The irc message after the tags.</param>
         /// <returns>Returns the irc message after the prefix.</returns>
         public string
-        ParsePrefix(string message_post_tags)
+        ParsePrefix(string message_post_tags, ref string prefix, ref string server_or_nick, ref string user, ref string host)
         {
             string message_post_prefix = string.Empty;
 
@@ -187,11 +175,11 @@ TwitchNet.Clients.Irc
             int user_index = prefix.IndexOf('!');
             int host_index = prefix.IndexOf('@');
 
-            if(user_index < 0 && host_index < 0)
+            if (user_index < 0 && host_index < 0)
             {
                 server_or_nick = prefix;
             }
-            else if(user_index != -1 && host_index < 0)
+            else if (user_index != -1 && host_index < 0)
             {
                 server_or_nick = prefix.TextBefore('!');
                 user = prefix.TextAfter('!');
@@ -214,7 +202,7 @@ TwitchNet.Clients.Irc
         /// <param name="message_post_prefix">The irc message after the prefix.</param>
         /// <returns>Returns the irc message after the command.</returns>
         private string
-        ParseCommand(string message_post_prefix)
+        ParseCommand(string message_post_prefix, ref string command)
         {
             string message_post_command = string.Empty;
 
@@ -243,7 +231,7 @@ TwitchNet.Clients.Irc
         /// <param name="message_post_command">The irc message after the command.</param>
         /// <returns>Returns an middle array of parameters.</returns>
         private List<string>
-        ParseParameters(string message_post_command)
+        ParseParameters(string message_post_command, ref string trailing)
         {
             List<string> _middle = new List<string>();
 
@@ -252,7 +240,7 @@ TwitchNet.Clients.Irc
                 return _middle;
             }
 
-            if(message_post_command[0] == ':')
+            if (message_post_command[0] == ':')
             {
                 string parameter = message_post_command.TextAfter(':');
 
@@ -267,7 +255,7 @@ TwitchNet.Clients.Irc
 
                     message_post_command = message_post_command.TextAfter(' ').TrimStart(' ');
 
-                    List<string> temp = ParseParameters(message_post_command);
+                    List<string> temp = ParseParameters(message_post_command, ref trailing);
                     if (temp.IsValid())
                     {
                         _middle.AddRange(temp);
@@ -277,7 +265,7 @@ TwitchNet.Clients.Irc
                 {
                     _middle.Add(message_post_command);
                 }
-            }            
+            }
 
             return _middle;
         }
@@ -293,7 +281,7 @@ TwitchNet.Clients.Irc
         {
             List<string> _parameters = new List<string>();
 
-            foreach(string element in _middle)
+            foreach (string element in _middle)
             {
                 _parameters.Add(element);
             }

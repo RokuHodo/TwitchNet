@@ -26,7 +26,7 @@ TwitchNet.Clients.Irc.Twitch
         /// Creates a new instance of the <see cref="RoomStateEventArgs"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public RoomStateEventArgs(IrcMessage message) : base(message)
+        public RoomStateEventArgs(in IrcMessage message) : base(message)
         {
             if (message.parameters.IsValid())
             {

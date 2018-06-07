@@ -24,7 +24,7 @@ TwitchNet.Clients.Irc
         /// Creates a new instance of the <see cref="JoinEventArgs"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public JoinEventArgs(IrcMessage message) : base(message)
+        public JoinEventArgs(in IrcMessage message) : base(message)
         {
             nick = message.server_or_nick;
 

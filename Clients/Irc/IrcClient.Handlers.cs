@@ -19,7 +19,7 @@ TwitchNet.Clients.Irc
         /// The method signature of a IRC message handler.
         /// </summary>
         /// <param name="message_irc"></param>
-        public delegate void MessageHandler(IrcMessage message_irc);
+        public delegate void MessageHandler(in IrcMessage message_irc);
 
         #endregion
 
@@ -273,7 +273,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message"></param>
         private void
-        RunHandler(IrcMessage message)
+        RunHandler(in IrcMessage message)
         {
             if (handlers.IsNull())
             {
@@ -297,7 +297,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         protected virtual void
-        HandleWelcome(IrcMessage message)
+        HandleWelcome(in IrcMessage message)
         {
             SetState(ClientState.Connected);
 
@@ -309,7 +309,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         protected virtual void
-        HandleYourHost(IrcMessage message)
+        HandleYourHost(in IrcMessage message)
         {
             OnYourHost.Raise(this, new NumericReplyEventArgs(message));
         }
@@ -319,7 +319,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         protected virtual void
-        HandleCreated(IrcMessage message)
+        HandleCreated(in IrcMessage message)
         {
             OnCreated.Raise(this, new NumericReplyEventArgs(message));
         }
@@ -329,7 +329,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         protected virtual void
-        HandleMyInfo(IrcMessage message)
+        HandleMyInfo(in IrcMessage message)
         {
             OnMyInfo.Raise(this, new NumericReplyEventArgs(message));
         }
@@ -339,7 +339,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         protected virtual void
-        HandleNamReply(IrcMessage message)
+        HandleNamReply(in IrcMessage message)
         {
             NamReplyEventArgs args = new NamReplyEventArgs(message);
 
@@ -361,7 +361,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         protected virtual void
-        HandleEndOfNames(IrcMessage message)
+        HandleEndOfNames(in IrcMessage message)
         {
             EndOfNamesEventArgs args = new EndOfNamesEventArgs(message, names);
             if (names.ContainsKey(args.channel))
@@ -377,7 +377,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         protected virtual void
-        HandleMotd(IrcMessage message)
+        HandleMotd(in IrcMessage message)
         {
             OnMotd.Raise(this, new MotdEventArgs(message));
         }
@@ -387,7 +387,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         protected virtual void
-        HandleMotdStart(IrcMessage message)
+        HandleMotdStart(in IrcMessage message)
         {
             OnMotdStart.Raise(this, new NumericReplyEventArgs(message));
         }
@@ -397,7 +397,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         protected virtual void
-        HandleEndOfMotd(IrcMessage message)
+        HandleEndOfMotd(in IrcMessage message)
         {
             OnEndOfMotd.Raise(this, new NumericReplyEventArgs(message));
         }
@@ -407,7 +407,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         protected virtual void
-        HandleUnknownCommand(IrcMessage message)
+        HandleUnknownCommand(in IrcMessage message)
         {
             OnUnknownCommand.Raise(this, new UnknownCommandEventArgs(message));
         }
@@ -421,7 +421,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         protected virtual void
-        HandleJoin(IrcMessage message)
+        HandleJoin(in IrcMessage message)
         {
             OnJoin.Raise(this, new JoinEventArgs(message));
         }
@@ -431,7 +431,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         protected virtual void
-        HandleMode(IrcMessage message)
+        HandleMode(in IrcMessage message)
         {
             if (!message.parameters.IsValid() || !message.parameters[0].IsValid())
             {
@@ -453,7 +453,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         protected virtual void
-        HandlePart(IrcMessage message)
+        HandlePart(in IrcMessage message)
         {
             OnPart.Raise(this, new PartEventArgs(message));
         }
@@ -463,7 +463,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         protected virtual void
-        HandlePing(IrcMessage message)
+        HandlePing(in IrcMessage message)
         {
             if (auto_pong)
             {
@@ -478,7 +478,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         protected virtual void
-        HandlePrivmsg(IrcMessage message)
+        HandlePrivmsg(in IrcMessage message)
         {
             OnPrivmsg.Raise(this, new PrivmsgEventArgs(message));
         }

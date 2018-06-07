@@ -20,7 +20,7 @@ TwitchNet.Clients.Irc
         /// Creates a new instance of the <see cref="IrcMessageEventArgs"/> class.
         /// </summary>
         /// <param name="message">The parsed IRC message.</param>
-        public IrcMessageEventArgs(IrcMessage message)
+        public IrcMessageEventArgs(in IrcMessage message)
         {
             irc_message = message;
         }

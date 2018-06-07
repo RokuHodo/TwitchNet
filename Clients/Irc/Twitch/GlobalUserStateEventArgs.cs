@@ -18,7 +18,7 @@ TwitchNet.Clients.Irc.Twitch
         /// Creates a new instance of the <see cref="GlobalUserStateEventArgs"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public GlobalUserStateEventArgs(IrcMessage message) : base(message)
+        public GlobalUserStateEventArgs(in IrcMessage message) : base(message)
         {
             tags = new GlobalUserStateTags(message);
         }

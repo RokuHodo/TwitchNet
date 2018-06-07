@@ -25,7 +25,7 @@ TwitchNet.Clients.Irc.Twitch
         /// Creates a new instance of the <see cref="ChatRoomNoticeEventArgs"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public ChatRoomNoticeEventArgs(IrcMessage message) : base(message)
+        public ChatRoomNoticeEventArgs(in IrcMessage message) : base(message)
         {
             channel_user_id = channel.TextBetween(':', ':');
 

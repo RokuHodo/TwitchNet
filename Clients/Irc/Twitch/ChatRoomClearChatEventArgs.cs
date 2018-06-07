@@ -25,7 +25,7 @@ TwitchNet.Clients.Irc.Twitch
         /// Creates a new instance of the <see cref="ChatRoomClearChatEventArgs"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public ChatRoomClearChatEventArgs(IrcMessage message) : base(message)
+        public ChatRoomClearChatEventArgs(in IrcMessage message) : base(message)
         {
             channel_user_id = channel.TextBetween(':', ':');
 

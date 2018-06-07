@@ -42,7 +42,7 @@ TwitchNet.Clients.Irc.Twitch
         /// Creates a new instance of the <see cref="HostTargetEventArgs"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public HostTargetEventArgs(IrcMessage message) : base(message)
+        public HostTargetEventArgs(in IrcMessage message) : base(message)
         {
             target_type = HostTargetType.None;
 

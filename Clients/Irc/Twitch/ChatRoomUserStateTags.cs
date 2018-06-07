@@ -54,7 +54,7 @@ TwitchNet.Clients.Irc.Twitch
         /// Creates a new instance of the <see cref="ChatRoomUserStateTags"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public ChatRoomUserStateTags(IrcMessage message)
+        public ChatRoomUserStateTags(in IrcMessage message)
         {
             exist = message.tags.IsValid();
             if (!exist)

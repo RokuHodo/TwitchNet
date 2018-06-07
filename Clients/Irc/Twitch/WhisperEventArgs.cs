@@ -37,7 +37,7 @@ TwitchNet.Clients.Irc.Twitch
         /// Creates a new instance of the <see cref="WhisperEventArgs"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public WhisperEventArgs(IrcMessage message) : base(message)
+        public WhisperEventArgs(in IrcMessage message) : base(message)
         {
             sender = message.server_or_nick;
 

@@ -25,7 +25,7 @@ TwitchNet.Clients.Irc.Twitch
         /// Creates a new instance of the <see cref="NoticeTags"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public NoticeTags(IrcMessage message)
+        public NoticeTags(in IrcMessage message)
         {
             exist = message.tags.IsValid();
             if (!exist)

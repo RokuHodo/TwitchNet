@@ -30,7 +30,7 @@ TwitchNet.Clients.Irc.Twitch
         /// Creates a new instance of the <see cref="GiftedSubscriberTags"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public GiftedSubscriberTags(IrcMessage message) : base(message)
+        public GiftedSubscriberTags(in IrcMessage message) : base(message)
         {
             if (!exist)
             {

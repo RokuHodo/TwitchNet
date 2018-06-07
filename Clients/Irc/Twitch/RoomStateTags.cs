@@ -87,7 +87,7 @@ TwitchNet.Clients.Irc.Twitch
         /// Creates a new instance of the <see cref="RoomStateTags"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public RoomStateTags(IrcMessage message)
+        public RoomStateTags(in IrcMessage message)
         {
             exist = message.tags.IsValid();
             if (!exist)

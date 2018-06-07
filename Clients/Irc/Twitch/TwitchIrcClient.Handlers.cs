@@ -519,7 +519,7 @@ TwitchNet.Clients.Irc.Twitch
         #region Base override handlers
 
         protected override void
-        HandleNamReply(IrcMessage message)
+        HandleNamReply(in IrcMessage message)
         {
             if (message.parameters.Length < 3 || !message.parameters[2].IsValid())
             {
@@ -557,7 +557,7 @@ TwitchNet.Clients.Irc.Twitch
         }
 
         protected override void
-        HandleEndOfNames(IrcMessage message)
+        HandleEndOfNames(in IrcMessage message)
         {
             if (IsChatRoom(message, 1))
             {
@@ -585,7 +585,7 @@ TwitchNet.Clients.Irc.Twitch
         }
 
         protected override void
-        HandleJoin(IrcMessage message)
+        HandleJoin(in IrcMessage message)
         {
             if (IsChatRoom(message))
             {
@@ -598,7 +598,7 @@ TwitchNet.Clients.Irc.Twitch
         }
 
         protected override void
-        HandlePart(IrcMessage message)
+        HandlePart(in IrcMessage message)
         {
             if (IsChatRoom(message))
             {
@@ -646,7 +646,7 @@ TwitchNet.Clients.Irc.Twitch
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         private void
-        HandleWhisper(IrcMessage message)
+        HandleWhisper(in IrcMessage message)
         {
             OnWhisper.Raise(this, new WhisperEventArgs(message));
         }
@@ -656,7 +656,7 @@ TwitchNet.Clients.Irc.Twitch
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         private void
-        HandleClearChat(IrcMessage message)
+        HandleClearChat(in IrcMessage message)
         {
             if (IsChatRoom(message))
             {
@@ -674,7 +674,7 @@ TwitchNet.Clients.Irc.Twitch
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         private void
-        HandleGlobalUserState(IrcMessage message)
+        HandleGlobalUserState(in IrcMessage message)
         {
             OnGlobalUserstate.Raise(this, new GlobalUserStateEventArgs(message));
         }
@@ -684,7 +684,7 @@ TwitchNet.Clients.Irc.Twitch
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         private void
-        HandleRoomState(IrcMessage message)
+        HandleRoomState(in IrcMessage message)
         {
             if (IsChatRoom(message))
             {
@@ -701,7 +701,7 @@ TwitchNet.Clients.Irc.Twitch
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         private void
-        HandleUserNotice(IrcMessage message)
+        HandleUserNotice(in IrcMessage message)
         {
             UserNoticeType type = TagsUtil.ToUserNoticeType(message.tags, "msg-id");
             switch (type)
@@ -745,7 +745,7 @@ TwitchNet.Clients.Irc.Twitch
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         private void
-        HandleUserState(IrcMessage message)
+        HandleUserState(in IrcMessage message)
         {
             if (IsChatRoom(message))
             {
@@ -762,7 +762,7 @@ TwitchNet.Clients.Irc.Twitch
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         private void
-        HandleHostTarget(IrcMessage message)
+        HandleHostTarget(in IrcMessage message)
         {
             OnHostTarget.Raise(this, new HostTargetEventArgs(message));
         }
@@ -772,7 +772,7 @@ TwitchNet.Clients.Irc.Twitch
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         private void
-        HandleReconnect(IrcMessage message)
+        HandleReconnect(in IrcMessage message)
         {
             OnReconnect.Raise(this, new IrcMessageEventArgs(message));
         }
@@ -782,7 +782,7 @@ TwitchNet.Clients.Irc.Twitch
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>
         private void
-        HandleNotice(IrcMessage message)
+        HandleNotice(in IrcMessage message)
         {
             if (IsChatRoom(message))
             {

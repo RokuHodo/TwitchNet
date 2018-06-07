@@ -51,7 +51,7 @@ TwitchNet.Clients.Irc
         /// Creates a new instance of the <see cref="PrivmsgEventArgs"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public PrivmsgEventArgs(IrcMessage message) : base(message)
+        public PrivmsgEventArgs(in IrcMessage message) : base(message)
         {
             tags = message.tags;
             nick = message.server_or_nick;

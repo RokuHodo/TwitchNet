@@ -50,7 +50,7 @@ TwitchNet.Clients.Irc
         /// Creates a new instance of the <see cref="NamReplyEventArgs"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public NamReplyEventArgs(IrcMessage message) : base(message)
+        public NamReplyEventArgs(in IrcMessage message) : base(message)
         {
             names = message.trailing.Split(' ');
 

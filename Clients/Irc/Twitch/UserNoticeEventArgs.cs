@@ -33,7 +33,7 @@ TwitchNet.Clients.Irc.Twitch
         /// Creates a new instance of the <see cref="UserNoticeEventArgs"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public UserNoticeEventArgs(IrcMessage message) : base(message)
+        public UserNoticeEventArgs(in IrcMessage message) : base(message)
         {
             if (message.parameters.IsValid())
             {

@@ -532,7 +532,7 @@ TwitchNet.Debugger
         private static void
         ValidationHandler_Tags(object obj, string name, Type type, object value, ValidateMemberAttribute attribute)
         {
-            IrcMessage irc_message = null;
+            IrcMessage irc_message = default(IrcMessage);
 
             string target = "irc_message";
             MemberInfo[] members = obj.GetType().GetMember(target);
@@ -555,7 +555,7 @@ TwitchNet.Debugger
                 }
             }
 
-            if (irc_message.IsNull())
+            if (irc_message.IsNullOrDefault())
             {
                 WriteError(ErrorLevel.Major, "Failed to validate the object's IRC tags. No member with the name " + target.WrapQuotes() + " and type " + nameof(IrcMessage).WrapQuotes() + " was found to compare against.");
 

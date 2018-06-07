@@ -32,7 +32,7 @@ TwitchNet.Clients.Irc.Twitch
         /// Creates a new instance of the <see cref="ChatRoomUserStateEventArgs"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public ChatRoomUserStateEventArgs(IrcMessage message) : base(message)
+        public ChatRoomUserStateEventArgs(in IrcMessage message) : base(message)
         {
             channel_user_id = channel.TextBetween(':', ':');
 

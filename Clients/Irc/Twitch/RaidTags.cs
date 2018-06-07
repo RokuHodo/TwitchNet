@@ -31,7 +31,7 @@ TwitchNet.Clients.Irc.Twitch
         /// Creates a new instance of the <see cref="RaidTags"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public RaidTags(IrcMessage message) : base(message)
+        public RaidTags(in IrcMessage message) : base(message)
         {
             if (!exist)
             {

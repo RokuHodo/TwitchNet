@@ -18,7 +18,7 @@ TwitchNet.Clients.Irc.Twitch
         /// Creates a new instance of the <see cref="RitualTags"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public RitualTags(IrcMessage message) : base(message)
+        public RitualTags(in IrcMessage message) : base(message)
         {
             if (!exist)
             {

@@ -24,7 +24,7 @@ TwitchNet.Clients.Irc
         /// Creates a new instance of the <see cref="UnknownCommandEventArgs"/> class.
         /// </summary>
         /// <param name="message">The IRC message to parse.</param>
-        public UnknownCommandEventArgs(IrcMessage message) : base(message)
+        public UnknownCommandEventArgs(in IrcMessage message) : base(message)
         {
             description = message.trailing;
 

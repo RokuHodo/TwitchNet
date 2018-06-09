@@ -141,7 +141,7 @@ TwitchNet.Clients.Irc.Twitch
             user_type       = TagsUtil.ToUserType(message, "user-type");
 
             color           = TagsUtil.FromtHtml(message, "color");
-            tmi_sent_ts     = TagsUtil.FromUnixEpoch(message, "tmi-sent-ts");
+            tmi_sent_ts     = TagsUtil.FromUnixEpochMilliseconds(message, "tmi-sent-ts");
 
             badges          = TagsUtil.ToBadges(message, "badges");
             emotes          = TagsUtil.ToEmotes(message, "emotes");

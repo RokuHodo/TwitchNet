@@ -789,7 +789,6 @@ TwitchNet.Clients.Irc.Twitch
                 ChatRoomNoticeEventArgs args = new ChatRoomNoticeEventArgs(message);
                 OnChatRoomNotice.Raise(this, args);
 
-                // TODO: Need to find a better way of doing this
                 switch (args.tags.msg_id)
                 {
                     case NoticeType.AlreadyBanned:
@@ -852,7 +851,6 @@ TwitchNet.Clients.Irc.Twitch
                 NoticeEventArgs args = new NoticeEventArgs(message);
                 OnNotice.Raise(this, args);
 
-                // TODO: Need to find a better way of doing this
                 switch (args.tags.msg_id)
                 {
                     case NoticeType.AlreadyBanned:

@@ -87,6 +87,12 @@ TwitchNet.Clients.Irc
         public virtual event EventHandler<EventArgs>                OnDisconnected;
 
         /// <summary>
+        /// <para>Raised when the <see cref="IrcClient"/> is disposed.</para>
+        /// <para>This is raised before the disconnect handler.</para>
+        /// </summary>
+        public virtual event EventHandler<EventArgs>                OnDisposed;
+
+        /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 002, RPL_YOURHOST.</para>
         /// <para>
         /// Gives information about the IRC server the <see cref="IrcClient"/> has connected too.

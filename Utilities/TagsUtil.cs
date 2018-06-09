@@ -89,6 +89,25 @@ TwitchNet.Utilities
         }
 
         /// <summary>
+        /// Converts a tag to an equivalent <see cref="TimeSpan"/> value.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to convert.</param>
+        /// <returns>
+        /// Returns the equivalent <see cref="TimeSpan"/> value if the tag was able to be converted.
+        /// Returns <see cref="TimeSpan.Zero"/> otherwise.
+        /// </returns>
+        public static TimeSpan
+        ToTimeSpanFromSeconds(in IrcMessage message, string key)
+        {
+            int seconds = ToInt32(message, key);
+
+            TimeSpan time = seconds == 0 ? TimeSpan.Zero : new TimeSpan(0, 0, seconds);
+
+            return time;
+        }
+
+        /// <summary>
         /// Converts a tag to an equivalent <see cref="Int32"/> value.
         /// </summary>
         /// <param name="tags">The IRC message tags.</param>
@@ -324,7 +343,7 @@ TwitchNet.Utilities
         /// Returns <see cref="Color.Empty"/> otherwise.
         /// </returns>
         public static DateTime
-        FromUnixEpoch(in IrcMessage message, string key)
+        FromUnixEpochMilliseconds(in IrcMessage message, string key)
         {
             DateTime time = DateTime.MinValue;
 

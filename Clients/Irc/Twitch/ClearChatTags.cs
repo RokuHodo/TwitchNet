@@ -17,13 +17,12 @@ TwitchNet.Clients.Irc.Twitch
         /// </summary>
         public bool     exist           { get; protected set; }
 
-        // TODO: Change type to TimeSpan?
         /// <summary>
         /// <para>The length of the ban, in seconds.</para>
-        /// <para>Set to zero if the ban is permanent.</para>
+        /// <para>Set to <see cref="TimeSpan.Zero"/> if the ban is permanent.</para>
         /// </summary>
         [ValidateTag("ban-duration")]
-        public uint     ban_duration    { get; protected set; }
+        public TimeSpan ban_duration    { get; protected set; }
 
         /// <summary>
         /// <para>The moderator’s reason for the timeout or ban.</para>
@@ -62,13 +61,13 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            ban_duration    = TagsUtil.ToUInt32(message, "ban-duration");
+            ban_duration    = TagsUtil.ToTimeSpanFromSeconds(message, "ban-duration");
             ban_reason      = TagsUtil.ToString(message, "ban-reason").Replace("\\s", " ");
 
             room_id         = TagsUtil.ToString(message, "room-id");
             target_user_id  = TagsUtil.ToString(message, "target-user-id");
 
-            tmi_sent_ts     = TagsUtil.FromUnixEpoch(message, "tmi-sent-ts");
+            tmi_sent_ts     = TagsUtil.FromUnixEpochMilliseconds(message, "tmi-sent-ts");
         }
     }
 }

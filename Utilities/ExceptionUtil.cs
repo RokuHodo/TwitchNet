@@ -7,7 +7,7 @@ using TwitchNet.Extensions;
 
 namespace
 TwitchNet.Utilities
-{
+{   
     internal static class
     ExceptionUtil
     {

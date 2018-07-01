@@ -1,6 +1,10 @@
 ﻿// standard namespaces
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text;
 
 // project namespaces
 using TwitchNet.Rest;
@@ -22,6 +26,360 @@ TwitchNet.Utilities
     public static class
     EnumCacheUtil
     {
+        private static readonly ConcurrentDictionary<Type, EnumTypeCache> CACHE = new ConcurrentDictionary<Type, EnumTypeCache>();
+
+        private readonly struct
+        EnumTypeCache
+        {
+            public readonly Type        type;
+            public readonly TypeCode    type_code;
+
+            public readonly bool        is_flags;
+
+            public readonly object      default_value;
+
+            public readonly string[]    names;
+            public readonly Array       values;
+
+            public readonly string[]    resolved_names;
+            public readonly ulong[]     resolved_values;
+
+            public EnumTypeCache(Type type)
+            {
+                ExceptionUtil.ThrowIfNull(type, nameof(type));
+                if (!type.IsEnum)
+                {
+                    throw new ArgumentException("Type must be an enum.");
+                }
+
+                this.type = type;
+                type_code = Type.GetTypeCode(type);
+
+                is_flags        = type.IsDefined(typeof(FlagsAttribute), false);
+
+                default_value   = type.GetDefaultValue();
+
+                names           = Enum.GetNames(type);
+                values          = Enum.GetValues(type);
+
+                resolved_names  = new string[names.LongLength];
+                resolved_values = new ulong[names.LongLength];
+
+                for (long index = 0; index < names.LongLength; ++index)
+                {
+                    object value = values.GetValue(index);
+                    resolved_values[index] = ToUInt64(type_code, value);
+
+                    FieldInfo field = type.GetField(names[index], BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+
+                    string resolved_name = field.TryGetAttribute(out EnumMemberAttribute attribute) ? attribute.Value : names[index];
+                    if(Array.IndexOf(resolved_names, resolved_name) != -1)
+                    {
+                        throw new ArgumentException("Enum " + type.Name.WrapQuotes() + " contains a duplicate of the resolved name " + resolved_name.WrapQuotes() + ".");
+                    }
+
+                    resolved_names[index] = resolved_name;
+                }
+            }
+
+            public string
+            GetName(object value)
+            {
+                if(!TryGetName(value, out string result))
+                {
+                    throw new ArgumentException("The value " + value.ToString().WrapQuotes() + " could not be converted into an enum name of type " + type.Name.WrapQuotes() + ".");
+                }
+
+                return result;
+            }
+
+            public bool
+            TryGetName(object value, out string result)
+            {
+                TypeCode code = Type.GetTypeCode(value.GetType());
+                ulong _value = ToUInt64(code, value);
+
+                if (is_flags)
+                {
+                    result = InternalFlagsFormat(_value);
+                    if (!result.IsNull())
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    int index = Array.BinarySearch(resolved_values, value);
+                    if(index != -1)
+                    {
+                        result = resolved_names[index];
+
+                        return true;
+                    }
+
+                    index = Array.BinarySearch(values, value);
+                    if (index != -1)
+                    {
+                        result = names[index];
+
+                        return true;
+                    }
+                }
+
+                result = string.Empty;
+
+                return false;
+            }
+
+            private string
+            InternalFlagsFormat(ulong value)
+            {
+                bool first_flag = true;
+                ulong value_copy = value;
+
+                StringBuilder sb = new StringBuilder();
+
+                // We will not optimize this code further to keep it maintainable. There are some boundary checks that can be applied
+                // to minimize the comparsions required. This code works the same for the best/worst case. In general the number of
+                // items in an enum are sufficiently small and not worth the optimization.
+                int index = resolved_values.Length - 1;
+                while (index >= 0)
+                {
+                    if (index == 0 && resolved_values[index] == 0)
+                    {
+                        break;
+                    }
+
+                    if ((value & resolved_values[index]) == resolved_values[index])
+                    {
+                        value -= resolved_values[index];
+                        if (!first_flag)
+                        {
+                            sb.Insert(0, ", ");
+                        }
+
+                        string resolvedName = resolved_names[index];
+                        sb.Insert(0, resolvedName);
+                        first_flag = false;
+                    }
+
+                    index--;
+                }
+
+                string result;
+                if (value != 0)
+                {
+                    // We were unable to represent this number as a bitwise or of valid flags
+                    // return null so the caller knows to .ToString() the input
+                    result = null; 
+                }
+                else if (value_copy == 0)
+                {
+                    // For the cases when we have zero
+                    if (values.Length > 0 && resolved_values[0] == 0)
+                    {
+                        // Zero was one of the enum values.
+                        result = resolved_names[0]; 
+                    }
+                    else
+                    {
+                        result = null;
+                    }
+                }
+                else
+                {
+                    // Return the string representation
+                    result = sb.ToString(); 
+                }
+
+                return result;
+            }
+
+            public object
+            Parse(string value)
+            {
+                return Parse(value, false);
+            }
+
+            public object
+            Parse(string value, bool ignore_case)
+            {
+                if(!TryParse(value, ignore_case, out object result))
+                {
+                    throw new ArgumentException("Could not convert " + value.WrapQuotes() + " into an enum member of type " + type.Name.WrapQuotes() + ".");
+                }
+
+                return result;
+            }
+
+            public bool
+            TryParse(string value, out object result)
+            {
+                return TryParse(value, false, out result);
+            }
+
+            public bool
+            TryParse(string value, bool ignore_case, out object result)
+            {
+                ExceptionUtil.ThrowIfNull(value, nameof(value));
+
+                result = default_value;
+
+                StringComparison comparison = ignore_case ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+
+                // Search by matching the exact value against the resolved and unresolved names
+                int index = FindIndexByName(value, comparison);
+                if(index != -1)
+                {
+                    result = Enum.ToObject(type, resolved_values[index]);
+
+                    return true;
+                }
+
+                // Search by getting the value directly if it's a number
+                value = value.Trim();
+                if (UInt64.TryParse(value, out ulong _result))
+                {
+                    result = Enum.ToObject(type, _result);
+
+                    return true;
+                }
+
+                if (!is_flags)
+                {                    
+                    return false;
+                }
+
+                // If we get here, the only other option is that the value is a bitfield
+                ulong bitfield_result = 0;
+
+                string[] elements = value.Split(',');
+                foreach(string element in elements)
+                {
+                    index = FindIndexByName(element.Trim(), comparison);
+                    if (index != -1)
+                    {
+                        bitfield_result |= resolved_values[index];
+
+                        continue;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                if(index != -1)
+                {
+                    result = Enum.ToObject(type, bitfield_result);
+
+                    return true;
+                }
+
+                return false;
+            }
+
+            private int
+            FindIndexByName(string str, StringComparison comparison)
+            {
+                for (int index = 0; index < resolved_names.Length; ++index)
+                {
+                    if (string.Compare(resolved_names[index], str, comparison) == 0)
+                    {
+                        return index;
+                    }
+                }
+
+                for (int index = 0; index < names.Length; ++index)
+                {
+                    if (string.Compare(names[index], str, comparison) == 0)
+                    {
+                        return index;
+                    }
+                }
+
+                return -1;
+            }
+        }
+
+        private static EnumTypeCache
+        AddEnumTypeCache(Type type)
+        {
+            return new EnumTypeCache(type);
+        }
+
+        private static UInt64
+        ToUInt64(TypeCode code, object value)
+        { 
+            // Any negative numbers will be wrapped respectively
+            switch (code)
+            {
+                case TypeCode.SByte:
+                {
+                    return (ulong)(sbyte)value;
+                }
+
+                case TypeCode.Byte:
+                {
+                    return (byte)value;
+                }
+
+                case TypeCode.Int16:
+                {
+                    return (ulong)(short)value;
+                }
+
+                case TypeCode.UInt16:
+                {
+                    return (ushort)value;
+                }
+
+                case TypeCode.UInt32:
+                {
+                    return (uint)value;
+                }
+
+                case TypeCode.Int32:
+                {
+                    return (ulong)(int)value;
+                }
+
+                case TypeCode.UInt64:
+                {
+                    return (ulong)value;
+                }
+
+                case TypeCode.Int64:
+                {
+                    return (ulong)(long)value;
+                }
+
+                default:
+                {
+                    throw new InvalidOperationException("Unknown enum type.");
+                }
+            }
+        }
+
+        private static void
+        Benchmark_FromStreamLanguage_Single()
+        {
+            StreamLanguage language = StreamLanguage.EnGb;
+            EnumTypeCache cache = CACHE.GetOrAdd(typeof(StreamLanguage), AddEnumTypeCache);
+
+            cache.TryGetName(language, out string name);
+        }
+
+        private static void
+        Benchmark_ToStreamLanguage_Single()
+        {
+            string name = "en-gb";
+            EnumTypeCache cache = CACHE.GetOrAdd(typeof(StreamLanguage), AddEnumTypeCache);
+
+            cache.TryParse(name, out object value);
+            StreamLanguage language = (StreamLanguage)value;
+        }
+
         #region Client enum caches
 
         private static readonly
@@ -1211,7 +1569,7 @@ TwitchNet.Utilities
 
             CACHE_TO_STREAM_LANGUAGE.TryGetValue(str, out StreamLanguage value);
 
-            return value;
+            return StreamLanguage.No;
         }
 
         /// <summary>
@@ -1225,6 +1583,21 @@ TwitchNet.Utilities
         public static string
         FromStreamLanguage(StreamLanguage value)
         {
+            //BenchmarkRun run = new BenchmarkRun();
+            //run.name = "Benchmark_FromStreamLanguage_Single()";
+            //run.iterations = 1_000_000;
+            //run.action = Benchmark_FromStreamLanguage_Single;
+
+            //BenchmarkRun run2 = new BenchmarkRun();
+            //run2.name = "Benchmark_ToStreamLanguage_Single()";
+            //run2.iterations = 1_000_000;
+            //run2.action = Benchmark_ToStreamLanguage_Single;
+
+            //Benchmark benchmark = new Benchmark();
+            //benchmark.Add(run);
+            //benchmark.Add(run2);
+            //benchmark.Execute();
+
             if (!CACHE_FROM_STREAM_LANGUAGE.TryGetValue(value, out string name))
             {
                 name = Enum.GetName(value.GetType(), value);
@@ -1233,7 +1606,7 @@ TwitchNet.Utilities
             }
 
             return name;
-        }
+        }        
 
         /// <summary>
         /// Converts a string into a <see cref="StreamType"/> value.
@@ -1682,7 +2055,7 @@ TwitchNet.Utilities
             }
             else
             {
-                Debug.WriteError(ErrorLevel.Minor, "The enum type " + type.Name.WrapQuotes() + " is not natively supported by the EnumCacheUtil.");
+                Debug.WriteError(ErrorLevel.Minor, "The enum type " + type.Name.WrapQuotes() + " is not natively supported by the EnumCacheUtil. Falling back to Enum.Parse()");
 
                 string[] names = Enum.GetNames(type);
                 if (!names.IsValid())
@@ -1700,7 +2073,7 @@ TwitchNet.Utilities
             }
 
             return value;
-        }
+        }         
 
         /// <summary>
         /// Converts an <see cref="Enum"/> value to a string.
@@ -1794,7 +2167,7 @@ TwitchNet.Utilities
             }
             else
             {
-                Debug.WriteError(ErrorLevel.Minor, "The enum type " + type.Name.WrapQuotes() + " is not natively supported by the EnumCacheUtil.");
+                Debug.WriteError(ErrorLevel.Minor, "The enum type " + type.Name.WrapQuotes() + " is not natively supported by the EnumCacheUtil. Falling back to Enum.GetName()");
 
                 name = Enum.GetName(type, value);
             }
@@ -1803,5 +2176,32 @@ TwitchNet.Utilities
         }
 
         #endregion
+
+        #region Helpers
+
+        private static enum_type
+        TryGetEnum<enum_type>(string str, Dictionary<string, enum_type> cache, bool is_bitfield)
+        {
+            enum_type value = default(enum_type);
+
+            if (str.IsNull())
+            {
+                return value;
+            }
+
+            if (!is_bitfield)
+            {
+                cache.TryGetValue(str, out value);
+            }
+            else
+            {
+
+            }
+
+            return value;
+        }
+
+        #endregion
+
     }
 }

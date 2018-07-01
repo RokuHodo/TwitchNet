@@ -364,7 +364,7 @@ TwitchNet.Clients.Irc
         public void
         DisconnectAsync(bool force_disconnect, bool reuse_client = false)
         {
-            if (!SetState(ClientState.Disconnecting))
+            if (!SetState(ClientState.Disconnecting, force_disconnect))
             {
                 return;
             }
@@ -423,10 +423,14 @@ TwitchNet.Clients.Irc
         {
             if (disposing || !dispose || disposed)
             {
+                Debug.WriteLine("Already disposing or disposed.");
+
                 return;
             }
 
             disposing = true;
+
+            Debug.WriteLine("Disposing");
 
             // If we're disposing we're disconnecting, period. Make sure this is always true.
             // If the client is already in the process of disconnecting, this will effectively do nothing.

@@ -1,108 +1,141 @@
 ﻿// standard namespaces
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace
 TwitchNet.Debugger
 {    
-    internal class
+    public class
     Benchmark
     {
-        private Stopwatch watch;
+        private bool running;
 
-        /// <summary>
-        /// The elapsed time in seconds.
-        /// </summary>
-        public double elapsed_seconds
-        {
-            get
-            {
-                return elapsed_milliseconds / 1_000;
-            }
-        }
-
-        /// <summary>
-        /// The elapsed time in milliseconds.
-        /// </summary>
-        public double elapsed_milliseconds
-        {
-            get
-            {
-                return elapsed_microseconds / 1_000;
-            }
-        }
-
-        /// <summary>
-        /// The elapsed time in micro seconds.
-        /// </summary>
-        public double elapsed_microseconds
-        {
-            get
-            {
-                return 1_000_000 * (double)watch.ElapsedTicks / Stopwatch.Frequency;
-            }
-        }
-
-        /// <summary>
-        /// The elapsed ticks.
-        /// </summary>
-        public long elapsed_ticks
-        {
-            get
-            {
-                return watch.ElapsedTicks;
-            }
-        }
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="Benchmark"/> class.
-        /// </summary>
+        private List<BenchmarkRun> runs;                
+        
         public Benchmark()
         {
+            runs = new List<BenchmarkRun>();
+        }
+
+        public void
+        Add(BenchmarkRun run)
+        {
+            runs.Add(run);
+        }
+
+        public void
+        Execute()
+        {
+            if (running)
+            {
+                return;
+            }
+
+            foreach(BenchmarkRun run in runs)
+            {
+                run.Execute();
+            }
+        }
+    }
+
+    public struct
+    BenchmarkRun
+    {
+        private bool running;
+
+        private Stopwatch watch;
+
+        public string name;
+
+        public ulong iterations;
+
+        public Action action;
+
+        public double total_seconds;
+        public double total_milliseconds;
+        public double total_microseconds;
+        public double total_ticks;
+
+        public double average_seconds;
+        public double average_milliseconds;
+        public double average_microseconds;
+        public double average_ticks;        
+
+        public void
+        Execute()
+        {
+            if (running)
+            {
+                return;
+            }
+
             watch = new Stopwatch();
-        }
-
-        /// <summary>
-        /// Starts the benchmark.
-        /// </summary>
-        [Conditional("DEBUG")]
-        public void Start()
-        {
             watch.Start();
-        }
-
-        /// <summary>
-        /// Stops the benchmark.
-        /// </summary>
-        [Conditional("DEBUG")]
-        public void
-        Stop()
-        {
+            for (ulong count = 0; count < iterations; ++count)
+            {
+                action();
+            }
             watch.Stop();
+            CalculateResults();
+            Print();
+            Reset();
         }
 
-        /// <summary>
-        /// Resets the benchmark.
-        /// </summary>
-        [Conditional("DEBUG")]
-        public void
+        private void
         Reset()
         {
-            watch.Reset();
+            if (running)
+            {
+                return;
+            }
+
+            total_seconds = 0;
+            total_milliseconds = 0;
+            total_microseconds = 0;
+            total_ticks = 0;
+
+            average_seconds = 0;
+            average_milliseconds = 0;
+            average_microseconds = 0;
+            average_ticks = 0;
         }
 
-        /// <summary>
-        /// Prints the benchamrk results.
-        /// </summary>
-        [Conditional("DEBUG")]
-        public void
+        private void
+        CalculateResults()
+        {
+            total_ticks = watch.ElapsedTicks;
+            total_microseconds = 1_000_000 * (double)watch.ElapsedTicks / Stopwatch.Frequency;
+            total_milliseconds = total_microseconds / 1_000;
+            total_seconds = total_milliseconds / 1_000;
+
+            average_ticks = total_ticks / iterations;
+            average_microseconds = total_microseconds / iterations;
+            average_milliseconds = total_milliseconds / iterations;
+            average_seconds = total_seconds / iterations;
+        }
+
+        private void
         Print()
         {
             Debug.WriteLine(ConsoleColor.Cyan, "[ Benchmarck Results ]");
-            Debug.WriteLine("Elapsed seconds:       " + elapsed_seconds + " s");
-            Debug.WriteLine("Elapsed milliseconds:  " + elapsed_milliseconds + " ms");
-            Debug.WriteLine("Elapsed microseconds:  " + elapsed_microseconds + " µs");
-            Debug.WriteLine("Elapsed ticks:         " + elapsed_ticks);
+            Debug.WriteLine("Benchmark:            " + name);
+            Debug.WriteLine();
+
+            Debug.WriteLine("Iterations:           " + string.Format("{0:n0}", iterations));
+            Debug.WriteLine();
+
+            Debug.WriteLine("Total seconds:        " + total_seconds + " s");
+            Debug.WriteLine("Total milliseconds:   " + total_milliseconds+ " ms");
+            Debug.WriteLine("Total microseconds:   " + total_microseconds + " µs");
+            Debug.WriteLine("Total ticks:          " + total_ticks);
+            Debug.WriteLine();
+
+            Debug.WriteLine("Average seconds:      " + average_seconds + " s");
+            Debug.WriteLine("Average milliseconds: " + average_milliseconds + " ms");
+            Debug.WriteLine("Average microseconds: " + average_microseconds + " µs");
+            Debug.WriteLine("Average ticks:        " + average_ticks);
+            Debug.WriteLine();
         }
     }
 }

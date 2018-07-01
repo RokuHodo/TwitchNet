@@ -53,7 +53,7 @@ TwitchNet.Debugger
         public static void
         WriteLine()
         {
-            WriteLine(Environment.NewLine);
+            WriteLine("");
         }
 
         /// <summary>
@@ -236,11 +236,6 @@ TwitchNet.Debugger
         private static void
         _WriteLine(DebugLevel write_level, ErrorLevel error_level, ConsoleColor color, TimeStamp stamp, string format, params object[] parametrs)
         {
-            if (!format.IsValid())
-            {
-                return;
-            }            
-
             string value = GetTimeStampString(stamp);
             if (value.IsValid())
             {

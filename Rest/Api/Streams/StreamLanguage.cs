@@ -17,13 +17,13 @@ TwitchNet.Rest.Api.Streams
     [Flags]
     [JsonConverter(typeof(EnumCacheConverter))]
     public enum
-    StreamLanguage : uint
+    StreamLanguage : ulong
     {        
         /// <summary>
         /// Unsupported stream language.
         /// </summary>
         [EnumMember(Value = "")]
-        None = 0,
+        None    = 0,
 
         /// <summary>
         /// Dansk (Danish)

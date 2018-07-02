@@ -16,10 +16,6 @@ using TwitchNet.Clients.Irc.Twitch;
 using TwitchNet.Debugger;
 using TwitchNet.Extensions;
 
-// TODO: Add support for bitfield enums when converting.
-//       This should only be a concern when adding enums as query parameters during rest requests.
-//       Right now this is handled within the method that adds the parameters to the request, but we should prbably do this here to have "native" support.
-
 namespace
 TwitchNet.Utilities
 {
@@ -28,32 +24,101 @@ TwitchNet.Utilities
     {
         private static readonly ConcurrentDictionary<Type, EnumTypeCache> CACHE = new ConcurrentDictionary<Type, EnumTypeCache>();
 
-        private readonly struct
+        private struct
+        EnumResult
+        {
+            public  string name;
+
+            public  object value;
+
+            public Exception inner_exception;
+
+            public void
+            Throw(string message)
+            {
+                Exception exception = new Exception(message, inner_exception);
+
+                throw exception;
+            }
+
+            public void
+            Throw(string message, string param_name)
+            {
+                ArgumentException exception = new ArgumentException(message, param_name, inner_exception);
+
+                throw exception;
+            }
+        }
+
+        public readonly struct
         EnumTypeCache
         {
+            #region Fields
+
+            /// <summary>
+            /// The enum's type.
+            /// </summary>
             public readonly Type        type;
+
+            /// <summary>
+            /// The Enums's underlying type code.
+            /// </summary>
             public readonly TypeCode    type_code;
 
+            /// <summary>
+            /// Whether or not the enum has the <see cref="FlagsAttribute"/> and is a collection of flags.
+            /// </summary>
             public readonly bool        is_flags;
 
+            /// <summary>
+            /// The enum's default value.
+            /// </summary>
             public readonly object      default_value;
 
+            /// <summary>
+            /// The native (unresolved) enum names.
+            /// </summary>
             public readonly string[]    names;
+
+            /// <summary>
+            /// The native (unresolved) enum values.
+            /// </summary>
             public readonly Array       values;
 
+            /// <summary>
+            /// <para>The resolved enum names.</para>
+            /// <para>The names extraced from the <see cref="EnumMemberAttribute"/>, otherwise the native names.</para>
+            /// </summary>
             public readonly string[]    resolved_names;
+
+            /// <summary>
+            /// The resolved enum values converted to <see cref="UInt64"/>.
+            /// </summary>
             public readonly ulong[]     resolved_values;
 
+            #endregion
+
+            #region Constructors
+
+            /// <summary>
+            /// <para>Creates a new instance of the <see cref="EnumTypeCache"/> struct.</para>
+            /// <para>Builds the cache for this enum.</para>
+            /// </summary>
+            /// <param name="type">The enum's type.</param>
+            /// <exception cref="ArgumentNullException">Thrown if the <paramref name="type"/> is null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if the <paramref name="type"/> is not an enum.
+            /// </exception>
             public EnumTypeCache(Type type)
             {
                 ExceptionUtil.ThrowIfNull(type, nameof(type));
                 if (!type.IsEnum)
                 {
-                    throw new ArgumentException("Type must be an enum.");
+                    throw new NotSupportedException("Type " + type.Name.WrapQuotes() + " is not an enum.");
                 }
 
-                this.type = type;
-                type_code = Type.GetTypeCode(type);
+                this.type       = type;
+                type_code       = Type.GetTypeCode(type);
 
                 is_flags        = type.IsDefined(typeof(FlagsAttribute), false);
 
@@ -62,149 +127,191 @@ TwitchNet.Utilities
                 names           = Enum.GetNames(type);
                 values          = Enum.GetValues(type);
 
-                resolved_names  = new string[names.LongLength];
-                resolved_values = new ulong[names.LongLength];
+                resolved_names  = new string[names.Length];
+                resolved_values = new ulong[names.Length];
 
-                for (long index = 0; index < names.LongLength; ++index)
+                for (long index = 0; index < names.Length; ++index)
                 {
                     object value = values.GetValue(index);
-                    resolved_values[index] = ToUInt64(type_code, value);
+                    TryToUInt64(type_code, value, out resolved_values[index]);
 
                     FieldInfo field = type.GetField(names[index], BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-
-                    string resolved_name = field.TryGetAttribute(out EnumMemberAttribute attribute) ? attribute.Value : names[index];
-                    if(Array.IndexOf(resolved_names, resolved_name) != -1)
-                    {
-                        throw new ArgumentException("Enum " + type.Name.WrapQuotes() + " contains a duplicate of the resolved name " + resolved_name.WrapQuotes() + ".");
-                    }
-
-                    resolved_names[index] = resolved_name;
+                    resolved_names[index] = field.TryGetAttribute(out EnumMemberAttribute attribute) ? attribute.Value : names[index];
                 }
             }
 
+            #endregion
+
+            #region Methods
+
+            /// <summary>
+            /// <para>Gets the name of the specified enum's value.</para>
+            /// <para>Supports bitfield enum values.</para>
+            /// </summary>
+            /// <param name="value">The enum value to get the name of.</param>
+            /// <returns>
+            /// Returns resolved name of the enum value.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if the specified value is null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if no names or values exist in the enum.
+            /// Thrown if the specified value cannot be converted to a UInt64.
+            /// Thrown if one or more flags in the specified value could not be converted if the enum is a collection of flags.
+            /// Thrown if the specified value could not be found in the enum type.
+            /// </exception>
             public string
             GetName(object value)
             {
-                if(!TryGetName(value, out string result))
+                EnumResult enum_result = new EnumResult();
+
+                if(!TryGetNameInternal(value, ref enum_result))
                 {
-                    throw new ArgumentException("The value " + value.ToString().WrapQuotes() + " could not be converted into an enum name of type " + type.Name.WrapQuotes() + ".");
+                    enum_result.Throw("The specified value could not be converted into an equivalent enum name of type " + type.Name.WrapQuotes() + ".", nameof(value));
                 }
 
-                return result;
+                return enum_result.name;
             }
 
+            /// <summary>
+            /// <para>Attempts to get the name of the specified enum's value.</para>
+            /// <para>Supports bitfield enum values.</para>
+            /// </summary>
+            /// <param name="value">The enum value to get the name of.</param>
+            /// <param name="result">
+            /// Set to the resolved name, if successful.
+            /// Set to null otherwise.
+            /// </param>
+            /// <returns>
+            /// Returns true if the name was successfully retrieved.
+            /// Returns false otherwise.
+            /// </returns>
             public bool
             TryGetName(object value, out string result)
             {
+                EnumResult enum_result = new EnumResult();
+
+                bool success = TryGetNameInternal(value, ref enum_result);
+
+                result = enum_result.name;
+
+                return success;
+            }
+
+            /// <summary>
+            /// <para>Attempts to get the name of the specified enum's value.</para>
+            /// <para>Supports bitfield enum values.</para>
+            /// </summary>
+            /// <param name="value">The enum value to get the name of.</param>
+            /// <param name="enum_result">The internal enum result used for error handling.</param>
+            /// <returns>
+            /// Returns true if the name was successfully retrieved.
+            /// Returns false otherwise.
+            /// </returns>
+            private bool
+            TryGetNameInternal(object value, ref EnumResult enum_result)
+            {
+                enum_result.name = null;
+
+                if (value.IsNull())
+                {
+                    ArgumentNullException exception = new ArgumentNullException(nameof(value));
+                    enum_result.inner_exception = exception;
+
+                    return false;
+                }
+
+                if (!resolved_names.IsValid())
+                {
+                    ArgumentException exception = new ArgumentException("No names exist for the enum type " + type.Name.WrapQuotes() + ".");
+                    enum_result.inner_exception = exception;
+
+                    return false;
+                }
+
+                if (!resolved_values.IsValid())
+                {
+                    ArgumentException exception = new ArgumentException("No values exist for the enum type " + type.Name.WrapQuotes() + ".");
+                    enum_result.inner_exception = exception;
+
+                    return false;
+                }
+
                 TypeCode code = Type.GetTypeCode(value.GetType());
-                ulong _value = ToUInt64(code, value);
+                if(!TryToUInt64(code, value, out ulong _value))
+                {
+                    ArgumentException exception = new ArgumentException("Failed to convert specified value " + value.ToString().WrapQuotes() + " to UInt64.");
+                    enum_result.inner_exception = exception;
+
+                    return false;
+                }
 
                 if (is_flags)
                 {
-                    result = InternalFlagsFormat(_value);
-                    if (!result.IsNull())
+                    enum_result.name = FormatValueAsFlags(_value);
+                    if (!enum_result.name.IsNull())
                     {
                         return true;
                     }
+
+                    ArgumentException exception = new ArgumentException("Failed to convert one or more flags in the specified value into a name for the enum type " + type.Name.WrapQuotes() + ".", nameof(value));
+                    enum_result.inner_exception = exception;
                 }
                 else
                 {
-                    int index = Array.BinarySearch(resolved_values, value);
-                    if(index != -1)
+                    int index = Array.BinarySearch(resolved_values, _value);
+                    if (index > -1)
                     {
-                        result = resolved_names[index];
+                        enum_result.name = resolved_names[index];
 
                         return true;
                     }
 
-                    index = Array.BinarySearch(values, value);
-                    if (index != -1)
+                    index = Array.BinarySearch(resolved_values, _value);
+                    if (index > -1)
                     {
-                        result = names[index];
+                        enum_result.name = names[index];
 
                         return true;
                     }
+
+                    ArgumentException exception = new ArgumentException("Could not find the specified value " + value.ToString().WrapQuotes() + " in the enum type " + type.Name.WrapQuotes() + ".", nameof(value));
+                    enum_result.inner_exception = exception;
                 }
-
-                result = string.Empty;
 
                 return false;
             }
 
-            private string
-            InternalFlagsFormat(ulong value)
-            {
-                bool first_flag = true;
-                ulong value_copy = value;
-
-                StringBuilder sb = new StringBuilder();
-
-                // We will not optimize this code further to keep it maintainable. There are some boundary checks that can be applied
-                // to minimize the comparsions required. This code works the same for the best/worst case. In general the number of
-                // items in an enum are sufficiently small and not worth the optimization.
-                int index = resolved_values.Length - 1;
-                while (index >= 0)
-                {
-                    if (index == 0 && resolved_values[index] == 0)
-                    {
-                        break;
-                    }
-
-                    if ((value & resolved_values[index]) == resolved_values[index])
-                    {
-                        value -= resolved_values[index];
-                        if (!first_flag)
-                        {
-                            sb.Insert(0, ", ");
-                        }
-
-                        string resolvedName = resolved_names[index];
-                        sb.Insert(0, resolvedName);
-                        first_flag = false;
-                    }
-
-                    index--;
-                }
-
-                string result;
-                if (value != 0)
-                {
-                    // We were unable to represent this number as a bitwise or of valid flags
-                    // return null so the caller knows to .ToString() the input
-                    result = null; 
-                }
-                else if (value_copy == 0)
-                {
-                    // For the cases when we have zero
-                    if (values.Length > 0 && resolved_values[0] == 0)
-                    {
-                        // Zero was one of the enum values.
-                        result = resolved_names[0]; 
-                    }
-                    else
-                    {
-                        result = null;
-                    }
-                }
-                else
-                {
-                    // Return the string representation
-                    result = sb.ToString(); 
-                }
-
-                return result;
-            }
-
+            /// <summary>
+            /// <para>Converts a string representation of an enum value into the equivalent constant enum value.</para>
+            /// <para>Supports bitfield formatted strings.</para>
+            /// </summary>
+            /// <param name="value">
+            /// <para>The string to convert.</para>
+            /// <para>This can either be the resolved or native (unresolved) name.</para>
+            /// </param>
+            /// <returns>Returns the equivalent constant enum value of its string representation.</returns>
+            /// <exception cref="ArgumentException">Thrown if the string value could not be converted into the equivalent constant enum value.</exception>
             public object
             Parse(string value)
             {
                 return Parse(value, false);
             }
 
+            /// <summary>
+            /// <para>Converts a string representation of an enum value into the equivalent constant enum value.</para>
+            /// <para>Supports bitfield formatted strings.</para>
+            /// </summary>
+            /// <param name="value">
+            /// <para>The string to convert.</para>
+            /// <para>This can either be the resolved or native (unresolved) name.</para>
+            /// </param>
+            /// <param name="ignore_case">Whether or not to ignore string case when parsing.</param>
+            /// <returns>Returns the equivalent constant enum value of its string representation.</returns>
+            /// <exception cref="ArgumentException">Thrown if the string value could not be converted into the equivalent constant enum value.</exception>
             public object
             Parse(string value, bool ignore_case)
             {
-                if(!TryParse(value, ignore_case, out object result))
+                if (!TryParse(value, ignore_case, out object result))
                 {
                     throw new ArgumentException("Could not convert " + value.WrapQuotes() + " into an enum member of type " + type.Name.WrapQuotes() + ".");
                 }
@@ -212,24 +319,60 @@ TwitchNet.Utilities
                 return result;
             }
 
+            /// <summary>
+            /// <para>Attempts to convert a string representation of an enum value into the equivalent constant enum value.</para>
+            /// <para>Supports bitfield formatted strings.</para>
+            /// </summary>
+            /// <param name="value">
+            /// <para>The string to convert.</para>
+            /// <para>This can either be the resolved or native (unresolved) name.</para>
+            /// </param>
+            /// <param name="result">
+            /// Set to the equivalent constant enum value, if successful.
+            /// Set to the enum's default value otherwise.
+            /// </param>
+            /// <returns>
+            /// Returns true if the string value was successfully parsed.
+            /// Returns false otherwise.
+            /// </returns>
             public bool
             TryParse(string value, out object result)
             {
                 return TryParse(value, false, out result);
             }
 
+            /// <summary>
+            /// <para>Attempts to convert a string representation of an enum value into the equivalent constant enum value.</para>
+            /// <para>Supports bitfield formatted strings.</para>
+            /// </summary>
+            /// <param name="value">
+            /// <para>The string to convert.</para>
+            /// <para>This can either be the resolved or native (unresolved) name.</para>
+            /// </param>
+            /// <param name="ignore_case">Whether or not to ignore string case when parsing.</param>
+            /// <param name="result">
+            /// Set to the equivalent constant enum value, if successful.
+            /// Set to the enum's default value otherwise.
+            /// </param>
+            /// <returns>
+            /// Returns true if the string value was successfully parsed.
+            /// Returns false otherwise.
+            /// </returns>
             public bool
             TryParse(string value, bool ignore_case, out object result)
             {
-                ExceptionUtil.ThrowIfNull(value, nameof(value));
-
                 result = default_value;
+
+                if (value.IsNull())
+                {
+                    return false;
+                }
 
                 StringComparison comparison = ignore_case ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
 
                 // Search by matching the exact value against the resolved and unresolved names
-                int index = FindIndexByName(value, comparison);
-                if(index != -1)
+                int index = FindValueIndexByName(value, comparison);
+                if (index != -1)
                 {
                     result = Enum.ToObject(type, resolved_values[index]);
 
@@ -246,7 +389,7 @@ TwitchNet.Utilities
                 }
 
                 if (!is_flags)
-                {                    
+                {
                     return false;
                 }
 
@@ -254,9 +397,9 @@ TwitchNet.Utilities
                 ulong bitfield_result = 0;
 
                 string[] elements = value.Split(',');
-                foreach(string element in elements)
+                foreach (string element in elements)
                 {
-                    index = FindIndexByName(element.Trim(), comparison);
+                    index = FindValueIndexByName(element.Trim(), comparison);
                     if (index != -1)
                     {
                         bitfield_result |= resolved_values[index];
@@ -269,7 +412,7 @@ TwitchNet.Utilities
                     }
                 }
 
-                if(index != -1)
+                if (index != -1)
                 {
                     result = Enum.ToObject(type, bitfield_result);
 
@@ -279,12 +422,91 @@ TwitchNet.Utilities
                 return false;
             }
 
+            #endregion
+
+            #region Helpers                        
+
+            /// <summary>
+            /// Formats the <see cref="UInt64"/> equivalent of an enum value into a bitfield formatted string.
+            /// </summary>
+            /// <param name="value">The equivalent of an enum value.</param>
+            /// <returns>
+            /// Returns the resolved bitfield formatted string if successful.
+            /// Returns the resolved default enum value if no flags were set in the specified value.
+            /// Returns null otherwise.
+            /// </returns>
+            private string
+            FormatValueAsFlags(ulong value)
+            {
+                string result = null;
+
+                // Case 1: The value had no set flags to begin with. "Failed" conversion.
+                if (value == 0)
+                {
+                    return resolved_values.IsValid() && resolved_values[0] == 0 ? resolved_names[0] : result;
+                }
+
+                bool first_flag = true;
+
+                StringBuilder _result = new StringBuilder();
+
+                // Since enums are sorted, search for flags in reverse order so we don't start with "0".
+                int index = resolved_values.Length - 1;
+                while (index >= 0)
+                {
+                    // We reached the end of all possible resolved flags or the default value.
+                    // All possible flags that could be accounted for have already been accounted for.
+                    if (index == 0 && resolved_values[index] == 0)
+                    {
+                        break;
+                    }
+
+                    if ((value & resolved_values[index]) == resolved_values[index])
+                    {
+                        // Flip the bit to show that the flag was successfully accounted for.
+                        value ^= resolved_values[index];
+
+                        if (!first_flag)
+                        {
+                            _result.Insert(0, ", ");
+                        }
+                        _result.Insert(0, resolved_names[index]);
+
+                        first_flag = false;
+                    }
+
+                    index--;
+                }
+
+                // Case 2: At least one flag in the value could not be found in the resolved enum values and could not be fully converted. Failed/incomplete converison.
+                if (value != 0)
+                {
+                    result = null;
+                }
+                // Case 3: All flags in the value were found in the resolved enum values. Successful converison.
+                else
+                {
+                    result = _result.ToString();
+                }
+
+                return result;
+            }
+
+            /// <summary>
+            /// Finds the index of the enum value in the resolved value array that corresponds to the specified enum name.
+            /// </summary>
+            /// <param name="name">The resolved or native (unresolved) enum name to search for.</param>
+            /// <param name="comparison">One of the enumeration values that specifies the rules to use in the comparison.</param>
+            /// <returns>
+            /// Returns the index of the enum value in the reolved value array if a match was found.
+            /// Returns -1 otherwise.
+            /// </returns>
             private int
-            FindIndexByName(string str, StringComparison comparison)
+            FindValueIndexByName(string name, StringComparison comparison)
             {
                 for (int index = 0; index < resolved_names.Length; ++index)
                 {
-                    if (string.Compare(resolved_names[index], str, comparison) == 0)
+                    if (string.Compare(resolved_names[index], name, comparison) == 0)
                     {
                         return index;
                     }
@@ -292,7 +514,7 @@ TwitchNet.Utilities
 
                 for (int index = 0; index < names.Length; ++index)
                 {
-                    if (string.Compare(names[index], str, comparison) == 0)
+                    if (string.Compare(names[index], name, comparison) == 0)
                     {
                         return index;
                     }
@@ -300,72 +522,24 @@ TwitchNet.Utilities
 
                 return -1;
             }
-        }
 
-        private static EnumTypeCache
-        AddEnumTypeCache(Type type)
-        {
-            return new EnumTypeCache(type);
-        }
-
-        private static UInt64
-        ToUInt64(TypeCode code, object value)
-        { 
-            // Any negative numbers will be wrapped respectively
-            switch (code)
-            {
-                case TypeCode.SByte:
-                {
-                    return (ulong)(sbyte)value;
-                }
-
-                case TypeCode.Byte:
-                {
-                    return (byte)value;
-                }
-
-                case TypeCode.Int16:
-                {
-                    return (ulong)(short)value;
-                }
-
-                case TypeCode.UInt16:
-                {
-                    return (ushort)value;
-                }
-
-                case TypeCode.UInt32:
-                {
-                    return (uint)value;
-                }
-
-                case TypeCode.Int32:
-                {
-                    return (ulong)(int)value;
-                }
-
-                case TypeCode.UInt64:
-                {
-                    return (ulong)value;
-                }
-
-                case TypeCode.Int64:
-                {
-                    return (ulong)(long)value;
-                }
-
-                default:
-                {
-                    throw new InvalidOperationException("Unknown enum type.");
-                }
-            }
+            #endregion
         }
 
         private static void
         Benchmark_FromStreamLanguage_Single()
         {
             StreamLanguage language = StreamLanguage.EnGb;
-            EnumTypeCache cache = CACHE.GetOrAdd(typeof(StreamLanguage), AddEnumTypeCache);
+            EnumTypeCache cache = CACHE.GetOrAdd(typeof(StreamLanguage), CreateCache);
+
+            cache.TryGetName(language, out string name);
+        }
+
+        private static void
+        Benchmark_FromStreamLanguage_Flags()
+        {
+            StreamLanguage language = StreamLanguage.EnGb | StreamLanguage.Ar | StreamLanguage.ZhTw | (StreamLanguage)(1 << 58);
+            EnumTypeCache cache = CACHE.GetOrAdd(typeof(StreamLanguage), CreateCache);
 
             cache.TryGetName(language, out string name);
         }
@@ -374,7 +548,7 @@ TwitchNet.Utilities
         Benchmark_ToStreamLanguage_Single()
         {
             string name = "en-gb";
-            EnumTypeCache cache = CACHE.GetOrAdd(typeof(StreamLanguage), AddEnumTypeCache);
+            EnumTypeCache cache = CACHE.GetOrAdd(typeof(StreamLanguage), CreateCache);
 
             cache.TryParse(name, out object value);
             StreamLanguage language = (StreamLanguage)value;
@@ -1583,20 +1757,26 @@ TwitchNet.Utilities
         public static string
         FromStreamLanguage(StreamLanguage value)
         {
-            //BenchmarkRun run = new BenchmarkRun();
-            //run.name = "Benchmark_FromStreamLanguage_Single()";
-            //run.iterations = 1_000_000;
-            //run.action = Benchmark_FromStreamLanguage_Single;
+            BenchmarkRun run = new BenchmarkRun();
+            run.name = "Benchmark_FromStreamLanguage_Single()";
+            run.iterations = 1_000_000;
+            run.action = Benchmark_FromStreamLanguage_Single;
 
-            //BenchmarkRun run2 = new BenchmarkRun();
-            //run2.name = "Benchmark_ToStreamLanguage_Single()";
-            //run2.iterations = 1_000_000;
-            //run2.action = Benchmark_ToStreamLanguage_Single;
+            BenchmarkRun run2 = new BenchmarkRun();
+            run2.name = "Benchmark_ToStreamLanguage_Single()";
+            run2.iterations = 1_000_000;
+            run2.action = Benchmark_ToStreamLanguage_Single;
 
-            //Benchmark benchmark = new Benchmark();
+            BenchmarkRun run3 = new BenchmarkRun();
+            run3.name = "Benchmark_FromStreamLanguage_Flags()";
+            run3.iterations = 1_000_000;
+            run3.action = Benchmark_FromStreamLanguage_Flags;
+
+            Benchmark benchmark = new Benchmark();
             //benchmark.Add(run);
             //benchmark.Add(run2);
-            //benchmark.Execute();
+            benchmark.Add(run3);
+            benchmark.Execute();
 
             if (!CACHE_FROM_STREAM_LANGUAGE.TryGetValue(value, out string name))
             {
@@ -1950,255 +2130,308 @@ TwitchNet.Utilities
 
         #endregion
 
-        #region Universal enum converters
+        #region Converters
 
         /// <summary>
-        /// Converts a string into an <see cref="Enum"/> value.
+        /// <para>Gets the name of the specified enum's value.</para>
+        /// <para>Supports bitfield enum values.</para>
         /// </summary>
-        /// <param name="str">The string to convert.</param>
-        /// <param name="type">The type of the enum to convert the string into.</param>
+        /// <param name="type">The enum's type.</param>
+        /// <param name="value">The enum value to get the name of.</param>
         /// <returns>
-        /// Returns the corresponding <see cref="Enum"/> value if the string is found in the enum's type cache, or exists in the enum names.
-        /// Returns the default value of the enum type otherwise.
+        /// Returns resolved name of the enum value.
         /// </returns>
-        /// <exception cref="NotSupportedException">Thrown if the type is not an enum.</exception>
-        public static object
-        ToEnum(string str, Type type)
-        {
-            if (!type.IsEnum)
-            {
-                throw new NotSupportedException("Type " + type.Name.WrapQuotes() + " is not an enum.");
-            }
-
-            object value = type.GetDefaultValue();
-
-            if (str.IsNull())
-            {
-                return value;
-            }
-
-            if (type == typeof(BadgeType))
-            {
-                value = ToBadgeType(str);
-            }
-            else if (type == typeof(ChatCommand))
-            {
-                value = ToChatCommand(str);
-            }
-            else if (type == typeof(CommercialLength))
-            {
-                value = ToCommercialLength(str);
-            }
-            else if (type == typeof(DisplayNameColor))
-            {
-                value = ToDisplayNameColor(str);
-            }
-            else if (type == typeof(FollowersDurationPeriod))
-            {
-                value = ToFollowersDurationPeriod(str);
-            }
-            else if (type == typeof(NoticeType))
-            {
-                value = ToNoticeType(str);
-            }
-            else if (type == typeof(RitualType))
-            {
-                value = ToRitualType(str);
-            }
-            else if (type == typeof(SubscriptionPlan))
-            {
-                value = ToSubscriptionPlan(str);
-            }
-            else if (type == typeof(UserNoticeType))
-            {
-                value = ToUserNoticeType(str);
-            }
-            else if (type == typeof(EntitlementType))
-            {
-                value = ToEntitlementType(str);
-            }
-            else if (type == typeof(StreamLanguage))
-            {
-                value = ToStreamLanguage(str);
-            }
-            else if (type == typeof(StreamType))
-            {
-                value = ToStreamType(str);
-            }
-            else if (type == typeof(BroadcasterType))
-            {
-                value = ToBroadcasterType(str);
-            }
-            else if (type == typeof(BroadcasterLanguage))
-            {
-                value = ToBroadcasterLanguage(str);
-            }
-            else if (type == typeof(VideoPeriod))
-            {
-                value = ToVideoPeriod(str);
-            }
-            else if (type == typeof(VideoSort))
-            {
-                value = ToVideoSort(str);
-            }
-            else if (type == typeof(VideoType))
-            {
-                value = ToVideoType(str);
-            }
-            else if (type == typeof(Scopes))
-            {
-                value = ToScopes(str);
-            }
-            else if (type == typeof(UserType))
-            {
-                value = ToUserType(str);
-            }
-            else
-            {
-                Debug.WriteError(ErrorLevel.Minor, "The enum type " + type.Name.WrapQuotes() + " is not natively supported by the EnumCacheUtil. Falling back to Enum.Parse()");
-
-                string[] names = Enum.GetNames(type);
-                if (!names.IsValid())
-                {
-                    return value;
-                }
-
-                HashSet<string> hash = new HashSet<string>(names);
-                if (!hash.Contains(str))
-                {
-                    return value;
-                }
-
-                value = Enum.Parse(type, str);
-            }
-
-            return value;
-        }         
-
-        /// <summary>
-        /// Converts an <see cref="Enum"/> value to a string.
-        /// </summary>
-        /// <param name="value">The enum value to convert.</param>
-        /// <returns>
-        /// Returns the corresponding enum name if the <see cref="Enum"/> value is found in the cache.
-        /// Returns the enum name obtained from <see cref="Enum.GetName(Type, object)"/> otherwise.
-        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if the <paramref name="type"/> is null.
+        /// Thrown if the specified value is null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown if the <paramref name="type"/> is not an enum.
+        /// Thrown if no names or values exist in the enum type.
+        /// Thrown if the specified value cannot be converted to a UInt64.
+        /// Thrown if one or more flags in the specified value could not be converted if the enum is a collection of flags.
+        /// Thrown if the specified value could not be found in the enum type.
+        /// </exception>
         public static string
-        FromEnum(Enum value)
+        GetName(Type type, object value)
         {
-            string name = string.Empty;
+            EnumTypeCache cache = GetOrAddCache(type);
+            string result = cache.GetName(value);
 
-            Type type = value.GetType();
-            if (type == typeof(BadgeType))
-            {
-                name = FromBadgeType((BadgeType)value);
-            }
-            else if (type == typeof(ChatCommand))
-            {
-                name = FromChatCommand((ChatCommand)value);
-            }
-            else if (type == typeof(CommercialLength))
-            {
-                name = FromCommercialLength((CommercialLength)value);
-            }
-            else if (type == typeof(DisplayNameColor))
-            {
-                name = FromDisplayNameColor((DisplayNameColor)value);
-            }
-            else if (type == typeof(FollowersDurationPeriod))
-            {
-                name = FromFollowersDurationPeriod((FollowersDurationPeriod)value);
-            }
-            else if (type == typeof(NoticeType))
-            {
-                name = FromNoticeType((NoticeType)value);
-            }
-            else if (type == typeof(RitualType))
-            {
-                name = FromRitualType((RitualType)value);
-            }
-            else if (type == typeof(SubscriptionPlan))
-            {
-                name = FromSubscriptionPlan((SubscriptionPlan)value);
-            }
-            else if (type == typeof(UserNoticeType))
-            {
-                name = FromUserNoticeType((UserNoticeType)value);
-            }
-            else if (type == typeof(EntitlementType))
-            {
-                name = FromEntitlementType((EntitlementType)value);
-            }
-            else if (type == typeof(StreamLanguage))
-            {
-                name = FromStreamLanguage((StreamLanguage)value);
-            }
-            else if (type == typeof(StreamType))
-            {
-                name = FromStreamType((StreamType)value);
-            }
-            else if (type == typeof(BroadcasterType))
-            {
-                name = FromBroadcasterType((BroadcasterType)value);
-            }
-            else if (type == typeof(BroadcasterLanguage))
-            {
-                name = FromBroadcasterLanguage((BroadcasterLanguage)value);
-            }
-            else if (type == typeof(VideoPeriod))
-            {
-                name = FromVideoPeriod((VideoPeriod)value);
-            }
-            else if (type == typeof(VideoSort))
-            {
-                name = FromVideoSort((VideoSort)value);
-            }
-            else if (type == typeof(VideoType))
-            {
-                name = FromVideoType((VideoType)value);
-            }
-            else if (type == typeof(Scopes))
-            {
-                name = FromScopes((Scopes)value);
-            }
-            else if (type == typeof(UserType))
-            {
-                name = FromUserType((UserType)value);
-            }
-            else
-            {
-                Debug.WriteError(ErrorLevel.Minor, "The enum type " + type.Name.WrapQuotes() + " is not natively supported by the EnumCacheUtil. Falling back to Enum.GetName()");
-
-                name = Enum.GetName(type, value);
-            }
-
-            return name;
+            return result;
         }
+
+        /// <summary>
+        /// <para>Attempts to get the name of the specified enum's value.</para>
+        /// <para>Supports bitfield enum values.</para>
+        /// </summary>
+        /// <param name="type">The enum's type.</param>
+        /// <param name="value">The enum value to get the name of.</param>
+        /// <param name="result">
+        /// Set to the resolved name, if successful.
+        /// Set to null otherwise.
+        /// </param>
+        /// <returns>
+        /// Returns true if the name was successfully retrieved.
+        /// Returns false otherwise.
+        /// </returns>
+        public static bool
+        TryGetName(Type type, object value, out string result)
+        {
+            if (type.IsNull() || !type.IsEnum)
+            {
+                result = null;
+
+                return false;
+            }
+
+            EnumTypeCache cache = GetOrAddCache(type);
+            bool success = cache.TryGetName(value, out result);
+
+            return success;
+        }
+
+        /// <summary>
+        /// <para>Converts a string representation of an enum value into the equivalent constant enum value.</para>
+        /// <para>Supports bitfield formatted strings.</para>
+        /// </summary>
+        /// <param name="type">The enum's type.</param>
+        /// <param name="value">
+        /// <para>The string to convert.</para>
+        /// <para>This can either be the resolved or native (unresolved) name.</para>
+        /// </param>        
+        /// <returns>Returns the equivalent constant enum value of its string representation.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="type"/> is null.</exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown if the <paramref name="type"/> is not an enum.
+        /// Thrown if the string value could not be converted into the equivalent constant enum value.
+        /// </exception>
+        public static object
+        Parse(Type type, string value)
+        {
+            object result = Parse(type, value, false);
+
+            return result;
+        }
+
+        /// <summary>
+        /// <para>Converts a string representation of an enum value into the equivalent constant enum value.</para>
+        /// <para>Supports bitfield formatted strings.</para>
+        /// </summary>
+        /// <param name="type">The enum's type.</param>
+        /// <param name="value">
+        /// <para>The string to convert.</para>
+        /// <para>This can either be the resolved or native (unresolved) name.</para>
+        /// </param>
+        /// <param name="ignore_case">Whether or not to ignore string case when parsing.</param>
+        /// <returns>Returns the equivalent constant enum value of its string representation.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="type"/> is null.</exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown if the <paramref name="type"/> is not an enum.
+        /// Thrown if the string value could not be converted into the equivalent constant enum value.
+        /// </exception>
+        public static object
+        Parse(Type type, string value, bool ignore_case)
+        {
+            EnumTypeCache cache = GetOrAddCache(type);
+            object result = cache.Parse(value, ignore_case);
+
+            return result;
+        }
+
+        /// <summary>
+        /// <para>Attempts to convert a string representation of an enum value into the equivalent constant enum value.</para>
+        /// <para>Supports bitfield formatted strings.</para>
+        /// </summary>
+        /// <param name="type">The enum's type.</param>
+        /// <param name="value">
+        /// <para>The string to convert.</para>
+        /// <para>This can either be the resolved or native (unresolved) name.</para>
+        /// </param>
+        /// <param name="result">
+        /// Set to null if the type is null or if the type is not an enum.
+        /// Set to the equivalent constant enum value if the conversion was successful.
+        /// Set to the enum's default value otherwise.
+        /// </param>
+        /// <returns>
+        /// Returns true if the string value was successfully parsed.
+        /// Returns false otherwise.
+        /// </returns>
+        public static bool
+        TryParse(Type type, string value, out object result)
+        {
+            bool success = TryParse(type, value, false, out result);
+
+            return success;
+        }
+
+        /// <summary>
+        /// <para>Attempts to convert a string representation of an enum value into the equivalent constant enum value.</para>
+        /// <para>Supports bitfield formatted strings.</para>
+        /// </summary>
+        /// <param name="type">The enum's type.</param>
+        /// <param name="value">
+        /// <para>The string to convert.</para>
+        /// <para>This can either be the resolved or native (unresolved) name.</para>
+        /// </param>
+        /// <param name="ignore_case">Whether or not to ignore string case when parsing.</param>
+        /// <param name="result">
+        /// Set to null if the type is null or if the type is not an enum.
+        /// Set to the equivalent constant enum value if the conversion was successful.
+        /// Set to the enum's default value otherwise.
+        /// </param>
+        /// <returns>
+        /// Returns true if the string value was successfully parsed.
+        /// Returns false otherwise.
+        /// </returns>
+        public static bool
+        TryParse(Type type, string value, bool ignore_case, out object result)
+        {
+            if(type.IsNull() || !type.IsEnum)
+            {
+                result = null;
+
+                return false;
+            }
+
+            EnumTypeCache cache = GetOrAddCache(type);
+            bool success = cache.TryParse(value, ignore_case, out result);
+
+            return success;
+        }        
 
         #endregion
 
         #region Helpers
 
-        private static enum_type
-        TryGetEnum<enum_type>(string str, Dictionary<string, enum_type> cache, bool is_bitfield)
+        /// <summary>
+        /// Gets the enum cache for the specified type.
+        /// If no cache exists for the specified enum type, one is created.
+        /// </summary>
+        /// <typeparam name="enum_type">
+        /// The enum's type as a generic parameter.
+        /// Restricted to a struct.
+        /// </typeparam>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="type"/> is null when creating a cache.</exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown if the <typeparamref name="enum_type"/> is not an enum when creating a cache.
+        /// </exception>
+        public static EnumTypeCache
+        GetOrAddCache<enum_type>()
+        where enum_type : struct
         {
-            enum_type value = default(enum_type);
+            EnumTypeCache cache = GetOrAddCache(typeof(enum_type));
 
-            if (str.IsNull())
+            return cache;
+        }
+
+        /// <summary>
+        /// Gets the enum cache for the specified type.
+        /// If no cache exists for the specified enum type, one is created.
+        /// </summary>
+        /// <param name="type">The enum's type.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="type"/> is null when creating a cache.</exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown if the <paramref name="type"/> is not an enum when creating a cache.
+        /// </exception>
+        public static EnumTypeCache
+        GetOrAddCache(Type type)
+        {
+            EnumTypeCache cache = CACHE.GetOrAdd(type, CreateCache);
+
+            return cache;
+        }
+
+        /// <summary>
+        /// Creates a cache for the specified enum type and adds it to the master cache.
+        /// </summary>
+        /// <param name="type">The enum type.</param>
+        /// <returns>Returns the cache for the enum type</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="type"/> is null.</exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown if the <paramref name="type"/> is not an enum.
+        /// </exception>
+        private static EnumTypeCache
+        CreateCache(Type type)
+        {
+            return new EnumTypeCache(type);
+        }
+
+        /// <summary>
+        /// Converts an any of the valid <see cref="Enum"/> types to a <see cref="UInt64"/>.
+        /// </summary>
+        /// <param name="code">The type to convert the object to.</param>
+        /// <param name="value">The object to convert.</param>
+        /// <returns>Returns the <see cref="UInt64"/> equivalent of the object.</returns>
+        /// <exception cref="NotSupportedException">Thrown of the value's type is not one of he supported <see cref="Enum"/> types.</exception>
+        private static bool
+        TryToUInt64(TypeCode code, object value, out ulong result)
+        {
+            result = 0;
+
+            // Any negative numbers will be wrapped.
+            switch (code)
             {
-                return value;
+                case TypeCode.SByte:
+                {
+                    result = (ulong)(sbyte)value;
+
+                    return true;
+                }
+
+                case TypeCode.Byte:
+                {
+                    result = (byte)value;
+
+                    return true;
+                }
+
+                case TypeCode.Int16:
+                {
+                    result = (ulong)(short)value;
+
+                    return true;
+                }
+
+                case TypeCode.UInt16:
+                {
+                    result = (ushort)value;
+
+                    return true;
+                }
+
+                case TypeCode.UInt32:
+                {
+                    result = (uint)value;
+
+                    return true;
+                }
+
+                case TypeCode.Int32:
+                {
+                    result = (ulong)(int)value;
+
+                    return true;
+                }
+
+                case TypeCode.UInt64:
+                {
+                    result = (ulong)value;
+
+                    return true;
+                }
+
+                case TypeCode.Int64:
+                {
+                    result = (ulong)(long)value;
+
+                    return true;
+                }
             }
 
-            if (!is_bitfield)
-            {
-                cache.TryGetValue(str, out value);
-            }
-            else
-            {
-
-            }
-
-            return value;
+            return false;
         }
 
         #endregion

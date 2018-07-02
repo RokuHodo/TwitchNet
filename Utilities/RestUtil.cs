@@ -236,7 +236,7 @@ TwitchNet.Utilities
             }
             else
             {
-                string _value = EnumCacheUtil.FromEnum(enum_value);
+                string _value = EnumCacheUtil.GetName(enum_value.GetType(), enum_value);
                 request = AddQueryParameter(request, attribute, _value);
             }
 
@@ -256,7 +256,7 @@ TwitchNet.Utilities
                     continue;
                 }
 
-                result.Add(EnumCacheUtil.FromEnum(flag));
+                //result.Add(EnumCacheUtil.FromEnum(flag));
             }
 
             return result.ToArray();

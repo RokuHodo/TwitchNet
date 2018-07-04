@@ -130,7 +130,7 @@ namespace TwitchNet.Utilities
                     return result;
                 }
 
-                switch (EnumCacheUtil.ToFollowersDurationPeriod(caputure_periods[index].Value))
+                switch (GetFollowersDurationPeriod(caputure_periods[index].Value))
                 {
                     case FollowersDurationPeriod.Months:
                     {
@@ -200,11 +200,11 @@ namespace TwitchNet.Utilities
                 }                
             }
 
-            // 1 minute ................................................... = 60 seconds
-            // 1 hour   ............................... = 60 minutes     .. = 3,600 seconds
-            // 1 day    ............... = 24 hours  ... = 1,440 minutes  .. = 86,400 seconds
-            // 1 week   ... = 7 days  . = 168 hours ... = 10,080 minutes .. = 604,800 seconds
-            // 1 month  ... = 30 days . = 720 hours ... = 43,200 minutes .. = 2,592,000 seconds
+            // 1 minute .................................................. = 60        seconds
+            // 1 hour   .............................. = 60     minutes .. = 3,600     seconds
+            // 1 day    ............... = 24  hours .. = 1,440  minutes .. = 86,400    seconds
+            // 1 week   .. = 7  days .. = 168 hours .. = 10,080 minutes .. = 604,800   seconds
+            // 1 month  .. = 30 days .. = 720 hours .. = 43,200 minutes .. = 2,592,000 seconds
             int total_seconds = seconds + (minutes * 60) + (hours * 3_600) + (days * 86_400) + (weeks * 604_800) + (months * 2_592_000);
             if (total_seconds > FOLLOWERS_DURATION_MAX_SECONDS)
             {
@@ -215,6 +215,59 @@ namespace TwitchNet.Utilities
             duration = new TimeSpan((months * 30) + (weeks * 7) + days, hours, minutes, seconds);
 
             return result;
+
+            FollowersDurationPeriod
+            GetFollowersDurationPeriod(string period)
+            {
+                switch (period)
+                {
+                    case "mo":
+                    case "month":
+                    case "months":
+                    {
+                        return FollowersDurationPeriod.Months;
+                    }
+
+                    case "w":
+                    case "week":
+                    case "weeks":
+                    {
+                        return FollowersDurationPeriod.Weeks;
+                    }
+
+                    case "d":
+                    case "day":
+                    case "days":
+                    {
+                        return FollowersDurationPeriod.Days;
+                    }
+
+                    case "h":
+                    case "hour":
+                    case "hours":
+                    {
+                        return FollowersDurationPeriod.Hours;
+                    }
+
+                    case "m":
+                    case "minute":
+                    case "minutes":
+                    {
+                        return FollowersDurationPeriod.Minutes;
+                    }
+
+                    case "s":
+                    case "second":
+                    case "seconds":
+                    {
+                        return FollowersDurationPeriod.Seconds;
+                    }
+                }
+
+                // This will never be reached.
+                // This is just to make sure it compiles.
+                return FollowersDurationPeriod.Seconds;
+            }
         }
 
         /// <summary>

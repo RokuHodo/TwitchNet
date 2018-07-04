@@ -39,7 +39,7 @@ TwitchNet.Helpers.Json
         {
             string name = reader.TokenType == JsonToken.Null ? string.Empty : reader.Value.ToString();
 
-            object value = EnumCacheUtil.Parse(object_type, name);
+            object value = EnumUtil.Parse(object_type, name);
 
             return value;
         }
@@ -60,7 +60,7 @@ TwitchNet.Helpers.Json
 
             Enum enum_value = (Enum)value;
 
-            string string_value = EnumCacheUtil.GetName(enum_value.GetType(), enum_value);
+            string string_value = EnumUtil.GetName(enum_value.GetType(), enum_value);
 
             writer.WriteValue(string_value);
         }

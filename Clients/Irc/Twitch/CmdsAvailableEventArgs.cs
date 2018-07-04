@@ -38,7 +38,8 @@ TwitchNet.Clients.Irc.Twitch
             List<ChatCommand> list = new List<ChatCommand>();
             foreach(string element in array)
             {
-                list.Add(EnumCacheUtil.ToChatCommand(element));
+                EnumUtil.TryParse(element, out ChatCommand command);
+                list.Add(command);
             }
             commands = list.ToArray();
         }

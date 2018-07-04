@@ -1,4 +1,7 @@
-﻿namespace
+﻿// standard namespaces
+using System.Runtime.Serialization;
+
+namespace
 TwitchNet.Clients.Irc.Twitch
 {
     public enum
@@ -7,31 +10,37 @@ TwitchNet.Clients.Irc.Twitch
         /// <summary>
         /// Unsupported user notice type.
         /// </summary>
+        [EnumMember(Value = "")]
         Other    = 0,
 
         /// <summary>
         /// A user subscribed.
         /// </summary>
-        Sub     = 1,
+        [EnumMember(Value = "sub")]
+        Sub,
 
         /// <summary>
         /// A user resubscribed.
         /// </summary>
-        Resub   = 2,
+        [EnumMember(Value = "resub")]
+        Resub,
 
         /// <summary>
         /// A user gifted a sub to another user.
         /// </summary>
-        GiftSub = 3,
+        [EnumMember(Value = "giftsub")]
+        GiftSub,
 
         /// <summary>
         /// A user is rading another user.
         /// </summary>
-        Raid    = 4,
+        [EnumMember(Value = "raid")]
+        Raid,
 
         /// <summary>
         /// A ritual has occured.
         /// </summary>
-        Ritual  = 5
+        [EnumMember(Value = "ritual")]
+        Ritual
     }
 }

@@ -202,10 +202,12 @@ TwitchNet.Utilities
         AddPaging_Enum(IRestRequest request, QueryParameterAttribute attribute, Type type, object value)
         {
             Enum enum_value = (Enum)value;
+            string name = EnumUtil.GetName(enum_value.GetType(), enum_value);
+
             if (type.HasAttribute<FlagsAttribute>())
             {
-                string[] flags = GetValidFlags(type, enum_value);                
-                
+                string[] flags = name.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
+
                 switch (attribute.type)
                 {
                     case QueryParameterType.Auto:
@@ -221,45 +223,25 @@ TwitchNet.Utilities
 
                     case QueryParameterType.ListSpaceSeparated:
                     {
-                        string _value = string.Join(" ", flags);
-                        request = AddQueryParameter(request, attribute, _value);
+                        string _flags = string.Join(" ", flags);
+                        request = AddQueryParameter(request, attribute, _flags);
                     }
                     break;
 
                     case QueryParameterType.ListCommaSeparated:
                     {
-                        string _value = string.Join(",", flags);
-                        request = AddQueryParameter(request, attribute, _value);
+                        string _flags = string.Join(",", flags);
+                        request = AddQueryParameter(request, attribute, _flags);
                     }
                     break;
                 }
             }
             else
             {
-                string _value = EnumCacheUtil.GetName(enum_value.GetType(), enum_value);
-                request = AddQueryParameter(request, attribute, _value);
+                request = AddQueryParameter(request, attribute, name);
             }
 
             return request;
-        }
-
-        private static string[]
-        GetValidFlags(Type type, Enum value)
-        {
-            List<string> result = new List<string>();
-
-            Array flags = Enum.GetValues(type);
-            foreach (Enum flag in flags)
-            {
-                if (!value.HasFlag(flag))
-                {
-                    continue;
-                }
-
-                //result.Add(EnumCacheUtil.FromEnum(flag));
-            }
-
-            return result.ToArray();
         }
 
         /// <summary>

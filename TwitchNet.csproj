@@ -235,7 +235,7 @@
     <Compile Include="Rest\OAuth\Validate\OAuthTokenInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserType.cs" />
-    <Compile Include="Utilities\EnumCacheUtil.cs" />
+    <Compile Include="Utilities\EnumUtil.cs" />
     <Compile Include="Utilities\ExceptionUtil.cs" />
     <Compile Include="Rest\OAuth\OAuth.cs" />
     <Compile Include="Utilities\RegexPatternUtil.cs" />

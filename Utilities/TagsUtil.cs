@@ -179,7 +179,7 @@ TwitchNet.Utilities
                 return user_type;
             }
 
-            user_type = EnumCacheUtil.ToUserType(message.tags[key]);
+            user_type = EnumUtil.Parse<UserType>(message.tags[key]);
 
             return user_type;
         }
@@ -203,7 +203,7 @@ TwitchNet.Utilities
                 return notice;
             }
 
-            notice = EnumCacheUtil.ToNoticeType(message.tags[key]);
+            EnumUtil.TryParse(message.tags[key], out notice);
 
             return notice;
         }
@@ -227,7 +227,7 @@ TwitchNet.Utilities
                 return user_notice;
             }
 
-            user_notice = EnumCacheUtil.ToUserNoticeType(message.tags[key]);
+            EnumUtil.TryParse(message.tags[key], out user_notice);
 
             return user_notice;
         }
@@ -251,7 +251,7 @@ TwitchNet.Utilities
                 return plan;
             }
 
-            plan = EnumCacheUtil.ToSubscriptionPlan(message.tags[key]);
+            EnumUtil.TryParse(message.tags[key], out plan);
 
             return plan;
         }
@@ -275,7 +275,7 @@ TwitchNet.Utilities
                 return type;
             }
 
-            type = EnumCacheUtil.ToRitualType(message.tags[key]);
+            EnumUtil.TryParse(message.tags[key], out type);
 
             return type;
         }
@@ -299,7 +299,7 @@ TwitchNet.Utilities
                 return language;
             }
 
-            language = EnumCacheUtil.ToBroadcasterLanguage(message.tags[key]);
+            EnumUtil.TryParse(message.tags[key], out language);
 
             return language;
         }

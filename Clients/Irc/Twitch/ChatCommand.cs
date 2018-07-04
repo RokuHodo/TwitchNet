@@ -1,4 +1,7 @@
-﻿namespace
+﻿// standard namespaces
+using System.Runtime.Serialization;
+
+namespace
 TwitchNet.Clients.Irc.Twitch
 {
     public enum
@@ -9,6 +12,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <summary>
         /// Unsupported chat command.
         /// </summary>
+        [EnumMember(Value = "")]
         Other = 0,
 
         #endregion
@@ -23,6 +27,7 @@ TwitchNet.Clients.Irc.Twitch
         /// Usage (Turbo/Prime): /color {html_color} OR /color {color_name}.
         /// </para>
         /// </summary>
+        [EnumMember(Value = "/color")]
         Color,
 
         /// <summary>
@@ -30,6 +35,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /disconnect</para>
         /// <para>Usage: /disconnect</para>
         /// </summary>
+        [EnumMember(Value = "/disconnect")]
         Disconnect,
 
         /// <summary>
@@ -37,6 +43,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /help</para>
         /// <para>Usage: /help {command}</para>
         /// </summary>
+        [EnumMember(Value = "/help")]
         Help,
 
         /// <summary>
@@ -44,6 +51,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /me</para>
         /// <para>Command: /me {message}</para>
         /// </summary>
+        [EnumMember(Value = "/me")]
         Me,
 
         /// <summary>
@@ -51,12 +59,14 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /mods</para>
         /// <para>Usage: /mods</para>
         /// </summary>
+        [EnumMember(Value = "/mods")]
         Mods,
 
         /// <summary>
         /// <para>Sends a private message to another user.</para>
         /// <para>Command: /w {user_nick} {message}</para>
         /// </summary>
+        [EnumMember(Value = "/w")]
         Whisper,
 
         #endregion
@@ -68,6 +78,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /ban</para>
         /// <para>Usage: /ban {user_nick}</para>
         /// </summary>
+        [EnumMember(Value = "/ban")]
         Ban,
 
         /// <summary>
@@ -75,6 +86,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /mod</para>
         /// <para>Usage: /mod {user_nick}</para>
         /// </summary>
+        [EnumMember(Value = "/mod")]
         Mod,
 
         /// <summary>
@@ -82,6 +94,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /timeout</para>
         /// <para>Usage: /timeout {useR_nick} [{length_seconds}] [{reason}]</para>
         /// </summary>
+        [EnumMember(Value = "/timeout")]
         Timeout,
 
         /// <summary>
@@ -89,6 +102,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /unban</para>
         /// <para>Usage: /unban {user_nick}</para>
         /// </summary>
+        [EnumMember(Value = "/unban")]
         Unban,
 
         /// <summary>
@@ -96,6 +110,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /unmod</para>
         /// <para>Usage: /unmod {user_nick}</para>
         /// </summary>
+        [EnumMember(Value = "/unmod")]
         Unmod,
 
         /// <summary>
@@ -103,6 +118,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /untimeout</para>
         /// <para>Usage: /untimeout {user_nick}</para>
         /// </summary>
+        [EnumMember(Value = "/untimeout")]
         Untimeout,
 
         #endregion
@@ -117,6 +133,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /clear</para>
         /// <para>Usage: /clear</para>
         /// </summary>
+        [EnumMember(Value = "/clear")]
         Clear,
 
         /// <summary>
@@ -127,6 +144,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /emoteonly</para>
         /// <para>Usage: /emoteonly</para>
         /// </summary>
+        [EnumMember(Value = "/emoteonly")]
         EmoteOnly,
 
         /// <summary>
@@ -134,6 +152,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /emoteonlyoff</para>
         /// <para>Usage: /emoteonlyoff</para>
         /// </summary>
+        [EnumMember(Value = "/emoteonlyoff")]
         EmoteOnlyOff,
 
         /// <summary>
@@ -146,6 +165,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /followers</para>
         /// <para>Usage: /followers [{length_custom}]</para>
         /// </summary>
+        [EnumMember(Value = "/followers")]
         Followers,
 
         /// <summary>
@@ -156,6 +176,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /followersoff</para>
         /// <para>Usage: /followersoff</para>
         /// </summary>
+        [EnumMember(Value = "/followersoff")]
         FollowersOff,
 
         /// <summary>
@@ -166,6 +187,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /r9kbeta</para>
         /// <para>Usage: /r9kbeta</para>
         /// </summary>
+        [EnumMember(Value = "/r9kbeta")]
         R9kBeta,
 
         /// <summary>
@@ -173,6 +195,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /r9kbetaoff</para>
         /// <para>Usage: /r9kbetaoff</para>
         /// </summary>
+        [EnumMember(Value = "/r9kbetaoff")]
         R9kBetaOff,
 
         /// <summary>
@@ -183,6 +206,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /slow</para>
         /// <para>Usage: /slow [{length_seconds}]</para>
         /// </summary>
+        [EnumMember(Value = "/slow")]
         Slow,
 
         /// <summary>
@@ -190,6 +214,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /slowoff</para>
         /// <para>Usage: /slowoff</para>
         /// </summary>
+        [EnumMember(Value = "/slowoff")]
         SlowOff,
 
         /// <summary>
@@ -201,6 +226,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /subscribers</para>
         /// <para>Usage: /subscribers</para>
         /// </summary>
+        [EnumMember(Value = "/subscribers")]
         Subscribers,
 
         /// <summary>
@@ -211,6 +237,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /subscribersoff</para>
         /// <para>Usage: /subscribersoff</para>
         /// </summary>
+        [EnumMember(Value = "/subscribersoff")]
         SubscribersOff,
 
         #endregion
@@ -226,6 +253,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /commercial</para>
         /// <para>Usage: /commercial [{length_seconds}]</para>
         /// </summary>
+        [EnumMember(Value = "/commercial")]
         Commercial,
 
         /// <summary>
@@ -236,6 +264,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /host</para>
         /// <para>Usage: /host {user_nick} [{message}]</para>
         /// </summary>
+        [EnumMember(Value = "/host")]
         Host,
 
         /// <summary>
@@ -246,6 +275,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /raid</para>
         /// <para>Usage: /raid {user_nick}</para>
         /// </summary>
+        [EnumMember(Value = "/raid")]
         Raid,
 
         /// <summary>
@@ -256,6 +286,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /unhost</para>
         /// <para>Usage: /unhost</para>
         /// </summary>
+        [EnumMember(Value = "/unhost")]
         Unhost,
 
         /// <summary>
@@ -266,6 +297,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Command: /unraid</para>
         /// <para>Usage: /unraid</para>
         /// </summary>
+        [EnumMember(Value = "/unraid")]
         Unraid,
 
         #endregion

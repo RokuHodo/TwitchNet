@@ -199,7 +199,7 @@ TwitchNet.Clients.Irc.Twitch
         public void
         ChangeDisplayNameColor(string channel, DisplayNameColor color)
         {
-            SendChatCommand(channel, ChatCommand.Color, EnumCacheUtil.FromDisplayNameColor(color));
+            SendChatCommand(channel, ChatCommand.Color, EnumUtil.GetName(color));
         }
 
         /// <summary>
@@ -211,7 +211,7 @@ TwitchNet.Clients.Irc.Twitch
         public void
         ChangeDisplayNameColor(string user_id, string uuid, DisplayNameColor color)
         {
-            SendChatCommand(user_id, uuid, ChatCommand.Color, EnumCacheUtil.FromDisplayNameColor(color));
+            SendChatCommand(user_id, uuid, ChatCommand.Color, EnumUtil.GetName(color));
         }
 
         /// <summary>
@@ -338,7 +338,7 @@ TwitchNet.Clients.Irc.Twitch
         public void
         PrintHelp(string channel, ChatCommand command)
         {
-            SendChatCommand(channel, ChatCommand.Help, EnumCacheUtil.FromChatCommand(command).TextAfter('/'));
+            SendChatCommand(channel, ChatCommand.Help, EnumUtil.GetName(command).TextAfter('/'));
         }
 
         /// <summary>
@@ -350,7 +350,7 @@ TwitchNet.Clients.Irc.Twitch
         public void
         PrintHelp(string user_id, string uuid, ChatCommand command)
         {
-            SendChatCommand(user_id, uuid, ChatCommand.Help, EnumCacheUtil.FromChatCommand(command).TextAfter('/'));
+            SendChatCommand(user_id, uuid, ChatCommand.Help, EnumUtil.GetName(command).TextAfter('/'));
         }
 
         /// <summary>
@@ -369,7 +369,7 @@ TwitchNet.Clients.Irc.Twitch
             // Check format here since only sending /me is not allowed
             ExceptionUtil.ThrowIfInvalid(format, nameof(format));
 
-            string trailing = EnumCacheUtil.FromChatCommand(ChatCommand.Me) + ' ' + format;
+            string trailing = EnumUtil.GetName(ChatCommand.Me) + ' ' + format;
             SendPrivmsg(channel, trailing, arguments);
         }
 
@@ -390,7 +390,7 @@ TwitchNet.Clients.Irc.Twitch
             // Check format here since only sending /me is not allowed
             ExceptionUtil.ThrowIfInvalid(format, nameof(format));
 
-            string trailing = EnumCacheUtil.FromChatCommand(ChatCommand.Me) + ' ' + format;
+            string trailing = EnumUtil.GetName(ChatCommand.Me) + ' ' + format;
             SendChatRoomPrivmsg(user_id, uuid, trailing, arguments);
         }
 
@@ -1108,7 +1108,7 @@ TwitchNet.Clients.Irc.Twitch
         public void
         StartCommercial(string channel, CommercialLength length = CommercialLength.Seconds30)
         {
-            SendChatCommand(channel, ChatCommand.Commercial, EnumCacheUtil.FromCommercialLength(length));
+            SendChatCommand(channel, ChatCommand.Commercial, EnumUtil.GetName(length));
         }
 
         /// <summary>
@@ -1169,7 +1169,7 @@ TwitchNet.Clients.Irc.Twitch
         public void
         SendChatCommand(string channel, ChatCommand command, params object[] arguments)
         {
-            string trailing = EnumCacheUtil.FromChatCommand(command);
+            string trailing = EnumUtil.GetName(command);
             if (arguments.IsValid())
             {
                 trailing += ' ' + string.Join(" ", arguments);
@@ -1211,11 +1211,11 @@ TwitchNet.Clients.Irc.Twitch
                 case ChatCommand.Followers:
                 case ChatCommand.FollowersOff:
                 {
-                    throw new NotSupportedException("The command " + EnumCacheUtil.FromChatCommand(command) + " cannot be used in a chatroom.");
+                    throw new NotSupportedException("The command " + EnumUtil.GetName(command) + " cannot be used in a chatroom.");
                 }
             }
 
-            string trailing = EnumCacheUtil.FromChatCommand(command);
+            string trailing = EnumUtil.GetName(command);
             if (arguments.IsValid())
             {
                 trailing += ' ' + string.Join(" ", arguments);

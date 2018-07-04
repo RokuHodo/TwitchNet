@@ -1,4 +1,7 @@
-﻿// project namespaces
+﻿// standard namespaces
+using System.Runtime.Serialization;
+
+// project namespaces
 using TwitchNet.Helpers.Json;
 
 // imported namespaces
@@ -14,21 +17,25 @@ TwitchNet.Rest.Api.Videos
         /// <summary>
         /// Returns all videos, regardless of when they were created.
         /// </summary>
+        [EnumMember(Value = "all")]
         All     = 0,
 
         /// <summary>
         /// Returns videos that were created today.
         /// </summary>
-        Day     = 1,
+        [EnumMember(Value = "day")]
+        Day,
 
         /// <summary>
         /// Returns videos that were created this week.
         /// </summary>
-        Week    = 2,
+        [EnumMember(Value = "week")]
+        Week,
 
         /// <summary>
         /// Returns videos that were created this month.
         /// </summary>
-        Month   = 3,
+        [EnumMember(Value = "month")]
+        Month
     }
 }

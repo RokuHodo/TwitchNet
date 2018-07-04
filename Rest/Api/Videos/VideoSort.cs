@@ -1,4 +1,7 @@
-﻿// project namespaces
+﻿// standard namespaces
+using System.Runtime.Serialization;
+
+// project namespaces
 using TwitchNet.Helpers.Json;
 
 // imported namespaces
@@ -14,16 +17,19 @@ TwitchNet.Rest.Api.Videos
         /// <summary>
         /// Returns videos sorted by time.
         /// </summary>
+        [EnumMember(Value = "time")]
         Time     = 0,
 
         /// <summary>
         /// Returns videos sorted by which ones are trending.
         /// </summary>
-        Trending     = 1,
+        [EnumMember(Value = "trending")]
+        Trending,
 
         /// <summary>
         /// Returns videos sorted by view count, highest to lowest.
         /// </summary>
-        Views    = 2,
+        [EnumMember(Value = "views")]
+        Views
     }
 }

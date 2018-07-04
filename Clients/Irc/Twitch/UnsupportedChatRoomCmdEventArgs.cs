@@ -51,7 +51,8 @@ TwitchNet.Clients.Irc.Twitch
                 channel_uuid = channel.TextAfter(':', index);
             }
 
-            command = EnumCacheUtil.ToChatCommand(args.body.TextBetween("command ", " cannot"));
+            EnumUtil.TryParse(args.body.TextBetween("command ", " cannot"), out ChatCommand _command);
+            command = _command;
         }
     }
 }

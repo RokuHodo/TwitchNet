@@ -1,4 +1,7 @@
-﻿// project namespaces
+﻿// standard namespaces
+using System.Runtime.Serialization;
+
+// project namespaces
 using TwitchNet.Helpers.Json;
 
 // imported namespaces
@@ -15,6 +18,7 @@ TwitchNet.Rest.Api.Entitlements
         /// <summary>
         /// Bulk drops grant entitlement.
         /// </summary>
+        [EnumMember(Value = "bulk_drops_grant")]
         BulkDropsGrant = 0
     }
 }

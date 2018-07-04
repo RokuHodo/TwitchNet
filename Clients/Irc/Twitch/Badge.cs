@@ -40,7 +40,8 @@ TwitchNet.Clients.Irc.Twitch
             }
             version = _version;
 
-            type = EnumCacheUtil.ToBadgeType(pair.TextBefore('/'));
+            EnumUtil.TryParse(pair.TextBefore('/'), out BadgeType _type);
+            type = _type;
         }
     }
 }

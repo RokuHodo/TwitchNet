@@ -10,8 +10,7 @@ using Newtonsoft.Json;
 namespace
 TwitchNet.Rest.Api.Entitlements
 {
-    // TODO: Add custom converter for the deserializer.
-    [JsonConverter(typeof(EnumCacheConverter))]
+    [JsonConverter(typeof(EnumConverter))]
     public enum
     EntitlementType
     {

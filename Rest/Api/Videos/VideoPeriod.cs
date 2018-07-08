@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 namespace
 TwitchNet.Rest.Api.Videos
 {
-    [JsonConverter(typeof(EnumCacheConverter))]
+    [JsonConverter(typeof(EnumConverter))]
     public enum
     VideoPeriod
     {

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 
 // project namespaces
+using TwitchNet.Rest.Api.Analytics;
 using TwitchNet.Rest.Api.Clips;
 using TwitchNet.Rest.Api.Entitlements;
 using TwitchNet.Rest.Api.Games;
@@ -15,6 +16,46 @@ TwitchNet.Rest.Api
     public static partial class
     TwitchApiBearer
     {
+        // TODO: Test once I actually get around to making an extension.
+        #region /analytics/extensions
+
+        /// <summary>
+        /// Asynchronously gets analytic urls for all devloper extensions.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static async Task<IHelixResponse<Data<ExtensionAnalytics>>>
+        GetExtensionAnalyticsAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
+        {
+            HelixInfo request_info = new HelixInfo();
+            request_info.bearer_token = bearer_token;
+
+            IHelixResponse<Data<ExtensionAnalytics>> analytics = await TwitchApiInternal.GetExtensionAnalyticsAsync(request_info, default(ExtensionAnalyticsQueryParameters), settings);
+
+            return analytics;
+        }
+
+        /// <summary>
+        /// Asynchronously gets analytic urls for one or more devloper extension.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static async Task<IHelixResponse<Data<ExtensionAnalytics>>>
+        GetExtensionAnalyticsAsync(string bearer_token, ExtensionAnalyticsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        {
+            HelixInfo request_info = new HelixInfo();
+            request_info.bearer_token = bearer_token;
+
+            IHelixResponse<Data<ExtensionAnalytics>> analytics = await TwitchApiInternal.GetExtensionAnalyticsAsync(request_info, parameters, settings);
+
+            return analytics;
+        }
+
+        #endregion
+
         #region /clips
 
         /// <summary>

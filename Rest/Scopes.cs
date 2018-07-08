@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 namespace
 TwitchNet.Rest
 {
-    [JsonConverter(typeof(EnumCacheConverter))]
+    [JsonConverter(typeof(EnumConverter))]
     public enum
     Scopes
     {

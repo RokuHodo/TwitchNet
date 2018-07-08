@@ -300,6 +300,8 @@ TwitchNet.Clients.Irc.Twitch
         [EnumMember(Value = "/unraid")]
         Unraid,
 
+        // TODO: /marker 
+
         #endregion
     }
 }

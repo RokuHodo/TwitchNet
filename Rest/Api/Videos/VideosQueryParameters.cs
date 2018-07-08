@@ -43,7 +43,7 @@ TwitchNet.Rest.Api.Videos
         /// If more than 100 id's are specified, only the first 100 will be added.
         /// </para>
         /// </summary>
-        [QueryParameter("id")]
+        [QueryParameter("id", typeof(SeparateValuesListFormatter))]
         public List<string> ids
         {
             get
@@ -78,7 +78,7 @@ TwitchNet.Rest.Api.Videos
         /// <summary>
         /// The type of the video.
         /// </summary>
-        [QueryParameter("type")]
+        [QueryParameter("type", typeof(SeparateValuesListFormatter))]
         public VideoType?           type        { get; set; }
 
         /// <summary>

@@ -12,7 +12,7 @@ namespace
 TwitchNet.Rest.Api.Videos
 {
     [Flags]
-    [JsonConverter(typeof(EnumCacheConverter))]
+    [JsonConverter(typeof(EnumConverter))]
     public enum
     VideoType
     {

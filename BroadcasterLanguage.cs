@@ -13,7 +13,7 @@ TwitchNet
     /// <summary>
     /// The language selected in the Twitch dashboard or in the video information editor, not the language selected at the home page.
     /// </summary>
-    [JsonConverter(typeof(EnumCacheConverter))]    
+    [JsonConverter(typeof(EnumConverter))]    
     public enum
     BroadcasterLanguage
     {

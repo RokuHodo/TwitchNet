@@ -1,4 +1,5 @@
 ﻿// project namespaces
+using TwitchNet.Rest.Api.Analytics;
 using TwitchNet.Rest.Api.Clips;
 using TwitchNet.Rest.Api.Entitlements;
 using TwitchNet.Rest.Api.Games;
@@ -12,6 +13,39 @@ TwitchNet.Rest.Api
     public static partial class
     TwitchApiBearer
     {
+        #region /analytics/extensions
+
+        /// <summary>
+        /// Gets analytic urls for all devloper extensions.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<Data<ExtensionAnalytics>>
+        GetExtensionAnalytics(string bearer_token, RequestSettings settings = default(RequestSettings))
+        {
+            IHelixResponse<Data<ExtensionAnalytics>> analytics = GetExtensionAnalyticsAsync(bearer_token, settings).Result;
+
+            return analytics;
+        }
+
+        /// <summary>
+        /// Asynchronously gets analytic urls for one or more devloper extension.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<Data<ExtensionAnalytics>>
+        GetExtensionAnalytics(string bearer_token, ExtensionAnalyticsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        {
+            IHelixResponse<Data<ExtensionAnalytics>> analytics = GetExtensionAnalyticsAsync(bearer_token, parameters, settings).Result;
+
+            return analytics;
+        }
+
+        #endregion
+
         #region /clips
 
         /// <summary>

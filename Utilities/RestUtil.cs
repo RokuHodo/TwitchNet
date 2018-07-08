@@ -1,6 +1,6 @@
 ﻿// standard namespaces
 using System;
-using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -22,6 +22,8 @@ TwitchNet.Utilities
     internal static class
     RestUtil
     {
+        private static readonly ConcurrentDictionary<Type, QueryParameterFormatter> QUERY_FORMATTER_CACHE = new ConcurrentDictionary<Type, QueryParameterFormatter>();
+
         public static async Task<Tuple<IRestResponse, RestException, RateLimit>>
         ExecuteAsync(ClientInfo client_info, IRestRequest request, RequestSettings settings)
         {
@@ -101,18 +103,10 @@ TwitchNet.Utilities
             return Tuple.Create(response, exception, rate_limit);
         }
 
-        #region Paging
+        #region Paging  
 
-        /// <summary>
-        /// Adds query parameters to the <see cref="RestRequest"/>.
-        /// </summary>
-        /// <typeparam name="parameters_type">The object type of the parameters class</typeparam>
-        /// <param name="request">The rest request.</param>
-        /// <param name="parameters">The query string parameters to add.</param>
-        /// <returns>Returns the <see cref="RestRequest"/> with the added <paramref name="parameters"/>.</returns>
-        public static request_type
-        AddPaging<request_type>(this request_type request, object parameters)
-        where request_type : IRestRequest
+        public static RestRequest
+        AddPaging(this RestRequest request, object parameters)
         {
             if (parameters.IsNull())
             {
@@ -138,142 +132,32 @@ TwitchNet.Utilities
                     continue;
                 }
 
+                Type property_type = property.PropertyType.IsNullable() ? Nullable.GetUnderlyingType(property.PropertyType) : property.PropertyType;
+
                 QueryParameterAttribute attribute = property.GetAttribute<QueryParameterAttribute>();
+                if (!attribute.name.IsValid())
+                {
+                    continue;
+                }
 
-                Type type = property.PropertyType.IsNullable() ? Nullable.GetUnderlyingType(property.PropertyType) : property.PropertyType;
-                if (typeof(IList).IsAssignableFrom(type))
+                Type formatter_type = attribute.formatter.IsNull() ? typeof(SingleValueFormatter) : attribute.formatter;
+
+                QueryParameterFormatter formatter = QUERY_FORMATTER_CACHE.GetOrAdd(formatter_type, AddQueryFormatter);
+                if (!formatter.CanFormat(property_type))
                 {
-                    AddPaging_IList(request, attribute, value);
+                    continue;
                 }
-                else if (type.IsEnum)
-                {
-                    AddPaging_Enum(request, attribute, type, value);
-                }
-                else
-                {
-                    request = AddQueryParameter(request, attribute, value);
-                }
+
+                request = formatter.FormatAddValue(request, attribute.name, property_type, value);
             }
 
             return request;
         }
 
-        private static IRestRequest
-        AddPaging_IList(IRestRequest request, QueryParameterAttribute attribute, object value)
+        private static QueryParameterFormatter
+        AddQueryFormatter(Type type)
         {
-            IList list = value as IList;
-            if (list.IsNull() || list.Count == 0)
-            {
-                return request;
-            }
-
-            switch (attribute.type)
-            {
-                case QueryParameterType.Auto:
-                case QueryParameterType.Single:
-                case QueryParameterType.ListSingleValues:
-                {
-                    foreach (object element in list)
-                    {
-                        request = AddQueryParameter(request, attribute, element);
-                    }
-                }
-                break;
-
-                case QueryParameterType.ListSpaceSeparated:
-                {
-                    string _value = string.Join(" ", list);
-                    request = AddQueryParameter(request, attribute, _value);
-                }
-                break;
-
-                case QueryParameterType.ListCommaSeparated:
-                {
-                    string _value = string.Join(",", list);
-                    request = AddQueryParameter(request, attribute, _value);
-                }
-                break;
-            }            
-
-            return request;
-        }
-
-        private static IRestRequest
-        AddPaging_Enum(IRestRequest request, QueryParameterAttribute attribute, Type type, object value)
-        {
-            Enum enum_value = (Enum)value;
-            string name = EnumUtil.GetName(enum_value.GetType(), enum_value);
-
-            if (type.HasAttribute<FlagsAttribute>())
-            {
-                string[] flags = name.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
-
-                switch (attribute.type)
-                {
-                    case QueryParameterType.Auto:
-                    case QueryParameterType.Single:
-                    case QueryParameterType.ListSingleValues:
-                    {
-                        foreach(string flag in flags)
-                        {
-                            request = AddQueryParameter(request, attribute, flag);
-                        }
-                    }
-                    break;
-
-                    case QueryParameterType.ListSpaceSeparated:
-                    {
-                        string _flags = string.Join(" ", flags);
-                        request = AddQueryParameter(request, attribute, _flags);
-                    }
-                    break;
-
-                    case QueryParameterType.ListCommaSeparated:
-                    {
-                        string _flags = string.Join(",", flags);
-                        request = AddQueryParameter(request, attribute, _flags);
-                    }
-                    break;
-                }
-            }
-            else
-            {
-                request = AddQueryParameter(request, attribute, name);
-            }
-
-            return request;
-        }
-
-        /// <summary>
-        /// Adds an object as a query parameter to a <see cref="RestRequest"/>.
-        /// </summary>
-        /// <param name="request">The rest request.</param>
-        /// <param name="attribute">The attribute that contains the query name and conversion settings.</param>
-        /// <param name="value">The query parameter value.</param>
-        /// <returns>Returns the <see cref="RestRequest"/> with the added query parameters.</returns>
-        private static request_type
-        AddQueryParameter<request_type>(request_type request, QueryParameterAttribute attribute, object value)
-        where request_type : IRestRequest
-        {
-            if (attribute.IsNull() || !attribute.name.IsValid())
-            {
-                return request;
-            }
-
-            string query_value = value.ToString();
-            if (value.IsNull() || !query_value.IsValid())
-            {
-                return request;
-            }
-
-            if (attribute.to_lower)
-            {
-                query_value = query_value.ToLower();
-            }
-
-            request.AddQueryParameter(attribute.name, query_value);
-
-            return request;
+            return (QueryParameterFormatter)Activator.CreateInstance(type);
         }
 
         #endregion

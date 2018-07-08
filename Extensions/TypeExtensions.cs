@@ -1,12 +1,13 @@
 ﻿// project namespaces
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace
 TwitchNet.Extensions
 {
-    internal static class
+    public static class
     TypeExtensions
     {
         /// <summary>
@@ -38,7 +39,7 @@ TwitchNet.Extensions
         public static bool
         IsList(this Type type)
         {
-            bool result = type.IsGenericType && type.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
+            bool result = type.IsGenericType && typeof(IList).IsAssignableFrom(type);
 
             return result;
         }

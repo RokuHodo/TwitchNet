@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 // project namespaces
 using TwitchNet.Extensions;
+using TwitchNet.Rest.Api.Analytics;
 using TwitchNet.Rest.Api.Clips;
 using TwitchNet.Rest.Api.Entitlements;
 using TwitchNet.Rest.Api.Games;
@@ -30,6 +31,35 @@ TwitchNet.Rest.Api
 
         // TODO: /analytics/games
         // TODO: /bits/leaderboard
+
+        #region /analytics/extensions
+
+        /// <summary>
+        /// Asynchronously gets analytic urls for one or more devloper extension.
+        /// </summary>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<Data<ExtensionAnalytics>>>
+        GetExtensionAnalyticsAsync(HelixInfo helix_info, ExtensionAnalyticsQueryParameters parameters, RequestSettings settings = null)
+        {
+            if (settings.IsNull())
+            {
+                settings = RequestSettings.Default;
+            }
+
+            RestRequest request = RestUtil.CretaeHelixRequest("analytics/extensions", Method.GET, helix_info, settings);
+            request = request.AddPaging(parameters);
+
+            Tuple<IRestResponse<Data<ExtensionAnalytics>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<ExtensionAnalytics>>(client_info, request, settings);
+
+            IHelixResponse<Data<ExtensionAnalytics>> respose = new HelixResponse<Data<ExtensionAnalytics>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return respose;
+        }
+
+        #endregion
 
         #region /clips
 

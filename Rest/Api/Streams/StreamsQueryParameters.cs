@@ -20,7 +20,7 @@ TwitchNet.Rest.Api.Streams
         /// Maximum: 100 id's.
         /// If more than 100 id's are specified, only the first 100 will be added.
         /// </summary>
-        [QueryParameter("community_id")]
+        [QueryParameter("community_id", typeof(SeparateValuesListFormatter))]
         public List<string> community_ids
         {
             get
@@ -38,7 +38,7 @@ TwitchNet.Rest.Api.Streams
         /// Maximum: 100 id's.
         /// If more than 100 id's are specified, only the first 100 will be added.
         /// </summary>
-        [QueryParameter("game_id")]
+        [QueryParameter("game_id", typeof(SeparateValuesListFormatter))]
         public List<string> game_ids
         {
             get
@@ -70,7 +70,7 @@ TwitchNet.Rest.Api.Streams
         /// Maximum: 100 id's.
         /// If more than 100 id's are specified, only the first 100 will be added.
         /// </summary>
-        [QueryParameter("user_id")]
+        [QueryParameter("user_id", typeof(SeparateValuesListFormatter))]
         public List<string> user_ids
         {
             get
@@ -88,7 +88,7 @@ TwitchNet.Rest.Api.Streams
         /// Maximum: 100 names.
         /// If more than 100 names are specified, only the first 100 will be added.
         /// </summary>
-        [QueryParameter("user_login")]
+        [QueryParameter("user_login", typeof(SeparateValuesListFormatter))]
         public List<string> user_logins
         {
             get

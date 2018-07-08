@@ -12,7 +12,7 @@ namespace
 TwitchNet.Helpers.Json
 {
     internal class
-    EnumCacheConverter : JsonConverter
+    EnumConverter : JsonConverter
     {
         /// <summary>
         /// Whether this JsonConverter can read JSON.

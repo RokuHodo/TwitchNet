@@ -9,19 +9,14 @@ TwitchNet.Rest
     QueryParameterAttribute : Attribute
     {
         /// <summary>
-        /// Whether or not to make the query parameter value lower case.
-        /// </summary>
-        public bool                 to_lower    { get; private set; }
-
-        /// <summary>
         /// The name of the query parameter.
         /// </summary>
         public string               name        { get; private set; }
 
         /// <summary>
-        /// The type of query parameter, and how to add it to the request.
+        /// The function used to convert the reflected value into a string.
         /// </summary>
-        public QueryParameterType   type        { get; private set; }
+        public Type       formatter   { get; private set; }
 
         /// <summary>
         /// Creates a new instance of the <see cref="QueryParameterAttribute"/> class.
@@ -32,22 +27,10 @@ TwitchNet.Rest
             this.name = name;
         }
 
-        /// <summary>
-        /// Creates a new instance of the <see cref="QueryParameterAttribute"/> class.
-        /// </summary>
-        /// <param name="name">The name of the query parameter.</param>
         /// <param name="type">The type of query parameter, and how to add it to the request.</param>
-        public QueryParameterAttribute(string name, QueryParameterType type) : this(name)
+        public QueryParameterAttribute(string name, Type formatter) : this(name)
         {
-            this.type = type;
-        }
-
-        /// <summary>
-        /// Creates a new blank instance of the <see cref="QueryParameterAttribute"/> class.
-        /// </summary>
-        public QueryParameterAttribute()
-        {
-
+            this.formatter = formatter;
         }
     }
 }

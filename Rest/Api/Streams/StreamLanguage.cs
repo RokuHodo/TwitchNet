@@ -15,7 +15,7 @@ TwitchNet.Rest.Api.Streams
     /// The language selected at the home page, not the language found in the Twitch dashboard or in the video information editor.
     /// </summary>
     [Flags]
-    [JsonConverter(typeof(EnumCacheConverter))]
+    [JsonConverter(typeof(EnumConverter))]
     public enum
     StreamLanguage : ulong
     {        

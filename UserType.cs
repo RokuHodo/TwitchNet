@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 namespace
 TwitchNet
 {
-    [JsonConverter(typeof(EnumCacheConverter))]
+    [JsonConverter(typeof(EnumConverter))]
     public enum
     UserType
     {

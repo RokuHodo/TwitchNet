@@ -1,7 +1,6 @@
 ﻿namespace
 TwitchNet.Rest.Api.Clips
 {
-    //TODO: Update query parameters.
     public class
     ClipCreationQueryParameters
     {
@@ -10,6 +9,12 @@ TwitchNet.Rest.Api.Clips
         /// </summary>
         [QueryParameter("broadcaster_id")]
         public string broadcaster_id { get; set; }
+
+        /// <summary>
+        /// Whether or not a delay is added before the clip is created.
+        /// </summary>
+        [QueryParameter("has_delay")]
+        public bool has_delay { get; set; }
 
         /// <summary>
         /// Creates a new blank instance of the <see cref="ClipCreationQueryParameters"/> class.

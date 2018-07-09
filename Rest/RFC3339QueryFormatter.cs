@@ -1,16 +1,20 @@
 ﻿// standard namespaces
 using System;
+using System.Globalization;
 
 // imported .dll's
 using RestSharp;
 
 namespace TwitchNet.Rest
 {
-    public abstract class
-    QueryParameterFormatter
+    /// <summary>
+    /// Converts a <see cref="DateTime"/> value to a RFC 3339 compliant string and adds it to the <see cref="RestRequest"/> as a query parameter.
+    /// </summary>
+    public class
+    RFC3339QueryFormatter : QueryParameterFormatter
     {
         /// <summary>
-        /// Formats the value of a member marked with <see cref="QueryParameterAttribute"/> and adds it to the <see cref="RestRequest"/>.
+        /// Converts the DateTime value a RFC 3339 compliant string and adds it to the <see cref="RestRequest"/> as query parameter.
         /// </summary>
         /// <param name="request">
         /// <para>The request to be executed.</para>
@@ -32,11 +36,18 @@ namespace TwitchNet.Rest
         /// <para>This member value will never be null and will always be instantiated.</para>
         /// </param>
         /// <returns>Returns the rest request.</returns>
-        public abstract RestRequest
-        FormatAndAdd(RestRequest request, string query_name, Type member_type, object member_value);
+        public override RestRequest
+        FormatAndAdd(RestRequest request, string query_name, Type member_type, object member_value)
+        {
+            string rfc_3339 = ((DateTime)member_value).ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz", DateTimeFormatInfo.InvariantInfo);
+
+            request.AddQueryParameter(query_name, rfc_3339);
+
+            return request;
+        }
 
         /// <summary>
-        /// Determines if the member marked with <see cref="QueryParameterAttribute"/> can/should be formatted.
+        /// Determines if the member marked with <see cref="QueryParameterAttribute"/> can/should be formatted using this formatter.
         /// </summary>
         /// <param name="member_type">
         /// <para>The type of the member marked with <see cref="QueryParameterAttribute"/>.</para>
@@ -46,10 +57,13 @@ namespace TwitchNet.Rest
         /// </para>
         /// </param>
         /// <returns>
-        /// Returns true of the member can be formatted.
+        /// Returns true of the member is a DateTime.
         /// Returns false otherwise.
         /// </returns>
-        public abstract bool
-        CanFormat(Type member_type);
+        public override bool
+        CanFormat(Type member_type)
+        {
+            return member_type == typeof(DateTime);
+        }
     }
 }

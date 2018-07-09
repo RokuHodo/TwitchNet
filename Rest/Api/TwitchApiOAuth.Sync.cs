@@ -44,6 +44,161 @@ TwitchNet.Rest.Api
             return analytics;
         }
 
+        /// <summary>
+        /// Gets analytic urls for one or more of the authenticated user's extensions.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<Data<ExtensionAnalytics>>
+        GetExtensionAnalytics(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
+        {
+            IHelixResponse<Data<ExtensionAnalytics>> analytics = GetExtensionAnalyticsAsync(bearer_token, client_id, settings).Result;
+
+            return analytics;
+        }
+
+        /// <summary>
+        /// Gets analytic urls for one or more of the authenticated user's extensions.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<Data<ExtensionAnalytics>>
+        GetExtensionAnalytics(string bearer_token, string client_id, ExtensionAnalyticsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        {
+            IHelixResponse<Data<ExtensionAnalytics>> analytics = GetExtensionAnalyticsAsync(bearer_token, client_id, parameters, settings).Result;
+
+            return analytics;
+        }
+
+        #endregion
+
+        #region /analytics/games
+
+        /// <summary>
+        /// Gets a single page of analytic urls for one or more of the authenticated user's games.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<Data<GameAnalytics>>
+        GetGameAnalyticsPage(string bearer_token, RequestSettings settings = null)
+        {
+            IHelixResponse<Data<GameAnalytics>> respose = GetGameAnalyticsPageAsync(bearer_token, settings).Result;
+
+            return respose;
+        }
+
+        /// <summary>
+        /// Gets a single page of analytic urls for one or more of the authenticated user's games.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<Data<GameAnalytics>>
+        GetGameAnalyticsPage(string bearer_token, GameAnalyticsQueryParameters parameters, RequestSettings settings = null)
+        {
+            IHelixResponse<Data<GameAnalytics>> respose = GetGameAnalyticsPageAsync(bearer_token, parameters, settings).Result;
+
+            return respose;
+        }
+
+        /// <summary>
+        /// Gets a single page of analytic urls for one or more of the authenticated user's games.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<Data<GameAnalytics>>
+        GetGameAnalyticsPage(string bearer_token, string client_id, RequestSettings settings = null)
+        {
+            IHelixResponse<Data<GameAnalytics>> respose = GetGameAnalyticsPageAsync(bearer_token, client_id, settings).Result;
+
+            return respose;
+        }
+
+        /// <summary>
+        /// Gets a single page of analytic urls for one or more of the authenticated user's games.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<Data<GameAnalytics>>
+        GetGameAnalyticsPage(string bearer_token, string client_id, GameAnalyticsQueryParameters parameters, RequestSettings settings = null)
+        {
+            IHelixResponse<Data<GameAnalytics>> respose = GetGameAnalyticsPageAsync(bearer_token, client_id, parameters, settings).Result;
+
+            return respose;
+        }
+
+        /// <summary>
+        /// Gets a complete list of analytic urls for one or more of the authenticated user's games.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<DataPage<GameAnalytics>>
+        GetGameAnalytics(string bearer_token, RequestSettings settings = null)
+        {
+            IHelixResponse<DataPage<GameAnalytics>> respose = GetGameAnalyticsAsync(bearer_token, settings).Result;
+
+            return respose;
+        }
+
+        /// <summary>
+        /// Gets a complete list of analytic urls for one or more of the authenticated user's games.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<DataPage<GameAnalytics>>
+        GetGameAnalytics(string bearer_token, GameAnalyticsQueryParameters parameters, RequestSettings settings = null)
+        {
+            IHelixResponse<DataPage<GameAnalytics>> respose = GetGameAnalyticsAsync(bearer_token, parameters, settings).Result;
+
+            return respose;
+        }
+
+        /// <summary>
+        /// Gets a complete list of analytic urls for one or more of the authenticated user's games.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<DataPage<GameAnalytics>>
+        GetGameAnalytics(string bearer_token, string client_id, RequestSettings settings = null)
+        {
+            IHelixResponse<DataPage<GameAnalytics>> respose = GetGameAnalyticsAsync(bearer_token, client_id, settings).Result;
+
+            return respose;
+        }
+
+        /// <summary>
+        /// Gets a complete list of analytic urls for one or more of the authenticated user's games.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<DataPage<GameAnalytics>>
+        GetGameAnalytics(string bearer_token, string client_id, GameAnalyticsQueryParameters parameters, RequestSettings settings = null)
+        {
+            IHelixResponse<DataPage<GameAnalytics>> respose = GetGameAnalyticsAsync(bearer_token, client_id, parameters, settings).Result;
+
+            return respose;
+        }
+
         #endregion
 
         #region /clips

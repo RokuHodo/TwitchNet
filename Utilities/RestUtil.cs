@@ -108,47 +108,70 @@ TwitchNet.Utilities
         public static RestRequest
         AddPaging(this RestRequest request, object parameters)
         {
-            if (parameters.IsNull())
+            if (request.IsNull() || parameters.IsNull())
             {
                 return request;
             }
 
-            PropertyInfo[] properties = parameters.GetType().GetProperties<QueryParameterAttribute>();
-            if (!properties.IsValid())
+            MemberInfo[] members = parameters.GetType().GetMembers<QueryParameterAttribute>();
+            if (!members.IsValid())
             {
                 return request;
             }
 
-            foreach (PropertyInfo property in properties)
+            foreach (MemberInfo member in members)
             {
-                if (property.IsNull())
+                if (member.IsNull())
+                {
+                    continue;
+                }
+                
+                PropertyInfo property = member as PropertyInfo;
+                FieldInfo field = member as FieldInfo;
+
+                Type member_type;
+                object member_value;
+                if (!property.IsNull())
+                {
+                    member_type = property.PropertyType;
+                    member_value = property.GetValue(parameters);
+                }
+                else if (!field.IsNull())
+                {
+                    member_type = field.FieldType;
+                    member_value = field.GetValue(parameters);
+                }
+                else
                 {
                     continue;
                 }
 
-                object value = property.GetValue(parameters);
-                if (value.IsNull())
+                if (member_value.IsNull())
                 {
                     continue;
                 }
 
-                Type property_type = property.PropertyType.IsNullable() ? Nullable.GetUnderlyingType(property.PropertyType) : property.PropertyType;
+                member_type = member_type.IsNullable() ? Nullable.GetUnderlyingType(member_type) : member_type;
+                if (member_type.IsNull())
+                {
+                    continue;
+                }
 
-                QueryParameterAttribute attribute = property.GetAttribute<QueryParameterAttribute>();
+                QueryParameterAttribute attribute = member_type.GetAttribute<QueryParameterAttribute>();
                 if (!attribute.name.IsValid())
                 {
                     continue;
                 }
 
-                Type formatter_type = attribute.formatter.IsNull() ? typeof(SingleValueFormatter) : attribute.formatter;
+                Type formatter_type = attribute.formatter.IsNull() ? typeof(ValueTypeQueryFormatter) : attribute.formatter;
 
                 QueryParameterFormatter formatter = QUERY_FORMATTER_CACHE.GetOrAdd(formatter_type, AddQueryFormatter);
-                if (!formatter.CanFormat(property_type))
+                if (!formatter.CanFormat(member_type))
                 {
                     continue;
                 }
 
-                request = formatter.FormatAddValue(request, attribute.name, property_type, value);
+                request = formatter.FormatAndAdd(request, attribute.name, member_type, member_value);
             }
 
             return request;

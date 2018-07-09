@@ -4,8 +4,8 @@ using System;
 namespace
 TwitchNet.Rest
 {
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    internal sealed class
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
+    public sealed class
     QueryParameterAttribute : Attribute
     {
         /// <summary>

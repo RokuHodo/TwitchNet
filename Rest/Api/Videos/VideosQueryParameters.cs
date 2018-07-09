@@ -43,7 +43,7 @@ TwitchNet.Rest.Api.Videos
         /// If more than 100 id's are specified, only the first 100 will be added.
         /// </para>
         /// </summary>
-        [QueryParameter("id", typeof(SeparateValuesListFormatter))]
+        [QueryParameter("id", typeof(SeparateQueryFormatter))]
         public List<string> ids
         {
             get
@@ -77,8 +77,9 @@ TwitchNet.Rest.Api.Videos
 
         /// <summary>
         /// The type of the video.
+        /// Bitfield enum.
         /// </summary>
-        [QueryParameter("type", typeof(SeparateValuesListFormatter))]
+        [QueryParameter("type", typeof(SeparateQueryFormatter))]
         public VideoType?           type        { get; set; }
 
         /// <summary>

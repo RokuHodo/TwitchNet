@@ -1,9 +1,13 @@
-﻿// imported .dll's
+﻿// project namespaces
+using TwitchNet.Helpers.Json;
+
+// imported .dll's
 using Newtonsoft.Json;
 
 namespace
 TwitchNet.Rest.Api.Analytics
 {
+    [JsonConverter(typeof(EnumConverter))]
     public class
     GameAnalytics
     {

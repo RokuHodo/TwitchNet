@@ -1,16 +1,22 @@
 ﻿// standard namespaces
 using System;
 
+// project namespaces
+using TwitchNet.Extensions;
+using TwitchNet.Utilities;
+
 // imported .dll's
 using RestSharp;
 
 namespace TwitchNet.Rest
 {
-    public abstract class
-    QueryParameterFormatter
+    /// <summary>
+    /// Adds value types and strings to the <see cref="RestRequest"/> as a single query parameters.
+    /// </summary>
+    public class ValueTypeQueryFormatter : QueryParameterFormatter
     {
         /// <summary>
-        /// Formats the value of a member marked with <see cref="QueryParameterAttribute"/> and adds it to the <see cref="RestRequest"/>.
+        /// Adds value types and strings to the <see cref="RestRequest"/> as a single query parameters.
         /// </summary>
         /// <param name="request">
         /// <para>The request to be executed.</para>
@@ -32,11 +38,31 @@ namespace TwitchNet.Rest
         /// <para>This member value will never be null and will always be instantiated.</para>
         /// </param>
         /// <returns>Returns the rest request.</returns>
-        public abstract RestRequest
-        FormatAndAdd(RestRequest request, string query_name, Type member_type, object member_value);
+        public override RestRequest
+        FormatAndAdd(RestRequest request, string query_name, Type member_type, object member_value)
+        {
+            string result = string.Empty;
+            if (member_type.IsEnum)
+            {
+                EnumUtil.TryGetName(member_type, member_value, out result);
+            }
+            else
+            {
+                result = member_value.ToString();
+            }
+
+            if (!result.IsValid())
+            {
+                return request;
+            }
+
+            request.AddQueryParameter(query_name, result);
+
+            return request;
+        }
 
         /// <summary>
-        /// Determines if the member marked with <see cref="QueryParameterAttribute"/> can/should be formatted.
+        /// Determines if the member marked with <see cref="QueryParameterAttribute"/> can/should be formatted using this formatter.
         /// </summary>
         /// <param name="member_type">
         /// <para>The type of the member marked with <see cref="QueryParameterAttribute"/>.</para>
@@ -46,10 +72,13 @@ namespace TwitchNet.Rest
         /// </para>
         /// </param>
         /// <returns>
-        /// Returns true of the member can be formatted.
+        /// Returns true of the member is an enum, value type, string.
         /// Returns false otherwise.
         /// </returns>
-        public abstract bool
-        CanFormat(Type member_type);
+        public override bool
+        CanFormat(Type member_type)
+        {
+            return member_type.IsEnum || member_type.IsValueType || member_type == typeof(string);
+        }
     }
 }

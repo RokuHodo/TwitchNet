@@ -20,7 +20,7 @@ TwitchNet.Rest.Api
         #region /analytics/extensions
 
         /// <summary>
-        /// Asynchronously gets analytic urls for all devloper extensions.
+        /// Asynchronously gets analytic urls for one or more of the authenticated user's extensions.
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
@@ -37,7 +37,7 @@ TwitchNet.Rest.Api
         }
 
         /// <summary>
-        /// Asynchronously gets analytic urls for one or more devloper extension.
+        /// Asynchronously gets analytic urls for one or more of the authenticated user's extensions.
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
@@ -52,6 +52,198 @@ TwitchNet.Rest.Api
             IHelixResponse<Data<ExtensionAnalytics>> analytics = await TwitchApiInternal.GetExtensionAnalyticsAsync(request_info, parameters, settings);
 
             return analytics;
+        }
+
+        /// <summary>
+        /// Asynchronously gets analytic urls for one or more of the authenticated user's extensions.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static async Task<IHelixResponse<Data<ExtensionAnalytics>>>
+        GetExtensionAnalyticsAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
+        {
+            HelixInfo request_info = new HelixInfo();
+            request_info.bearer_token   = bearer_token;
+            request_info.client_id      = client_id;
+
+            IHelixResponse<Data<ExtensionAnalytics>> analytics = await TwitchApiInternal.GetExtensionAnalyticsAsync(request_info, default(ExtensionAnalyticsQueryParameters), settings);
+
+            return analytics;
+        }
+
+        /// <summary>
+        /// Asynchronously gets analytic urls for one or more of the authenticated user's extensions.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static async Task<IHelixResponse<Data<ExtensionAnalytics>>>
+        GetExtensionAnalyticsAsync(string bearer_token, string client_id, ExtensionAnalyticsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        {
+            HelixInfo request_info = new HelixInfo();
+            request_info.bearer_token   = bearer_token;
+            request_info.client_id      = client_id;
+
+            IHelixResponse<Data<ExtensionAnalytics>> analytics = await TwitchApiInternal.GetExtensionAnalyticsAsync(request_info, parameters, settings);
+
+            return analytics;
+        }
+
+        #endregion
+
+        // TODO: Test if I actually get around to making a game.. or ask someone who has :)
+        #region /analytics/games
+
+        /// <summary>
+        /// Asynchronously gets a single page of analytic urls for one or more of the authenticated user's games.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static async Task<IHelixResponse<Data<GameAnalytics>>>
+        GetGameAnalyticsPageAsync(string bearer_token, RequestSettings settings = null)
+        {
+            HelixInfo request_info = new HelixInfo();
+            request_info.bearer_token = bearer_token;
+
+            IHelixResponse<Data<GameAnalytics>> respose = await TwitchApiInternal.GetGameAnalyticsPageAsync(request_info, default(GameAnalyticsQueryParameters), settings);
+
+            return respose;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a single page of analytic urls for one or more of the authenticated user's games.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static async Task<IHelixResponse<Data<GameAnalytics>>>
+        GetGameAnalyticsPageAsync(string bearer_token, GameAnalyticsQueryParameters parameters, RequestSettings settings = null)
+        {
+            HelixInfo request_info = new HelixInfo();
+            request_info.bearer_token = bearer_token;
+
+            IHelixResponse<Data<GameAnalytics>> respose = await TwitchApiInternal.GetGameAnalyticsPageAsync(request_info, parameters, settings);
+
+            return respose;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a single page of analytic urls for one or more of the authenticated user's games.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static async Task<IHelixResponse<Data<GameAnalytics>>>
+        GetGameAnalyticsPageAsync(string bearer_token, string client_id, RequestSettings settings = null)
+        {
+            HelixInfo request_info = new HelixInfo();
+            request_info.bearer_token   = bearer_token;
+            request_info.client_id      = client_id;
+
+            IHelixResponse<Data<GameAnalytics>> respose = await TwitchApiInternal.GetGameAnalyticsPageAsync(request_info, default(GameAnalyticsQueryParameters), settings);
+
+            return respose;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a single page of analytic urls for one or more of the authenticated user's games.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static async Task<IHelixResponse<Data<GameAnalytics>>>
+        GetGameAnalyticsPageAsync(string bearer_token, string client_id, GameAnalyticsQueryParameters parameters, RequestSettings settings = null)
+        {
+            HelixInfo request_info = new HelixInfo();
+            request_info.bearer_token   = bearer_token;
+            request_info.client_id      = client_id;
+
+            IHelixResponse<Data<GameAnalytics>> respose = await TwitchApiInternal.GetGameAnalyticsPageAsync(request_info, parameters, settings);
+
+            return respose;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a complete list of analytic urls for one or more of the authenticated user's games.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
+        GetGameAnalyticsAsync(string bearer_token, RequestSettings settings = null)
+        {
+            HelixInfo request_info = new HelixInfo();
+            request_info.bearer_token = bearer_token;
+
+            IHelixResponse<DataPage<GameAnalytics>> respose = await TwitchApiInternal.GetGameAnalyticsAsync(request_info, default(GameAnalyticsQueryParameters), settings);
+
+            return respose;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a complete list of analytic urls for one or more of the authenticated user's games.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
+        GetGameAnalyticsAsync(string bearer_token, GameAnalyticsQueryParameters parameters, RequestSettings settings = null)
+        {
+            HelixInfo request_info = new HelixInfo();
+            request_info.bearer_token = bearer_token;
+
+            IHelixResponse<DataPage<GameAnalytics>> respose = await TwitchApiInternal.GetGameAnalyticsAsync(request_info, parameters, settings);
+
+            return respose;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a complete list of analytic urls for one or more of the authenticated user's games.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
+        GetGameAnalyticsAsync(string bearer_token, string client_id, RequestSettings settings = null)
+        {
+            HelixInfo request_info = new HelixInfo();
+            request_info.bearer_token = bearer_token;
+            request_info.client_id = client_id;
+
+            IHelixResponse<DataPage<GameAnalytics>> respose = await TwitchApiInternal.GetGameAnalyticsAsync(request_info, default(GameAnalyticsQueryParameters), settings);
+
+            return respose;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a complete list of analytic urls for one or more of the authenticated user's games.
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
+        GetGameAnalyticsAsync(string bearer_token, string client_id, GameAnalyticsQueryParameters parameters, RequestSettings settings = null)
+        {
+            HelixInfo request_info = new HelixInfo();
+            request_info.bearer_token = bearer_token;
+            request_info.client_id = client_id;
+
+            IHelixResponse<DataPage<GameAnalytics>> respose = await TwitchApiInternal.GetGameAnalyticsAsync(request_info, parameters, settings);
+
+            return respose;
         }
 
         #endregion

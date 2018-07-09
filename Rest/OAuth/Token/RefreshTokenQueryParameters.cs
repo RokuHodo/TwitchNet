@@ -15,7 +15,7 @@ namespace TwitchNet.Rest.OAuth.Token
         /// <summary>
         /// The entire set or sub-set of scopes assigned to the original token grant.
         /// </summary>
-        [QueryParameter("scope", typeof(SpaceSeparatedListFormatter))]
+        [QueryParameter("scope", typeof(DelineatedQueryFormatter))]
         public Scopes scopes        { get; set; }
 
         /// <summary>

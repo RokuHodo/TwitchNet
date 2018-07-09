@@ -20,7 +20,7 @@ TwitchNet.Rest.Api.Users
         /// If more than 100 id's are specified, only the first 100 will be added.
         /// </para>
         /// </summary>
-        [QueryParameter("id", typeof(SeparateValuesListFormatter))]
+        [QueryParameter("id", typeof(SeparateQueryFormatter))]
         public List<string> ids
         {
             get
@@ -40,7 +40,7 @@ TwitchNet.Rest.Api.Users
         /// If more than 100 logins are specified, only the first 100 will be added.
         /// </para>
         /// </summary>
-        [QueryParameter("login", typeof(SeparateValuesListFormatter))]
+        [QueryParameter("login", typeof(SeparateQueryFormatter))]
         public List<string> logins
         {
             get

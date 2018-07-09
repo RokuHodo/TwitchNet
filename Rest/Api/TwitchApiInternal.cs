@@ -29,13 +29,13 @@ TwitchNet.Rest.Api
 
         #endregion
 
-        // TODO: /analytics/games
         // TODO: /bits/leaderboard
+        // TODO: /users/extensions
 
         #region /analytics/extensions
 
         /// <summary>
-        /// Asynchronously gets analytic urls for one or more devloper extension.
+        /// Asynchronously gets analytic urls for one or more devloper extensions.
         /// </summary>
         /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
@@ -55,6 +55,88 @@ TwitchNet.Rest.Api
             Tuple<IRestResponse<Data<ExtensionAnalytics>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<ExtensionAnalytics>>(client_info, request, settings);
 
             IHelixResponse<Data<ExtensionAnalytics>> respose = new HelixResponse<Data<ExtensionAnalytics>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return respose;
+        }
+
+        #endregion
+
+        #region /analytics/games
+
+        /// <summary>
+        /// Asynchronously gets a single page of analytic urls for one or more devloper games.
+        /// </summary>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<Data<GameAnalytics>>>
+        GetGameAnalyticsPageAsync(HelixInfo helix_info, GameAnalyticsQueryParameters parameters, RequestSettings settings = null)
+        {
+            if (settings.IsNull())
+            {
+                settings = RequestSettings.Default;
+            }
+
+            if(settings.input_hanlding == InputHandling.Error)
+            {
+                if ((!parameters.started_at.IsNull() && parameters.ended_at.IsNull()) ||
+                    !parameters.ended_at.IsNull() && parameters.started_at.IsNull())
+                {
+                    throw new ArgumentException(nameof(parameters.started_at).WrapQuotes() + " and " + nameof(parameters.ended_at).WrapQuotes() + " must be specified together.");
+                }
+            }
+
+            RestRequest request = RestUtil.CretaeHelixRequest("analytics/games", Method.GET, helix_info, settings);
+            request = request.AddPaging(parameters);
+
+            Tuple<IRestResponse<Data<GameAnalytics>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<GameAnalytics>>(client_info, request, settings);
+
+            IHelixResponse<Data<GameAnalytics>> respose = new HelixResponse<Data<GameAnalytics>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return respose;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a single page of analytic urls for one or more devloper games.
+        /// </summary>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
+        /// <param name="parameters">
+        /// A set of query parameters to customize the request.
+        /// <see cref="GameAnalyticsQueryParameters.game_id"/> is ignored if specified.
+        /// </param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<DataPage<GameAnalytics>>>
+        GetGameAnalyticsAsync(HelixInfo helix_info, GameAnalyticsQueryParameters parameters, RequestSettings settings = null)
+        {
+            if (settings.IsNull())
+            {
+                settings = RequestSettings.Default;
+            }
+
+            if (settings.input_hanlding == InputHandling.Error)
+            {
+                if ((!parameters.started_at.IsNull() && parameters.ended_at.IsNull()) ||
+                    !parameters.ended_at.IsNull() && parameters.started_at.IsNull())
+                {
+                    throw new ArgumentException(nameof(parameters.started_at).WrapQuotes() + " and " + nameof(parameters.ended_at).WrapQuotes() + " must be specified together.");
+                }
+            }
+
+            // Make sure the user doesn't accidentally break shit.
+            if (parameters.IsNull())
+            {
+                parameters = new GameAnalyticsQueryParameters();
+            }
+            parameters.game_id = string.Empty;
+
+            RestRequest request = RestUtil.CretaeHelixRequest("analytics/games", Method.GET, helix_info, settings);
+            request = request.AddPaging(parameters);
+
+            Tuple<IRestResponse<DataPage<GameAnalytics>>, RestException, RateLimit> tuple = await RestUtil.TraceExecuteAsync<GameAnalytics, DataPage<GameAnalytics>>(client_info, request, parameters, settings);
+
+            IHelixResponse<DataPage<GameAnalytics>> respose = new HelixResponse<DataPage<GameAnalytics>>(tuple.Item1, tuple.Item2, tuple.Item3);
 
             return respose;
         }

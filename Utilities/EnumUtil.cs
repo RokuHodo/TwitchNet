@@ -36,6 +36,8 @@ TwitchNet.Utilities
             /// </summary>
             public object value;
 
+            public object[] values;
+
             /// <summary>
             /// The detailed inner exception.
             /// </summary>
@@ -277,7 +279,7 @@ TwitchNet.Utilities
             /// Gets the names of the individual flags set in a bitfield enum.
             /// </summary>
             /// <param name="value">The bitfield enum value to get the names of.</param>
-            /// <returns>Returns the names of the individual flags that are set in the specified bitfield enum value</returns>
+            /// <returns>Returns the names of the individual flags that are set in the specified bitfield enum value.</returns>
             /// <exception cref="ArgumentNullException">Thrown if the specified value is null.</exception>
             /// <exception cref="ArgumentException">
             /// Thrown if no names or values exist in the enum.
@@ -346,10 +348,10 @@ TwitchNet.Utilities
 
                 if (!is_flags)
                 {
-                    enum_result.inner_exception = new ArgumentException("The enum " + type.ToString().WrapQuotes() + " is not a bitfield enum.");
+                    enum_result.inner_exception = new ArgumentException("The enum type " + type.ToString().WrapQuotes() + " is not a bitfield enum.");
 
                     return false;
-                }                
+                }          
 
                 IList<int> indicies = GetFlagIndicies(_value);
                 if (!indicies.IsValid())
@@ -366,6 +368,101 @@ TwitchNet.Utilities
                 }
 
                 enum_result.names = _names.ToArray();
+
+                return true;
+            }
+
+            /// <summary>
+            /// Gets the values of the individual flags set in a bitfield enum.
+            /// </summary>
+            /// <param name="value">The bitfield enum value to get the names of.</param>
+            /// <returns>Returns the values of the individual flags that are set in the specified bitfield enum value.</returns>
+            /// <exception cref="ArgumentNullException">Thrown if the specified value is null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if no names or values exist in the enum.
+            /// Thrown if the specified value cannot be converted to a UInt64.
+            /// Thrown if the enum is not a bitfield.
+            /// Thrown if no flags were set or one or more flags in the specified value could not be converted.
+            /// </exception>
+            public object[]
+            GetFlagValues(object value)
+            {
+                EnumResult enum_result = new EnumResult();
+
+                if (!TryGetFlagValuesInternal(value, ref enum_result))
+                {
+                    enum_result.Throw("The values of the individual flags set in the bitfield enum value of type " + type.Name.WrapQuotes() + " could not be obtained.");
+                }
+
+                return enum_result.values;
+            }
+
+            /// <summary>
+            /// Attempts to get the values of the individual flags set in a bitfield enum.
+            /// </summary>
+            /// <param name="value">The bitfield enum value to get the names of.</param>
+            /// <param name="result">The values of the individual flags that are set in the specified bitfield enum value.</param>
+            /// <returns>
+            /// Returns true if all set flags could be found and were resolved into values.
+            /// Returns false otherwise.
+            /// </returns>
+            public bool
+            TryGetFlagValues(object value, out object[] result)
+            {
+                EnumResult enum_result = new EnumResult();
+
+                bool success = TryGetFlagValuesInternal(value, ref enum_result);
+                result = enum_result.values;
+
+                return success;
+            }
+
+            /// <summary>
+            /// Attempts to get the values of the individual flags set in a bitfield enum value.
+            /// </summary>
+            /// <param name="value">The bitfield enum value to get the names of.</param>
+            /// <param name="enum_result">The internal enum result used for error handling.</param>
+            /// <returns>
+            /// Returns true if all set flags could be found and were resolved into values.
+            /// Returns false otherwise.
+            /// </returns>
+            private bool
+            TryGetFlagValuesInternal(object value, ref EnumResult enum_result)
+            {
+                if (!PassesCommonChecks(value, ref enum_result))
+                {
+                    return false;
+                }
+
+                if (!TryToUInt64(type_code, value, out ulong _value))
+                {
+                    enum_result.inner_exception = new ArgumentException("Failed to convert specified value " + value.ToString().WrapQuotes() + " to UInt64.");
+
+                    return false;
+                }
+
+                if (!is_flags)
+                {
+                    enum_result.inner_exception = new ArgumentException("The enum type " + type.ToString().WrapQuotes() + " is not a bitfield enum.");
+
+                    return false;
+                }
+
+                IList<int> indicies = GetFlagIndicies(_value);
+                if (!indicies.IsValid())
+                {
+                    enum_result.inner_exception = new ArgumentException("No flags were set or one or more flags in the specified value " + value.ToString().WrapQuotes() + " could not be found.");
+
+                    return false;
+                }
+
+                List<object> _flags = new List<object>();
+                foreach (int index in indicies)
+                {
+                    _flags.Add(Enum.ToObject(type, resolved_values[index]));
+                }
+
+                enum_result.values = _flags.ToArray();
 
                 return true;
             }
@@ -957,7 +1054,10 @@ TwitchNet.Utilities
         /// Restricted to a struct.
         /// </typeparam>
         /// <param name="value">The bitfield enum value to get the names of.</param>
-        /// <param name="result">The names of the individual flags that are set in the specified bitfield enum value.</param>
+        /// <param name="result">
+        /// Set to the names of the individual flags that are set in the specified bitfield enum value, if successful.
+        /// Set to an empty array otherwise.
+        /// </param>
         /// <returns>
         /// Returns true if all set flags could be found and were resolved into names.
         /// Returns false otherwise.
@@ -974,7 +1074,10 @@ TwitchNet.Utilities
         /// </summary>
         /// <param name="type">The enum's type.</param>
         /// <param name="value">The bitfield enum value to get the names of.</param>
-        /// <param name="result">The names of the individual flags that are set in the specified bitfield enum value.</param>
+        /// <param name="result">
+        /// Set to the names of the individual flags that are set in the specified bitfield enum value, if successful.
+        /// Set to an empty array otherwise.
+        /// </param>
         /// <returns>
         /// Returns true if all set flags could be found and were resolved into names.
         /// Returns false otherwise.
@@ -991,6 +1094,120 @@ TwitchNet.Utilities
 
             EnumTypeCache cache = GetOrAddCache(type);
             bool success = cache.TryGetFlagNames(value, out result);
+
+            return success;
+        }
+
+        /// <summary>
+        /// Gets the values of the individual flags set in a bitfield enum.
+        /// </summary>
+        /// <typeparam name="enum_type">
+        /// The enum's generic type.
+        /// Restricted to a struct.
+        /// </typeparam>
+        /// <param name="value">The bitfield enum value to get the names of.</param>
+        /// <returns>The values of the individual flags that are set in the specified bitfield enum value.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if the type is null.
+        /// Thrown if the specified value is null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown if the type is not an enum.
+        /// Thrown if no names or values exist in the enum.
+        /// Thrown if the specified value cannot be converted to a UInt64.
+        /// Thrown if the enum is not a bitfield.
+        /// Thrown if no flags were set or one or more flags in the specified value could not be converted.
+        /// </exception>
+        public static enum_type[]
+        GetFlagValues<enum_type>(object value)
+        where enum_type : struct
+        {
+            object[] _result = GetFlagValues(typeof(enum_type), value);
+
+            enum_type[] result = new enum_type[_result.Length];
+            for (int index = 0; index < result.Length; ++index)
+            {
+                result[index] = (enum_type)_result[index];
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Gets the values of the individual flags set in a bitfield enum.
+        /// </summary>
+        /// <param name="type">The enum's type.</param>
+        /// <param name="value">The bitfield enum value to get the names of.</param>
+        /// <returns>The values of the individual flags that are set in the specified bitfield enum value.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if the type is null.
+        /// Thrown if the specified value is null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown if the type is not an enum.
+        /// Thrown if no names or values exist in the enum.
+        /// Thrown if the specified value cannot be converted to a UInt64.
+        /// Thrown if the enum is not a bitfield.
+        /// Thrown if no flags were set or one or more flags in the specified value could not be converted.
+        /// </exception>
+        public static object[]
+        GetFlagValues(Type type, object value)
+        {
+            EnumTypeCache cache = GetOrAddCache(type);
+            object[] result = cache.GetFlagValues(value);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Attempts to get the values of the individual flags set in a bitfield enum.
+        /// </summary>
+        /// <typeparam name="enum_type">
+        /// The enum's generic type.
+        /// Restricted to a struct.
+        /// </typeparam>
+        /// <param name="value">The bitfield enum value to get the names of.</param>
+        /// <param name="result">The values of the individual flags that are set in the specified bitfield enum value.</param>
+        /// <returns>
+        /// Returns true if all set flags could be found and were resolved into values.
+        /// Returns false otherwise.
+        /// </returns>
+        public static bool
+        TryGetFlagValues<enum_type>(object value, out enum_type[] result)
+        {
+            bool success = TryGetFlagValues(typeof(enum_type), value, out object[] _result);
+
+            result = new enum_type[_result.Length];
+            for(int index = 0; index < result.Length; ++index)
+            {
+                result[index] = (enum_type)_result[index];
+            }
+
+            return success;
+        }
+
+        /// <summary>
+        /// Attempts to get the values of the individual flags set in a bitfield enum.
+        /// </summary>
+        /// <param name="type">The enum's type.</param>
+        /// <param name="value">The bitfield enum value to get the names of.</param>
+        /// <param name="result">The values of the individual flags that are set in the specified bitfield enum value.</param>
+        /// <returns>
+        /// Returns true if all set flags could be found and were resolved into values.
+        /// Returns false otherwise.
+        /// </returns>
+        public static bool
+        TryGetFlagValues(Type type, object value, out object[] result)
+        {
+            if (type.IsNull() || !type.IsEnum || !type.HasAttribute<FlagsAttribute>())
+            {
+                result = new object[0];
+
+                return false;
+            }
+
+            EnumTypeCache cache = GetOrAddCache(type);
+            bool success = cache.TryGetFlagValues(value, out result);
 
             return success;
         }
@@ -1230,119 +1447,6 @@ TwitchNet.Utilities
             bool success = cache.TryParse(value, ignore_case, out result);
 
             return success;
-        }
-
-        // TODO: Move into EnumTypeCache
-
-        /// <summary>
-        /// Gets the individual flags of a bitfield enum that are set.
-        /// </summary>
-        /// <typeparam name="enum_type">
-        /// The enum's generic type.
-        /// Restricted to a struct.
-        /// </typeparam>
-        /// <param name="value">The bitfield enumn value.</param>
-        /// <returns>Returns the individual flags of a bitfield enum that are set.</returns>
-        /// <exception cref="ArgumentException">
-        /// Thrown if the type is not an enum.
-        /// Thrown if no names or values exist in the enum.
-        /// Thrown if the specified value could not be converted to a UInt64.
-        /// Thrown if the specified value is not a set of flags, no flags were set, or one or more flags could not be found.
-        /// </exception>
-        public static enum_type[]
-        GetFlagValues<enum_type>(enum_type value)
-        where enum_type : struct
-        {
-            Type type = typeof(enum_type);
-
-            if (!type.HasAttribute<FlagsAttribute>())
-            {
-                ArgumentException inner_exception = new ArgumentException("The type of specified value " + typeof(enum_type).Name.WrapQuotes() + " is not a bitfield enum.");
-                throw new NotSupportedException("Could not get the flags from the specified value.", inner_exception);
-            }
-
-            if (!TryToUInt64(Type.GetTypeCode(type), value, out ulong _value))
-            {
-                ArgumentException inner_exception = new ArgumentException("The specified value " + value.ToString() + " could not be converted to a UInt64.");
-                throw new NotSupportedException("Could not get the flags from the specified value.", inner_exception);
-            }            
-
-            EnumTypeCache cache = GetOrAddCache<enum_type>();
-
-            IList<int> indicies = cache.GetFlagIndicies(_value);
-            if (!indicies.IsValid())
-            {
-                ArgumentException inner_exception = new ArgumentException("The specified value " + value.ToString() + " did not have any flags set or one or more flags could not be found.");
-                throw new Exception("Could not get the flags from the specified value.", inner_exception);
-            }
-
-            List<enum_type> _flags = new List<enum_type>();
-            foreach (int index in indicies)
-            {
-                _flags.Add((enum_type)cache.values.GetValue(index));
-            }
-
-            return _flags.ToArray();
-        }
-
-        /// <summary>
-        /// Attempts to get the individual flags of a bitfield enum that are set.
-        /// </summary>
-        /// <typeparam name="enum_type">
-        /// The enum's generic type.
-        /// Restricted to a struct.
-        /// </typeparam>
-        /// <param name="value">The bitfield enumn value.</param>
-        /// <param name="flags">The individual flags that are set.</param>
-        /// <returns>
-        /// Returns true if all flags could be found.
-        /// Returns false otherwise.
-        /// </returns>
-        public static bool
-        TryGetFlagValues<enum_type>(enum_type value, out enum_type[] flags)
-        where enum_type : struct
-        {
-            Type type = typeof(enum_type);
-            if (!type.IsEnum)
-            {
-                flags = new enum_type[0];
-
-                return false;
-            }
-
-            if (!type.HasAttribute<FlagsAttribute>())
-            {
-                flags = new enum_type[0];
-
-                return false;
-            }
-
-            if (!TryToUInt64(Type.GetTypeCode(value.GetType()), value, out ulong _value))
-            {
-                flags = new enum_type[0];
-
-                return false;
-            }            
-
-            EnumTypeCache cache = GetOrAddCache<enum_type>();
-
-            IList<int> indicies = cache.GetFlagIndicies(_value);
-            if (!indicies.IsValid())
-            {
-                flags = new enum_type[0];
-
-                return false;
-            }
-
-            List<enum_type> _flags = new List<enum_type>();
-            foreach(int index in indicies)
-            {
-                _flags.Add((enum_type)cache.values.GetValue(index));
-            }
-
-            flags = _flags.ToArray();
-
-            return true;
         }
 
         /// <summary>

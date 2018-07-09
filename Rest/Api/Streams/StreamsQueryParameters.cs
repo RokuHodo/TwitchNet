@@ -20,7 +20,7 @@ TwitchNet.Rest.Api.Streams
         /// Maximum: 100 id's.
         /// If more than 100 id's are specified, only the first 100 will be added.
         /// </summary>
-        [QueryParameter("community_id", typeof(SeparateValuesListFormatter))]
+        [QueryParameter("community_id", typeof(SeparateQueryFormatter))]
         public List<string> community_ids
         {
             get
@@ -38,7 +38,7 @@ TwitchNet.Rest.Api.Streams
         /// Maximum: 100 id's.
         /// If more than 100 id's are specified, only the first 100 will be added.
         /// </summary>
-        [QueryParameter("game_id", typeof(SeparateValuesListFormatter))]
+        [QueryParameter("game_id", typeof(SeparateQueryFormatter))]
         public List<string> game_ids
         {
             get
@@ -56,13 +56,14 @@ TwitchNet.Rest.Api.Streams
         /// This is the language selected at the home page, not the language found in the Twitch dashboard.
         /// Bitfield enum.
         /// </summary>
-        [QueryParameter("language")]
+        [QueryParameter("language", typeof(SeparateQueryFormatter))]
         public StreamLanguage? language { get; set; }
 
         /// <summary>
-        /// The stream type. Bitfield enum.
+        /// The stream type.
+        /// Bitfield enum.
         /// </summary>
-        [QueryParameter("type")]
+        [QueryParameter("type", typeof(SeparateQueryFormatter))]
         public StreamType? type { get; set; }
 
         /// <summary>
@@ -70,7 +71,7 @@ TwitchNet.Rest.Api.Streams
         /// Maximum: 100 id's.
         /// If more than 100 id's are specified, only the first 100 will be added.
         /// </summary>
-        [QueryParameter("user_id", typeof(SeparateValuesListFormatter))]
+        [QueryParameter("user_id", typeof(SeparateQueryFormatter))]
         public List<string> user_ids
         {
             get
@@ -88,7 +89,7 @@ TwitchNet.Rest.Api.Streams
         /// Maximum: 100 names.
         /// If more than 100 names are specified, only the first 100 will be added.
         /// </summary>
-        [QueryParameter("user_login", typeof(SeparateValuesListFormatter))]
+        [QueryParameter("user_login", typeof(SeparateQueryFormatter))]
         public List<string> user_logins
         {
             get

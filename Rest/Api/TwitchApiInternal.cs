@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 // project namespaces
 using TwitchNet.Extensions;
 using TwitchNet.Rest.Api.Analytics;
+using TwitchNet.Rest.Api.Bits;
 using TwitchNet.Rest.Api.Clips;
 using TwitchNet.Rest.Api.Entitlements;
 using TwitchNet.Rest.Api.Games;
@@ -29,13 +30,13 @@ TwitchNet.Rest.Api
 
         #endregion
 
-        // TODO: /bits/leaderboard
         // TODO: /users/extensions
 
         #region /analytics/extensions
 
         /// <summary>
-        /// Asynchronously gets analytic urls for one or more devloper extensions.
+        /// <para>Asynchronously gets analytic urls for one or more devloper extensions.</para>
+        /// <para>Required Scope: 'analytics:read:extensions'</para>
         /// </summary>
         /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
@@ -64,7 +65,8 @@ TwitchNet.Rest.Api
         #region /analytics/games
 
         /// <summary>
-        /// Asynchronously gets a single page of analytic urls for one or more devloper games.
+        /// <para>Asynchronously gets a single page of analytic urls for one or more devloper games.</para>
+        /// <para>Required Scope: 'analytics:read:games'</para>
         /// </summary>
         /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
@@ -98,7 +100,8 @@ TwitchNet.Rest.Api
         }
 
         /// <summary>
-        /// Asynchronously gets a single page of analytic urls for one or more devloper games.
+        /// <para>Asynchronously gets a complete list of analytic urls for one or more devloper games.</para>
+        /// <para>Required Scope: 'analytics:read:games'</para>
         /// </summary>
         /// <param name="helix_info">The information needed to make the rest request.</param>
         /// <param name="parameters">
@@ -137,6 +140,41 @@ TwitchNet.Rest.Api
             Tuple<IRestResponse<DataPage<GameAnalytics>>, RestException, RateLimit> tuple = await RestUtil.TraceExecuteAsync<GameAnalytics, DataPage<GameAnalytics>>(client_info, request, parameters, settings);
 
             IHelixResponse<DataPage<GameAnalytics>> respose = new HelixResponse<DataPage<GameAnalytics>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return respose;
+        }
+
+        #endregion
+
+        #region bits/leaderboard
+
+        /// <summary>
+        /// <para>Asynchronously gets a ranked list of bits leaderboard information for an authorized broadcaster.</para>
+        /// <para>Required Scope: 'bits:read'</para>
+        /// </summary>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<BitsLeaderboardData<BitsUser>>>
+        GetBitsLeaderboardAsync(HelixInfo helix_info, BitsLeaderboardQueryParameters parameters, RequestSettings settings = null)
+        {
+            if (settings.IsNull())
+            {
+                settings = RequestSettings.Default;
+            }
+
+            if (!parameters.IsNull() && parameters.period == BitsLeaderboardPeriod.All)
+            {
+                parameters.started_at = null;
+            }
+
+            RestRequest request = RestUtil.CretaeHelixRequest("bits/leaderboard", Method.GET, helix_info, settings);
+            request = request.AddPaging(parameters);
+
+            Tuple<IRestResponse<BitsLeaderboardData<BitsUser>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<BitsLeaderboardData<BitsUser>>(client_info, request, settings);
+
+            IHelixResponse<BitsLeaderboardData<BitsUser>> respose = new HelixResponse<BitsLeaderboardData<BitsUser>>(tuple.Item1, tuple.Item2, tuple.Item3);
 
             return respose;
         }

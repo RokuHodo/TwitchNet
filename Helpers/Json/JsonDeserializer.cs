@@ -24,7 +24,6 @@ TwitchNet.Helpers.Json
         Deserialize<return_type>(IRestResponse response)
         {
             JsonSerializerSettings settings = new JsonSerializerSettings();
-
             settings.NullValueHandling      = NullValueHandling.Ignore;
             settings.DateParseHandling      = DateParseHandling.DateTime;
             settings.DateTimeZoneHandling   = DateTimeZoneHandling.Local;

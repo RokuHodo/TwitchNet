@@ -5,19 +5,19 @@ using System;
 using Newtonsoft.Json;
 
 namespace
-TwitchNet.Rest.Api.Analytics
+TwitchNet.Rest.Api
 {
     public class
     DateRange
     {
         /// <summary>
-        /// The report start date/time.
+        /// The start date/time period for the returned data.
         /// </summary>
         [JsonProperty("started_at")]
         public DateTime started_at { get; protected set; }
 
         /// <summary>
-        /// The report end date/time.
+        /// The end date/time period for the returned data.
         /// </summary>
         [JsonProperty("ended_at")]
         public DateTime ended_at  { get; protected set; }

@@ -125,23 +125,34 @@ TwitchNet.Utilities
                 {
                     continue;
                 }
-                
-                PropertyInfo property = member as PropertyInfo;
-                FieldInfo field = member as FieldInfo;
 
                 Type member_type;
                 object member_value;
+                QueryParameterAttribute attribute;
+
+                PropertyInfo property = member as PropertyInfo;
+                FieldInfo field = member as FieldInfo;
+
                 if (!property.IsNull())
                 {
                     member_type = property.PropertyType;
                     member_value = property.GetValue(parameters);
+
+                    attribute = property.GetAttribute<QueryParameterAttribute>();
                 }
                 else if (!field.IsNull())
                 {
                     member_type = field.FieldType;
                     member_value = field.GetValue(parameters);
+
+                    attribute = field.GetAttribute<QueryParameterAttribute>();
                 }
                 else
+                {
+                    continue;
+                }
+
+                if (!attribute.name.IsValid())
                 {
                     continue;
                 }
@@ -157,12 +168,7 @@ TwitchNet.Utilities
                     continue;
                 }
 
-                QueryParameterAttribute attribute = member_type.GetAttribute<QueryParameterAttribute>();
-                if (!attribute.name.IsValid())
-                {
-                    continue;
-                }
-
+                // TODO: Make sure te type is assignable from QueryParameterFormatter
                 Type formatter_type = attribute.formatter.IsNull() ? typeof(ValueTypeQueryFormatter) : attribute.formatter;
 
                 QueryParameterFormatter formatter = QUERY_FORMATTER_CACHE.GetOrAdd(formatter_type, AddQueryFormatter);

@@ -21,33 +21,59 @@ TwitchNet.Rest
         Other = 0,
 
         /// <summary>
-        /// analytics:read:games
+        /// <para>analytics:read:extensions</para>
+        /// <para>Allows extension analytic data to be obtained.</para>
+        /// </summary>
+        [EnumMember(Value = "analytics:read:extensions")]
+        AnalyticsReadExtensions = 1 << 0,
+
+        /// <summary>
+        /// <para>analytics:read:games</para>
+        /// <para>Allows game analytic data to be obtained.</para>
         /// </summary>
         [EnumMember(Value = "analytics:read:games")]
-        AnalyticsReadGames  = 1 << 0,
+        AnalyticsReadGames      = 1 << 1,
 
         /// <summary>
-        /// bits:read
+        /// <para>bits:read</para>
+        /// <para>Allows bits information to be obtained.</para>
         /// </summary>
         [EnumMember(Value = "bits:read")]
-        BitsRead            = 1 << 1,
+        BitsRead                = 1 << 2,
 
         /// <summary>
-        /// clips:edit
+        /// <para>clips:edit</para>
+        /// <para>Allows for clips to be edited.</para>
         /// </summary>
         [EnumMember(Value = "clips:edit")]
-        ClipsEdit           = 1<< 2,
+        ClipsEdit               = 1<< 3,
 
         /// <summary>
-        /// user:edit
+        /// <para>user:edit</para>
+        /// <para>Allows the user's information to be changed.</para>
         /// </summary>
         [EnumMember(Value = "user:edit")]
-        UserEdit            = 1 << 3,
+        UserEdit                = 1 << 4,
 
         /// <summary>
-        /// user:read:email
+        /// <para>user:edit:broadcast</para>
+        /// <para>Allows the channel's broadcast configuration to be changes, including extensions.</para>
+        /// </summary>
+        [EnumMember(Value = "user:edit:broadcast")]
+        UserEditBroadcast       = 1 << 5,
+
+        /// <summary>
+        /// <para>user:edit:broadcast</para>
+        /// <para>Allows the channel's broadcast configuration to be changes, including extensions.</para>
+        /// </summary>
+        [EnumMember(Value = "user:read:broadcast")]
+        UserReadBroadcast       = 1 << 6,
+
+        /// <summary>
+        /// <para>user:read:email</para>
+        /// <para>Allows for the user's email address to be obtained.</para>
         /// </summary>
         [EnumMember(Value = "user:read:email")]
-        UserReadEmail       = 1 << 4
+        UserReadEmail           = 1 << 7
     }
 }

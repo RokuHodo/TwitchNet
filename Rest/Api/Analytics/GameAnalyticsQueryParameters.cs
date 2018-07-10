@@ -19,7 +19,7 @@ TwitchNet.Rest.Api.Clips
 
         /// <summary>
         /// <para>The start date/time for the requested report(s). If <see cref="started_at"/> is specified, <see cref="ended_at"/> must also be specified.</para>
-        /// <para>If <see cref="ended_at"/> is earlier than the default start date, the default start date is used.</para>
+        /// <para>If <see cref="started_at"/> is earlier than the default start date, the default start date is used.</para>
         /// </summary>
         [QueryParameter("started_at", typeof(RFC3339QueryFormatter))]
         public DateTime?            started_at  { get; set; }

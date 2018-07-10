@@ -57,12 +57,16 @@
     <Compile Include="Debugger\ErrorLevel.cs" />
     <Compile Include="Debugger\TimeStamp.cs" />
     <Compile Include="Helpers\Json\EnumConverter.cs" />
-    <Compile Include="Rest\Api\Analytics\DateRange.cs" />
+    <Compile Include="Rest\Api\Bits\BitsLeaderboardData.cs" />
+    <Compile Include="Rest\Api\Bits\BitsLeaderboardPeriod.cs" />
+    <Compile Include="Rest\Api\Bits\BitsLeaderboardQueryParameters.cs" />
+    <Compile Include="Rest\Api\DateRange.cs" />
     <Compile Include="Rest\Api\Analytics\GameAnalyticsQueryParameters.cs" />
     <Compile Include="Rest\Api\Analytics\GameAnalytics.cs" />
     <Compile Include="Rest\Api\Analytics\ExtensionAnalyticsQueryParameters.cs" />
     <Compile Include="Rest\Api\Analytics\ExtensionAnalytics.cs" />
     <Compile Include="Rest\Api\Analytics\GameAnalyticsType.cs" />
+    <Compile Include="Rest\Api\Bits\BitsUser.cs" />
     <Compile Include="Rest\Api\TwitchApi.Sync.cs" />
     <Compile Include="Rest\Api\TwitchApi.Async.cs" />
     <Compile Include="Rest\Api\TwitchApiOAuth.Sync.cs" />

@@ -1,5 +1,6 @@
 ﻿// project namespaces
 using TwitchNet.Rest.Api.Analytics;
+using TwitchNet.Rest.Api.Bits;
 using TwitchNet.Rest.Api.Clips;
 using TwitchNet.Rest.Api.Entitlements;
 using TwitchNet.Rest.Api.Games;
@@ -16,7 +17,8 @@ TwitchNet.Rest.Api
         #region /analytics/extensions
 
         /// <summary>
-        /// Gets analytic urls for all devloper extensions.
+        /// <para>Gets analytic urls for one or more devloper extensions.</para>
+        /// <para>Required Scope: 'analytics:read:extensions'</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
@@ -30,7 +32,8 @@ TwitchNet.Rest.Api
         }
 
         /// <summary>
-        /// Asynchronously gets analytic urls for one or more devloper extension.
+        /// <para>Gets analytic urls for one or more devloper extensions.</para>
+        /// <para>Required Scope: 'analytics:read:extensions'</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
@@ -45,7 +48,8 @@ TwitchNet.Rest.Api
         }
 
         /// <summary>
-        /// Gets analytic urls for one or more of the authenticated user's extensions.
+        /// <para>Gets analytic urls for one or more devloper extensions.</para>
+        /// <para>Required Scope: 'analytics:read:extensions'</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
@@ -60,7 +64,8 @@ TwitchNet.Rest.Api
         }
 
         /// <summary>
-        /// Gets analytic urls for one or more of the authenticated user's extensions.
+        /// <para>Gets analytic urls for one or more devloper extensions.</para>
+        /// <para>Required Scope: 'analytics:read:extensions'</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
@@ -80,7 +85,8 @@ TwitchNet.Rest.Api
         #region /analytics/games
 
         /// <summary>
-        /// Gets a single page of analytic urls for one or more of the authenticated user's games.
+        /// <para>Gets a single page of analytic urls for one or more devloper games.</para>
+        /// <para>Required Scope: 'analytics:read:games'</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
@@ -94,7 +100,8 @@ TwitchNet.Rest.Api
         }
 
         /// <summary>
-        /// Gets a single page of analytic urls for one or more of the authenticated user's games.
+        /// <para>Gets a single page of analytic urls for one or more devloper games.</para>
+        /// <para>Required Scope: 'analytics:read:games'</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
@@ -109,7 +116,8 @@ TwitchNet.Rest.Api
         }
 
         /// <summary>
-        /// Gets a single page of analytic urls for one or more of the authenticated user's games.
+        /// <para>Gets a single page of analytic urls for one or more devloper games.</para>
+        /// <para>Required Scope: 'analytics:read:games'</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
@@ -124,7 +132,8 @@ TwitchNet.Rest.Api
         }
 
         /// <summary>
-        /// Gets a single page of analytic urls for one or more of the authenticated user's games.
+        /// <para>Gets a single page of analytic urls for one or more devloper games.</para>
+        /// <para>Required Scope: 'analytics:read:games'</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
@@ -140,7 +149,8 @@ TwitchNet.Rest.Api
         }
 
         /// <summary>
-        /// Gets a complete list of analytic urls for one or more of the authenticated user's games.
+        /// <para>Gets a complete list of analytic urls for one or more devloper games.</para>
+        /// <para>Required Scope: 'analytics:read:games'</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
@@ -154,7 +164,8 @@ TwitchNet.Rest.Api
         }
 
         /// <summary>
-        /// Gets a complete list of analytic urls for one or more of the authenticated user's games.
+        /// <para>Gets a complete list of analytic urls for one or more devloper games.</para>
+        /// <para>Required Scope: 'analytics:read:games'</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="parameters">A set of query parameters to customize the request.</param>
@@ -169,7 +180,8 @@ TwitchNet.Rest.Api
         }
 
         /// <summary>
-        /// Gets a complete list of analytic urls for one or more of the authenticated user's games.
+        /// <para>Gets a complete list of analytic urls for one or more devloper games.</para>
+        /// <para>Required Scope: 'analytics:read:games'</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
@@ -184,7 +196,8 @@ TwitchNet.Rest.Api
         }
 
         /// <summary>
-        /// Gets a complete list of analytic urls for one or more of the authenticated user's games.
+        /// <para>Gets a complete list of analytic urls for one or more devloper games.</para>
+        /// <para>Required Scope: 'analytics:read:games'</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
@@ -195,6 +208,74 @@ TwitchNet.Rest.Api
         GetGameAnalytics(string bearer_token, string client_id, GameAnalyticsQueryParameters parameters, RequestSettings settings = null)
         {
             IHelixResponse<DataPage<GameAnalytics>> respose = GetGameAnalyticsAsync(bearer_token, client_id, parameters, settings).Result;
+
+            return respose;
+        }
+
+        #endregion
+
+        #region bits/leaderboard
+
+        /// <summary>
+        /// <para>Gets a ranked list of bits leaderboard information for an authorized broadcaster.</para>
+        /// <para>Required Scope: 'bits:read'</para>
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<BitsLeaderboardData<BitsUser>>
+        GetBitsLeaderboard(string bearer_token, RequestSettings settings = null)
+        {
+            IHelixResponse<BitsLeaderboardData<BitsUser>> respose = GetBitsLeaderboardAsync(bearer_token, settings).Result;
+
+            return respose;
+        }
+
+        /// <summary>
+        /// <para>Gets a ranked list of bits leaderboard information for an authorized broadcaster.</para>
+        /// <para>Required Scope: 'bits:read'</para>
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<BitsLeaderboardData<BitsUser>>
+        GetBitsLeaderboard(string bearer_token, BitsLeaderboardQueryParameters parameters, RequestSettings settings = null)
+        {
+            IHelixResponse<BitsLeaderboardData<BitsUser>> respose = GetBitsLeaderboardAsync(bearer_token, parameters, settings).Result;
+
+            return respose;
+        }
+
+        /// <summary>
+        /// <para>Gets a ranked list of bits leaderboard information for an authorized broadcaster.</para>
+        /// <para>Required Scope: 'bits:read'</para>
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<BitsLeaderboardData<BitsUser>>
+        GetBitsLeaderboard(string bearer_token, string client_id, RequestSettings settings = null)
+        {
+            IHelixResponse<BitsLeaderboardData<BitsUser>> respose = GetBitsLeaderboardAsync(bearer_token, client_id, settings).Result;
+
+            return respose;
+        }
+
+        /// <summary>
+        /// <para>Gets a ranked list of bits leaderboard information for an authorized broadcaster.</para>
+        /// <para>Required Scope: 'bits:read'</para>
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<BitsLeaderboardData<BitsUser>>
+        GetBitsLeaderboard(string bearer_token, string client_id, BitsLeaderboardQueryParameters parameters, RequestSettings settings = null)
+        {
+            IHelixResponse<BitsLeaderboardData<BitsUser>> respose = GetBitsLeaderboardAsync(bearer_token, client_id, parameters, settings).Result;
 
             return respose;
         }

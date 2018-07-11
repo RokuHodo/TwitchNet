@@ -81,6 +81,12 @@
     <Compile Include="Debugger\ValidateObjectAttribute.cs" />
     <Compile Include="Debugger\ValidateMemberAttribute.cs" />
     <Compile Include="Rest\Api\Entitlements\EntitlementType.cs" />
+    <Compile Include="Rest\Api\Users\ActiveExtensionsData.cs" />
+    <Compile Include="Rest\Api\Users\ActiveExtensionsTypes.cs" />
+    <Compile Include="Rest\Api\Users\ActiveExtension.cs" />
+    <Compile Include="Rest\Api\Users\ExtensionType.cs" />
+    <Compile Include="Rest\Api\Users\Extension.cs" />
+    <Compile Include="Rest\Api\Users\ActiveExtensionsQueryParameters.cs" />
     <Compile Include="Rest\CommaDelineatedQueryFormatter.cs" />
     <Compile Include="Rest\RFC3339QueryFormatter.cs" />
     <Compile Include="Rest\SpaceDelineatedQueryFormatter.cs" />

@@ -944,6 +944,160 @@ TwitchNet.Rest.Api
 
         #endregion
 
+        #region /users/extensions
+
+        /// <summary>
+        /// <para>
+        /// Gets a list of active extensions installed by a user.
+        /// The user is identified either by user ID or by the provided Bearer token.
+        /// </para>
+        /// <para>Optional Scope: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<ActiveExtensionsData>
+        GetUserActiveExtensions(string bearer_token, RequestSettings settings = default(RequestSettings))
+        {
+            IHelixResponse<ActiveExtensionsData> response = GetUserActiveExtensionsAsync(bearer_token, settings).Result;
+
+            return response;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Asynchronously gets a list of active extensions installed by a user.
+        /// The user is identified either by user ID or by the provided Bearer token.
+        /// </para>
+        /// <para>Optional Scope: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<ActiveExtensionsData>
+        GetUserActiveExtensions(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
+        {
+            IHelixResponse<ActiveExtensionsData> response = GetUserActiveExtensionsAsync(bearer_token, client_id, settings).Result;
+
+            return response;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Gets a list of active extensions installed by a user.
+        /// The user is identified either by user ID or by the provided Bearer token.
+        /// </para>
+        /// <para>Optional Scope: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<ActiveExtensionsData>
+        GetUserActiveExtensions(string bearer_token, ActiveExtensionsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        {
+            IHelixResponse<ActiveExtensionsData> response = GetUserActiveExtensionsAsync(bearer_token, parameters, settings).Result;
+
+            return response;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Gets a list of active extensions installed by a user.
+        /// The user is identified either by user ID or by the provided Bearer token.
+        /// </para>
+        /// <para>Optional Scope: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<ActiveExtensionsData>
+        GetUserActiveExtensions(string bearer_token, string client_id, ActiveExtensionsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        {
+            IHelixResponse<ActiveExtensionsData> response = GetUserActiveExtensionsAsync(bearer_token, client_id, parameters, settings).Result;
+
+            return response;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Updates the active extensions for a user identified by a user ID or by the provided Bearer token.
+        /// The activation state, extension ID, verison number, or x/y coordinates (components only) can be updated.
+        /// </para>
+        /// <para>Required Scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
+        /// <param name="data">The updated extension information.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<ActiveExtensionsData>
+        UpdateUserActiveExtensions(string bearer_token, ActiveExtensionsData data, RequestSettings settings = default(RequestSettings))
+        {
+            IHelixResponse<ActiveExtensionsData> response = UpdateUserActiveExtensionsAsync(bearer_token, data, settings).Result;
+
+            return response;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Updates the active extensions for a user identified by a user ID or by the provided Bearer token.
+        /// The activation state, extension ID, verison number, or x/y coordinates (components only) can be updated.
+        /// </para>
+        /// <para>Required Scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="data">The updated extension information.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<ActiveExtensionsData>
+        UpdateUserActiveExtensions(string bearer_token, string client_id, ActiveExtensionsData data, RequestSettings settings = default(RequestSettings))
+        {
+            IHelixResponse<ActiveExtensionsData> response = UpdateUserActiveExtensionsAsync(bearer_token, client_id, data, settings).Result;
+
+            return response;
+        }
+
+        #endregion
+
+        #region /users/extensions/list
+
+        /// <summary>
+        /// <para>Gets a list of all extensions a user has installed, active or inactive.</para>
+        /// <para>Required Scope: 'user:read:broadcast'</para>
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<Data<Extension>>
+        GetUserExtensions(string bearer_token, RequestSettings settings = default(RequestSettings))
+        {
+            IHelixResponse<Data<Extension>> response = GetUserExtensionsAsync(bearer_token, settings).Result;
+
+            return response;
+        }
+
+        /// <summary>
+        /// <para>Asynchronously gets a list of all extensions a user has installed, active or inactive.</para>
+        /// <para>Required Scope: 'user:read:broadcast'</para>
+        /// </summary>
+        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static IHelixResponse<Data<Extension>>
+        GetUserExtensions(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
+        {
+            IHelixResponse<Data<Extension>> response = GetUserExtensionsAsync(bearer_token, client_id, settings).Result;
+
+            return response;
+        }
+
+        #endregion
+
         #region /users/follows
 
         /// <summary>

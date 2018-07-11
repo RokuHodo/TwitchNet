@@ -317,6 +317,29 @@ TwitchNet.Rest.Api
 
         #endregion
 
+        #region /users/extensions
+
+        /// <summary>
+        /// Asynchronously gets a list of active extensions installed by a user.
+        /// The user is identified either by user ID or by the provided Bearer token.
+        /// </summary>
+        /// <param name="client_id">The Client ID to identify the application making the request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        public static async Task<IHelixResponse<ActiveExtensionsData>>
+        GetUserActiveExtensionsAsync(string client_id, ActiveExtensionsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        {
+            HelixInfo request_info = new HelixInfo();
+            request_info.client_id = client_id;
+
+            IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.GetUserActiveExtensionsAsync(request_info, parameters, settings);
+
+            return response;
+        }
+
+        #endregion
+
         #region /users/follows
 
         /// <summary>

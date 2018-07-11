@@ -286,6 +286,7 @@ TwitchNet.Utilities
         private static async Task<Tuple<IRestResponse<result_type>, RestException, RateLimit>>
         HandleResponse<result_type>(ClientInfo client_info, IRestResponse<result_type> response, RequestSettings settings)
         {
+            // TODO: Exception thrown is not descriptive enough. 
             RestException exception = GetRestException(response);
             RateLimit rate_limit = new RateLimit(response.Headers);
             Tuple<IRestResponse<result_type>, RestException, RateLimit> tuple = Tuple.Create(response, exception, rate_limit);

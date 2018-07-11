@@ -31,7 +31,6 @@ TwitchNet.Rest.Api.Bits
             }
         }
 
-
         /// <summary>
         /// <para>The time period over which data is aggregated according to started_at.</para>
         /// <para>If set to all, started_at is ignored.</para>

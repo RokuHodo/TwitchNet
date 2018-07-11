@@ -30,8 +30,6 @@ TwitchNet.Rest.Api
 
         #endregion
 
-        // TODO: /users/extensions
-
         #region /analytics/extensions
 
         /// <summary>
@@ -542,6 +540,111 @@ TwitchNet.Rest.Api
 
         #endregion
 
+        #region /users/extensions
+
+        /// <summary>
+        /// <para>
+        /// Asynchronously gets a list of active extensions installed by a user.
+        /// The user is identified either by user ID or by the provided Bearer token.
+        /// </para>
+        /// <para>Optional Scope: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
+        /// </summary>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
+        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<ActiveExtensionsData>>
+        GetUserActiveExtensionsAsync(HelixInfo helix_info, ActiveExtensionsQueryParameters parameters, RequestSettings settings)
+        {
+            if (settings.IsNull())
+            {
+                settings = RequestSettings.Default;
+            }
+
+            if(settings.input_hanlding == InputHandling.Error)
+            {
+                if(!helix_info.bearer_token.IsValid() && helix_info.client_id.IsValid())
+                {
+                    ExceptionUtil.ThrowIfNull(parameters, nameof(parameters));
+                    ExceptionUtil.ThrowIfInvalid(parameters.user_id, nameof(parameters.user_id));
+                }
+            }
+
+            RestRequest request = RestUtil.CretaeHelixRequest("users/extensions", Method.GET, helix_info, settings);
+            request.AddPaging(parameters);
+
+            Tuple<IRestResponse<ActiveExtensionsData>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<ActiveExtensionsData>(client_info, request, settings);
+
+            IHelixResponse<ActiveExtensionsData> response = new HelixResponse<ActiveExtensionsData>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return response;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Asynchronously updates the active extensions for a user identified by a user ID or by the provided Bearer token.
+        /// The activation state, extension ID, verison number, or x/y coordinates (components only) can be updated.
+        /// </para>
+        /// <para>Required Scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
+        /// </summary>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
+        /// <param name="data">The updated extension information.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<ActiveExtensionsData>>
+        UpdateUserActiveExtensionsAsync(HelixInfo helix_info, ActiveExtensionsData data, RequestSettings settings)
+        {
+            if (settings.IsNull())
+            {
+                settings = RequestSettings.Default;
+            }
+
+            if(settings.input_hanlding == InputHandling.Error)
+            {
+                ExceptionUtil.ThrowIfNull(data, nameof(data));
+            }
+
+            RestRequest request = RestUtil.CretaeHelixRequest("users/extensions", Method.PUT, helix_info, settings);
+            request.RequestFormat = DataFormat.Json;
+            request.AddBody(data);
+
+            Tuple<IRestResponse<ActiveExtensionsData>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<ActiveExtensionsData>(client_info, request, settings);
+
+            IHelixResponse<ActiveExtensionsData> response = new HelixResponse<ActiveExtensionsData>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return response;
+        }
+
+        #endregion
+
+        #region /users/extensions/list
+
+        /// <summary>
+        /// <para>Asynchronously gets a list of all extensions a user has installed, active or inactive.</para>
+        /// <para>Required Scope: 'user:read:broadcast'</para>
+        /// </summary>
+        /// <param name="helix_info">The information needed to make the rest request.</param>
+        /// <param name="settings">Settings to customize how the API request is handled.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        internal static async Task<IHelixResponse<Data<Extension>>>
+        GetUserExtensionsAsync(HelixInfo helix_info, RequestSettings settings)
+        {
+            if (settings.IsNull())
+            {
+                settings = RequestSettings.Default;
+            }
+
+            RestRequest request = RestUtil.CretaeHelixRequest("users/extensions/list", Method.GET, helix_info, settings);
+
+            Tuple<IRestResponse<Data<Extension>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<Extension>>(client_info, request, settings);
+
+            IHelixResponse<Data<Extension>> response = new HelixResponse<Data<Extension>>(tuple.Item1, tuple.Item2, tuple.Item3);
+
+            return response;
+        }
+
+        #endregion
+
         #region /users/follows
 
         /// <summary>
@@ -659,7 +762,7 @@ TwitchNet.Rest.Api
             return is_following;
         }
 
-        #endregion        
+        #endregion
 
         #region /videos
 

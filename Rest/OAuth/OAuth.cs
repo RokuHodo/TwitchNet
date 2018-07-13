@@ -91,7 +91,7 @@ TwitchNet.Rest.OAuth
         /// <returns>Returns data that adheres to the <see cref="IOAuthResponse"/> interface.</returns>
         /// 
         public static IOAuthResponse
-        RefreshToken(string client_id, string refresh_token, RefreshTokenQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        RefreshToken(string client_id, string refresh_token, RefreshTokenParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IOAuthResponse response = RefreshTokenAsync(client_id, refresh_token, parameters, settings).Result;
 
@@ -111,9 +111,9 @@ TwitchNet.Rest.OAuth
         /// <param name="settings">Settings to customize how the request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IOAuthResponse"/> interface.</returns>
         /// <exception cref="ArgumentNullException">Thrown if the <paramref name="parameters"/> are null.</exception>
-        /// <exception cref="ArgumentException">Thrown if the <paramref name="client_id"/>, <paramref name="refresh_token"/>, or <see cref="RefreshTokenQueryParameters.client_secret"/> is null, empty, or only white space.</exception>
+        /// <exception cref="ArgumentException">Thrown if the <paramref name="client_id"/>, <paramref name="refresh_token"/>, or <see cref="RefreshTokenParameters.client_secret"/> is null, empty, or only white space.</exception>
         public static async Task<IOAuthResponse>
-        RefreshTokenAsync(string client_id, string refresh_token, RefreshTokenQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        RefreshTokenAsync(string client_id, string refresh_token, RefreshTokenParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             if (settings.IsNull())
             {

@@ -1,4 +1,5 @@
 ﻿// standard namespaces
+using System;
 using System.Runtime.Serialization;
 
 // project namespaces
@@ -10,6 +11,7 @@ using Newtonsoft.Json;
 namespace
 TwitchNet.Rest
 {
+    [Flags]
     [JsonConverter(typeof(EnumConverter))]
     public enum
     Scopes

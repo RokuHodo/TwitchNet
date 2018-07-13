@@ -89,7 +89,6 @@
     <Compile Include="Rest\Api\Users\ExtensionType.cs" />
     <Compile Include="Rest\Api\Users\Extension.cs" />
     <Compile Include="Rest\Api\Users\ActiveExtensionsParameters.cs" />
-    <Compile Include="Rest\CommaDelineatedQueryConverter.cs" />
     <Compile Include="Rest\DefaultBodyConverter.cs" />
     <Compile Include="Rest\RequestBodyAttribute.cs" />
     <Compile Include="Rest\RestParameterAttribute.cs" />
@@ -97,7 +96,7 @@
     <Compile Include="Rest\SpaceDelineatedQueryConverter.cs" />
     <Compile Include="Rest\SeparateQueryConverter.cs" />
     <Compile Include="Rest\DelineatedQueryConverter.cs" />
-    <Compile Include="Rest\OAuth\Token\RefreshTokenQueryParameters.cs" />
+    <Compile Include="Rest\OAuth\Token\RefreshTokenParameters.cs" />
     <Compile Include="Rest\RestParameterConverter.cs" />
     <Compile Include="Rest\DefaultQueryConverter.cs" />
     <Compile Include="Rest\Scopes.cs" />

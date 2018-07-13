@@ -19,7 +19,7 @@ using RestSharp;
 namespace
 TwitchNet.Utilities
 {
-    internal static class
+    public static class
     RestUtil
     {
         private static readonly ConcurrentDictionary<Type, RestParameterConverter> QUERY_FORMATTER_CACHE = new ConcurrentDictionary<Type, RestParameterConverter>();
@@ -154,7 +154,7 @@ TwitchNet.Utilities
 
                 // There might actually be times where value = null might be intentional. Allow it.
                 // IsAssignableFrom also takes care of null so we don't need to explicitly check for that
-                if (!attribute.name.IsValid() || !typeof(RestParameterConverter).IsAssignableFrom(attribute.converter))
+                if (!typeof(RestParameterConverter).IsAssignableFrom(attribute.converter))
                 {
                     continue;
                 }

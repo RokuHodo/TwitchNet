@@ -314,7 +314,7 @@ TwitchNet.Utilities
             {
                 EnumResult enum_result = new EnumResult();
 
-                bool success = TryGetNameInternal(value, ref enum_result);
+                bool success = TryGetFlagNamesInternal(value, ref enum_result);
                 result = enum_result.names;
 
                 return success;

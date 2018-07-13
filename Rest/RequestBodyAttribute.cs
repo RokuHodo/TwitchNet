@@ -14,7 +14,7 @@ TwitchNet.Rest
     public sealed class
     RequestBodyAttribute : RestParameterAttribute
     {
-        public RequestBodyAttribute(Type converter = null) : base(ParameterType.QueryString)
+        public RequestBodyAttribute(Type converter = null) : base(ParameterType.RequestBody)
         {
             this.converter = converter.IsNull() ? typeof(DefaultBodyConverter) : converter;
         }

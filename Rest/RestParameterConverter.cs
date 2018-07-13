@@ -40,7 +40,7 @@ namespace TwitchNet.Rest
         /// </para>
         /// </param>
         /// <returns>
-        /// Returns true of the member can be converted.
+        /// Returns true if the member can be converted.
         /// Returns false otherwise.
         /// </returns>
         public abstract bool

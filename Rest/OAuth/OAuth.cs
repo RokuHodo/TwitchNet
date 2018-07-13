@@ -86,7 +86,7 @@ TwitchNet.Rest.OAuth
         /// The token used to refresh the OAuth token.
         /// This is NOT the actual OAuth token being refreshed.
         /// </param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IOAuthResponse"/> interface.</returns>
         /// 
@@ -107,7 +107,7 @@ TwitchNet.Rest.OAuth
         /// The token used to refresh the OAuth token.
         /// This is NOT the actual OAuth token being refreshed.
         /// </param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IOAuthResponse"/> interface.</returns>
         /// <exception cref="ArgumentNullException">Thrown if the <paramref name="parameters"/> are null.</exception>

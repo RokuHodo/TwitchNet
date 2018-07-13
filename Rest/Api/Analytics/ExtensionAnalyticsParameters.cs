@@ -2,7 +2,7 @@
 TwitchNet.Rest.Api.Clips
 {
     public class
-    ExtensionAnalyticsQueryParameters
+    ExtensionAnalyticsParameters
     {
         /// <summary>
         /// <para>The ID of an extension.</para>
@@ -12,14 +12,6 @@ TwitchNet.Rest.Api.Clips
         /// </para>
         /// </summary>
         [QueryParameter("extension_id")]
-        public string extension_id { get; set; }
-
-        /// <summary>
-        /// Creates a new blank instance of the <see cref="ExtensionAnalyticsQueryParameters"/> class.
-        /// </summary>
-        public ExtensionAnalyticsQueryParameters()
-        {
-
-        }
+        public virtual string extension_id { get; set; }
     }
 }

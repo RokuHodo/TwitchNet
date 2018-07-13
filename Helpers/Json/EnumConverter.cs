@@ -35,7 +35,7 @@ TwitchNet.Helpers.Json
         /// <param name="serializer">The calling serializer.</param>
         /// <returns>Returns a <see cref="TimeSpan"/> object converted from the JSON object.</returns>
         public override object
-        ReadJson(JsonReader reader, Type object_type, object existing_value, JsonSerializer serializer)
+        ReadJson(JsonReader reader, Type object_type, object existing_value, Newtonsoft.Json.JsonSerializer serializer)
         {
             string name = reader.TokenType == JsonToken.Null ? string.Empty : reader.Value.ToString();
 
@@ -51,7 +51,7 @@ TwitchNet.Helpers.Json
         /// <param name="value">The value of the object to serialize</param>
         /// <param name="serializer">The calling serializer.</param>m>
         public override void
-        WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        WriteJson(JsonWriter writer, object value, Newtonsoft.Json.JsonSerializer serializer)
         {
             if (value.IsNull())
             {

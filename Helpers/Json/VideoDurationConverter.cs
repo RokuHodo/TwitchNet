@@ -34,7 +34,7 @@ TwitchNet.Helpers.Json
         /// <param name="serializer">The calling serializer.</param>
         /// <returns>Returns a <see cref="TimeSpan"/> object converted from the JSON object.</returns>
         public override object
-        ReadJson(JsonReader reader, Type object_type, object existing_value, JsonSerializer serializer)
+        ReadJson(JsonReader reader, Type object_type, object existing_value, Newtonsoft.Json.JsonSerializer serializer)
         {
             string value = reader.Value.ToString();
 
@@ -55,7 +55,7 @@ TwitchNet.Helpers.Json
         /// <param name="value">The value of the object to serialize</param>
         /// <param name="serializer">The calling serializer.</param>m>
         public override void
-        WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        WriteJson(JsonWriter writer, object value, Newtonsoft.Json.JsonSerializer serializer)
         {
             throw new NotImplementedException("Custom JsonWriter for converter " + nameof(VideoDurationConverter) + " not implemented because it is marked as read only. This writer will be skipped when called.");
         }

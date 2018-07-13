@@ -22,7 +22,7 @@ TwitchNet.Utilities
     internal static class
     RestUtil
     {
-        private static readonly ConcurrentDictionary<Type, QueryParameterFormatter> QUERY_FORMATTER_CACHE = new ConcurrentDictionary<Type, QueryParameterFormatter>();
+        private static readonly ConcurrentDictionary<Type, RestParameterConverter> QUERY_FORMATTER_CACHE = new ConcurrentDictionary<Type, RestParameterConverter>();
 
         public static async Task<Tuple<IRestResponse, RestException, RateLimit>>
         ExecuteAsync(ClientInfo client_info, IRestRequest request, RequestSettings settings)
@@ -113,7 +113,7 @@ TwitchNet.Utilities
                 return request;
             }
 
-            MemberInfo[] members = parameters.GetType().GetMembers<QueryParameterAttribute>();
+            MemberInfo[] members = parameters.GetType().GetMembers<RestParameterAttribute>();
             if (!members.IsValid())
             {
                 return request;
@@ -126,38 +126,35 @@ TwitchNet.Utilities
                     continue;
                 }
 
-                Type member_type;
-                object member_value;
-                QueryParameterAttribute attribute;
+                RestParameterAttribute attribute;               
 
-                PropertyInfo property = member as PropertyInfo;
-                FieldInfo field = member as FieldInfo;
+                Type    member_type;
+                object  member_value;
 
+                PropertyInfo    property    = member as PropertyInfo;
+                FieldInfo       field       = member as FieldInfo;
                 if (!property.IsNull())
                 {
-                    member_type = property.PropertyType;
-                    member_value = property.GetValue(parameters);
+                    attribute       = property.GetAttribute<RestParameterAttribute>();
 
-                    attribute = property.GetAttribute<QueryParameterAttribute>();
+                    member_type     = property.PropertyType;
+                    member_value    = property.GetValue(parameters);
                 }
                 else if (!field.IsNull())
                 {
-                    member_type = field.FieldType;
-                    member_value = field.GetValue(parameters);
+                    attribute       = field.GetAttribute<RestParameterAttribute>();
 
-                    attribute = field.GetAttribute<QueryParameterAttribute>();
+                    member_type     = field.FieldType;
+                    member_value    = field.GetValue(parameters);
                 }
                 else
                 {
                     continue;
                 }
 
-                if (!attribute.name.IsValid())
-                {
-                    continue;
-                }
-
-                if (member_value.IsNull())
+                // There might actually be times where value = null might be intentional. Allow it.
+                // IsAssignableFrom also takes care of null so we don't need to explicitly check for that
+                if (!attribute.name.IsValid() || !typeof(RestParameterConverter).IsAssignableFrom(attribute.converter))
                 {
                     continue;
                 }
@@ -168,25 +165,28 @@ TwitchNet.Utilities
                     continue;
                 }
 
-                // TODO: Make sure te type is assignable from QueryParameterFormatter
-                Type formatter_type = attribute.formatter.IsNull() ? typeof(ValueTypeQueryFormatter) : attribute.formatter;
+                Parameter parameter     = new Parameter();
+                parameter.Name          = attribute.name;
+                parameter.Type          = attribute.type;
+                parameter.ContentType   = attribute.content_type;
+                parameter.Value         = member_value;
 
-                QueryParameterFormatter formatter = QUERY_FORMATTER_CACHE.GetOrAdd(formatter_type, AddQueryFormatter);
-                if (!formatter.CanFormat(member_type))
+                RestParameterConverter converter = QUERY_FORMATTER_CACHE.GetOrAdd(attribute.converter, AddRestConverter);
+                if (!converter.CanConvert(parameter, member_type))
                 {
                     continue;
                 }
 
-                request = formatter.FormatAndAdd(request, attribute.name, member_type, member_value);
+                request = converter.AddParameter(request, parameter, member_type);
             }
 
             return request;
         }
 
-        private static QueryParameterFormatter
-        AddQueryFormatter(Type type)
+        private static RestParameterConverter
+        AddRestConverter(Type type)
         {
-            return (QueryParameterFormatter)Activator.CreateInstance(type);
+            return (RestParameterConverter)Activator.CreateInstance(type);
         }
 
         #endregion
@@ -406,7 +406,7 @@ TwitchNet.Utilities
         #region Helper methods
 
         public static RestRequest
-        CretaeHelixRequest(string endpoint, Method method, HelixInfo info, RequestSettings settings)
+        CreateHelixRequest(string endpoint, Method method, HelixInfo info, RequestSettings settings)
         {
             if (settings.IsNullOrDefault())
             {

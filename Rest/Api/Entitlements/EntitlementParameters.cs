@@ -4,26 +4,18 @@ namespace
 TwitchNet.Rest.Api.Entitlements
 {
     public class
-    EntitlementQueryParameters
+    EntitlementParameters
     {
         /// <summary>
         /// Unique identifier of the manifest file to be uploaded. Must be 1-64 characters.
         /// </summary>
         [QueryParameter("manifest_id")]
-        public string           manifest_id { get; set; }
+        public virtual string           manifest_id { get; set; }
 
         /// <summary>
         /// Determines the entitlement being dropped.
         /// </summary>
         [QueryParameter("type")]
-        public EntitlementType? type        { get; set; }
-
-        /// <summary>
-        /// Creates a new blank instance of the <see cref="EntitlementQueryParameters"/> class.
-        /// </summary>
-        public EntitlementQueryParameters()
-        {
-
-        }
+        public virtual EntitlementType? type        { get; set; }
     }
 }

@@ -8,7 +8,7 @@ namespace
 TwitchNet.Rest.Api.Users
 {
     public class
-    UsersQueryParameters
+    UsersParameters
     {
         private ClampedList<string> _ids    = new ClampedList<string>();
         private ClampedList<string> _logins = new ClampedList<string>();
@@ -20,8 +20,8 @@ TwitchNet.Rest.Api.Users
         /// If more than 100 id's are specified, only the first 100 will be added.
         /// </para>
         /// </summary>
-        [QueryParameter("id", typeof(SeparateQueryFormatter))]
-        public List<string> ids
+        [QueryParameter("id", typeof(SeparateQueryConverter))]
+        public virtual List<string> ids
         {
             get
             {
@@ -40,8 +40,8 @@ TwitchNet.Rest.Api.Users
         /// If more than 100 logins are specified, only the first 100 will be added.
         /// </para>
         /// </summary>
-        [QueryParameter("login", typeof(SeparateQueryFormatter))]
-        public List<string> logins
+        [QueryParameter("login", typeof(SeparateQueryConverter))]
+        public virtual List<string> logins
         {
             get
             {
@@ -51,14 +51,6 @@ TwitchNet.Rest.Api.Users
             {
                 _logins.values = value;
             }
-        }
-
-        /// <summary>
-        /// Creates a new blank instance of the <see cref="UsersQueryParameters"/> class.
-        /// </summary>
-        public UsersQueryParameters()
-        {
-
         }
     }
 }

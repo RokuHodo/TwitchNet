@@ -6,7 +6,7 @@ namespace
 TwitchNet.Rest.Api.Bits
 {
     public class
-    BitsLeaderboardQueryParameters
+    BitsLeaderboardParameters
     {
         private ClampedNumber<uint> _count = new  ClampedNumber<uint>(1, 100, 10);
 
@@ -19,7 +19,7 @@ TwitchNet.Rest.Api.Bits
         /// </para>
         /// </summary>
         [QueryParameter("count")]
-        public uint count
+        public virtual uint count
         {
             get
             {
@@ -36,7 +36,7 @@ TwitchNet.Rest.Api.Bits
         /// <para>If set to all, started_at is ignored.</para>
         /// </summary>
         [QueryParameter("period")]
-        public BitsLeaderboardPeriod    period      { get; set; }
+        public virtual BitsLeaderboardPeriod?   period      { get; set; }
 
         /// <summary>
         /// <para>The start date/time for the returned leaderboard data.</para>
@@ -45,8 +45,8 @@ TwitchNet.Rest.Api.Bits
         /// If period is set to <see cref="BitsLeaderboardPeriod.All"/>, started_at is ignored.
         /// </para>
         /// </summary>
-        [QueryParameter("started_at", typeof(RFC3339QueryFormatter))]
-        public DateTime?                started_at  { get; set; }
+        [QueryParameter("started_at", typeof(RFC3339QueryConverter))]
+        public virtual DateTime?                started_at  { get; set; }
 
         /// <summary>
         /// <para>The ID of the user who paid for the bits.</para>
@@ -56,14 +56,6 @@ TwitchNet.Rest.Api.Bits
         /// </para>
         /// </summary>
         [QueryParameter("user_id")]
-        public string                   user_id     { get; set; }
-
-        /// <summary>
-        /// Creates a new blank instance of the <see cref="BitsLeaderboardQueryParameters"/> class.
-        /// </summary>
-        public BitsLeaderboardQueryParameters()
-        {
-
-        }
+        public virtual string                   user_id     { get; set; }
     }
 }

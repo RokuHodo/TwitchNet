@@ -8,7 +8,7 @@ namespace
 TwitchNet.Rest.Api.Games
 {
     public class
-    GamesQueryParameters
+    GamesParameters
     {
         private ClampedList<string> _ids    = new ClampedList<string>();
         private ClampedList<string> _names  = new ClampedList<string>();
@@ -20,8 +20,8 @@ TwitchNet.Rest.Api.Games
         /// If more than 100 id's are specified, only the first 100 will be added.
         /// </para>
         /// </summary>
-        [QueryParameter("id", typeof(SeparateQueryFormatter))]
-        public List<string> ids
+        [QueryParameter("id", typeof(SeparateQueryConverter))]
+        public virtual List<string> ids
         {
             get
             {
@@ -43,8 +43,8 @@ TwitchNet.Rest.Api.Games
         /// If more than 100 names are specified, only the first 100 will be added.
         /// </para>
         /// </summary>
-        [QueryParameter("name", typeof(SeparateQueryFormatter))]
-        public List<string> names
+        [QueryParameter("name", typeof(SeparateQueryConverter))]
+        public virtual List<string> names
         {
             get
             {
@@ -54,14 +54,6 @@ TwitchNet.Rest.Api.Games
             {
                 _names.values = value;
             }
-        }
-
-        /// <summary>
-        /// Creates a new blank instance of the <see cref="GamesQueryParameters"/> class.
-        /// </summary>
-        public GamesQueryParameters()
-        {
-
         }
     }
 }

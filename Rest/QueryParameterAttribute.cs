@@ -1,36 +1,26 @@
 ﻿// standard namespaces
 using System;
 
+// project namespaces
+using TwitchNet.Extensions;
+
+// imported .dll's
+using RestSharp;
+
 namespace
 TwitchNet.Rest
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
     public sealed class
-    QueryParameterAttribute : Attribute
+    QueryParameterAttribute : RestParameterAttribute
     {
-        /// <summary>
-        /// The name of the query parameter.
-        /// </summary>
-        public string               name        { get; private set; }
-
-        /// <summary>
-        /// The function used to convert the reflected value into a string.
-        /// </summary>
-        public Type       formatter   { get; private set; }
-
         /// <summary>
         /// Creates a new instance of the <see cref="QueryParameterAttribute"/> class.
         /// </summary>
         /// <param name="name">The name of the query parameter.</param>
-        public QueryParameterAttribute(string name)
+        public QueryParameterAttribute(string name, Type converter = null) : base(name, ParameterType.QueryString)
         {
-            this.name = name;
-        }
-
-        /// <param name="type">The type of query parameter, and how to add it to the request.</param>
-        public QueryParameterAttribute(string name, Type formatter) : this(name)
-        {
-            this.formatter = formatter;
+            base.converter = converter.IsNull() ? typeof(DefaultQueryConverter) : converter;
         }
     }
 }

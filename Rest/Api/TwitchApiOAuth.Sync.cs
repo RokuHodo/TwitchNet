@@ -36,11 +36,11 @@ TwitchNet.Rest.Api
         /// <para>Required Scope: 'analytics:read:extensions'</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<Data<ExtensionAnalytics>>
-        GetExtensionAnalytics(string bearer_token, ExtensionAnalyticsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetExtensionAnalytics(string bearer_token, ExtensionAnalyticsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<Data<ExtensionAnalytics>> analytics = GetExtensionAnalyticsAsync(bearer_token, parameters, settings).Result;
 
@@ -69,11 +69,11 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<Data<ExtensionAnalytics>>
-        GetExtensionAnalytics(string bearer_token, string client_id, ExtensionAnalyticsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetExtensionAnalytics(string bearer_token, string client_id, ExtensionAnalyticsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<Data<ExtensionAnalytics>> analytics = GetExtensionAnalyticsAsync(bearer_token, client_id, parameters, settings).Result;
 
@@ -104,11 +104,11 @@ TwitchNet.Rest.Api
         /// <para>Required Scope: 'analytics:read:games'</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<Data<GameAnalytics>>
-        GetGameAnalyticsPage(string bearer_token, GameAnalyticsQueryParameters parameters, RequestSettings settings = null)
+        GetGameAnalyticsPage(string bearer_token, GameAnalyticsParameters parameters, RequestSettings settings = null)
         {
             IHelixResponse<Data<GameAnalytics>> respose = GetGameAnalyticsPageAsync(bearer_token, parameters, settings).Result;
 
@@ -137,11 +137,11 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<Data<GameAnalytics>>
-        GetGameAnalyticsPage(string bearer_token, string client_id, GameAnalyticsQueryParameters parameters, RequestSettings settings = null)
+        GetGameAnalyticsPage(string bearer_token, string client_id, GameAnalyticsParameters parameters, RequestSettings settings = null)
         {
             IHelixResponse<Data<GameAnalytics>> respose = GetGameAnalyticsPageAsync(bearer_token, client_id, parameters, settings).Result;
 
@@ -168,11 +168,11 @@ TwitchNet.Rest.Api
         /// <para>Required Scope: 'analytics:read:games'</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<DataPage<GameAnalytics>>
-        GetGameAnalytics(string bearer_token, GameAnalyticsQueryParameters parameters, RequestSettings settings = null)
+        GetGameAnalytics(string bearer_token, GameAnalyticsParameters parameters, RequestSettings settings = null)
         {
             IHelixResponse<DataPage<GameAnalytics>> respose = GetGameAnalyticsAsync(bearer_token, parameters, settings).Result;
 
@@ -201,11 +201,11 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<DataPage<GameAnalytics>>
-        GetGameAnalytics(string bearer_token, string client_id, GameAnalyticsQueryParameters parameters, RequestSettings settings = null)
+        GetGameAnalytics(string bearer_token, string client_id, GameAnalyticsParameters parameters, RequestSettings settings = null)
         {
             IHelixResponse<DataPage<GameAnalytics>> respose = GetGameAnalyticsAsync(bearer_token, client_id, parameters, settings).Result;
 
@@ -236,11 +236,11 @@ TwitchNet.Rest.Api
         /// <para>Required Scope: 'bits:read'</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<BitsLeaderboardData<BitsUser>>
-        GetBitsLeaderboard(string bearer_token, BitsLeaderboardQueryParameters parameters, RequestSettings settings = null)
+        GetBitsLeaderboard(string bearer_token, BitsLeaderboardParameters parameters, RequestSettings settings = null)
         {
             IHelixResponse<BitsLeaderboardData<BitsUser>> respose = GetBitsLeaderboardAsync(bearer_token, parameters, settings).Result;
 
@@ -269,11 +269,11 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<BitsLeaderboardData<BitsUser>>
-        GetBitsLeaderboard(string bearer_token, string client_id, BitsLeaderboardQueryParameters parameters, RequestSettings settings = null)
+        GetBitsLeaderboard(string bearer_token, string client_id, BitsLeaderboardParameters parameters, RequestSettings settings = null)
         {
             IHelixResponse<BitsLeaderboardData<BitsUser>> respose = GetBitsLeaderboardAsync(bearer_token, client_id, parameters, settings).Result;
 
@@ -289,11 +289,11 @@ TwitchNet.Rest.Api
         /// <para>Required Scope: 'clips:edit'.</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<Data<CreatedClip>>
-        CreateClip(string bearer_token, ClipCreationQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        CreateClip(string bearer_token, ClipCreationParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<Data<CreatedClip>> clip = CreateClipAsync(bearer_token, parameters, settings).Result;
 
@@ -306,11 +306,11 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<Data<CreatedClip>>
-        CreateClip(string bearer_token, string client_id, ClipCreationQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        CreateClip(string bearer_token, string client_id, ClipCreationParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<Data<CreatedClip>> clip = CreateClipAsync(bearer_token, client_id, parameters, settings).Result;
 
@@ -321,11 +321,11 @@ TwitchNet.Rest.Api
         /// Gets information about a clip.
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<Data<Clip>>
-        GetClip(string bearer_token, ClipQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetClip(string bearer_token, ClipParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<Data<Clip>> clip = GetClipAsync(bearer_token, parameters, settings).Result;
 
@@ -337,11 +337,11 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request and to authorize the request if no Bearer token was provided.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<Data<Clip>>
-        GetClip(string bearer_token, string client_id, ClipQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetClip(string bearer_token, string client_id, ClipParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<Data<Clip>> clip = GetClipAsync(bearer_token, client_id, parameters, settings).Result;
 
@@ -357,11 +357,11 @@ TwitchNet.Rest.Api
         /// <para>Required Authorization: Application Access Token</para>
         /// </summary>
         /// <param name="application_token">The application access token used to determine whose description to update and authorize the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<Data<Url>>
-        CreateEntitlementGrantsUploadUrl(string application_token, EntitlementQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        CreateEntitlementGrantsUploadUrl(string application_token, EntitlementParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<Data<Url>> url = CreateEntitlementGrantsUploadUrlAsync(application_token, parameters, settings).Result;
 
@@ -374,11 +374,11 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="application_token">The application access token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<Data<Url>>
-        CreateEntitlementGrantsUploadUrl(string application_token, string client_id, EntitlementQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        CreateEntitlementGrantsUploadUrl(string application_token, string client_id, EntitlementParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<Data<Url>> url = CreateEntitlementGrantsUploadUrlAsync(application_token, client_id, parameters, settings).Result;
 
@@ -393,11 +393,11 @@ TwitchNet.Rest.Api
         /// Gets information about a list of games.
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<Data<Game>>
-        GetGames(string bearer_token, GamesQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetGames(string bearer_token, GamesParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<Data<Game>> games = GetGamesAsync(bearer_token, parameters, settings).Result;
 
@@ -409,11 +409,11 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<Data<Game>>
-        GetGames(string bearer_token, string client_id, GamesQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetGames(string bearer_token, string client_id, GamesParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<Data<Game>> games = GetGamesAsync(bearer_token, client_id, parameters, settings).Result;
 
@@ -442,11 +442,11 @@ TwitchNet.Rest.Api
         /// Gets a single page of top games, most popular first.
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<DataPage<Game>>
-        GetTopGamesPage(string bearer_token, TopGamesQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetTopGamesPage(string bearer_token, TopGamesParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<DataPage<Game>> top_games = GetTopGamesPageAsync(bearer_token, parameters, settings).Result;
 
@@ -473,11 +473,11 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<DataPage<Game>>
-        GetTopGamesPage(string bearer_token, string client_id, TopGamesQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetTopGamesPage(string bearer_token, string client_id, TopGamesParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<DataPage<Game>> top_games = GetTopGamesPageAsync(bearer_token, client_id, parameters, settings).Result;
 
@@ -502,11 +502,11 @@ TwitchNet.Rest.Api
         /// Gets a complete list of top games, most popular first.
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<DataPage<Game>>
-        GetTopGames(string bearer_token, TopGamesQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetTopGames(string bearer_token, TopGamesParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<DataPage<Game>> top_games = GetTopGamesAsync(bearer_token, parameters, settings).Result;
 
@@ -533,11 +533,11 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<DataPage<Game>>
-        GetTopGames(string bearer_token, string client_id, TopGamesQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetTopGames(string bearer_token, string client_id, TopGamesParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<DataPage<Game>> top_games = GetTopGamesAsync(bearer_token, client_id, parameters, settings).Result;
 
@@ -566,11 +566,11 @@ TwitchNet.Rest.Api
         /// Gets a single page of streams.
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<DataPage<Stream>>
-        GetStreamsPage(string bearer_token, StreamsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetStreamsPage(string bearer_token, StreamsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<DataPage<Stream>> streams = GetStreamsPageAsync(bearer_token, parameters, settings).Result;
 
@@ -597,11 +597,11 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<DataPage<Stream>>
-        GetStreamsPage(string bearer_token, string client_id, StreamsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetStreamsPage(string bearer_token, string client_id, StreamsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<DataPage<Stream>> streams = GetStreamsPageAsync(bearer_token, client_id, parameters, settings).Result;
 
@@ -626,11 +626,11 @@ TwitchNet.Rest.Api
         /// Gets a complete list of streams.
         /// </summary>
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<DataPage<Stream>>
-        GetStreams(string bearer_token, StreamsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetStreams(string bearer_token, StreamsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<DataPage<Stream>> streams = GetStreamsAsync(bearer_token, parameters, settings).Result;
 
@@ -657,11 +657,11 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<DataPage<Stream>>
-        GetStreams(string bearer_token, string client_id, StreamsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetStreams(string bearer_token, string client_id, StreamsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<DataPage<Stream>> streams = GetStreamsAsync(bearer_token, client_id, parameters, settings).Result;
 
@@ -721,11 +721,11 @@ TwitchNet.Rest.Api
         /// Gets a single page of metadata about streams playing either Overwatch or Hearthstone.
         /// </summary>
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<DataPage<Metadata>>
-        GetStreamsMetadataPage(string bearer_token, StreamsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetStreamsMetadataPage(string bearer_token, StreamsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<DataPage<Metadata>> metadata = GetStreamsMetadataPageAsync(bearer_token, parameters, settings).Result;
 
@@ -752,11 +752,11 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<DataPage<Metadata>>
-        GetStreamsMetadataPage(string bearer_token, string client_id, StreamsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetStreamsMetadataPage(string bearer_token, string client_id, StreamsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<DataPage<Metadata>> metadata = GetStreamsMetadataPageAsync(bearer_token, client_id, parameters, settings).Result;
 
@@ -781,11 +781,11 @@ TwitchNet.Rest.Api
         /// Gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
         /// </summary>
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<DataPage<Metadata>>
-        GetStreamsMetadata(string bearer_token, StreamsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetStreamsMetadata(string bearer_token, StreamsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<DataPage<Metadata>> metadata = GetStreamsMetadataAsync(bearer_token, parameters, settings).Result;
 
@@ -812,11 +812,11 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<DataPage<Metadata>>
-        GetStreamsMetadata(string bearer_token, string client_id, StreamsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetStreamsMetadata(string bearer_token, string client_id, StreamsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<DataPage<Metadata>> metadata = GetStreamsMetadataAsync(bearer_token, client_id, parameters, settings).Result;
 
@@ -875,11 +875,11 @@ TwitchNet.Rest.Api
         /// </para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<Data<User>>
-        GetUsers(string bearer_token, UsersQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUsers(string bearer_token, UsersParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<Data<User>> users = GetUsersAsync(bearer_token, parameters, settings).Result;
 
@@ -898,11 +898,11 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<Data<User>>
-        GetUsers(string bearer_token, string client_id, UsersQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUsers(string bearer_token, string client_id, UsersParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<Data<User>> users = GetUsersAsync(bearer_token, client_id, parameters, settings).Result;
 
@@ -991,11 +991,11 @@ TwitchNet.Rest.Api
         /// <para>Optional Scope: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<ActiveExtensionsData>
-        GetUserActiveExtensions(string bearer_token, ActiveExtensionsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUserActiveExtensions(string bearer_token, ActiveExtensionsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<ActiveExtensionsData> response = GetUserActiveExtensionsAsync(bearer_token, parameters, settings).Result;
 
@@ -1011,11 +1011,11 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<ActiveExtensionsData>
-        GetUserActiveExtensions(string bearer_token, string client_id, ActiveExtensionsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUserActiveExtensions(string bearer_token, string client_id, ActiveExtensionsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<ActiveExtensionsData> response = GetUserActiveExtensionsAsync(bearer_token, client_id, parameters, settings).Result;
 
@@ -1030,13 +1030,13 @@ TwitchNet.Rest.Api
         /// <para>Required Scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
         /// </summary>
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="data">The updated extension information.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<ActiveExtensionsData>
-        UpdateUserActiveExtensions(string bearer_token, ActiveExtensionsData data, RequestSettings settings = default(RequestSettings))
+        UpdateUserExtensions(string bearer_token, UpdateExtensionsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
-            IHelixResponse<ActiveExtensionsData> response = UpdateUserActiveExtensionsAsync(bearer_token, data, settings).Result;
+            IHelixResponse<ActiveExtensionsData> response = UpdateUserExtensionsAsync(bearer_token, parameters, settings).Result;
 
             return response;
         }
@@ -1050,13 +1050,13 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token to authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="data">The updated extension information.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<ActiveExtensionsData>
-        UpdateUserActiveExtensions(string bearer_token, string client_id, ActiveExtensionsData data, RequestSettings settings = default(RequestSettings))
+        UpdateUserExtensions(string bearer_token, string client_id, UpdateExtensionsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
-            IHelixResponse<ActiveExtensionsData> response = UpdateUserActiveExtensionsAsync(bearer_token, client_id, data, settings).Result;
+            IHelixResponse<ActiveExtensionsData> response = UpdateUserExtensionsAsync(bearer_token, client_id, parameters, settings).Result;
 
             return response;
         }
@@ -1193,7 +1193,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see
         public static IHelixResponse<FollowsDataPage<Follow>>
-        GetUserFollowingPage(string bearer_token, string from_id, FollowsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUserFollowingPage(string bearer_token, string from_id, FollowsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<FollowsDataPage<Follow>> following = GetUserFollowingPageAsync(bearer_token, from_id, parameters, settings).Result;
 
@@ -1229,7 +1229,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<FollowsDataPage<Follow>>
-        GetUserFollowingPage(string bearer_token, string client_id, string from_id, FollowsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUserFollowingPage(string bearer_token, string client_id, string from_id, FollowsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<FollowsDataPage<Follow>> following = GetUserFollowingPageAsync(bearer_token, client_id, from_id, parameters, settings).Result;
 
@@ -1263,7 +1263,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<FollowsDataPage<Follow>>
-        GetUserFollowing(string bearer_token, string from_id, FollowsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUserFollowing(string bearer_token, string from_id, FollowsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<FollowsDataPage<Follow>> following = GetUserFollowingAsync(bearer_token, from_id, parameters, settings).Result;
 
@@ -1299,7 +1299,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<FollowsDataPage<Follow>>
-        GetUserFollowing(string bearer_token, string client_id, string from_id, FollowsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUserFollowing(string bearer_token, string client_id, string from_id, FollowsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<FollowsDataPage<Follow>> following = GetUserFollowingAsync(bearer_token, client_id, from_id, parameters, settings).Result;
 
@@ -1333,7 +1333,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<FollowsDataPage<Follow>>
-        GetUserFollowersPage(string bearer_token, string to_id, FollowsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUserFollowersPage(string bearer_token, string to_id, FollowsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<FollowsDataPage<Follow>> followers = GetUserFollowersPageAsync(bearer_token, to_id, parameters).Result;
 
@@ -1368,7 +1368,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<FollowsDataPage<Follow>>
-        GetUserFollowersPage(string bearer_token, string client_id, string to_id, FollowsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUserFollowersPage(string bearer_token, string client_id, string to_id, FollowsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<FollowsDataPage<Follow>> followers = GetUserFollowersPageAsync(bearer_token, client_id, to_id, parameters, settings).Result;
             return followers;
@@ -1401,7 +1401,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<FollowsDataPage<Follow>>
-        GetUserFollowers(string bearer_token, string to_id, FollowsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUserFollowers(string bearer_token, string to_id, FollowsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<FollowsDataPage<Follow>> followers = GetUserFollowersAsync(bearer_token, to_id, parameters, settings).Result;
 
@@ -1437,7 +1437,7 @@ TwitchNet.Rest.Api
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<FollowsDataPage<Follow>>
-        GetUserFollowers(string bearer_token, string client_id, string to_id, FollowsQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUserFollowers(string bearer_token, string client_id, string to_id, FollowsParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<FollowsDataPage<Follow>> followers = GetUserFollowersAsync(bearer_token, client_id, to_id, parameters, settings).Result;
 
@@ -1452,11 +1452,11 @@ TwitchNet.Rest.Api
         /// Gets a single page of information on one or more videos.
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<DataPage<Video>>
-        GetVideosPage(string bearer_token, VideosQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetVideosPage(string bearer_token, VideosParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<DataPage<Video>> videos = GetVideosPageAsync(bearer_token, parameters, settings).Result;
 
@@ -1468,11 +1468,11 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<DataPage<Video>>
-        GetVideosPage(string bearer_token, string client_id, VideosQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetVideosPage(string bearer_token, string client_id, VideosParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<DataPage<Video>> videos = GetVideosPageAsync(bearer_token, client_id, parameters, settings).Result;
 
@@ -1483,11 +1483,11 @@ TwitchNet.Rest.Api
         /// Gets a complete list of information on one or more videos.
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<DataPage<Video>>
-        GetVideos(string bearer_token, VideosQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetVideos(string bearer_token, VideosParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<DataPage<Video>> videos = GetVideosAsync(bearer_token, parameters, settings).Result;
 
@@ -1499,11 +1499,11 @@ TwitchNet.Rest.Api
         /// </summary>
         /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
         /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="parameters">A set of query parameters to customize the request.</param>
+        /// <param name="parameters">A set of rest parameters to customize the request.</param>
         /// <param name="settings">Settings to customize how the API request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static IHelixResponse<DataPage<Video>>
-        GetVideos(string bearer_token, string client_id, VideosQueryParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetVideos(string bearer_token, string client_id, VideosParameters parameters, RequestSettings settings = default(RequestSettings))
         {
             IHelixResponse<DataPage<Video>> videos = GetVideosAsync(bearer_token, client_id, parameters, settings).Result;
 

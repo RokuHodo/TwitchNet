@@ -24,38 +24,34 @@ TwitchNet.Rest.Api
     internal static class
     TwitchApiInternal
     {
-        #region Fields
-
-        private static readonly ClientInfo client_info = ClientInfo.DefaultHelix;
-
-        #endregion
-
+        /*
         #region /analytics/extensions
 
         /// <summary>
         /// <para>Asynchronously gets analytic urls for one or more devloper extensions.</para>
-        /// <para>Required Scope: 'analytics:read:extensions'</para>
+        /// <para>Required Scope: <see cref="Scopes.AnalyticsReadExtensions"/>.</para>
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<Data<ExtensionAnalytics>>>
-        GetExtensionAnalyticsAsync(HelixInfo helix_info, ExtensionAnalyticsParameters parameters, RequestSettings settings = null)
+        public static async Task<IHelixResponse<Data<ExtensionAnalytics>>>
+        GetExtensionAnalyticsAsync(RestInfo<Data<ExtensionAnalytics>> info, ExtensionAnalyticsParameters parameters)
         {
-            if (settings.IsNull())
+            IHelixResponse<Data<ExtensionAnalytics>> response = default;
+
+            info.required_scopes = Scopes.AnalyticsReadExtensions;
+            info = RestUtil.CreateHelixRequest("analytics/extensions", Method.GET, info);
+
+            if (info.exception_source != RestErrorSource.None)
             {
-                settings = RequestSettings.Default;
+                response = new HelixResponse<Data<ExtensionAnalytics>>(info);
+
+                return response;
             }
 
-            RestRequest request = RestUtil.CreateHelixRequest("analytics/extensions", Method.GET, helix_info, settings);
-            request = request.AddPaging(parameters);
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.ExecuteAsync(info);
 
-            Tuple<IRestResponse<Data<ExtensionAnalytics>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<ExtensionAnalytics>>(client_info, request, settings);
+            response = new HelixResponse<Data<ExtensionAnalytics>>(info);
 
-            IHelixResponse<Data<ExtensionAnalytics>> respose = new HelixResponse<Data<ExtensionAnalytics>>(tuple.Item1, tuple.Item2, tuple.Item3);
-
-            return respose;
+            return response;
         }
 
         #endregion
@@ -64,65 +60,66 @@ TwitchNet.Rest.Api
 
         /// <summary>
         /// <para>Asynchronously gets a single page of analytic urls for one or more devloper games.</para>
-        /// <para>Required Scope: 'analytics:read:games'</para>
+        /// <para>Required Scope: <see cref="Scopes.AnalyticsReadGames"/>.</para>
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<Data<GameAnalytics>>>
-        GetGameAnalyticsPageAsync(HelixInfo helix_info, GameAnalyticsParameters parameters, RequestSettings settings = null)
+        public static async Task<IHelixResponse<Data<GameAnalytics>>>
+        GetGameAnalyticsPageAsync(RestInfo<Data<GameAnalytics>> info, GameAnalyticsParameters parameters)
         {
-            if (settings.IsNull())
+            IHelixResponse<Data<GameAnalytics>> response = default;
+
+            if ((!parameters.started_at.IsNull() && parameters.ended_at.IsNull()) || (!parameters.ended_at.IsNull() && parameters.started_at.IsNull()))
             {
-                settings = RequestSettings.Default;
+                info.SetInputError(new ArgumentException(nameof(parameters.started_at).WrapQuotes() + " and " + nameof(parameters.ended_at).WrapQuotes() + " must be specified together."));
+
+                response = new HelixResponse<Data<GameAnalytics>>(info);
+
+                return response;
             }
 
-            if(settings.input_hanlding == InputHandling.Error)
+            info.required_scopes = Scopes.AnalyticsReadGames;
+            info = RestUtil.CreateHelixRequest("analytics/games", Method.GET, info);
+
+            if (info.exception_source != RestErrorSource.None)
             {
-                if ((!parameters.started_at.IsNull() && parameters.ended_at.IsNull()) ||
-                    !parameters.ended_at.IsNull() && parameters.started_at.IsNull())
-                {
-                    throw new ArgumentException(nameof(parameters.started_at).WrapQuotes() + " and " + nameof(parameters.ended_at).WrapQuotes() + " must be specified together.");
-                }
+                response = new HelixResponse<Data<GameAnalytics>>(info);
+
+                return response;
             }
 
-            RestRequest request = RestUtil.CreateHelixRequest("analytics/games", Method.GET, helix_info, settings);
-            request = request.AddPaging(parameters);
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.ExecuteAsync(info);
 
-            Tuple<IRestResponse<Data<GameAnalytics>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<GameAnalytics>>(client_info, request, settings);
+            response = new HelixResponse<Data<GameAnalytics>>(info);
 
-            IHelixResponse<Data<GameAnalytics>> respose = new HelixResponse<Data<GameAnalytics>>(tuple.Item1, tuple.Item2, tuple.Item3);
-
-            return respose;
+            return response;
         }
 
         /// <summary>
         /// <para>Asynchronously gets a complete list of analytic urls for one or more devloper games.</para>
-        /// <para>Required Scope: 'analytics:read:games'</para>
+        /// <para>Required Scope: <see cref="Scopes.AnalyticsReadGames"/>.</para>
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">
-        /// A set of query parameters to customize the request.
-        /// <see cref="GameAnalyticsParameters.game_id"/> is ignored if specified.
-        /// </param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<DataPage<GameAnalytics>>>
-        GetGameAnalyticsAsync(HelixInfo helix_info, GameAnalyticsParameters parameters, RequestSettings settings = null)
+        public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
+        GetGameAnalyticsAsync(RestInfo<DataPage<GameAnalytics>> info, GameAnalyticsParameters parameters)
         {
-            if (settings.IsNull())
-            {
-                settings = RequestSettings.Default;
-            }
+            IHelixResponse<DataPage<GameAnalytics>> response = default;
 
-            if (settings.input_hanlding == InputHandling.Error)
+            if ((!parameters.started_at.IsNull() && parameters.ended_at.IsNull()) || (!parameters.ended_at.IsNull() && parameters.started_at.IsNull()))
             {
-                if ((!parameters.started_at.IsNull() && parameters.ended_at.IsNull()) ||
-                    !parameters.ended_at.IsNull() && parameters.started_at.IsNull())
-                {
-                    throw new ArgumentException(nameof(parameters.started_at).WrapQuotes() + " and " + nameof(parameters.ended_at).WrapQuotes() + " must be specified together.");
-                }
+                info.SetInputError(new ArgumentException(nameof(parameters.started_at).WrapQuotes() + " and " + nameof(parameters.ended_at).WrapQuotes() + " must be specified together."));
+
+                response = new HelixResponse<DataPage<GameAnalytics>>(info);
+
+                return response;
+            }            
+
+            info.required_scopes = Scopes.AnalyticsReadGames;
+            info = RestUtil.CreateHelixRequest("analytics/games", Method.GET, info);
+
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<DataPage<GameAnalytics>>(info);
+
+                return response;
             }
 
             // Make sure the user doesn't accidentally break shit.
@@ -132,14 +129,12 @@ TwitchNet.Rest.Api
             }
             parameters.game_id = string.Empty;
 
-            RestRequest request = RestUtil.CreateHelixRequest("analytics/games", Method.GET, helix_info, settings);
-            request = request.AddPaging(parameters);
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.TraceExecuteAsync<GameAnalytics, DataPage<GameAnalytics>>(info, parameters);
 
-            Tuple<IRestResponse<DataPage<GameAnalytics>>, RestException, RateLimit> tuple = await RestUtil.TraceExecuteAsync<GameAnalytics, DataPage<GameAnalytics>>(client_info, request, parameters, settings);
+            response = new HelixResponse<DataPage<GameAnalytics>>(info);
 
-            IHelixResponse<DataPage<GameAnalytics>> respose = new HelixResponse<DataPage<GameAnalytics>>(tuple.Item1, tuple.Item2, tuple.Item3);
-
-            return respose;
+            return response;
         }
 
         #endregion
@@ -148,18 +143,21 @@ TwitchNet.Rest.Api
 
         /// <summary>
         /// <para>Asynchronously gets a ranked list of bits leaderboard information for an authorized broadcaster.</para>
-        /// <para>Required Scope: 'bits:read'</para>
+        /// <para>Required Scope: <see cref="Scopes.BitsRead"/>.</para>
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<BitsLeaderboardData<BitsUser>>>
-        GetBitsLeaderboardAsync(HelixInfo helix_info, BitsLeaderboardParameters parameters, RequestSettings settings = null)
+        public static async Task<IHelixResponse<BitsLeaderboardData<BitsUser>>>
+        GetBitsLeaderboardAsync(RestInfo<BitsLeaderboardData<BitsUser>> info, BitsLeaderboardParameters parameters)
         {
-            if (settings.IsNull())
+            IHelixResponse<BitsLeaderboardData<BitsUser>> response = default;
+
+            info.required_scopes = Scopes.BitsRead;
+            info = RestUtil.CreateHelixRequest("bits/leaderboard", Method.GET, info);
+
+            if (info.exception_source != RestErrorSource.None)
             {
-                settings = RequestSettings.Default;
+                response = new HelixResponse<BitsLeaderboardData<BitsUser>>(info);
+
+                return response;
             }
 
             if (!parameters.IsNull() && parameters.period == BitsLeaderboardPeriod.All)
@@ -167,14 +165,12 @@ TwitchNet.Rest.Api
                 parameters.started_at = null;
             }
 
-            RestRequest request = RestUtil.CreateHelixRequest("bits/leaderboard", Method.GET, helix_info, settings);
-            request = request.AddPaging(parameters);
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.ExecuteAsync(info);
 
-            Tuple<IRestResponse<BitsLeaderboardData<BitsUser>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<BitsLeaderboardData<BitsUser>>(client_info, request, settings);
+            response = new HelixResponse<BitsLeaderboardData<BitsUser>>(info);
 
-            IHelixResponse<BitsLeaderboardData<BitsUser>> respose = new HelixResponse<BitsLeaderboardData<BitsUser>>(tuple.Item1, tuple.Item2, tuple.Item3);
-
-            return respose;
+            return response;
         }
 
         #endregion
@@ -183,63 +179,88 @@ TwitchNet.Rest.Api
 
         /// <summary>
         /// <para>Asynchronously creates a clip.</para>
-        /// <para>Required Scope: 'clips:edit'.</para>
+        /// <para>Required Scope: <see cref="Scopes.ClipsEdit"/>.</para>
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<Data<CreatedClip>>>
-        CreateClipAsync(HelixInfo helix_info, ClipCreationParameters parameters, RequestSettings settings = null)
+        public static async Task<IHelixResponse<Data<CreatedClip>>>
+        CreateClipAsync(RestInfo<Data<CreatedClip>> info, ClipCreationParameters parameters)
         {
-            if (settings.IsNull())
-            {
-                settings = RequestSettings.Default;
-            }            
+            IHelixResponse<Data<CreatedClip>> response = default;
 
-            if (settings.input_hanlding == InputHandling.Error)
+            if (parameters.IsNull())
             {
-                ExceptionUtil.ThrowIfNull(parameters, nameof(parameters));
-                ExceptionUtil.ThrowIfInvalid(parameters.broadcaster_id, nameof(parameters.broadcaster_id));
+                info.SetInputError(new ArgumentNullException(nameof(parameters)));
+
+                response = new HelixResponse<Data<CreatedClip>>(info);
+
+                return response;
             }
 
-            RestRequest request = RestUtil.CreateHelixRequest("clips", Method.POST, helix_info, settings);
-            request = request.AddPaging(parameters);
+            if (!parameters.broadcaster_id.IsValid())
+            {
+                info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.broadcaster_id)));
 
-            Tuple<IRestResponse<Data<CreatedClip>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<CreatedClip>>(client_info, request, settings);
+                response = new HelixResponse<Data<CreatedClip>>(info);
 
-            IHelixResponse<Data<CreatedClip>> respose = new HelixResponse<Data<CreatedClip>>(tuple.Item1, tuple.Item2, tuple.Item3);
+                return response;
+            }
 
-            return respose;
+            info.required_scopes = Scopes.ClipsEdit;
+            info = RestUtil.CreateHelixRequest("clips", Method.POST, info);
+
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<Data<CreatedClip>>(info);
+
+                return response;
+            }
+
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.ExecuteAsync(info);
+
+            response = new HelixResponse<Data<CreatedClip>>(info);
+
+            return response;
         }
 
         /// <summary>
         /// Asynchronously gets information about a clip.
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<Data<Clip>>>
-        GetClipAsync(HelixInfo helix_info, ClipParameters parameters, RequestSettings settings)
+        public static async Task<IHelixResponse<Data<Clip>>>
+        GetClipAsync(RestInfo<Data<Clip>> info, ClipParameters parameters)
         {
-            if (settings.IsNull())
+            IHelixResponse<Data<Clip>> response = default;
+
+            if (parameters.IsNull())
             {
-                settings = RequestSettings.Default;
+                info.SetInputError(new ArgumentNullException(nameof(parameters)));
+
+                response = new HelixResponse<Data<Clip>>(info);
+
+                return response;
             }
 
-            if (settings.input_hanlding == InputHandling.Error)
+            if (!parameters.id.IsValid())
             {
-                ExceptionUtil.ThrowIfNull(parameters, nameof(parameters));
-                ExceptionUtil.ThrowIfInvalid(parameters.id, nameof(parameters.id));
+                info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.id)));
+
+                response = new HelixResponse<Data<Clip>>(info);
+
+                return response;
             }
 
-            RestRequest request = RestUtil.CreateHelixRequest("clips", Method.GET, helix_info, settings);
-            request = request.AddPaging(parameters);
+            info = RestUtil.CreateHelixRequest("clips", Method.GET, info);
 
-            Tuple<IRestResponse<Data<Clip>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<Clip>>(client_info, request, settings);
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<Data<Clip>>(info);
 
-            IHelixResponse<Data<Clip>> response = new HelixResponse<Data<Clip>>(tuple.Item1, tuple.Item2, tuple.Item3);
+                return response;
+            }
+
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.ExecuteAsync(info);
+
+            response = new HelixResponse<Data<Clip>>(info);
 
             return response;
         }
@@ -249,34 +270,65 @@ TwitchNet.Rest.Api
         #region /entitlements/upload
 
         /// <summary>
-        /// Asynchronously creates a URL where you can upload a manifest file and notify users that they have an entitlement.
+        /// <para>Asynchronously creates a URL where you can upload a manifest file and notify users that they have an entitlement.</para>
+        /// <para>Required Authorization: App Access Token.</para>
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<Data<Url>>>
-        CreateEntitlementGrantsUploadUrlAsync(HelixInfo helix_info, EntitlementParameters parameters, RequestSettings settings)
+        public static async Task<IHelixResponse<Data<Url>>>
+        CreateEntitlementGrantsUploadUrlAsync(RestInfo<Data<Url>> info, EntitlementParameters parameters)
         {
-            if (settings.IsNull())
+            IHelixResponse<Data<Url>> response = default;
+
+            if (parameters.IsNull())
             {
-                settings = RequestSettings.Default;
+                info.SetInputError(new ArgumentNullException(nameof(parameters)));
+
+                response = new HelixResponse<Data<Url>>(info);
+
+                return response;
             }
 
-            if (settings.input_hanlding == InputHandling.Error)
+            // Check for this separately here in case the user calls the overloaded function that passes the app access token and the client ID
+            // and only the client ID is only valid, for some reason.
+            if (!info.bearer_token.IsValid())
             {
-                ExceptionUtil.ThrowIfNull(parameters, nameof(parameters));
-                ExceptionUtil.ThrowIfInvalid(parameters.manifest_id, nameof(parameters.manifest_id));
-                ExceptionUtil.ThrowIfOutOfRange(nameof(parameters.manifest_id), parameters.manifest_id.Length, 1, 64);
-                ExceptionUtil.ThrowIfNull(parameters.type, nameof(parameters.type));
+                info.SetInputError(new ArgumentException("An app access token must be specified.", nameof(info.bearer_token)));
+
+                response = new HelixResponse<Data<Url>>(info);
+
+                return response;
             }
 
-            RestRequest request = RestUtil.CreateHelixRequest("entitlements/upload", Method.POST, helix_info, settings);
-            request = request.AddPaging(parameters);
+            if (!parameters.manifest_id.IsValid())
+            {
+                info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.manifest_id)));
 
-            Tuple<IRestResponse<Data<Url>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<Url>>(client_info, request, settings);
+                response = new HelixResponse<Data<Url>>(info);
 
-            IHelixResponse<Data<Url>> response = new HelixResponse<Data<Url>>(tuple.Item1, tuple.Item2, tuple.Item3);
+                return response;
+            }
+
+            if (!parameters.manifest_id.Length.IsInRange(1, 64))
+            {
+                info.SetInputError(new ArgumentException("The string must be between 1 and 64 characters long.", nameof(parameters.manifest_id)));
+
+                response = new HelixResponse<Data<Url>>(info);
+
+                return response;
+            }
+
+            info = RestUtil.CreateHelixRequest("entitlements/upload", Method.POST, info);
+
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<Data<Url>>(info);
+
+                return response;
+            }
+
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.ExecuteAsync(info);
+
+            response = new HelixResponse<Data<Url>>(info);
 
             return response;
         }
@@ -288,33 +340,42 @@ TwitchNet.Rest.Api
         /// <summary>
         /// Asynchronously information about a list of games.
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<Data<Game>>>
-        GetGamesAsync(HelixInfo helix_info, GamesParameters parameters, RequestSettings settings)
+        public static async Task<IHelixResponse<Data<Game>>>
+        GetGamesAsync(RestInfo<Data<Game>> info, GamesParameters parameters)
         {
-            if (settings.IsNull())
+            IHelixResponse<Data<Game>> response = default;
+
+            if (parameters.IsNull())
             {
-                settings = RequestSettings.Default;
+                info.SetInputError(new ArgumentNullException(nameof(parameters)));
+
+                response = new HelixResponse<Data<Game>>(info);
+
+                return response;
             }
 
-            if (settings.input_hanlding == InputHandling.Error)
+            if (!parameters.ids.IsValid() && !parameters.names.IsValid())
             {
-                ExceptionUtil.ThrowIfNull(parameters, nameof(parameters));
-                if(!parameters.ids.IsValid() && !parameters.names.IsValid())
-                {
-                    throw new ArgumentException("At least one valid game name or ID must be provided.");
-                }
+                info.SetInputError(new ArgumentException("At least one game name or game ID must be provided."));
+
+                response = new HelixResponse<Data<Game>>(info);
+
+                return response;
             }
 
-            RestRequest request = RestUtil.CreateHelixRequest("games", Method.GET, helix_info, settings);
-            request = request.AddPaging(parameters);
+            info = RestUtil.CreateHelixRequest("games", Method.GET, info);
 
-            Tuple<IRestResponse<Data<Game>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<Game>>(client_info, request, settings);
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<Data<Game>>(info);
 
-            IHelixResponse<Data<Game>> response = new HelixResponse<Data<Game>>(tuple.Item1, tuple.Item2, tuple.Item3);
+                return response;
+            }
+
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.ExecuteAsync(info);
+
+            response = new HelixResponse<Data<Game>>(info);
 
             return response;
         }
@@ -326,19 +387,24 @@ TwitchNet.Rest.Api
         /// <summary>
         /// Asynchronously gets a single page of top games, most popular first.
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<DataPage<Game>>>
-        GetTopGamesPageAsync(HelixInfo helix_info, TopGamesParameters parameters, RequestSettings settings)
+        public static async Task<IHelixResponse<DataPage<Game>>>
+        GetTopGamesPageAsync(RestInfo<DataPage<Game>> info, TopGamesParameters parameters)
         {
-            RestRequest request = RestUtil.CreateHelixRequest("games/top", Method.GET, helix_info, settings);
-            request = request.AddPaging(parameters);
+            IHelixResponse<DataPage<Game>> response = default;
 
-            Tuple<IRestResponse<DataPage<Game>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<DataPage<Game>>(client_info, request, settings);
+            info = RestUtil.CreateHelixRequest("games/top", Method.GET, info);
 
-            IHelixResponse<DataPage<Game>> response = new HelixResponse<DataPage<Game>>(tuple.Item1, tuple.Item2, tuple.Item3);
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<DataPage<Game>>(info);
+
+                return response;
+            }
+
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.ExecuteAsync(info);
+
+            response = new HelixResponse<DataPage<Game>>(info);
 
             return response;
         }
@@ -346,19 +412,24 @@ TwitchNet.Rest.Api
         /// <summary>
         /// Asynchronously gets a complete list of top games, most popular first.
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<DataPage<Game>>>
-        GetTopGamesAsync(HelixInfo helix_info, TopGamesParameters parameters, RequestSettings settings)
+        public static async Task<IHelixResponse<DataPage<Game>>>
+        GetTopGamesAsync(RestInfo<DataPage<Game>> info, TopGamesParameters parameters)
         {
-            RestRequest request = RestUtil.CreateHelixRequest("games/top", Method.GET, helix_info, settings);
-            request = request.AddPaging(parameters);
+            IHelixResponse<DataPage<Game>> response = default;
 
-            Tuple<IRestResponse<DataPage<Game>>, RestException, RateLimit> tuple = await RestUtil.TraceExecuteAsync<Game, DataPage<Game>>(client_info, request, parameters, settings);
+            info = RestUtil.CreateHelixRequest("games/top", Method.GET, info);
 
-            IHelixResponse<DataPage<Game>> response = new HelixResponse<DataPage<Game>>(tuple.Item1, tuple.Item2, tuple.Item3);
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<DataPage<Game>>(info);
+
+                return response;
+            }
+
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.TraceExecuteAsync<Game, DataPage<Game>>(info, parameters);
+
+            response = new HelixResponse<DataPage<Game>>(info);
 
             return response;
         }
@@ -370,19 +441,24 @@ TwitchNet.Rest.Api
         /// <summary>
         /// Asynchronously gets a single page of streams.
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<DataPage<Stream>>>
-        GetStreamsPageAsync(HelixInfo helix_info, StreamsParameters parameters, RequestSettings settings)
+        public static async Task<IHelixResponse<DataPage<Stream>>>
+        GetStreamsPageAsync(RestInfo<DataPage<Stream>> info, StreamsParameters parameters)
         {
-            RestRequest request = RestUtil.CreateHelixRequest("streams", Method.GET, helix_info, settings);
-            request = request.AddPaging(parameters);
+            IHelixResponse<DataPage<Stream>> response = default;
 
-            Tuple<IRestResponse<DataPage<Stream>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<DataPage<Stream>>(client_info, request, settings);
+            info = RestUtil.CreateHelixRequest("streams", Method.GET, info);
 
-            IHelixResponse<DataPage<Stream>> response = new HelixResponse<DataPage<Stream>>(tuple.Item1, tuple.Item2, tuple.Item3);
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<DataPage<Stream>>(info);
+
+                return response;
+            }
+
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.ExecuteAsync(info);
+
+            response = new HelixResponse<DataPage<Stream>>(info);
 
             return response;
         }
@@ -390,19 +466,24 @@ TwitchNet.Rest.Api
         /// <summary>
         /// Asynchronously gets a complete list of streams.
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<DataPage<Stream>>>
-        GetStreamsAsync(HelixInfo helix_info, StreamsParameters parameters, RequestSettings settings)
+        public static async Task<IHelixResponse<DataPage<Stream>>>
+        GetStreamsAsync(RestInfo<DataPage<Stream>> info, StreamsParameters parameters)
         {
-            RestRequest request = RestUtil.CreateHelixRequest("streams", Method.GET, helix_info, settings);
-            request = request.AddPaging(parameters);
+            IHelixResponse<DataPage<Stream>> response = default;
 
-            Tuple<IRestResponse<DataPage<Stream>>, RestException, RateLimit> tuple = await RestUtil.TraceExecuteAsync<Stream, DataPage<Stream>>(client_info, request, parameters, settings);
+            info = RestUtil.CreateHelixRequest("streams", Method.GET, info);
 
-            IHelixResponse<DataPage<Stream>> response = new HelixResponse<DataPage<Stream>>(tuple.Item1, tuple.Item2, tuple.Item3);
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<DataPage<Stream>>(info);
+
+                return response;
+            }
+
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.TraceExecuteAsync<Stream, DataPage<Stream>>(info, parameters);
+
+            response = new HelixResponse<DataPage<Stream>>(info);
 
             return response;
         }
@@ -410,21 +491,20 @@ TwitchNet.Rest.Api
         /// <summary>
         /// Asynchronously checks to see if a user is streaming.
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="user_id">The user to check if they are live.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<bool>>
-        IsStreamLiveAsync(HelixInfo helix_info, string user_id, RequestSettings settings)
+        public static async Task<IHelixResponse<bool>>
+        IsStreamLiveAsync(RestInfo<DataPage<Stream>> info, string user_id)
         {
-            if (settings.IsNull())
-            {
-                settings = RequestSettings.Default;
-            }
+            IHelixResponse<DataPage<Stream>> response = default;
+            IHelixResponse<bool> is_live = default;
 
-            if(settings.input_hanlding == InputHandling.Error)
+            if (!user_id.IsValid())
             {
-                ExceptionUtil.ThrowIfInvalid(user_id, nameof(user_id));
+                info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(user_id)));
+
+                response = new HelixResponse<DataPage<Stream>>(info);
+                is_live = new HelixResponse<bool>(info, false);
+
+                return is_live;
             }
 
             StreamsParameters parameters = new StreamsParameters()
@@ -435,8 +515,10 @@ TwitchNet.Rest.Api
                 }
             };
 
-            IHelixResponse<DataPage<Stream>> response = await GetStreamsPageAsync(helix_info, parameters, settings);
-            IHelixResponse<bool> is_live = new HelixResponse<bool>(response, response.result.data.IsValid());
+            // Info *should* get populated with valid results after the stream is requested.
+            // TODO: Make sure this is the case.
+            response = await GetStreamsPageAsync(info, parameters);
+            is_live = new HelixResponse<bool>(info, response.result.data.IsValid());
 
             return is_live;
         }
@@ -448,19 +530,24 @@ TwitchNet.Rest.Api
         /// <summary>
         /// Asynchronously gets a single page of metadata about streams playing either Overwatch or Hearthstone.
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<DataPage<Metadata>>>
-        GetStreamsMetadataPageAsync(HelixInfo helix_info, StreamsParameters parameters, RequestSettings settings)
+        public static async Task<IHelixResponse<DataPage<Metadata>>>
+        GetStreamsMetadataPageAsync(RestInfo<DataPage<Metadata>> info, StreamsParameters parameters)
         {
-            RestRequest request = RestUtil.CreateHelixRequest("streams/metadata", Method.GET, helix_info, settings);
-            request = request.AddPaging(parameters);
+            IHelixResponse<DataPage<Metadata>> response = default;
 
-            Tuple<IRestResponse<DataPage<Metadata>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<DataPage<Metadata>>(client_info, request, settings);
+            info = RestUtil.CreateHelixRequest("streams/metadata", Method.GET, info);
 
-            IHelixResponse<DataPage<Metadata>> response = new HelixResponse<DataPage<Metadata>>(tuple.Item1, tuple.Item2, tuple.Item3);
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<DataPage<Metadata>>(info);
+
+                return response;
+            }
+
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.ExecuteAsync(info);
+
+            response = new HelixResponse<DataPage<Metadata>>(info);
 
             return response;
         }
@@ -468,19 +555,24 @@ TwitchNet.Rest.Api
         /// <summary>
         /// Asynchronously gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<DataPage<Metadata>>>
-        GetStreamsMetadataAsync(HelixInfo helix_info, StreamsParameters parameters, RequestSettings settings)
+        public static async Task<IHelixResponse<DataPage<Metadata>>>
+        GetStreamsMetadataAsync(RestInfo<DataPage<Metadata>> info, StreamsParameters parameters)
         {
-            RestRequest request = RestUtil.CreateHelixRequest("streams/metadata", Method.GET, helix_info, settings);
-            request = request.AddPaging(parameters);
+            IHelixResponse<DataPage<Metadata>> response = default;
 
-            Tuple<IRestResponse<DataPage<Metadata>>, RestException, RateLimit> tuple = await RestUtil.TraceExecuteAsync<Metadata, DataPage<Metadata>>(client_info, request, parameters, settings);
+            info = RestUtil.CreateHelixRequest("streams/metadata", Method.GET, info);
 
-            IHelixResponse<DataPage<Metadata>> response = new HelixResponse<DataPage<Metadata>>(tuple.Item1, tuple.Item2, tuple.Item3);
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<DataPage<Metadata>>(info);
+
+                return response;
+            }
+
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.TraceExecuteAsync<Metadata, DataPage<Metadata>>(info, parameters);
+
+            response = new HelixResponse<DataPage<Metadata>>(info);
 
             return response;
         }
@@ -495,45 +587,56 @@ TwitchNet.Rest.Api
         /// If no <paramref name="parameters"/> are specified, the user is looked up by the token provided if it is an Bearer token.
         /// </para>
         /// <para>
-        /// Optional Scope: 'user:read:email'.
+        /// Optional Scope: <see cref="Scopes.UserReadEmail"/>.
         /// If provided, the user's email is included in the response.
         /// </para>
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>/// <param name="parameters">The users to look up either by id or by login.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<Data<User>>>
-        GetUsersAsync(HelixInfo helix_info, UsersParameters parameters, RequestSettings settings)
+        public static async Task<IHelixResponse<Data<User>>>
+        GetUsersAsync(RestInfo<Data<User>> info, UsersParameters parameters)
         {
-            RestRequest request = RestUtil.CreateHelixRequest("users", Method.GET, helix_info, settings);
-            request = request.AddPaging(parameters);
+            IHelixResponse<Data<User>> response = default;
 
-            Tuple<IRestResponse<Data<User>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<User>>(client_info, request, settings);
+            info = RestUtil.CreateHelixRequest("users", Method.GET, info);
 
-            IHelixResponse<Data<User>> response = new HelixResponse<Data<User>>(tuple.Item1, tuple.Item2, tuple.Item3);
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<Data<User>>(info);
+
+                return response;
+            }
+
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.ExecuteAsync(info);
+
+            response = new HelixResponse<Data<User>>(info);
 
             return response;
         }
 
         /// <summary>
         /// <para>Asynchronously sets the description of a user specified by the Bearer token.</para>
-        /// <para>Required Scope: 'user:edit'</para>
+        /// <para>Required Scope: <see cref="Scopes.UserEdit"/>.</para>
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="description">The new description to set.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<Data<User>>>
-        SetUserDescriptionAsync(HelixInfo helix_info, string description, RequestSettings settings)
+        public static async Task<IHelixResponse<Data<User>>>
+        SetUserDescriptionAsync(RestInfo<Data<User>> info, string description)
         {
-            RestRequest request = RestUtil.CreateHelixRequest("users", Method.PUT, helix_info, settings);
+            IHelixResponse<Data<User>> response = default;
+
+            info.required_scopes = Scopes.UserEdit;
+            info = RestUtil.CreateHelixRequest("users", Method.PUT, info);
+
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<Data<User>>(info);
+
+                return response;
+            }
+
             string value = description.IsValid() ? description : string.Empty;
-            request.AddQueryParameter("description", value);
+            info.request.AddQueryParameter("description", value);
+            info = await RestUtil.ExecuteAsync(info);
 
-            Tuple<IRestResponse<Data<User>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<User>>(client_info, request, settings);
-
-            IHelixResponse<Data<User>> response = new HelixResponse<Data<User>>(tuple.Item1, tuple.Item2, tuple.Item3);
+            response = new HelixResponse<Data<User>>(info);
 
             return response;
         }
@@ -549,33 +652,46 @@ TwitchNet.Rest.Api
         /// </para>
         /// <para>Optional Scope: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<ActiveExtensionsData>>
-        GetUserActiveExtensionsAsync(HelixInfo helix_info, ActiveExtensionsParameters parameters, RequestSettings settings)
+        public static async Task<IHelixResponse<ActiveExtensionsData>>
+        GetUserActiveExtensionsAsync(RestInfo<ActiveExtensionsData> info, ActiveExtensionsParameters parameters)
         {
-            if (settings.IsNull())
-            {
-                settings = RequestSettings.Default;
-            }
+            IHelixResponse<ActiveExtensionsData> response = default;
 
-            if(settings.input_hanlding == InputHandling.Error)
+            // The parameters are optional only when a bearer token is provided.
+            if (!info.bearer_token.IsValid())
             {
-                if(!helix_info.bearer_token.IsValid() && helix_info.client_id.IsValid())
+                if (parameters.IsNull())
                 {
-                    ExceptionUtil.ThrowIfNull(parameters, nameof(parameters));
-                    ExceptionUtil.ThrowIfInvalid(parameters.user_id, nameof(parameters.user_id));
+                    info.SetInputError(new ArgumentNullException(nameof(parameters), "Parameters must be specified if no bearer token is specified."));
+
+                    response = new HelixResponse<ActiveExtensionsData>(info);
+
+                    return response;
+                }
+
+                if (!parameters.user_id.IsValid())
+                {
+                    info.SetInputError(new ArgumentException("A valid user ID must be specified if no bearer token is specified. The value cannot be null, empty, or contain only whitespace.", nameof(parameters.user_id)));
+
+                    response = new HelixResponse<ActiveExtensionsData>(info);
+
+                    return response;
                 }
             }
 
-            RestRequest request = RestUtil.CreateHelixRequest("users/extensions", Method.GET, helix_info, settings);
-            request.AddPaging(parameters);
+            info = RestUtil.CreateHelixRequest("users/extensions", Method.GET, info);
 
-            Tuple<IRestResponse<ActiveExtensionsData>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<ActiveExtensionsData>(client_info, request, settings);
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<ActiveExtensionsData>(info);
 
-            IHelixResponse<ActiveExtensionsData> response = new HelixResponse<ActiveExtensionsData>(tuple.Item1, tuple.Item2, tuple.Item3);
+                return response;
+            }
+
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.ExecuteAsync(info);
+
+            response = new HelixResponse<ActiveExtensionsData>(info);
 
             return response;
         }
@@ -587,30 +703,43 @@ TwitchNet.Rest.Api
         /// </para>
         /// <para>Required Scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<ActiveExtensionsData>>
-        UpdateUserExtensionsAsync(HelixInfo helix_info, UpdateExtensionsParameters parameters, RequestSettings settings)
+        public static async Task<IHelixResponse<ActiveExtensionsData>>
+        UpdateUserExtensionsAsync(RestInfo<ActiveExtensionsData> info, UpdateExtensionsParameters parameters)
         {
-            if (settings.IsNull())
+            IHelixResponse<ActiveExtensionsData> response = default;
+
+            if (parameters.IsNull())
             {
-                settings = RequestSettings.Default;
+                info.SetInputError(new ArgumentNullException(nameof(parameters)));
+
+                response = new HelixResponse<ActiveExtensionsData>(info);
+
+                return response;
             }
 
-            if(settings.input_hanlding == InputHandling.Error)
+            if (parameters.data.IsNull())
             {
-                ExceptionUtil.ThrowIfNull(parameters, nameof(parameters));
-                ExceptionUtil.ThrowIfNull(parameters.data, nameof(parameters.data));
+                info.SetInputError(new ArgumentNullException(nameof(parameters.data)));
+
+                response = new HelixResponse<ActiveExtensionsData>(info);
+
+                return response;
             }
 
-            RestRequest request = RestUtil.CreateHelixRequest("users/extensions", Method.PUT, helix_info, settings);
-            request.AddPaging(parameters);
+            info.required_scopes = Scopes.UserEditBroadcast;
+            info = RestUtil.CreateHelixRequest("users/extensions", Method.PUT, info);
 
-            Tuple<IRestResponse<ActiveExtensionsData>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<ActiveExtensionsData>(client_info, request, settings);
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<ActiveExtensionsData>(info);
 
-            IHelixResponse<ActiveExtensionsData> response = new HelixResponse<ActiveExtensionsData>(tuple.Item1, tuple.Item2, tuple.Item3);
+                return response;
+            }
+
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.ExecuteAsync(info);
+
+            response = new HelixResponse<ActiveExtensionsData>(info);
 
             return response;
         }
@@ -621,73 +750,322 @@ TwitchNet.Rest.Api
 
         /// <summary>
         /// <para>Asynchronously gets a list of all extensions a user has installed, active or inactive.</para>
-        /// <para>Required Scope: 'user:read:broadcast'</para>
+        /// <para>Required Scope: <see cref="Scopes.UserReadBroadcast"/></para>
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<Data<Extension>>>
-        GetUserExtensionsAsync(HelixInfo helix_info, RequestSettings settings)
+        public static async Task<IHelixResponse<Data<Extension>>>
+        GetUserExtensionsAsync(RestInfo<Data<Extension>> info)
         {
-            if (settings.IsNull())
+            IHelixResponse<Data<Extension>> response = default;
+
+            info.required_scopes = Scopes.UserReadBroadcast;
+            info = RestUtil.CreateHelixRequest("users/extensions/list", Method.GET, info);
+
+            if (info.exception_source != RestErrorSource.None)
             {
-                settings = RequestSettings.Default;
+                response = new HelixResponse<Data<Extension>>(info);
+
+                return response;
             }
 
-            RestRequest request = RestUtil.CreateHelixRequest("users/extensions/list", Method.GET, helix_info, settings);
+            info = await RestUtil.ExecuteAsync(info);
 
-            Tuple<IRestResponse<Data<Extension>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<Data<Extension>>(client_info, request, settings);
-
-            IHelixResponse<Data<Extension>> response = new HelixResponse<Data<Extension>>(tuple.Item1, tuple.Item2, tuple.Item3);
+            response = new HelixResponse<Data<Extension>>(info);
 
             return response;
         }
 
         #endregion
-
-        #region /users/follows
+        */
+        #region /users/follows        
 
         /// <summary>
-        /// Asynchronously gets the relationship between two users, or a single page of the following/follower lists of one user.
+        /// Asynchronously gets a single page of user's that a user is following.
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="from_id">The user to compare from.</param>
-        /// <param name="to_id">The user to compare to.</param>
+        /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
+        /// <param name="from_id">The user ID to get the following list for.</param>
         /// <param name="parameters">
-        /// A set of query parameters to customize the request.
-        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="parameters"/> are ignored if specified.
+        /// A set of rest parameters to add to the request.
+        /// <see cref="FollowsParameters.from_id"/> and <see cref="FollowsParameters.to_id"/> are ignored is specified.
         /// </param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserRelationshipPageAsync(HelixInfo helix_info, string from_id, string to_id, FollowsParameters parameters, RequestSettings settings)
+        /// <returns>
+        /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+        /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of user's that the user is following.
+        /// </returns>        
+        /// <exception cref="ArgumentException">
+        /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+        /// Thrown if <paramref name="from_id"/> is null, empty, or contains only whitespace.
+        /// </exception>
+        /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
+        /// <exception cref="RestException">Thrown if an error was returned by Twitch after executing the request.</exception>
+        /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+        public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
+        GetUserFollowingPageAsync(RestInfo<FollowsDataPage<Follow>> info, string from_id, FollowsParameters parameters)
         {
-            if (settings.IsNull())
-            {
-                settings = new RequestSettings();
-            }
+            IHelixResponse<FollowsDataPage<Follow>> response = default;
 
-            if (settings.input_hanlding == InputHandling.Error)
+            if (!from_id.IsValid())
             {
-                if (!from_id.IsValid() && !to_id.IsValid())
-                {
-                    throw new ArgumentException("At least one " + nameof(from_id) + " or " + nameof(to_id) + " must be provided");
-                }
+                info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(from_id)));
+
+                response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
+
+                return response;
             }
 
             if (parameters.IsNull())
             {
-                parameters = new FollowsParameters();
+                parameters = new FollowsParameters(from_id, string.Empty);
             }
+            else
+            {
+                parameters.from_id = from_id;
+                parameters.to_id = string.Empty;
+            }
+
+            response = await GetUserRelationshipPageAsync(info, parameters);
+
+            return response;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a complete list of user's that a user is following.
+        /// </summary>
+        /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
+        /// <param name="from_id">The user ID to get the following list for.</param>
+        /// <param name="parameters">
+        /// A set of rest parameters to add to the request.
+        /// <see cref="FollowsParameters.from_id"/> and <see cref="FollowsParameters.to_id"/> are ignored is specified.
+        /// </param>
+        /// <returns>
+        /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+        /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of user's that the user is following.
+        /// </returns>        
+        /// <exception cref="ArgumentException">
+        /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+        /// Thrown if <paramref name="from_id"/> is null, empty, or contains only whitespace.
+        /// </exception>
+        /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
+        /// <exception cref="RestException">Thrown if an error was returned by Twitch after executing the request.</exception>
+        /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+        public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
+        GetUserFollowingAsync(RestInfo<FollowsDataPage<Follow>> info, string from_id, FollowsParameters parameters)
+        {
+            IHelixResponse<FollowsDataPage<Follow>> response = default;
+
+            if (!from_id.IsValid())
+            {
+                info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(from_id)));
+
+                response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
+
+                return response;
+            }
+
+            if (parameters.IsNull())
+            {
+                parameters = new FollowsParameters(from_id, string.Empty);
+            }
+            else
+            {
+                parameters.from_id = from_id;
+                parameters.to_id = string.Empty;
+            }
+
+            response = await GetUserRelationshipAsync(info, parameters);
+
+            return response;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a single page of a user's followers.
+        /// </summary>
+        /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
+        /// <param name="to_id">The user ID to get the follower list for.</param>
+        /// <param name="parameters">
+        /// A set of rest parameters to add to the request.
+        /// <see cref="FollowsParameters.from_id"/> and <see cref="FollowsParameters.to_id"/> are ignored is specified.
+        /// </param>
+        /// <returns>
+        /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+        /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of a user's followers.
+        /// </returns>        
+        /// <exception cref="ArgumentException">
+        /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+        /// Thrown if <paramref name="to_id"/> is null, empty, or contains only whitespace.
+        /// </exception>
+        /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
+        /// <exception cref="RestException">Thrown if an error was returned by Twitch after executing the request.</exception>
+        /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+        public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
+        GetUserFollowersPageAsync(RestInfo<FollowsDataPage<Follow>> info, string to_id, FollowsParameters parameters)
+        {
+            IHelixResponse<FollowsDataPage<Follow>> response = default;
+
+            if (!to_id.IsValid())
+            {
+                info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(to_id)));
+
+                response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
+
+                return response;
+            }
+
+            if (parameters.IsNull())
+            {
+                parameters = new FollowsParameters(string.Empty, to_id);
+            }
+            else
+            {
+                parameters.from_id = string.Empty;
+                parameters.to_id = to_id;
+            }
+
+            response = await GetUserRelationshipPageAsync(info, parameters);
+
+            return response;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a complete list of a user's followers.
+        /// </summary>
+        /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
+        /// <param name="to_id">The user ID to get the follower list for.</param>
+        /// <param name="parameters">
+        /// A set of rest parameters to add to the request.
+        /// If specified, from_id and to_id are ignored.
+        /// </param>
+        /// <returns>
+        /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+        /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of a user's followers.
+        /// </returns>        
+        /// <exception cref="ArgumentException">
+        /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+        /// Thrown if <paramref name="to_id"/> is null, empty, or contains only whitespace.
+        /// </exception>
+        /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
+        /// <exception cref="RestException">Thrown if an error was returned by Twitch after executing the request.</exception>
+        /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+        public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
+        GetUserFollowersAsync(RestInfo<FollowsDataPage<Follow>> info, string to_id, FollowsParameters parameters)
+        {
+            IHelixResponse<FollowsDataPage<Follow>> response = default;
+
+            if (!to_id.IsValid())
+            {
+                info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(to_id)));
+
+                response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
+
+                return response;
+            }
+
+            if (parameters.IsNull())
+            {
+                parameters = new FollowsParameters(string.Empty, to_id);
+            }
+            else
+            {
+                parameters.from_id = string.Empty;
+                parameters.to_id = to_id;
+            }
+
+            response = await GetUserRelationshipAsync(info, parameters);
+
+            return response;
+        }
+
+        /// <summary>
+        /// Asynchronously checks to see if a user is following another user.
+        /// </summary>
+        /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
+        /// <param name="from_id">The user ID to check if they are following another user.</param>
+        /// <param name="to_id">The user ID to check if another user is following them.</param>
+        /// <returns>
+        /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+        /// <see cref="IHelixResponse{result_type}.result"/> is set true if from_id is following to_id, otherwise false.
+        /// </returns>        
+        /// <exception cref="ArgumentException">
+        /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+        /// Thrown if either from_id and to_id are null, empty, or contains only whitespace.
+        /// </exception>
+        /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
+        /// <exception cref="RestException">Thrown if an error was returned by Twitch after executing the request.</exception>
+        /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+        public static async Task<IHelixResponse<bool>>
+        IsUserFollowingAsync(RestInfo<FollowsDataPage<Follow>> info, string from_id, string to_id)
+        {
+            IHelixResponse<FollowsDataPage<Follow>> _response = default;
+            IHelixResponse<bool> response = default;
+
+            if (!to_id.IsValid() || !from_id.IsValid())
+            {
+                info.SetInputError(new ArgumentException("Both from_id and to_id must be specified and cannot be null, empty, or contain only whitespace."));
+
+                _response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
+                response = new HelixResponse<bool>(_response, false);
+
+                return response;
+            }
+
+            FollowsParameters parameters = new FollowsParameters();
             parameters.from_id = from_id;
             parameters.to_id = to_id;
 
-            RestRequest request = RestUtil.CreateHelixRequest("users/follows", Method.GET, helix_info, settings);
-            request = request.AddPaging(parameters);
+            _response = await GetUserRelationshipPageAsync(info, parameters);
+            response = new HelixResponse<bool>(_response, _response.result.data.IsValid());
 
-            Tuple<IRestResponse<FollowsDataPage<Follow>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<FollowsDataPage<Follow>>(client_info, request, settings);
+            return response;
+        }
 
-            IHelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>(tuple.Item1, tuple.Item2, tuple.Item3);
+        /// <summary>
+        /// Asynchronously gets the relationship between two users, or a single page of the following/follower list of one user.
+        /// </summary>
+        /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
+        /// <param name="parameters">A set of rest parameters to add to the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.</returns>        
+        /// <exception cref="ArgumentNullException">Thrown if the parameters is null.</exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+        /// Thrown if both from_id and to_id are null, empty, or contains only whitespace.
+        /// </exception>
+        /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
+        /// <exception cref="RestException">Thrown if an error was returned by Twitch after executing the request.</exception>
+        /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+        public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
+        GetUserRelationshipPageAsync(RestInfo<FollowsDataPage<Follow>> info, FollowsParameters parameters)
+        {
+            IHelixResponse<FollowsDataPage<Follow>> response = default;
+
+            if (parameters.IsNull())
+            {
+                info.SetInputError(new ArgumentNullException(nameof(parameters)));
+
+                response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
+
+                return response;
+            }
+
+            if (!parameters.to_id.IsValid() && !parameters.from_id.IsValid())
+            {
+                info.SetInputError(new ArgumentException("At least either from_id or to_id must be specified and cannot be null, empty, or contain only whitespace."));
+
+                response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
+
+                return response;
+            }
+
+            info = RestUtil.CreateHelixRequest("users/follows", Method.GET, info);
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
+
+                return response;
+            }
+
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.ExecuteAsync(info);
+
+            response = new HelixResponse<FollowsDataPage<Follow>>(info.response, info.rate_limit, info.exception_source, info.exceptions);
 
             return response;
         }
@@ -695,108 +1073,100 @@ TwitchNet.Rest.Api
         /// <summary>
         /// Asynchronously gets the relationship between two users, or the complete following/follower lists of one user.
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="from_id">The user to compare from. Used to get the following list of a user.</param>
-        /// <param name="to_id">The user to compare to. Used to get a user's follower list.</param>
-        /// <param name="parameters">A set of query parameters to customize the request. The 'to_id' and 'from_id' properties in the parameters are ignored if specified.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserRelationshipAsync(HelixInfo helix_info, string from_id, string to_id, FollowsParameters parameters, RequestSettings settings)
+        /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
+        /// <param name="parameters">A set of rest parameters to add to the request.</param>
+        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.</returns>        
+        /// <exception cref="ArgumentNullException">Thrown if the parameters is null.</exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+        /// Thrown if both from_id and to_id are null, empty, or contains only whitespace.
+        /// </exception>
+        /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
+        /// <exception cref="RestException">Thrown if an error was returned by Twitch after executing the request.</exception>
+        /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+        public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
+        GetUserRelationshipAsync(RestInfo<FollowsDataPage<Follow>> info, FollowsParameters parameters)
         {
-            if (settings.IsNull())
-            {
-                settings = RequestSettings.Default;
-            }
-
-            if (settings.input_hanlding == InputHandling.Error)
-            {
-                if(!from_id.IsValid() && !to_id.IsValid())
-                {
-                    throw new ArgumentException("At least one " + nameof(from_id) + " or " + nameof(to_id) + " must be provided");
-                }
-            }
+            IHelixResponse<FollowsDataPage<Follow>> response = default;
 
             if (parameters.IsNull())
             {
-                parameters = new FollowsParameters();
-            }            
-            parameters.from_id = from_id;
-            parameters.to_id = to_id;
+                info.SetInputError(new ArgumentNullException(nameof(parameters)));
 
-            RestRequest request = RestUtil.CreateHelixRequest("users/follows", Method.GET, helix_info, settings);
-            request = request.AddPaging(parameters);
+                response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
 
-            Tuple<IRestResponse<FollowsDataPage<Follow>>, RestException, RateLimit> tuple = await RestUtil.TraceExecuteAsync<Follow, FollowsDataPage<Follow>>(client_info, request, parameters, settings);
+                return response;
+            }
 
-            IHelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>(tuple.Item1, tuple.Item2, tuple.Item3);
+            if (!parameters.to_id.IsValid() && !parameters.from_id.IsValid())
+            {
+                info.SetInputError(new ArgumentException("At least either from_id or to_id must be specified and cannot be null, empty, or contain only whitespace."));
+
+                response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
+
+                return response;
+            }
+
+            info = RestUtil.CreateHelixRequest("users/follows", Method.GET, info);
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
+
+                return response;
+            }
+
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.TraceExecuteAsync<Follow, FollowsDataPage<Follow>>(info, parameters);
+
+            response = new HelixResponse<FollowsDataPage<Follow>>(info.response, info.rate_limit, info.exception_source, info.exceptions);
 
             return response;
         }
 
-        /// <summary>
-        /// Asynchronously checks to see if <paramref name="from_id"/> is following <paramref name="to_id"/>.
-        /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="from_id">The user to compare from.</param>
-        /// <param name="to_id">The user to compare to.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<bool>>
-        IsUserFollowingAsync(HelixInfo helix_info, string from_id, string to_id, RequestSettings settings)
-        {
-            if (settings.IsNull())
-            {
-                settings = RequestSettings.Default;
-            }
-
-            if(settings.input_hanlding == InputHandling.Error)
-            {
-                ExceptionUtil.ThrowIfInvalid(from_id, nameof(from_id));
-                ExceptionUtil.ThrowIfInvalid(to_id, nameof(to_id));
-            }
-
-            IHelixResponse<FollowsDataPage<Follow>> response = await GetUserRelationshipPageAsync(helix_info, from_id, to_id, default(FollowsParameters), settings);
-            IHelixResponse<bool> is_following = new HelixResponse<bool>(response, response.result.data.IsValid());
-
-            return is_following;
-        }
-
         #endregion
-
+        /*
         #region /videos
 
         /// <summary>
         /// Asynchronously gets information on one or more videos.
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<DataPage<Video>>>
-        GetVideosPageAsync(HelixInfo helix_info, VideosParameters parameters, RequestSettings settings)
+        public static async Task<IHelixResponse<DataPage<Video>>>
+        GetVideosPageAsync(RestInfo<DataPage<Video>> info, VideosParameters parameters, RequestSettings settings)
         {
-            if (settings.IsNull())
+            IHelixResponse<DataPage<Video>> response = default;
+
+            if (parameters.IsNull())
             {
-                settings = RequestSettings.Default;
+                info.SetInputError(new ArgumentNullException(nameof(parameters)));
+
+                response = new HelixResponse<DataPage<Video>>(info);
+
+                return response;
             }
 
-            if (settings.input_hanlding == InputHandling.Error) 
+            if((parameters.ids.IsValid() && (parameters.user_id.IsValid() ||parameters.game_id.IsValid())) ||
+               (parameters.user_id.IsValid() && parameters.game_id.IsValid()))
             {
-                ExceptionUtil.ThrowIfNull(parameters, nameof(parameters));
-                if((parameters.ids.IsValid() && (parameters.user_id.IsValid() || parameters.game_id.IsValid())) ||
-                   (parameters.user_id.IsValid() && parameters.game_id.IsValid()))
-                {
-                    throw new ArgumentException("Only one or more video ID's, one user ID, or one game ID can be provided.");
-                }
+                info.SetInputError(new ArgumentException("Only one or more video ID's, one user ID, or one game ID can be provided."));
+
+                response = new HelixResponse<DataPage<Video>>(info);
+
+                return response;
             }
 
-            RestRequest request = RestUtil.CreateHelixRequest("videos", Method.GET, helix_info, settings);
-            request = request.AddPaging(parameters);
+            info = RestUtil.CreateHelixRequest("videos", Method.GET, info);
 
-            Tuple<IRestResponse<DataPage<Video>>, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync<DataPage<Video>>(client_info, request, settings);
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<DataPage<Video>>(info);
 
-            IHelixResponse<DataPage<Video>> response = new HelixResponse<DataPage<Video>>(tuple.Item1, tuple.Item2, tuple.Item3);
+                return response;
+            }
+            
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.ExecuteAsync(info);
+
+            response = new HelixResponse<DataPage<Video>>(info);
 
             return response;
         }
@@ -804,38 +1174,48 @@ TwitchNet.Rest.Api
         /// <summary>
         /// Asynchronously gets a complete list of information on one or more videos.
         /// </summary>
-        /// <param name="helix_info">The information needed to make the rest request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        internal static async Task<IHelixResponse<DataPage<Video>>>
-        GetVideosAsync(HelixInfo helix_info, VideosParameters parameters, RequestSettings settings)
+        public static async Task<IHelixResponse<DataPage<Video>>>
+        GetVideosAsync(RestInfo<DataPage<Video>> info, VideosParameters parameters, RequestSettings settings)
         {
-            if (settings.IsNull())
+            IHelixResponse<DataPage<Video>> response = default;
+
+            if (parameters.IsNull())
             {
-                settings = RequestSettings.Default;
+                info.SetInputError(new ArgumentNullException(nameof(parameters)));
+
+                response = new HelixResponse<DataPage<Video>>(info);
+
+                return response;
             }
 
-            if (settings.input_hanlding == InputHandling.Error)
+            if ((parameters.ids.IsValid() && (parameters.user_id.IsValid() || parameters.game_id.IsValid())) ||
+               (parameters.user_id.IsValid() && parameters.game_id.IsValid()))
             {
-                ExceptionUtil.ThrowIfNull(parameters, nameof(parameters));
-                if ((parameters.ids.IsValid() && (parameters.user_id.IsValid() || parameters.game_id.IsValid())) ||
-                   (parameters.user_id.IsValid() && parameters.game_id.IsValid()))
-                {
-                    throw new ArgumentException("Only one or more video ID's, one user ID, or one game ID can be provided.");
-                }
+                info.SetInputError(new ArgumentException("Only one or more video ID's, one user ID, or one game ID can be provided."));
+
+                response = new HelixResponse<DataPage<Video>>(info);
+
+                return response;
             }
 
-            RestRequest request = RestUtil.CreateHelixRequest("videos", Method.GET, helix_info, settings);
-            request = request.AddPaging(parameters);
+            info = RestUtil.CreateHelixRequest("videos", Method.GET, info);
 
-            Tuple<IRestResponse<DataPage<Video>>, RestException, RateLimit> tuple = await RestUtil.TraceExecuteAsync<Video, DataPage<Video>>(client_info, request, parameters, settings);
+            if (info.exception_source != RestErrorSource.None)
+            {
+                response = new HelixResponse<DataPage<Video>>(info);
 
-            IHelixResponse<DataPage<Video>> response = new HelixResponse<DataPage<Video>>(tuple.Item1, tuple.Item2, tuple.Item3);
+                return response;
+            }
+
+            info.request = info.request.AddPaging(parameters);
+            info = await RestUtil.TraceExecuteAsync<Video, DataPage<Video>>(info, parameters);
+
+            response = new HelixResponse<DataPage<Video>>(info);
 
             return response;
         }
 
         #endregion
+        */
     }
 }

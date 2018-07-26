@@ -2,11 +2,11 @@
 using System;
 using System.Threading.Tasks;
 using System.Web;
-using TwitchNet.Rest.OAuth.Validate;
-using TwitchNet.Extensions;
 
 // project namespaces
+using TwitchNet.Extensions;
 using TwitchNet.Rest.OAuth.Token;
+using TwitchNet.Rest.OAuth.Validate;
 using TwitchNet.Utilities;
 
 // imported .dll's
@@ -16,10 +16,9 @@ namespace
 TwitchNet.Rest.OAuth
 {
     public static class
-    OAuth
+    OAuth2
     {
-        private static ClientInfo client_info = ClientInfo.DefaultOAuth2;
-
+        /*
         #region /revoke
 
         /// <summary>
@@ -32,7 +31,7 @@ TwitchNet.Rest.OAuth
         /// <returns>Returns data that adheres to the <see cref="IOAuthResponse"/> interface.</returns>
         /// <exception cref="ArgumentException">Thrown if the <paramref name="oauth_token"/> or <paramref name="client_id"/> is null, empty, or only white space.</exception>
         public static IOAuthResponse
-        RevokeToken(string client_id, string oauth_token, RequestSettings settings = default(RequestSettings))
+        RevokeToken(string client_id, string oauth_token, RequestSettings settings = default)
         {
             IOAuthResponse response = RevokeTokenAsync(client_id, oauth_token, settings).Result;
 
@@ -49,14 +48,14 @@ TwitchNet.Rest.OAuth
         /// <returns>Returns data that adheres to the <see cref="IOAuthResponse"/> interface.</returns>
         /// <exception cref="ArgumentException">Thrown if the <paramref name="oauth_token"/> or <paramref name="client_id"/> is null, empty, or only white space.</exception>
         public static async Task<IOAuthResponse>
-        RevokeTokenAsync(string client_id, string oauth_token, RequestSettings settings = default(RequestSettings))
+        RevokeTokenAsync(string client_id, string oauth_token, RequestSettings settings = default)
         {
             if(settings.IsNull())
             {
                 settings = RequestSettings.Default;
             }
 
-            if(settings.input_hanlding == InputHandling.Error)
+            if(settings.error_handling_inputs == ErrorHandling.Error)
             {
                 ExceptionUtil.ThrowIfInvalid(client_id, nameof(client_id));
                 ExceptionUtil.ThrowIfInvalid(oauth_token, nameof(oauth_token));
@@ -91,7 +90,7 @@ TwitchNet.Rest.OAuth
         /// <returns>Returns data that adheres to the <see cref="IOAuthResponse"/> interface.</returns>
         /// 
         public static IOAuthResponse
-        RefreshToken(string client_id, string refresh_token, RefreshTokenParameters parameters, RequestSettings settings = default(RequestSettings))
+        RefreshToken(string client_id, string refresh_token, RefreshTokenParameters parameters, RequestSettings settings = default)
         {
             IOAuthResponse response = RefreshTokenAsync(client_id, refresh_token, parameters, settings).Result;
 
@@ -113,14 +112,14 @@ TwitchNet.Rest.OAuth
         /// <exception cref="ArgumentNullException">Thrown if the <paramref name="parameters"/> are null.</exception>
         /// <exception cref="ArgumentException">Thrown if the <paramref name="client_id"/>, <paramref name="refresh_token"/>, or <see cref="RefreshTokenParameters.client_secret"/> is null, empty, or only white space.</exception>
         public static async Task<IOAuthResponse>
-        RefreshTokenAsync(string client_id, string refresh_token, RefreshTokenParameters parameters, RequestSettings settings = default(RequestSettings))
+        RefreshTokenAsync(string client_id, string refresh_token, RefreshTokenParameters parameters, RequestSettings settings = default)
         {
             if (settings.IsNull())
             {
                 settings = RequestSettings.Default;
             }
 
-            if (settings.input_hanlding == InputHandling.Error)
+            if (settings.error_handling_inputs == ErrorHandling.Error)
             {
                 ExceptionUtil.ThrowIfInvalid(client_id, nameof(client_id));
                 ExceptionUtil.ThrowIfInvalid(refresh_token, nameof(refresh_token));
@@ -156,7 +155,7 @@ TwitchNet.Rest.OAuth
         /// <returns>Returns data that adheres to the <see cref="IOAuthResponse{result_type}"/> interface.</returns>
         /// <exception cref="ArgumentException">Thrown if the <paramref name="oauth_token"/> is null, empty, or only white space.</exception>
         public static IOAuthResponse<OAuthTokenInfo>
-        ValidateToken(string oauth_token, RequestSettings settings = default(RequestSettings))
+        ValidateToken(string oauth_token, RequestSettings settings = default)
         {
             IOAuthResponse<OAuthTokenInfo> response = ValidateTokenAsync(oauth_token, settings).Result;
 
@@ -171,14 +170,14 @@ TwitchNet.Rest.OAuth
         /// <returns>Returns data that adheres to the <see cref="IOAuthResponse{result_type}"/> interface.</returns>
         /// <exception cref="ArgumentException">Thrown if the <paramref name="oauth_token"/> is null, empty, or only white space.</exception>
         public static async Task<IOAuthResponse<OAuthTokenInfo>>
-        ValidateTokenAsync(string oauth_token, RequestSettings settings = default(RequestSettings))
+        ValidateTokenAsync(string oauth_token, RequestSettings settings = default)
         {
             if (settings.IsNull())
             {
                 settings = RequestSettings.Default;
             }
 
-            if (settings.input_hanlding == InputHandling.Error)
+            if (settings.error_handling_inputs == ErrorHandling.Error)
             {
                 ExceptionUtil.ThrowIfInvalid(oauth_token, nameof(oauth_token));
             }
@@ -194,5 +193,6 @@ TwitchNet.Rest.OAuth
         }
 
         #endregion
+        */
     }
 }

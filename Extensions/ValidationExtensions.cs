@@ -47,7 +47,7 @@ TwitchNet.Extensions
         public static bool
         IsDefault<type>(this type value)
         {
-            bool result = EqualityComparer<type>.Default.Equals(value, default(type));
+            bool result = EqualityComparer<type>.Default.Equals(value, default);
 
             return result;
         }

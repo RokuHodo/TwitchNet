@@ -4,7 +4,8 @@ using System;
 // imported .dll's
 using RestSharp;
 
-namespace TwitchNet.Rest
+namespace
+TwitchNet.Rest
 {
     public abstract class
     RestParameterConverter
@@ -25,8 +26,8 @@ namespace TwitchNet.Rest
         /// </para>
         /// </param>
         /// <returns>Returns the rest request to be executed.</returns>
-        public abstract RestRequest
-        AddParameter(RestRequest request, Parameter paramerter, Type member_type);
+        public abstract IRestRequest
+        AddParameter(IRestRequest request, Parameter paramerter, Type member_type);
 
         /// <summary>
         /// Determines if the member marked with <see cref="RestParameterConverter"/> can be converted.

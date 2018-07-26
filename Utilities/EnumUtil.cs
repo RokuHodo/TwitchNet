@@ -261,14 +261,6 @@ TwitchNet.Utilities
                         return true;
                     }
 
-                    index = Array.BinarySearch(resolved_values, _value);
-                    if (index > -1)
-                    {
-                        enum_result.name = names[index];
-
-                        return true;
-                    }
-
                     enum_result.inner_exception = new ArgumentException("Could not find the specified value " + value.ToString().WrapQuotes() + " in the enum type " + type.Name.WrapQuotes() + ".", nameof(value));
                 }
 

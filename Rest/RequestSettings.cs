@@ -1,6 +1,9 @@
 ﻿// standard namespaces
 using System.Threading;
 
+// project namespaces
+using TwitchNet.Rest.OAuth;
+
 namespace
 TwitchNet.Rest
 {
@@ -16,29 +19,48 @@ TwitchNet.Rest
         /// <para>The token used to cancel the request.</para>
         /// <para>Default: <see cref="CancellationToken.None"/>.</para>
         /// </summary>
-        public CancellationToken    cancelation_token                   { get; set; }
+        public CancellationToken    cancelation_token               { get; set; }
 
         /// <summary>
-        /// <para>The settings to handle the various HTTP status codes.</para>
+        /// <para>The settings usded to handle the different status codes when an API error is returned.</para>
         /// <para>Default: <see cref="StatusCodeSettings.Default"/>.</para>
         /// </summary>
-        public StatusCodeSettings   status_codes                        { get; set; }        
+        public StatusCodeSettings   status_code_settings            { get; set; }
 
         /// <summary>
-        /// <para>Determine whether or not to check and verify inputs by the user upon request execution.</para>
-        /// <para>Default: <see cref="InputHandling.Error"/>.</para>
-        /// </summary>
-        public InputHandling        input_hanlding                      { get; set; }
-
-        /// <summary>
-        /// <para>Determine how to handle any exceptions that are encountered internally witin the library.</para>
+        /// <para>How to handle errors experienced while executing the request.</para>
         /// <para>Default: <see cref="ErrorHandling.Error"/>.</para>
         /// </summary>
-        public ErrorHandling        internal_error_handling             { get; set; }
+        public ErrorHandling        error_handling_inputs           { get; set; }
 
         /// <summary>
-        /// Creates a new instance of the <see cref="RequestSettings"/> class.
+        /// <para>How to handle wrong or improperly formatted user inputs.</para>
+        /// <para>Default: <see cref="ErrorHandling.Error"/>.</para>
         /// </summary>
+        public ErrorHandling        error_handling_execution        { get; set; }
+
+        /// <summary>
+        /// <para>
+        /// How to handle OAuth tokens with missing scopes needed to authenticate the request.
+        /// This setting is only valid when available scopes are specified.
+        /// </para>
+        /// <para>Default: <see cref="ErrorHandling.Error"/>.</para>
+        /// </summary>
+        public ErrorHandling        error_handling_missing_scopes   { get; set; }
+
+        /// <summary>
+        /// <para>
+        /// The scopes that were requested when creating an OAuth token.
+        /// The scopes contained within an OAuth token can be obtained by using <see cref="OAuth2.ValidateToken(string, RequestSettings)"/>.
+        /// </para>
+        /// <para>
+        /// If specified when making an authenticated request, the available scopes will be used to check if the required scope(s) to make the request are present.
+        /// If not specified when making an authenticated request, the reuqest will be made normally without perfomring preemptive checks.
+        /// If specified when making a request that does not require authentication, the available scopes are ignored.
+        /// </para>
+        /// </summary>
+        public Scopes[]             available_scopes                { get; set; }
+
         public RequestSettings()
         {
             Reset();
@@ -50,12 +72,15 @@ TwitchNet.Rest
         public void
         Reset()
         {           
-            cancelation_token       = CancellationToken.None;
+            cancelation_token               = CancellationToken.None;
 
-            status_codes            = StatusCodeSettings.Default;
+            status_code_settings            = StatusCodeSettings.Default;
 
-            input_hanlding          = InputHandling.Error;
-            internal_error_handling = ErrorHandling.Error;
-        }
+            error_handling_inputs           = ErrorHandling.Error;
+            error_handling_execution        = ErrorHandling.Error;
+            error_handling_missing_scopes   = ErrorHandling.Error;
+
+            available_scopes                = new Scopes[0];
+    }
     }
 }

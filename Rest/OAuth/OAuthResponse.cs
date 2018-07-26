@@ -1,4 +1,5 @@
 ﻿// standard namespaces
+using System;
 using System.Collections.Generic;
 using System.Net;
 
@@ -14,39 +15,44 @@ TwitchNet.Rest.OAuth
         /// <summary>
         /// The description of the status code.
         /// </summary>
-        public string                       status_description  { get; protected set; }
+        public string                       status_description  { get; internal set; }
 
         /// <summary>
         /// The HTTP status code of the response.
         /// </summary>
-        public HttpStatusCode               status_code         { get; protected set; }
+        public HttpStatusCode               status_code         { get; internal set; }
 
         /// <summary>
         /// The response headers from the request.
         /// </summary>
-        public Dictionary<string, string>   headers             { get; protected set; }
+        public Dictionary<string, string>   headers             { get; internal set; }
+
+        /// <summary>
+        /// The source of the error encountered while making the request.
+        /// If more than one error was encountered, this represents the last error encountered.
+        /// </summary>
+        public RestErrorSource              exception_source    { get; internal set; }
 
         /// <summary>
         /// The details of the error if one occured.
         /// </summary>
-        public RestException                exception           { get; protected set; }
+        public IEnumerable<Exception>       exceptions          { get; internal set; }
 
-        /// <summary>
-        /// Creates a new instance of the <see cref="HelixResponse"/> class.
-        /// </summary>
-        /// <param name="response">The rest response.</param>
-        public OAuthResponse(IRestResponse response, RestException exception)
+        public OAuthResponse(RestInfo info)
         {
-            status_description = response.StatusDescription;
-            status_code = response.StatusCode;
+            /*
+            status_description = info.response.StatusDescription;
+            status_code = info.response.StatusCode;
 
             headers = new Dictionary<string, string>();
-            foreach (Parameter header in response.Headers)
+            foreach (Parameter header in info.response.Headers)
             {
                 headers.Add(header.Name, header.Value.ToString());
             }
 
-            this.exception = exception;
+            exceptions = info.exceptions;
+            exception_source = info.exception_source;
+            */
         }
 
         public OAuthResponse(IOAuthResponse response)
@@ -56,23 +62,18 @@ TwitchNet.Rest.OAuth
 
             headers = response.headers;
 
-            exception = response.exception;
+            exceptions = response.exceptions;
         }
     }
 
     internal class
     OAuthResponse<result_type> : OAuthResponse, IOAuthResponse<result_type>
     {
-        public result_type result { get; protected set; }
+        public result_type result { get; internal set; }
 
-        public OAuthResponse(IRestResponse<result_type> response, RestException exception) : base(response, exception)
+        public OAuthResponse(RestInfo<result_type> info) : base(info)
         {
-            result = response.Data;
-        }
-
-        public OAuthResponse(IOAuthResponse response, result_type result) : base(response)
-        {
-            this.result = result;
+            result = info.response.Data;
         }
     }
 }

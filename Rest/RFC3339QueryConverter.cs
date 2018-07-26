@@ -8,7 +8,8 @@ using TwitchNet.Extensions;
 // imported .dll's
 using RestSharp;
 
-namespace TwitchNet.Rest
+namespace
+TwitchNet.Rest
 {
     /// <summary>
     /// Converts a <see cref="DateTime"/> value to a RFC 3339 compliant string and adds it to the <see cref="RestRequest"/> as a query parameter.
@@ -32,8 +33,8 @@ namespace TwitchNet.Rest
         /// </para>
         /// </param>
         /// <returns>Returns the rest request to be executed.</returns>
-        public override RestRequest
-        AddParameter(RestRequest request, Parameter parameter, Type member_type)
+        public override IRestRequest
+        AddParameter(IRestRequest request, Parameter parameter, Type member_type)
         {
             if (!parameter.Name.IsValid() || parameter.Value.IsNull())
             {

@@ -2,13 +2,13 @@
 TwitchNet.Rest.Api.Users
 {
     public class
-    FollowsParameters : HelixQueryParameters, IHelixQueryParameters
+    FollowsParameters : PagingParameters, IPagingParameters
     {
         /// <summary>
         /// A user's id.
         /// The request returns information about users who are being followed by the this user.
         /// </summary>
-        [QueryParameter("from_id", typeof(int))]
+        [QueryParameter("from_id")]
         public virtual string from_id   { get; set; }
 
         /// <summary>
@@ -17,5 +17,16 @@ TwitchNet.Rest.Api.Users
         /// </summary>
         [QueryParameter("to_id")]
         public virtual string to_id     { get; set; }
+
+        public FollowsParameters()
+        {
+
+        }
+
+        public FollowsParameters(string from_id, string to_id)
+        {
+            this.from_id = from_id;
+            this.to_id = to_id;
+        }
     }
 }

@@ -90,8 +90,12 @@
     <Compile Include="Rest\Api\Users\Extension.cs" />
     <Compile Include="Rest\Api\Users\ActiveExtensionsParameters.cs" />
     <Compile Include="Rest\DefaultBodyConverter.cs" />
+    <Compile Include="Rest\RetryLimitReachedException.cs" />
+    <Compile Include="Rest\RestException.cs" />
+    <Compile Include="Rest\MissingScopesException.cs" />
     <Compile Include="Rest\RequestBodyAttribute.cs" />
     <Compile Include="Rest\RestParameterAttribute.cs" />
+    <Compile Include="Rest\RestInfo.cs" />
     <Compile Include="Rest\RFC3339QueryConverter.cs" />
     <Compile Include="Rest\SpaceDelineatedQueryConverter.cs" />
     <Compile Include="Rest\SeparateQueryConverter.cs" />
@@ -112,12 +116,12 @@
     <Compile Include="Clients\Irc\Twitch\UserNoticeType.cs" />
     <Compile Include="Clients\Irc\Twitch\RoomStateType.cs" />
     <Compile Include="Clients\Irc\Twitch\BadgeType.cs" />
-    <Compile Include="Rest\Api\StatusHandling.cs" />
+    <Compile Include="Rest\StatusHandling.cs" />
     <Compile Include="BroadcasterLanguage.cs" />
     <Compile Include="Rest\Api\Streams\StreamLanguage.cs" />
     <Compile Include="Rest\Api\Streams\StreamType.cs" />
     <Compile Include="Rest\Api\Users\BroadcasterType.cs" />
-    <Compile Include="Rest\Api\RestErrorSource.cs" />
+    <Compile Include="Rest\RestErrorSource.cs" />
     <Compile Include="Rest\Api\Videos\VideoType.cs" />
     <Compile Include="Rest\Api\Videos\VideoSort.cs" />
     <Compile Include="Rest\Api\Videos\VideoPeriod.cs" />
@@ -185,9 +189,8 @@
     <Compile Include="Extensions\ValidationExtensions.cs" />
     <Compile Include="Helpers\Json\JsonDeserializer.cs" />
     <Compile Include="Helpers\Json\VideoDurationConverter.cs" />
-    <Compile Include="Rest\Api\IHelixQueryParameters.cs" />
+    <Compile Include="Rest\Api\IPagingParameters.cs" />
     <Compile Include="Rest\ErrorHandling.cs" />
-    <Compile Include="Rest\InputHandling.cs" />
     <Compile Include="Rest\OAuth\IOAuthResponse.cs" />
     <Compile Include="Rest\Api\IDataPage.cs" />
     <Compile Include="Rest\Api\IData.cs" />
@@ -196,7 +199,6 @@
     <Compile Include="Clients\Irc\Twitch\ISharedUserStateTags.cs" />
     <Compile Include="Clients\Irc\Twitch\ISharedPrivmsgTags.cs" />
     <Compile Include="Rest\OAuth\OAuthResponse.cs" />
-    <Compile Include="Rest\ClientHandler.cs" />
     <Compile Include="Rest\ClientInfo.cs" />
     <Compile Include="Rest\Api\Clips\ClipCreationParameters.cs" />
     <Compile Include="Rest\Api\Clips\CreatedClip.cs" />
@@ -206,8 +208,6 @@
     <Compile Include="Rest\Api\DataPage.cs" />
     <Compile Include="Rest\Api\Data.cs" />
     <Compile Include="Rest\Api\Games\TopGamesParameters.cs" />
-    <Compile Include="Rest\Api\HelixInfo.cs" />
-    <Compile Include="Rest\RestException.cs" />
     <Compile Include="Rest\StatusCodeSettings.cs" />
     <Compile Include="Rest\Api\Streams\Hearthstone.cs" />
     <Compile Include="Rest\Api\Streams\HearthstoneHero.cs" />
@@ -222,7 +222,7 @@
     <Compile Include="Rest\Api\Entitlements\EntitlementParameters.cs" />
     <Compile Include="Helpers\ClampedNumber.cs" />
     <Compile Include="Rest\Api\Games\GamesParameters.cs" />
-    <Compile Include="Rest\Api\HelixQueryParameters.cs" />
+    <Compile Include="Rest\Api\PagingParameters.cs" />
     <Compile Include="Helpers\ClampedList.cs" />
     <Compile Include="Rest\QueryParameterAttribute.cs" />
     <Compile Include="Rest\Api\Streams\StreamsParameters.cs" />

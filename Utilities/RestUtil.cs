@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -9,6 +10,8 @@ using System.Threading.Tasks;
 using TwitchNet.Debugger;
 using TwitchNet.Rest;
 using TwitchNet.Rest.Api;
+using TwitchNet.Rest.OAuth;
+using TwitchNet.Rest.OAuth.Validate;
 using TwitchNet.Extensions;
 
 // imported .dll's
@@ -22,33 +25,30 @@ TwitchNet.Utilities
     public static class
     RestUtil
     {
-        private static readonly ConcurrentDictionary<Type, RestParameterConverter> QUERY_FORMATTER_CACHE = new ConcurrentDictionary<Type, RestParameterConverter>();
+        private static readonly ConcurrentDictionary<Type, RestParameterConverter> REST_PARAMETER_CONVERTER_CACHE = new ConcurrentDictionary<Type, RestParameterConverter>();
 
-        public static async Task<Tuple<IRestResponse, RestException, RateLimit>>
-        ExecuteAsync(ClientInfo client_info, IRestRequest request, RequestSettings settings)
+        public static async Task<RestInfo>
+        ExecuteAsync(RestInfo info)
         {
-            RestClient client = CreateClient(client_info);
-            IRestResponse response = await client.ExecuteTaskAsync(request, settings.cancelation_token);
+            info.response = await info.client.ExecuteTaskAsync(info.request, info.settings.cancelation_token);
 
-            Tuple<IRestResponse, RestException, RateLimit> tuple = await HandleResponse(client_info, response, settings);
+            info = await HandleResponse(info);
 
-            return tuple;
+            return info;
         }
 
-        public static async Task<Tuple<IRestResponse<result_type>, RestException, RateLimit>>
-        ExecuteAsync<result_type>(ClientInfo client_info, IRestRequest request, RequestSettings settings)
+        public static async Task<RestInfo<result_type>>
+        ExecuteAsync<result_type>(RestInfo<result_type> info)
         {
-            RestClient client = CreateClient(client_info);
-            IRestResponse<result_type> response = await client.ExecuteTaskAsync<result_type>(request, settings.cancelation_token);
+            info.response = await info.client.ExecuteTaskAsync<result_type>(info.request, info.settings.cancelation_token);
 
-            Tuple<IRestResponse<result_type>, RestException, RateLimit> tuple = await HandleResponse(client_info, response, settings);
+            info = await HandleResponse(info);
 
-            return tuple;
+            return info;
         }
 
-        // NOTE: Whenever a request needs to be delayed or retried, the total number elements is off by 1*n where n is number of retries/pauses. Why?
-        public static async Task<Tuple<IRestResponse<result_type>, RestException, RateLimit>>
-        TraceExecuteAsync<data_type, result_type>(ClientInfo client_info, IRestRequest request, IHelixQueryParameters parameters, RequestSettings settings)
+        public static async Task<RestInfo<result_type>>
+        TraceExecuteAsync<data_type, result_type>(RestInfo<result_type> info, IPagingParameters parameters)
         where result_type : DataPage<data_type>, IDataPage<data_type>, new()
         {
             IRestResponse<result_type> response = new RestResponse<result_type>();
@@ -58,55 +58,51 @@ TwitchNet.Utilities
 
             List<data_type> data = new List<data_type>();
 
-            RestException exception = new RestException();
-            RateLimit rate_limit = new RateLimit();
-
             if (parameters.IsNull())
             {
-                parameters = new HelixQueryParameters();
-            }
-
-            if (settings.IsNull())
-            {
-                settings = RequestSettings.Default;
+                parameters = new PagingParameters();
             }
 
             bool requesting = true;
             do
             {
-                Tuple<IRestResponse<result_type>, RestException, RateLimit> tuple = await ExecuteAsync<result_type>(client_info, request, settings);
-                foreach(data_type element in tuple.Item1.Data.data)
+                info = await ExecuteAsync(info);
+
+                if (info.response.Data.data.IsValid())
                 {
-                    data.Add(element);
-                }
+                    foreach (data_type element in info.response.Data.data)
+                    {
+                        data.Add(element);
+                    }
+                }                
 
-                exception = tuple.Item2;
-                rate_limit = tuple.Item3;
-
-                requesting = tuple.Item1.Data.data.IsValid() && tuple.Item1.Data.pagination.cursor.IsValid();
+                requesting = info.response.Data.data.IsValid() && info.response.Data.pagination.cursor.IsValid();
                 if (requesting)
                 {
                     // NOTE: This is a temporary fix and will only work with Helix.
-                    request = request.AddOrUpdateParameter("after", tuple.Item1.Data.pagination.cursor, ParameterType.QueryString);
+                    info.request = info.request.AddOrUpdateParameter("after", info.response.Data.pagination.cursor, ParameterType.QueryString);
                 }
                 else
                 {
-                    total_data = tuple.Item1.Data;
+                    // TODO: Clean up
+                    total_data = info.response.Data;
                     total_data.data = data;
 
-                    response = tuple.Item1;
+                    response = info.response;
                     response.Data = total_data;
+
+                    info.response = response;
                 }
             }
             while (requesting);
 
-            return Tuple.Create(response, exception, rate_limit);
+            return info;
         }
 
         #region Paging  
 
-        public static RestRequest
-        AddPaging(this RestRequest request, object parameters)
+        public static IRestRequest
+        AddPaging(this IRestRequest request, object parameters)
         {
             if (request.IsNull() || parameters.IsNull())
             {
@@ -171,7 +167,7 @@ TwitchNet.Utilities
                 parameter.ContentType   = attribute.content_type;
                 parameter.Value         = member_value;
 
-                RestParameterConverter converter = QUERY_FORMATTER_CACHE.GetOrAdd(attribute.converter, AddRestConverter);
+                RestParameterConverter converter = REST_PARAMETER_CONVERTER_CACHE.GetOrAdd(attribute.converter, AddRestConverter);
                 if (!converter.CanConvert(parameter, member_type))
                 {
                     continue;
@@ -193,263 +189,191 @@ TwitchNet.Utilities
 
         #region Response handling
 
-        private static async Task<Tuple<IRestResponse, RestException, RateLimit>>
-        HandleResponse(ClientInfo client_info, IRestResponse response, RequestSettings settings)
+        private static async Task<RestInfo>
+        HandleResponse(RestInfo info)
         {
-            RestException exception = GetRestException(response);
-            RateLimit rate_limit = new RateLimit(response.Headers);
-            Tuple<IRestResponse, RestException, RateLimit> tuple = Tuple.Create(response, exception, rate_limit);
+            info.rate_limit = new RateLimit(info.response.Headers);
 
-            switch (exception.error_source)
+            if (!info.response.ErrorException.IsNull())
             {
-                case RestErrorSource.None:
-                {
-                    Debug.WriteLine(response.StatusCode + ", " + rate_limit.remaining);
+                info.SetExecutionError(info.response.ErrorException);
 
-                    return tuple;
-                }
-
-                case RestErrorSource.Internal:
-                {
-                    if (settings.internal_error_handling == ErrorHandling.Error)
-                    {
-                        throw exception;
-                    }
-                    else
-                    {
-                        return tuple;
-                    }
-                }
-
-                case RestErrorSource.Request:
-                {
-                    tuple = await HandleRequestError(client_info, response, exception, rate_limit, settings);
-                }
-                break;                
+                return info;
             }
 
-            return tuple;
-        }
-
-        private static async Task<Tuple<IRestResponse, RestException, RateLimit>>
-        HandleRequestError(ClientInfo client_info, IRestResponse response, RestException exception, RateLimit rate_limit, RequestSettings settings)
-        {            
-            Tuple<IRestResponse, RestException, RateLimit> tuple = Tuple.Create(response, exception, rate_limit);
-
-            int code = (int)response.StatusCode;
-            switch (settings.status_codes[code].handling)
-            {
-                case StatusHandling.Error:
-                {
-                    throw exception;
-                }
-
-                case StatusHandling.Return:
-                {
-                    return tuple;
-                }
-
-                case StatusHandling.Retry:
-                {
-                    ++settings.status_codes[code].retry_count;
-                    if (settings.status_codes[code].retry_count > settings.status_codes[code].retry_limit && settings.status_codes[code].retry_limit != -1)
-                    {
-                        if(settings.status_codes[code].retry_limit_reached_handling == ErrorHandling.Error)
-                        {
-                            throw exception;
-                        }
-                        else
-                        {
-                            return tuple;
-                        }
-                    }
-                    
-                    if(rate_limit != RateLimit.None)
-                    {
-                        TimeSpan time = rate_limit.reset_time - DateTime.Now;
-                        if (rate_limit.remaining == 0 && time.TotalMilliseconds > 0)
-                        {
-                            Debug.WriteLine(TimeStamp.TimeLong, "Request rate limit reached. Waiting " + time.TotalMilliseconds + "ms to execute the request again.");
-                            await Task.Delay(time);
-                            Debug.WriteLine(TimeStamp.TimeLong, "Resuming request.");
-                        }
-                    }
-
-                    tuple = await ExecuteAsync(client_info, response.Request, settings);
-                }
-                break;                
-            }
-
-            return tuple;
-        }
-
-        private static async Task<Tuple<IRestResponse<result_type>, RestException, RateLimit>>
-        HandleResponse<result_type>(ClientInfo client_info, IRestResponse<result_type> response, RequestSettings settings)
-        {
-            // TODO: Exception thrown is not descriptive enough. 
-            RestException exception = GetRestException(response);
-            RateLimit rate_limit = new RateLimit(response.Headers);
-            Tuple<IRestResponse<result_type>, RestException, RateLimit> tuple = Tuple.Create(response, exception, rate_limit);
-
-            switch (exception.error_source)
-            {
-                case RestErrorSource.None:
-                {
-                    Debug.WriteLine(response.StatusCode + ", " + rate_limit.remaining);
-
-                    return tuple;
-                }
-
-                case RestErrorSource.Internal:
-                {
-                    if (settings.internal_error_handling == ErrorHandling.Error)
-                    {
-                        throw exception;
-                    }
-                    else
-                    {
-                        return Tuple.Create(response, exception, RateLimit.None);
-                    }
-                }
-
-                case RestErrorSource.Request:
-                {
-                    tuple = await HandleRequestError(client_info, response, exception, rate_limit, settings);
-                }
-                break;
-            }
-
-            return tuple;
-        }
-
-        private static async Task<Tuple<IRestResponse<result_type>, RestException, RateLimit>>
-        HandleRequestError<result_type>(ClientInfo client_info, IRestResponse<result_type> response, RestException exception, RateLimit rate_limit, RequestSettings settings)
-        {
-            Tuple<IRestResponse<result_type>, RestException, RateLimit> tuple = Tuple.Create(response, exception, rate_limit);
-
-            int code = (int)response.StatusCode;
-            switch (settings.status_codes[code].handling)
-            {
-                case StatusHandling.Error:
-                {
-                    throw exception;
-                }
-
-                case StatusHandling.Return:
-                {
-                    return tuple;
-                }
-
-                case StatusHandling.Retry:
-                {
-                    ++settings.status_codes[code].retry_count;
-                    if (settings.status_codes[code].retry_count > settings.status_codes[code].retry_limit && settings.status_codes[code].retry_limit != -1)
-                    {
-                        if (settings.status_codes[code].retry_limit_reached_handling == ErrorHandling.Error)
-                        {
-                            throw exception;
-                        }
-                        else
-                        {
-                            return tuple;
-                        }
-                    }
-
-                    if (rate_limit != RateLimit.None)
-                    {
-                        TimeSpan time = rate_limit.reset_time - DateTime.Now;
-                        if (rate_limit.remaining == 0 && time.TotalMilliseconds > 0)
-                        {
-                            Debug.WriteLine(TimeStamp.TimeLong, "Request rate limit reached. Waiting " + time.TotalMilliseconds + "ms to execute the request again.");
-                            await Task.Delay(time);
-                            Debug.WriteLine(TimeStamp.TimeLong, "Resuming request.");
-                        }
-                    }
-
-                    tuple = await ExecuteAsync<result_type>(client_info, response.Request, settings);
-                }
-                break;
-            }
-
-            return tuple;
-        }
-
-        private static RestException
-        GetRestException(IRestResponse response)
-        {
-            RestException exception = new RestException();
-
-            RestError error = JsonConvert.DeserializeObject<RestError>(response.Content);
+            RestError error = JsonConvert.DeserializeObject<RestError>(info.response.Content);
             if (error.IsNull())
             {
-                return exception;
+                return info;
             }
 
-            if (!response.ErrorException.IsNull())
+            // Handles StatusHandling.Error
+            ushort code = (ushort)info.response.StatusCode;
+            info.SetRestError(code, new RestException("An error was returned by Twitch after executing the request.", error));
+
+            // Handles StatusHandling.Return
+            if (info.settings.status_code_settings[code].handling == StatusHandling.Return)
             {
-                exception = new RestException(response, RestErrorSource.Internal, "An error was encountered by RestSharp while making the request. See the inner exception for more detials.", response.ErrorException);
-            }
-            else if (error.status != 0 || error.message.IsValid())
-            {
-                exception = new RestException(response, RestErrorSource.Request, error);
-            }
-            else
-            {
-                exception = new RestException();
+                return info;
             }
 
-            return exception;
+            // Handles StatusHandling.Retry
+            ++info.settings.status_code_settings[code].retry_count;
+            if (info.settings.status_code_settings[code].retry_count > info.settings.status_code_settings[code].retry_limit && info.settings.status_code_settings[code].retry_limit != -1)
+            {
+                info.SetRetryError(code, new RetryLimitReachedException("Retry limit reached for status code " + code + ".", info.settings.status_code_settings[code].retry_limit));
+
+                return info;
+            }
+
+            if (info.rate_limit != RateLimit.None)
+            {
+                TimeSpan time = info.rate_limit.reset_time - DateTime.Now;
+                if (info.rate_limit.remaining == 0 && time.TotalMilliseconds > 0)
+                {
+                    Debug.WriteLine(TimeStamp.TimeLong, "Request rate limit reached. Waiting " + time.TotalMilliseconds + "ms to execute the request again.");
+                    await Task.Delay(time);
+                    Debug.WriteLine(TimeStamp.TimeLong, "Resuming request.");
+                }
+            }
+
+            info = await ExecuteAsync(info);
+
+            return info;
+        }
+
+        private static async Task<RestInfo<result_type>>
+        HandleResponse<result_type>(RestInfo<result_type> info)
+        {
+            info.rate_limit = new RateLimit(info.response.Headers);            
+
+            if (!info.response.ErrorException.IsNull())
+            {
+                info.SetExecutionError(info.response.ErrorException);
+
+                return info;
+            }
+
+            RestError error = JsonConvert.DeserializeObject<RestError>(info.response.Content);
+            if (error.IsNull() || error.error.IsNull())
+            {
+                Debug.WriteLine(info.response.StatusCode + " - " + info.rate_limit.remaining + " / " + info.rate_limit.limit);
+
+                return info;
+            }
+
+            // Handles StatusHandling.Error
+            ushort code = (ushort)info.response.StatusCode;
+            info.SetRestError(code, new RestException("An error was returned by Twitch after executing the request.", error));
+
+            // Handles StatusHandling.Return
+            if (info.settings.status_code_settings[code].handling == StatusHandling.Return)
+            {
+                return info;
+            }
+
+            // Handles StatusHandling.Retry
+            ++info.settings.status_code_settings[code].retry_count;
+            if (info.settings.status_code_settings[code].retry_count > info.settings.status_code_settings[code].retry_limit && info.settings.status_code_settings[code].retry_limit != -1)
+            {
+                info.SetRetryError(code, new RetryLimitReachedException("Retry limit reached for status code " + code + ".", info.settings.status_code_settings[code].retry_limit));
+
+                return info;
+            }
+
+            if (info.rate_limit != RateLimit.None)
+            {
+                TimeSpan time = info.rate_limit.reset_time - DateTime.Now;
+                if (info.rate_limit.remaining == 0 && time.TotalMilliseconds > 0)
+                {
+                    Debug.WriteLine(TimeStamp.TimeLong, "Request rate limit reached. Waiting " + time.TotalMilliseconds + "ms to execute the request again.");
+                    await Task.Delay(time);
+                    Debug.WriteLine(TimeStamp.TimeLong, "Resuming request.");
+                }
+            }
+
+            info = await ExecuteAsync(info);
+
+            return info;
         }
 
         #endregion
 
-        #region Helper methods
+        #region Helper methods        
 
-        public static RestRequest
-        CreateHelixRequest(string endpoint, Method method, HelixInfo info, RequestSettings settings)
+        public static RestInfo<result_type>
+        CreateHelixRequest<result_type>(string endpoint, Method method, RestInfo<result_type> rest_info)
         {
-            if (settings.IsNullOrDefault())
+            if (rest_info.settings.IsNullOrDefault())
             {
-                settings = RequestSettings.Default;
+                rest_info.settings = RequestSettings.Default;
             }
 
-            if (settings.input_hanlding == InputHandling.Error && !info.bearer_token.IsValid() && !info.client_id.IsValid())
+            if(!TryValidateAuthentication(rest_info))
             {
-                throw new ArgumentException("A valid " + nameof(info.bearer_token) + " or " + nameof(info.client_id) + " must be provided.");
+                return rest_info;
             }
 
-            RestRequest request = new RestRequest(endpoint, method);
-            if (info.bearer_token.IsValid())
+            rest_info.request = new RestRequest(endpoint, method);
+            if (rest_info.bearer_token.IsValid())
             {
-                request.AddHeader("Authorization", "Bearer " + info.bearer_token);
+                rest_info.request.AddHeader("Authorization", "Bearer " + rest_info.bearer_token);
             }
 
-            if (info.client_id.IsValid())
+            if (rest_info.client_id.IsValid())
             {
-                request.AddHeader("Client-ID", info.client_id);
+                rest_info.request.AddHeader("Client-ID", rest_info.client_id);
             }
 
-            return request;
+            return rest_info;
         }
 
-        private static RestClient
-        CreateClient(ClientInfo info)
+        private static bool
+        TryValidateAuthentication(RestInfo rest_info)
         {
-            ExceptionUtil.ThrowIfInvalid(info.base_url, nameof(info.base_url));
-            ExceptionUtil.ThrowIfInvalid(info.handlers, nameof(info.handlers));
-
-            RestClient client = new RestClient(info.base_url);
-            foreach (ClientHandler handler in info.handlers)
+            if (!rest_info.bearer_token.IsValid() && !rest_info.client_id.IsValid())
             {
-                if (!handler.content_type.IsValid() || handler.deserializer.IsNull())
-                {
-                    continue;
-                }
+                rest_info.SetInputError(new ArgumentException("A bearer token or client ID must be provided."));
 
-                client.AddHandler(handler.content_type, handler.deserializer);
+                return false;
+            }
+            else if (rest_info.required_scopes == 0)
+            {
+                return true;
+            }
+            else if (!rest_info.bearer_token.IsValid())
+            {
+                Scopes[] missing_scopes = EnumUtil.GetFlagValues<Scopes>(rest_info.required_scopes);
+                rest_info.SetScopeError(new MissingScopesException("One or more scopes are missing from the specified OAuth token.", missing_scopes));
+
+                return false;
             }
 
-            return client;
+            Scopes[] available_scopes = rest_info.settings.available_scopes;
+            if (!available_scopes.IsValid())
+            {
+                // If no available scopes were specified, it's not inherently an error.
+                // The user might just not want to verify the scopes or didn't provide any.
+                return true;
+            }
+
+            foreach (Scopes scope in available_scopes)
+            {
+                if ((scope & rest_info.required_scopes) == scope)
+                {
+                    rest_info.required_scopes ^= scope;
+                }
+            }
+
+            if (rest_info.required_scopes != 0)
+            {
+                Scopes[] missing_scopes = EnumUtil.GetFlagValues<Scopes>(rest_info.required_scopes);
+                rest_info.SetScopeError(new MissingScopesException("One or more scopes are missing from the specified OAuth token.", missing_scopes));
+
+                return false;
+            }
+
+            return true;
         }
 
         #endregion

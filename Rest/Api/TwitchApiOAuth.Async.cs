@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 
 // project namespaces
+using TwitchNet.Extensions;
 using TwitchNet.Rest.Api.Analytics;
 using TwitchNet.Rest.Api.Bits;
 using TwitchNet.Rest.Api.Clips;
@@ -17,6 +18,7 @@ TwitchNet.Rest.Api
     public static partial class
     TwitchApiBearer
     {
+        /*
         // TODO: Test once I actually get around to making an extension.
         #region /analytics/extensions
 
@@ -116,9 +118,9 @@ TwitchNet.Rest.Api
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token = bearer_token;
 
-            IHelixResponse<Data<GameAnalytics>> respose = await TwitchApiInternal.GetGameAnalyticsPageAsync(request_info, default(GameAnalyticsParameters), settings);
+            IHelixResponse<Data<GameAnalytics>> response = await TwitchApiInternal.GetGameAnalyticsPageAsync(request_info, default(GameAnalyticsParameters), settings);
 
-            return respose;
+            return response;
         }
 
         /// <summary>
@@ -135,9 +137,9 @@ TwitchNet.Rest.Api
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token = bearer_token;
 
-            IHelixResponse<Data<GameAnalytics>> respose = await TwitchApiInternal.GetGameAnalyticsPageAsync(request_info, parameters, settings);
+            IHelixResponse<Data<GameAnalytics>> response = await TwitchApiInternal.GetGameAnalyticsPageAsync(request_info, parameters, settings);
 
-            return respose;
+            return response;
         }
 
         /// <summary>
@@ -155,9 +157,9 @@ TwitchNet.Rest.Api
             request_info.bearer_token   = bearer_token;
             request_info.client_id      = client_id;
 
-            IHelixResponse<Data<GameAnalytics>> respose = await TwitchApiInternal.GetGameAnalyticsPageAsync(request_info, default(GameAnalyticsParameters), settings);
+            IHelixResponse<Data<GameAnalytics>> response = await TwitchApiInternal.GetGameAnalyticsPageAsync(request_info, default(GameAnalyticsParameters), settings);
 
-            return respose;
+            return response;
         }
 
         /// <summary>
@@ -176,9 +178,9 @@ TwitchNet.Rest.Api
             request_info.bearer_token   = bearer_token;
             request_info.client_id      = client_id;
 
-            IHelixResponse<Data<GameAnalytics>> respose = await TwitchApiInternal.GetGameAnalyticsPageAsync(request_info, parameters, settings);
+            IHelixResponse<Data<GameAnalytics>> response = await TwitchApiInternal.GetGameAnalyticsPageAsync(request_info, parameters, settings);
 
-            return respose;
+            return response;
         }
 
         /// <summary>
@@ -194,9 +196,9 @@ TwitchNet.Rest.Api
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token = bearer_token;
 
-            IHelixResponse<DataPage<GameAnalytics>> respose = await TwitchApiInternal.GetGameAnalyticsAsync(request_info, default(GameAnalyticsParameters), settings);
+            IHelixResponse<DataPage<GameAnalytics>> response = await TwitchApiInternal.GetGameAnalyticsAsync(request_info, default(GameAnalyticsParameters), settings);
 
-            return respose;
+            return response;
         }
 
         /// <summary>
@@ -213,9 +215,9 @@ TwitchNet.Rest.Api
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token = bearer_token;
 
-            IHelixResponse<DataPage<GameAnalytics>> respose = await TwitchApiInternal.GetGameAnalyticsAsync(request_info, parameters, settings);
+            IHelixResponse<DataPage<GameAnalytics>> response = await TwitchApiInternal.GetGameAnalyticsAsync(request_info, parameters, settings);
 
-            return respose;
+            return response;
         }
 
         /// <summary>
@@ -233,9 +235,9 @@ TwitchNet.Rest.Api
             request_info.bearer_token = bearer_token;
             request_info.client_id = client_id;
 
-            IHelixResponse<DataPage<GameAnalytics>> respose = await TwitchApiInternal.GetGameAnalyticsAsync(request_info, default(GameAnalyticsParameters), settings);
+            IHelixResponse<DataPage<GameAnalytics>> response = await TwitchApiInternal.GetGameAnalyticsAsync(request_info, default(GameAnalyticsParameters), settings);
 
-            return respose;
+            return response;
         }
 
         /// <summary>
@@ -254,9 +256,9 @@ TwitchNet.Rest.Api
             request_info.bearer_token = bearer_token;
             request_info.client_id = client_id;
 
-            IHelixResponse<DataPage<GameAnalytics>> respose = await TwitchApiInternal.GetGameAnalyticsAsync(request_info, parameters, settings);
+            IHelixResponse<DataPage<GameAnalytics>> response = await TwitchApiInternal.GetGameAnalyticsAsync(request_info, parameters, settings);
 
-            return respose;
+            return response;
         }
 
         #endregion
@@ -276,9 +278,9 @@ TwitchNet.Rest.Api
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token = bearer_token;
 
-            IHelixResponse<BitsLeaderboardData<BitsUser>> respose = await TwitchApiInternal.GetBitsLeaderboardAsync(request_info, default(BitsLeaderboardParameters), settings);
+            IHelixResponse<BitsLeaderboardData<BitsUser>> response = await TwitchApiInternal.GetBitsLeaderboardAsync(request_info, default(BitsLeaderboardParameters), settings);
 
-            return respose;
+            return response;
         }
 
         /// <summary>
@@ -295,9 +297,9 @@ TwitchNet.Rest.Api
             HelixInfo request_info = new HelixInfo();
             request_info.bearer_token = bearer_token;
 
-            IHelixResponse<BitsLeaderboardData<BitsUser>> respose = await TwitchApiInternal.GetBitsLeaderboardAsync(request_info, parameters, settings);
+            IHelixResponse<BitsLeaderboardData<BitsUser>> response = await TwitchApiInternal.GetBitsLeaderboardAsync(request_info, parameters, settings);
 
-            return respose;
+            return response;
         }
 
         /// <summary>
@@ -315,9 +317,9 @@ TwitchNet.Rest.Api
             request_info.bearer_token = bearer_token;
             request_info.client_id = client_id;
 
-            IHelixResponse<BitsLeaderboardData<BitsUser>> respose = await TwitchApiInternal.GetBitsLeaderboardAsync(request_info, default(BitsLeaderboardParameters), settings);
+            IHelixResponse<BitsLeaderboardData<BitsUser>> response = await TwitchApiInternal.GetBitsLeaderboardAsync(request_info, default(BitsLeaderboardParameters), settings);
 
-            return respose;
+            return response;
         }
 
         /// <summary>
@@ -336,9 +338,9 @@ TwitchNet.Rest.Api
             request_info.bearer_token   = bearer_token;
             request_info.client_id      = client_id;
 
-            IHelixResponse<BitsLeaderboardData<BitsUser>> respose = await TwitchApiInternal.GetBitsLeaderboardAsync(request_info, parameters, settings);
+            IHelixResponse<BitsLeaderboardData<BitsUser>> response = await TwitchApiInternal.GetBitsLeaderboardAsync(request_info, parameters, settings);
 
-            return respose;
+            return response;
         }
 
         #endregion
@@ -1326,427 +1328,264 @@ TwitchNet.Rest.Api
         }
 
         #endregion
-
+        */
         #region /users/follows
 
-        /// <summary>
-        /// Asynchronously gets the relationship between two users.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="from_id">The user to compare from.</param>
-        /// <param name="to_id">The user to compare to.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserRelationshipAsync(string bearer_token, string from_id, string to_id, RequestSettings settings = default(RequestSettings))
+        GetUserFollowingPageAsync(string bearer_token, string from_id, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
 
-            IHelixResponse<FollowsDataPage<Follow>> relationship = await TwitchApiInternal.GetUserRelationshipPageAsync(request_info, from_id, to_id, default(FollowsParameters), settings);
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserFollowingPageAsync(info, from_id, default);
 
-            return relationship;
+            return response;
         }
 
-        /// <summary>
-        /// Asynchronously gets the relationship between two users.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="from_id">The user to compare from.</param>
-        /// <param name="to_id">The user to compare to.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserRelationshipAsync(string bearer_token, string client_id, string from_id, string to_id, RequestSettings settings = default(RequestSettings))
+        GetUserFollowingPageAsync(string bearer_token, string from_id, FollowsParameters parameters, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
 
-            IHelixResponse<FollowsDataPage<Follow>> relationship = await TwitchApiInternal.GetUserRelationshipPageAsync(request_info, from_id, to_id, default(FollowsParameters), settings);
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserFollowingPageAsync(info, from_id, parameters);
 
-            return relationship;
-        }        
-
-        /// <summary>
-        /// Asynchronously gets a single page of a user's following list.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="from_id">The user to get the following list from.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowingPageAsync(string bearer_token, string from_id, RequestSettings settings = default(RequestSettings))
-        {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
-
-            IHelixResponse<FollowsDataPage<Follow>> following = await TwitchApiInternal.GetUserRelationshipPageAsync(request_info, from_id, string.Empty, default(FollowsParameters), settings);
-
-            return following;
+            return response;
         }
 
-        /// <summary>
-        /// Asynchronously gets a single page of a user's following list.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="from_id">The user to get the following list from.</param>
-        /// <param name="parameters">
-        /// A set of query parameters to customize the request.
-        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="parameters"/> are ignored if specified.
-        /// </param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowingPageAsync(string bearer_token, string from_id, FollowsParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUserFollowingPageAsync(string bearer_token, string client_id, string from_id, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
+            info.client_id = client_id;
 
-            IHelixResponse<FollowsDataPage<Follow>> following = await TwitchApiInternal.GetUserRelationshipPageAsync(request_info, from_id, string.Empty, parameters, settings);
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserFollowingPageAsync(info, from_id, default);
 
-            return following;
+            return response;
         }
 
-        /// <summary>
-        /// Asynchronously gets a single page of a user's following list.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="from_id">The user to get the following list from.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowingPageAsync(string bearer_token, string client_id, string from_id, RequestSettings settings = default(RequestSettings))
+        GetUserFollowingPageAsync(string bearer_token, string client_id, string from_id, FollowsParameters parameters, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
+            info.client_id = client_id;
 
-            IHelixResponse<FollowsDataPage<Follow>> following = await TwitchApiInternal.GetUserRelationshipPageAsync(request_info, from_id, string.Empty, default(FollowsParameters), settings);
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserFollowingPageAsync(info, from_id, parameters);
 
-            return following;
+            return response;
         }
 
-        /// <summary>
-        /// Asynchronously gets a single page of a user's following list.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="from_id">The user to get the following list from.</param>
-        /// <param name="parameters">
-        /// A set of query parameters to customize the request.
-        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="parameters"/> are ignored if specified.
-        /// </param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowingPageAsync(string bearer_token, string client_id, string from_id, FollowsParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUserFollowingAsync(string bearer_token, string from_id, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
 
-            IHelixResponse<FollowsDataPage<Follow>> following = await TwitchApiInternal.GetUserRelationshipPageAsync(request_info, from_id, string.Empty, parameters, settings);
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserFollowingAsync(info, from_id, default);
 
-            return following;
+            return response;
         }
 
-        /// <summary>
-        /// Asynchronously gets a user's following list.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="from_id">The user to get the following list from.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowingAsync(string bearer_token, string from_id, RequestSettings settings = default(RequestSettings))
+        GetUserFollowingAsync(string bearer_token, string from_id, FollowsParameters parameters, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
 
-            IHelixResponse<FollowsDataPage<Follow>> following = await TwitchApiInternal.GetUserRelationshipAsync(request_info, from_id, string.Empty, default(FollowsParameters), settings);
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserFollowingAsync(info, from_id, parameters);
 
-            return following;
+            return response;
         }
 
-        /// <summary>
-        /// Asynchronously gets a user's following list.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="from_id">The user to get the following list from.</param>
-        /// <param name="parameters">
-        /// A set of query parameters to customize the request.
-        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="parameters"/> are ignored if specified.
-        /// </param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowingAsync(string bearer_token, string from_id, FollowsParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUserFollowingAsync(string bearer_token, string client_id, string from_id, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token = bearer_token;
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
+            info.client_id = client_id;
 
-            IHelixResponse<FollowsDataPage<Follow>> following = await TwitchApiInternal.GetUserRelationshipAsync(request_info, from_id, string.Empty, parameters, settings);
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserFollowingAsync(info, from_id, default);
 
-            return following;
+            return response;
         }
 
-        /// <summary>
-        /// Asynchronously gets a user's following list.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="from_id">The user to get the following list from.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowingAsync(string bearer_token, string client_id, string from_id, RequestSettings settings = default(RequestSettings))
+        GetUserFollowingAsync(string bearer_token, string client_id, string from_id, FollowsParameters parameters, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
+            info.client_id = client_id;
 
-            IHelixResponse<FollowsDataPage<Follow>> following = await TwitchApiInternal.GetUserRelationshipAsync(request_info, from_id, string.Empty, default(FollowsParameters), settings);
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserFollowingAsync(info, from_id, parameters);
 
-            return following;
+            return response;
         }
 
-        /// <summary>
-        /// Asynchronously gets a user's following list.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="from_id">The user to get the following list from.</param>
-        /// <param name="parameters">
-        /// A set of query parameters to customize the request.
-        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="parameters"/> are ignored if specified.
-        /// </param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowingAsync(string bearer_token, string client_id, string from_id, FollowsParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUserFollowersPageAsync(string bearer_token, string to_id, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
 
-            IHelixResponse<FollowsDataPage<Follow>> following = await TwitchApiInternal.GetUserRelationshipAsync(request_info, from_id, string.Empty, parameters, settings);
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserFollowersPageAsync(info, to_id, default);
 
-            return following;
+            return response;
         }
 
-        /// <summary>
-        /// Asynchronously gets a single paged of a user's followers list.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="to_id">The user to get the followers for.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowersPageAsync(string bearer_token, string to_id, RequestSettings settings = default(RequestSettings))
+        GetUserFollowersPageAsync(string bearer_token, string to_id, FollowsParameters parameters, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
 
-            IHelixResponse<FollowsDataPage<Follow>> followers = await TwitchApiInternal.GetUserRelationshipPageAsync(request_info, string.Empty, to_id, default(FollowsParameters), settings);
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserFollowersPageAsync(info, to_id, parameters);
 
-            return followers;
+            return response;
         }
 
-        /// <summary>
-        /// Asynchronously gets a single paged of a user's followers list.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="to_id">The user to get the followers for.</param>
-        /// <param name="parameters">
-        /// A set of query parameters to customize the request.
-        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="parameters"/> are ignored if specified.
-        /// </param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowersPageAsync(string bearer_token, string to_id, FollowsParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUserFollowersPageAsync(string bearer_token, string client_id, string to_id, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
+            info.client_id = client_id;
 
-            IHelixResponse<FollowsDataPage<Follow>> followers = await TwitchApiInternal.GetUserRelationshipPageAsync(request_info, string.Empty, to_id, parameters, settings);
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserFollowersPageAsync(info, to_id, default);
 
-            return followers;
+            return response;
         }
 
-        /// <summary>
-        /// Asynchronously gets a single paged of a user's followers list.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="to_id">The user to get the followers for.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowersPageAsync(string bearer_token, string client_id, string to_id, RequestSettings settings = default(RequestSettings))
+        GetUserFollowersPageAsync(string bearer_token, string client_id, string to_id, FollowsParameters parameters, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
+            info.client_id = client_id;
 
-            IHelixResponse<FollowsDataPage<Follow>> followers = await TwitchApiInternal.GetUserRelationshipPageAsync(request_info, string.Empty, to_id, default(FollowsParameters), settings);
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserFollowersPageAsync(info, to_id, parameters);
 
-            return followers;
+            return response;
         }
 
-        /// <summary>
-        /// Asynchronously gets a single paged of a user's followers list.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="to_id">The user to get the followers for.</param>
-        /// <param name="parameters">
-        /// A set of query parameters to customize the request.
-        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="parameters"/> are ignored if specified.
-        /// </param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowersPageAsync(string bearer_token, string client_id, string to_id, FollowsParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUserFollowersAsync(string bearer_token, string to_id, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
 
-            IHelixResponse<FollowsDataPage<Follow>> followers = await TwitchApiInternal.GetUserRelationshipPageAsync(request_info, string.Empty, to_id, parameters, settings);
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserFollowersAsync(info, to_id, default);
 
-            return followers;
+            return response;
         }
 
-        /// <summary>
-        /// Asynchronously gets a user's followers list.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="to_id">The user to get the followers for.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowersAsync(string bearer_token, string to_id, RequestSettings settings = default(RequestSettings))
+        GetUserFollowersAsync(string bearer_token, string to_id, FollowsParameters parameters, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
 
-            IHelixResponse<FollowsDataPage<Follow>> followers = await TwitchApiInternal.GetUserRelationshipAsync(request_info, string.Empty, to_id, default(FollowsParameters), settings);
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserFollowersAsync(info, to_id, parameters);
 
-            return followers;
+            return response;
         }
 
-        /// <summary>
-        /// Asynchronously gets a user's followers list.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="to_id">The user to get the followers for.</param>
-        /// <param name="parameters">
-        /// A set of query parameters to customize the request.
-        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="parameters"/> are ignored if specified.
-        /// </param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowersAsync(string bearer_token, string to_id, FollowsParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUserFollowersAsync(string bearer_token, string client_id, string to_id, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
+            info.client_id = client_id;
 
-            IHelixResponse<FollowsDataPage<Follow>> followers = await TwitchApiInternal.GetUserRelationshipAsync(request_info, string.Empty, to_id, parameters, settings);
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserFollowersAsync(info, to_id, default);
 
-            return followers;
+            return response;
         }
 
-        /// <summary>
-        /// Asynchronously gets a user's followers list.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="to_id">The user to get the followers for.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowersAsync(string bearer_token, string client_id, string to_id, RequestSettings settings = default(RequestSettings))
+        GetUserFollowersAsync(string bearer_token, string client_id, string to_id, FollowsParameters parameters, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
+            info.client_id = client_id;
 
-            IHelixResponse<FollowsDataPage<Follow>> followers = await TwitchApiInternal.GetUserRelationshipAsync(request_info, string.Empty, to_id, default(FollowsParameters), settings);
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserFollowersAsync(info, to_id, parameters);
 
-            return followers;
+            return response;
         }
 
-        /// <summary>
-        /// Asynchronously gets a user's followers list.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="to_id">The user to get the followers for.</param>
-        /// <param name="parameters">
-        /// A set of query parameters to customize the request.
-        /// The <code>from_id</code> and <code>to_id</code> properties in the <paramref name="parameters"/> are ignored if specified.
-        /// </param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-        GetUserFollowersAsync(string bearer_token, string client_id, string to_id, FollowsParameters parameters, RequestSettings settings = default(RequestSettings))
-        {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
-
-            IHelixResponse<FollowsDataPage<Follow>> followers = await TwitchApiInternal.GetUserRelationshipAsync(request_info, string.Empty, to_id, parameters, settings);
-
-            return followers;
-        }
-
-        /// <summary>
-        /// Asynchronously checks to see if <paramref name="from_id"/> is following <paramref name="to_id"/>.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="from_id">The user to compare from.</param>
-        /// <param name="to_id">The user to compare to.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<bool>>
-        IsUserFollowingAsync(string bearer_token, string from_id, string to_id, RequestSettings settings = default(RequestSettings))
+        IsUserFollowingAsync(string bearer_token, string from_id, string to_id, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
 
-            IHelixResponse<bool> is_following = await TwitchApiInternal.IsUserFollowingAsync(request_info, from_id, to_id, settings);
+            IHelixResponse<bool> is_following = await TwitchApiInternal.IsUserFollowingAsync(info, from_id, to_id);
 
             return is_following;
         }
 
-        /// <summary>
-        /// Asynchronously checks to see if <paramref name="from_id"/> is following <paramref name="to_id"/>.
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="from_id">The user to compare from.</param>
-        /// <param name="to_id">The user to compare to.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<bool>>
-        IsUserFollowingAsync(string bearer_token, string client_id, string from_id, string to_id, RequestSettings settings = default(RequestSettings))
+        IsUserFollowingAsync(string bearer_token, string client_id, string from_id, string to_id, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
+            info.client_id = client_id;
 
-            IHelixResponse<bool> is_following = await TwitchApiInternal.IsUserFollowingAsync(request_info, from_id, to_id, settings);
+            IHelixResponse<bool> is_following = await TwitchApiInternal.IsUserFollowingAsync(info, from_id, to_id);
 
             return is_following;
+        }
+
+        public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
+        GetUserRelationshipPageAsync(string bearer_token, FollowsParameters parameters, RequestSettings settings = default)
+        {
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
+
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserRelationshipPageAsync(info, parameters);
+
+            return response;
+        }
+
+        public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
+        GetUserRelationshipPageAsync(string bearer_token, string client_id, FollowsParameters parameters, RequestSettings settings = default)
+        {
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
+            info.client_id = client_id;
+
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserRelationshipPageAsync(info, parameters);
+
+            return response;
+        }
+
+        public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
+        GetUserRelationshipAsync(string bearer_token, FollowsParameters parameters, RequestSettings settings = default)
+        {
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
+
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserRelationshipAsync(info, parameters);
+
+            return response;
+        }
+
+        public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
+        GetUserRelationshipAsync(string bearer_token, string client_id, FollowsParameters parameters, RequestSettings settings = default)
+        {
+            RestInfo<FollowsDataPage<Follow>> info = new RestInfo<FollowsDataPage<Follow>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
+            info.client_id = client_id;
+
+            IHelixResponse<FollowsDataPage<Follow>> response = await TwitchApiInternal.GetUserRelationshipAsync(info, parameters);
+
+            return response;
         }
 
         #endregion
-
+        /*
         #region /videos
 
         /// <summary>
@@ -1826,5 +1665,6 @@ TwitchNet.Rest.Api
         }
 
         #endregion
+        */
     }
 }

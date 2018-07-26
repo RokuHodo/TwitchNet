@@ -16,6 +16,6 @@ TwitchNet.Rest.Api.Entitlements
         /// Determines the entitlement being dropped.
         /// </summary>
         [QueryParameter("type")]
-        public virtual EntitlementType? type        { get; set; }
+        public virtual EntitlementType type         { get; set; }
     }
 }

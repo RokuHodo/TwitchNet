@@ -10,7 +10,8 @@ using TwitchNet.Utilities;
 // imported .dll's
 using RestSharp;
 
-namespace TwitchNet.Rest
+namespace
+TwitchNet.Rest
 {
     /// <summary>
     /// <para>
@@ -44,8 +45,8 @@ namespace TwitchNet.Rest
         /// </para>
         /// </param>
         /// <returns>Returns the rest request to be executed.</returns>
-        public override RestRequest
-        AddParameter(RestRequest request, Parameter parameter, Type member_type)
+        public override IRestRequest
+        AddParameter(IRestRequest request, Parameter parameter, Type member_type)
         {
             if (!parameter.Name.IsValid() || parameter.Value.IsNull())
             {

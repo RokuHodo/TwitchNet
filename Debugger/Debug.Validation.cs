@@ -532,7 +532,7 @@ TwitchNet.Debugger
         private static void
         ValidationHandler_Tags(object obj, string name, Type type, object value, ValidateMemberAttribute attribute)
         {
-            IrcMessage irc_message = default(IrcMessage);
+            IrcMessage irc_message = default;
 
             string target = "irc_message";
             MemberInfo[] members = obj.GetType().GetMember(target);

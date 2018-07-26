@@ -1,12 +1,14 @@
 ﻿// standard namespaces
 using System;
 
+// project namespaces
 using TwitchNet.Helpers.Json;
 
 // imported .dll's
 using RestSharp;
 
-namespace TwitchNet.Rest
+namespace
+TwitchNet.Rest
 {
     /// <summary>
     /// The default converter for request body parameters.
@@ -30,8 +32,8 @@ namespace TwitchNet.Rest
         /// </para>
         /// </param>
         /// <returns>Returns the rest request to be executed.</returns>
-        public override RestRequest
-        AddParameter(RestRequest request, Parameter parameter, Type member_type)
+        public override IRestRequest
+        AddParameter(IRestRequest request, Parameter parameter, Type member_type)
         {
             request.RequestFormat = DataFormat.Json;
             request.JsonSerializer = new JsonSerializer();

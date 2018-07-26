@@ -143,7 +143,7 @@ TwitchNet.Utilities
         public static bool
         ToBool(in IrcMessage message, string key)
         {
-            bool value = default(bool);
+            bool value = default;
 
             if (!IsTagValid(message, key))
             {

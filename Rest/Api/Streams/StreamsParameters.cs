@@ -8,7 +8,7 @@ namespace
 TwitchNet.Rest.Api.Streams
 {
     public class
-    StreamsParameters : HelixQueryParameters, IHelixQueryParameters
+    StreamsParameters : PagingParameters, IPagingParameters
     {
         private ClampedList<string> _community_ids  = new ClampedList<string>();
         private ClampedList<string> _game_ids       = new ClampedList<string>();

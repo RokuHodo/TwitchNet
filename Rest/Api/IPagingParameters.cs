@@ -2,7 +2,7 @@
 TwitchNet.Rest.Api
 {
     public interface
-    IHelixQueryParameters
+    IPagingParameters
     {
         string after { get; }
     }

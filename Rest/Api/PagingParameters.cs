@@ -5,7 +5,7 @@ namespace
 TwitchNet.Rest.Api
 {
     public class
-    HelixQueryParameters : IHelixQueryParameters
+    PagingParameters : IPagingParameters
     {
         private ClampedNumber<ushort>   _first  = new ClampedNumber<ushort>(1, 100, 20);
 

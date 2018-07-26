@@ -8,7 +8,7 @@ namespace
 TwitchNet.Rest.Api.Clips
 {
     public class
-    GameAnalyticsParameters : HelixQueryParameters, IHelixQueryParameters
+    GameAnalyticsParameters : PagingParameters, IPagingParameters
     {
         /// <summary>
         /// <para>The ID of the game to request a report for.</para>

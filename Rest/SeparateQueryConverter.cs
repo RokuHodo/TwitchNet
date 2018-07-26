@@ -9,7 +9,8 @@ using TwitchNet.Utilities;
 // imported .dll's
 using RestSharp;
 
-namespace TwitchNet.Rest
+namespace
+TwitchNet.Rest
 {
     /// <summary>
     /// Adds the elements of an array/list or the set flags of a bitfield enum to the <see cref="RestRequest"/> as separate query parameters.
@@ -33,8 +34,8 @@ namespace TwitchNet.Rest
         /// </para>
         /// </param>
         /// <returns>Returns the rest request to be executed.</returns>
-        public override RestRequest
-        AddParameter(RestRequest request, Parameter parameter, Type member_type)
+        public override IRestRequest
+        AddParameter(IRestRequest request, Parameter parameter, Type member_type)
         {
             if (!parameter.Name.IsValid() || parameter.Value.IsNull())
             {

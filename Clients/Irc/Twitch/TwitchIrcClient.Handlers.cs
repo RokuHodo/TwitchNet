@@ -462,11 +462,13 @@ TwitchNet.Clients.Irc.Twitch
         {
             if (request_user_info)
             {
+                /*
                 IHelixResponse<Data<User>> _twitch_user = TwitchApiBearer.GetUser(irc_user.pass);
                 if (_twitch_user.result.data.IsValid())
                 {
                     twitch_user = _twitch_user.result.data[0];
                 }
+                */
             }
 
             if (request_commands)

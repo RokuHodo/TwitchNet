@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 
 // project namespaces
-using TwitchNet.Rest.Api;
 using TwitchNet.Utilities;
 
 namespace
@@ -78,28 +77,36 @@ TwitchNet.Rest
         /// <summary>
         /// How many times the request has been retried.
         /// </summary>
-        public    int               retry_count                     { get; internal set; }
+        public int              retry_count                     { get; internal set; }
 
         /// <summary>
-        /// <para>The maximum amount of times to retry the request.</para>
+        /// <para>The maximum number of times to retry executing the request.</para>
         /// <para>
-        /// Default: -1.
+        /// This setting is only valid when <see cref="handling"/> is set to <see cref="StatusHandling.Retry"/>.
+        /// Otherwise, it is ignored.
+        /// </para>
+        /// <para>
+        /// Default: 1.
         /// When set to -1, the request will be retried infinitely until it succeedes.
         /// </para>
         /// </summary>
-        public      int             retry_limit                     { get; set; }
+        public int              retry_limit                     { get; set; }
 
         /// <summary>
-        /// <para>Determines the fallback handling when the <see cref="handling"/> is set to <see cref="StatusHandling.Retry"/> and the retry limit has been reached.</para>
+        /// <para>How to handle when the maximum number of retries is reached.</para>
+        /// <para>
+        /// This setting is only valid when <see cref="handling"/> is set to <see cref="StatusHandling.Retry"/>.
+        /// Otherwise, it is ignored.
+        /// </para>
         /// <para>Default: <see cref="ErrorHandling.Error"/>.</para>
         /// </summary>
-        public      ErrorHandling   retry_limit_reached_handling    { get; set; }
+        public ErrorHandling    retry_limit_reached_handling    { get; set; }
 
         /// <summary>
-        /// <para>How to handle the status code.</para>
+        /// <para>How to handle errors with a specific status code.</para>
         /// <para>Default: <see cref="StatusHandling.Error"/>.</para>
         /// </summary>
-        public StatusHandling  handling                             { get; set; }
+        public StatusHandling   handling                        { get; set; }
 
         /// <summary>
         /// Creates a new instance of the <see cref="StatusCodeSetting"/> struct.
@@ -116,7 +123,7 @@ TwitchNet.Rest
         Reset()
         {
             retry_count                     = 0;
-            retry_limit                     = -1;
+            retry_limit                     = 1;
             retry_limit_reached_handling    = ErrorHandling.Error;
 
             handling                        = StatusHandling.Error;

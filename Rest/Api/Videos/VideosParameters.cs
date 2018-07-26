@@ -8,7 +8,7 @@ namespace
 TwitchNet.Rest.Api.Videos
 {
     public class
-    VideosParameters : HelixQueryParameters, IHelixQueryParameters
+    VideosParameters : PagingParameters, IPagingParameters
     {
         private ClampedList<string> _ids = new ClampedList<string>();
 

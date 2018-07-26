@@ -5,13 +5,13 @@ TwitchNet.Rest
     ErrorHandling
     {
         /// <summary>
-        /// Throw an <see cref="Exception"/> where one is encountered or where one id manually thrown.
+        /// Throws an <see cref="AggregateException"/> with all errors that were encountered.
         /// </summary>
-        Error   = 0,
+        Error = 0,
 
         /// <summary>
-        /// Don't throw the the <see cref="Exception"/> but cancel the request with the error attached.
+        /// Returns the <see cref="AggregateException"/> with all errors that were encountered.
         /// </summary>
-        Return  = 1,
+        Return = 1,
     }
 }

@@ -208,7 +208,7 @@
     <Compile Include="Rest\Api\DataPage.cs" />
     <Compile Include="Rest\Api\Data.cs" />
     <Compile Include="Rest\Api\Games\TopGamesParameters.cs" />
-    <Compile Include="Rest\StatusCodeSettings.cs" />
+    <Compile Include="Rest\StatusCodeSetting.cs" />
     <Compile Include="Rest\Api\Streams\Hearthstone.cs" />
     <Compile Include="Rest\Api\Streams\HearthstoneHero.cs" />
     <Compile Include="Rest\Api\Streams\Player.cs" />

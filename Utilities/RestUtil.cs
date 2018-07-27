@@ -204,6 +204,8 @@ TwitchNet.Utilities
             RestError error = JsonConvert.DeserializeObject<RestError>(info.response.Content);
             if (error.IsNull())
             {
+                Debug.WriteLine(ConsoleColor.Green, info.response.StatusCode + " - " + info.rate_limit.remaining + " / " + info.rate_limit.limit);
+
                 return info;
             }
 
@@ -212,16 +214,16 @@ TwitchNet.Utilities
             info.SetRestError(code, new RestException("An error was returned by Twitch after executing the request.", error));
 
             // Handles StatusHandling.Return
-            if (info.settings.status_code_settings[code].handling == StatusHandling.Return)
+            if (info.settings.status_codes[code].handling == StatusHandling.Return)
             {
                 return info;
             }
 
             // Handles StatusHandling.Retry
-            ++info.settings.status_code_settings[code].retry_count;
-            if (info.settings.status_code_settings[code].retry_count > info.settings.status_code_settings[code].retry_limit && info.settings.status_code_settings[code].retry_limit != -1)
+            ++info.settings.status_codes[code].retry_count;
+            if (info.settings.status_codes[code].retry_count > info.settings.status_codes[code].retry_limit && info.settings.status_codes[code].retry_limit != -1)
             {
-                info.SetRetryError(code, new RetryLimitReachedException("Retry limit reached for status code " + code + ".", info.settings.status_code_settings[code].retry_limit));
+                info.SetRetryError(code, new RetryLimitReachedException("Retry limit reached for status code " + code + ".", info.settings.status_codes[code].retry_limit));
 
                 return info;
             }
@@ -257,7 +259,7 @@ TwitchNet.Utilities
             RestError error = JsonConvert.DeserializeObject<RestError>(info.response.Content);
             if (error.IsNull() || error.error.IsNull())
             {
-                Debug.WriteLine(info.response.StatusCode + " - " + info.rate_limit.remaining + " / " + info.rate_limit.limit);
+                Debug.WriteLine(ConsoleColor.Green, info.response.StatusCode + " - " + info.rate_limit.remaining + " / " + info.rate_limit.limit);
 
                 return info;
             }
@@ -267,16 +269,16 @@ TwitchNet.Utilities
             info.SetRestError(code, new RestException("An error was returned by Twitch after executing the request.", error));
 
             // Handles StatusHandling.Return
-            if (info.settings.status_code_settings[code].handling == StatusHandling.Return)
+            if (info.settings.status_codes[code].handling == StatusHandling.Return)
             {
                 return info;
             }
 
             // Handles StatusHandling.Retry
-            ++info.settings.status_code_settings[code].retry_count;
-            if (info.settings.status_code_settings[code].retry_count > info.settings.status_code_settings[code].retry_limit && info.settings.status_code_settings[code].retry_limit != -1)
+            ++info.settings.status_codes[code].retry_count;
+            if (info.settings.status_codes[code].retry_count > info.settings.status_codes[code].retry_limit && info.settings.status_codes[code].retry_limit != -1)
             {
-                info.SetRetryError(code, new RetryLimitReachedException("Retry limit reached for status code " + code + ".", info.settings.status_code_settings[code].retry_limit));
+                info.SetRetryError(code, new RetryLimitReachedException("Retry limit reached for status code " + code + ".", info.settings.status_codes[code].retry_limit));
 
                 return info;
             }

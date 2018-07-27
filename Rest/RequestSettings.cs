@@ -1,8 +1,6 @@
 ﻿// standard namespaces
+using System.Collections.Generic;
 using System.Threading;
-
-// project namespaces
-using TwitchNet.Rest.OAuth;
 
 namespace
 TwitchNet.Rest
@@ -19,25 +17,24 @@ TwitchNet.Rest
         /// <para>The token used to cancel the request.</para>
         /// <para>Default: <see cref="CancellationToken.None"/>.</para>
         /// </summary>
-        public CancellationToken    cancelation_token               { get; set; }
+        public CancellationToken                    cancelation_token               { get; set; }
 
         /// <summary>
         /// <para>The settings usded to handle the different status codes when an API error is returned.</para>
-        /// <para>Default: <see cref="StatusCodeSettings.Default"/>.</para>
         /// </summary>
-        public StatusCodeSettings   status_code_settings            { get; set; }
+        public Dictionary<int, StatusCodeSetting>   status_codes                    { get; set; }
 
         /// <summary>
         /// <para>How to handle errors experienced while executing the request.</para>
         /// <para>Default: <see cref="ErrorHandling.Error"/>.</para>
         /// </summary>
-        public ErrorHandling        error_handling_inputs           { get; set; }
+        public ErrorHandling                        error_handling_inputs           { get; set; }
 
         /// <summary>
         /// <para>How to handle wrong or improperly formatted user inputs.</para>
         /// <para>Default: <see cref="ErrorHandling.Error"/>.</para>
         /// </summary>
-        public ErrorHandling        error_handling_execution        { get; set; }
+        public ErrorHandling                        error_handling_execution        { get; set; }
 
         /// <summary>
         /// <para>
@@ -46,7 +43,7 @@ TwitchNet.Rest
         /// </para>
         /// <para>Default: <see cref="ErrorHandling.Error"/>.</para>
         /// </summary>
-        public ErrorHandling        error_handling_missing_scopes   { get; set; }
+        public ErrorHandling                        error_handling_missing_scopes   { get; set; }
 
         /// <summary>
         /// <para>
@@ -59,7 +56,7 @@ TwitchNet.Rest
         /// If specified when making a request that does not require authentication, the available scopes are ignored.
         /// </para>
         /// </summary>
-        public Scopes[]             available_scopes                { get; set; }
+        public Scopes[]                             available_scopes                { get; set; }
 
         public RequestSettings()
         {
@@ -71,16 +68,20 @@ TwitchNet.Rest
         /// </summary>
         public void
         Reset()
-        {           
-            cancelation_token               = CancellationToken.None;
+        {
+            cancelation_token = CancellationToken.None;
 
-            status_code_settings            = StatusCodeSettings.Default;
+            status_codes = new Dictionary<int, StatusCodeSetting>();
+            for(int code = 100; code < 600; ++code)
+            {
+                status_codes[code] = StatusCodeSetting.Default;
+            }
 
-            error_handling_inputs           = ErrorHandling.Error;
-            error_handling_execution        = ErrorHandling.Error;
-            error_handling_missing_scopes   = ErrorHandling.Error;
+            error_handling_inputs = ErrorHandling.Error;
+            error_handling_execution = ErrorHandling.Error;
+            error_handling_missing_scopes = ErrorHandling.Error;
 
-            available_scopes                = new Scopes[0];
-    }
+            available_scopes = new Scopes[0];
+        }
     }
 }

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using TwitchNet.Rest.Api;
+using TwitchNet.Debugger;
 using TwitchNet.Extensions;
+using TwitchNet.Utilities;
 
 using RestSharp;
 
@@ -62,6 +63,9 @@ namespace TwitchNet.Rest
             exceptions.Add(exception);
             exception_source = RestErrorSource.ScopeValidaiton;
 
+            Debug.WriteLine();
+            Debug.WriteError(ErrorLevel.Critical, EnumUtil.GetName(exception_source) + " - " + exception.Message);
+
             if (settings.error_handling_missing_scopes == ErrorHandling.Error)
             {
                 throw new AggregateException("One or more errors occurred while making the rest request.", exceptions);
@@ -73,6 +77,9 @@ namespace TwitchNet.Rest
         {
             exceptions.Add(exception);
             exception_source = RestErrorSource.InputValidaiton;
+
+            Debug.WriteLine();
+            Debug.WriteError(ErrorLevel.Critical, EnumUtil.GetName(exception_source) + " - " + exception.Message);
 
             if (settings.error_handling_inputs == ErrorHandling.Error)
             {
@@ -86,6 +93,9 @@ namespace TwitchNet.Rest
             exceptions.Add(exception);
             exception_source = RestErrorSource.Execution;
 
+            Debug.WriteLine();
+            Debug.WriteError(ErrorLevel.Critical, EnumUtil.GetName(exception_source) + " - " + exception.Message);
+
             if (settings.error_handling_execution == ErrorHandling.Error)
             {
                 throw new AggregateException("One or more errors occurred while making the rest request.", exceptions);
@@ -98,7 +108,10 @@ namespace TwitchNet.Rest
             exceptions.Add(exception);
             exception_source = RestErrorSource.Api;
 
-            if (settings.status_code_settings[code].handling == StatusHandling.Error)
+            Debug.WriteLine();
+            Debug.WriteError(ErrorLevel.Critical, EnumUtil.GetName(exception_source) + ", " + exception.rest_status + " - " + exception.rest_message);
+
+            if (settings.status_codes[code].handling == StatusHandling.Error)
             {
                 throw new AggregateException("One or more errors occurred while making the rest request.", exceptions);
             }
@@ -110,7 +123,10 @@ namespace TwitchNet.Rest
             exceptions.Add(exception);
             exception_source = RestErrorSource.Api;
 
-            if (settings.status_code_settings[code].retry_limit_reached_handling == ErrorHandling.Error)
+            Debug.WriteLine();
+            Debug.WriteError(ErrorLevel.Critical, EnumUtil.GetName(exception_source) + " - " + exception.Message);
+
+            if (settings.status_codes[code].handling_rety_limit_reached == ErrorHandling.Error)
             {
                 throw new AggregateException("One or more errors occurred while making the rest request.", exceptions);
             }

@@ -20,7 +20,7 @@ TwitchNet.Rest
         /// <para>Executes the request again.</para>
         /// <para>
         /// Any errors that were encountered are still added to the <see cref="AggregateException"/> but will not be thrown.
-        /// If the retry limit is reached, the <see cref="AggregateException"/> will be thrown or returned depending on what <see cref="StatusCodeSetting.retry_limit_reached_handling"/> is set to.
+        /// If the retry limit is reached, the <see cref="AggregateException"/> will be thrown or returned depending on what <see cref="StatusCodeSetting.handling_rety_limit_reached"/> is set to.
         /// </para>
         /// </summary>
         Retry = 2,

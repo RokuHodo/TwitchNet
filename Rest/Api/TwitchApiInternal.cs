@@ -779,18 +779,18 @@ TwitchNet.Rest.Api
         #region /users/follows        
 
         /// <summary>
-        /// Asynchronously gets a single page of user's that a user is following.
+        /// Asynchronously gets a single page of user's following list.
         /// </summary>
         /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
         /// <param name="from_id">The user ID to get the following list for.</param>
         /// <param name="parameters">
         /// A set of rest parameters to add to the request.
-        /// <see cref="FollowsParameters.from_id"/> and <see cref="FollowsParameters.to_id"/> are ignored is specified.
+        /// If specified, from_id and to_id are ignored.
         /// </param>
         /// <returns>
         /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-        /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of user's that the user is following.
-        /// </returns>        
+        /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of user's following list.
+        /// </returns>
         /// <exception cref="ArgumentException">
         /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
         /// Thrown if <paramref name="from_id"/> is null, empty, or contains only whitespace.
@@ -828,18 +828,18 @@ TwitchNet.Rest.Api
         }
 
         /// <summary>
-        /// Asynchronously gets a complete list of user's that a user is following.
+        /// Asynchronously gets a user's complete following list.
         /// </summary>
         /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
         /// <param name="from_id">The user ID to get the following list for.</param>
         /// <param name="parameters">
         /// A set of rest parameters to add to the request.
-        /// <see cref="FollowsParameters.from_id"/> and <see cref="FollowsParameters.to_id"/> are ignored is specified.
+        /// If specified, from_id and to_id are ignored.
         /// </param>
         /// <returns>
         /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-        /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of user's that the user is following.
-        /// </returns>        
+        /// <see cref="IHelixResponse{result_type}.result"/> contains the user's complete following list.
+        /// </returns>
         /// <exception cref="ArgumentException">
         /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
         /// Thrown if <paramref name="from_id"/> is null, empty, or contains only whitespace.
@@ -877,17 +877,17 @@ TwitchNet.Rest.Api
         }
 
         /// <summary>
-        /// Asynchronously gets a single page of a user's followers.
+        /// Asynchronously gets a single page of a user's followers list.
         /// </summary>
         /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
         /// <param name="to_id">The user ID to get the follower list for.</param>
         /// <param name="parameters">
         /// A set of rest parameters to add to the request.
-        /// <see cref="FollowsParameters.from_id"/> and <see cref="FollowsParameters.to_id"/> are ignored is specified.
+        /// If specified, from_id and to_id are ignored.
         /// </param>
         /// <returns>
         /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-        /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of a user's followers.
+        /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of a user's followers list.
         /// </returns>        
         /// <exception cref="ArgumentException">
         /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
@@ -926,7 +926,7 @@ TwitchNet.Rest.Api
         }
 
         /// <summary>
-        /// Asynchronously gets a complete list of a user's followers.
+        /// Asynchronously gets a user's complete follower list.
         /// </summary>
         /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
         /// <param name="to_id">The user ID to get the follower list for.</param>
@@ -936,7 +936,7 @@ TwitchNet.Rest.Api
         /// </param>
         /// <returns>
         /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-        /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of a user's followers.
+        /// <see cref="IHelixResponse{result_type}.result"/> contains the user's complete follower list.
         /// </returns>        
         /// <exception cref="ArgumentException">
         /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
@@ -1018,12 +1018,18 @@ TwitchNet.Rest.Api
         }
 
         /// <summary>
-        /// Asynchronously gets the relationship between two users, or a single page of the following/follower list of one user.
+        /// Asynchronously gets the relationship between two users, or a single page of a user's following/follower list.
         /// </summary>
         /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
-        /// <param name="parameters">A set of rest parameters to add to the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.</returns>        
-        /// <exception cref="ArgumentNullException">Thrown if the parameters is null.</exception>
+        /// <param name="parameters">
+        /// <para>A set of rest parameters to add to the request.</para>
+        /// <para>A from_id or to_id must be specified.</para>
+        /// </param>
+        /// <returns>
+        /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+        /// <see cref="IHelixResponse{result_type}.result"/> contains the user relationship page, or a single page of the following/follower list of one user.
+        /// </returns> 
+        /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
         /// <exception cref="ArgumentException">
         /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
         /// Thrown if both from_id and to_id are null, empty, or contains only whitespace.
@@ -1071,12 +1077,18 @@ TwitchNet.Rest.Api
         }
 
         /// <summary>
-        /// Asynchronously gets the relationship between two users, or the complete following/follower lists of one user.
+        /// Asynchronously gets the relationship between two users, or a user's complete following/follower list.
         /// </summary>
         /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
-        /// <param name="parameters">A set of rest parameters to add to the request.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.</returns>        
-        /// <exception cref="ArgumentNullException">Thrown if the parameters is null.</exception>
+        /// <param name="parameters">
+        /// <para>A set of rest parameters to add to the request.</para>
+        /// <para>A from_id or to_id must be specified.</para>
+        /// </param>
+        /// <returns>
+        /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+        /// <see cref="IHelixResponse{result_type}.result"/> contains the user relationship, or the complete following/follower list of one user.
+        /// </returns>        
+        /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
         /// <exception cref="ArgumentException">
         /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
         /// Thrown if both from_id and to_id are null, empty, or contains only whitespace.

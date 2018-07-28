@@ -7,15 +7,12 @@ using TwitchNet.Extensions;
 namespace
 TwitchNet.Helpers
 {
-    internal class
+    public class
     ClampedList<type>
     {
-        private int         _range_start            = 0;
-        private int         _range_count            = 100;
-        private int         _range_count_default    = 100;
+        private uint        _capactity              = 100;
 
         private List<type>  _values                 = new List<type>();
-        private List<type>  _values_default         = new List<type>();
 
         /// <summary>
         /// The list values.
@@ -25,24 +22,26 @@ TwitchNet.Helpers
         {
             get
             {
-                int count = _range_count > _values.Count ? _values.Count : _range_count;
-                return _values.IsValid() ? _values.GetRange(_range_start, count) : _values_default;
+                return _values;
             }
             set
             {
-                _values = value;
+                if(_values.Count < _capactity)
+                {
+                    _values = value;
+                }
             }
         }
 
         public ClampedList()
         {
-
+            _values = new List<type>((int)_capactity);
         }
 
-        public ClampedList(int capactity)
+        public ClampedList(uint capactity)
         {
-            _range_count = capactity.ClampMin(_range_start, _range_count_default);
-            _range_count_default = _range_count;
+            _capactity = capactity;
+            _values = new List<type>((int)_capactity);
         }
     }
 }

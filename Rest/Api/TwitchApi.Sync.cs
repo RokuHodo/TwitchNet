@@ -11,6 +11,39 @@ TwitchNet.Rest.Api
     public static partial class
     TwitchApi
     {
+        #region /users
+
+        /// <summary>
+        /// Gets the information about one or more users.
+        /// </summary>
+        /// <param name="client_id">The application ID to identify the source of the request.</param>
+        /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+        /// <returns>
+        /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+        /// <see cref="IHelixResponse{result_type}.result"/> contains the information about each requested user.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown if the client ID is null, empty, or contains only whitespace.
+        /// Thrown if all specified user logins and user ID's are null, empty, or only contains whitespace.
+        /// Thrown if more than 100 total user logins and/or user IDs are specified.
+        /// </exception>
+        /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
+        /// <exception cref="RestException">Thrown if an error was returned by Twitch after executing the request.</exception>
+        /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+        public static IHelixResponse<Data<User>>
+        GetUsers(string client_id, UsersParameters parameters, RequestSettings settings = default)
+        {
+            RestInfo<Data<User>> info = new RestInfo<Data<User>>(RestClients.Helix, settings);
+            info.client_id = client_id;
+
+            IHelixResponse<Data<User>> response = GetUsersAsync(client_id, parameters, settings).Result;
+
+            return response;
+        }
+
+        #endregion
+
         #region /users/follows
 
         /// <summary>

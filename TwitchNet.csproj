@@ -56,6 +56,8 @@
     <Compile Include="Debugger\DebugLevel.cs" />
     <Compile Include="Debugger\ErrorLevel.cs" />
     <Compile Include="Debugger\TimeStamp.cs" />
+    <Compile Include="Extensions\CollectionExtensions.cs" />
+    <Compile Include="Helpers\ClampedList.cs" />
     <Compile Include="Helpers\Json\EnumConverter.cs" />
     <Compile Include="Helpers\Json\JsonSerializer.cs" />
     <Compile Include="Rest\Api\Bits\BitsLeaderboardData.cs" />
@@ -89,6 +91,7 @@
     <Compile Include="Rest\Api\Users\ExtensionType.cs" />
     <Compile Include="Rest\Api\Users\Extension.cs" />
     <Compile Include="Rest\Api\Users\ActiveExtensionsParameters.cs" />
+    <Compile Include="Rest\Api\Users\DescriptionParameters.cs" />
     <Compile Include="Rest\DefaultBodyConverter.cs" />
     <Compile Include="Rest\RetryLimitReachedException.cs" />
     <Compile Include="Rest\RestException.cs" />
@@ -223,7 +226,6 @@
     <Compile Include="Helpers\ClampedNumber.cs" />
     <Compile Include="Rest\Api\Games\GamesParameters.cs" />
     <Compile Include="Rest\Api\PagingParameters.cs" />
-    <Compile Include="Helpers\ClampedList.cs" />
     <Compile Include="Rest\QueryParameterAttribute.cs" />
     <Compile Include="Rest\Api\Streams\StreamsParameters.cs" />
     <Compile Include="Rest\Api\Users\FollowsParameters.cs" />

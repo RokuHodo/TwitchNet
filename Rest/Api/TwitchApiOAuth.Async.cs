@@ -1007,329 +1007,377 @@ TwitchNet.Rest.Api
         }
 
         #endregion
-
+            */
         #region /users
 
         /// <summary>
-        /// <para>Asynchronously gets the information of the user looked up by the provided Bearer token.</para>
+        /// <para>Asynchronously gets the information about a user from the specified bearer token.</para>
         /// <para>
-        /// Optional Scope: 'user:read:email'.
+        /// Optional scope: <see cref="Scopes.UserReadEmail"/>.
         /// If provided, the user's email is included in the response.
         /// </para>
         /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        /// <param name="bearer_token">An user access OAuth token.</param>
+        /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+        /// <returns>
+        /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+        /// <see cref="IHelixResponse{result_type}.result"/> contains the information about the requested user.
+        /// </returns>
+        /// <exception cref="ArgumentException">
+        /// Thrown if the bearer token is null, empty, or contains only whitespace.
+        /// </exception>
+        /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
+        /// <exception cref="RestException">Thrown if an error was returned by Twitch after executing the request.</exception>
+        /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
         public static async Task<IHelixResponse<Data<User>>>
-        GetUserAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
+        GetUserAsync(string bearer_token, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
+            RestInfo<Data<User>> info = new RestInfo<Data<User>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
 
-            IHelixResponse<Data<User>> users = await TwitchApiInternal.GetUsersAsync(request_info, default(UsersParameters), settings);
+            IHelixResponse<Data<User>> response = await TwitchApiInternal.GetUsersAsync(info, default);
 
-            return users;
+            return response;
         }
 
         /// <summary>
-        /// <para>Asynchronously gets the information of the user looked up by the provided Bearer token.</para>
+        /// <para>Asynchronously gets the information about a user from the specified bearer token.</para>
         /// <para>
-        /// Optional Scope: 'user:read:email'.
+        /// Optional scope: <see cref="Scopes.UserReadEmail"/>.
         /// If provided, the user's email is included in the response.
         /// </para>
         /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        /// <param name="bearer_token">An user access OAuth token.</param>
+        /// <param name="client_id">The application ID to identify the source of the request.</param>
+        /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+        /// <returns>
+        /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+        /// <see cref="IHelixResponse{result_type}.result"/> contains the information about the requested user.
+        /// </returns>
+        /// <exception cref="ArgumentException">
+        /// Thrown if the bearer token is null, empty, or contains only whitespace.
+        /// </exception>
+        /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
+        /// <exception cref="RestException">Thrown if an error was returned by Twitch after executing the request.</exception>
+        /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
         public static async Task<IHelixResponse<Data<User>>>
-        GetUserAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
+        GetUserAsync(string bearer_token, string client_id, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestInfo<Data<User>> info = new RestInfo<Data<User>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
+            info.client_id = client_id;
 
-            IHelixResponse<Data<User>> users = await TwitchApiInternal.GetUsersAsync(request_info, default(UsersParameters), settings);
+            IHelixResponse<Data<User>> response = await TwitchApiInternal.GetUsersAsync(info, default);
 
-            return users;
+            return response;
         }
 
         /// <summary>
+        /// <para>Asynchronously gets the information about one or more users.</para>
         /// <para>
-        /// Asynchronously gets the information of one or more users by their id or login.
-        /// If no <paramref name="ids"/> are specified, the user is looked up by if the Bearer token provided.
-        /// </para>
-        /// <para>
-        /// Optional Scope: 'user:read:email'.
+        /// Optional scope: <see cref="Scopes.UserReadEmail"/>.
         /// If provided, the user's email is included in the response.
         /// </para>
         /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        /// <param name="bearer_token">An user access OAuth token.</param>
+        /// <param name="parameters">
+        /// A set of rest parameters to add to the request.
+        /// If not specified, the user is looked up by the specified bearer token.
+        /// </param>
+        /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+        /// <returns>
+        /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+        /// <see cref="IHelixResponse{result_type}.result"/> contains the information about each requested user.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if parameters is null when no valid bearer token specified.</exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown if the bearer token is null, empty, or contains only whitespace.
+        /// Thrown if all specified user logins and user ID's are null, empty, or only contains whitespace when no valid bearer token is specified.
+        /// Thrown if more than 100 total user logins and/or user IDs are specified.
+        /// </exception>
+        /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
+        /// <exception cref="RestException">Thrown if an error was returned by Twitch after executing the request.</exception>
+        /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
         public static async Task<IHelixResponse<Data<User>>>
-        GetUsersAsync(string bearer_token, UsersParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUsersAsync(string bearer_token, UsersParameters parameters, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
+            RestInfo<Data<User>> info = new RestInfo<Data<User>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
 
-            IHelixResponse<Data<User>> users = await TwitchApiInternal.GetUsersAsync(request_info, parameters, settings);
+            IHelixResponse<Data<User>> response = await TwitchApiInternal.GetUsersAsync(info, parameters);
 
-            return users;
+            return response;
         }
 
         /// <summary>
+        /// <para>Asynchronously gets the information about one or more users.</para>
         /// <para>
-        /// Asynchronously gets the information of one or more users by their id or login.
-        /// If no <paramref name="ids"/> are specified, the user is looked up by if the Bearer token provided.
-        /// </para>
-        /// <para>
-        /// Optional Scope: 'user:read:email'.
+        /// Optional scope: <see cref="Scopes.UserReadEmail"/>.
         /// If provided, the user's email is included in the response.
         /// </para>
         /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+        /// <param name="bearer_token">An user access OAuth token.</param>
+        /// <param name="client_id">The application ID to identify the source of the request.</param>
+        /// <param name="parameters">
+        /// A set of rest parameters to add to the request.
+        /// If not specified, the user is looked up by the specified bearer token.
+        /// </param>
+        /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+        /// <returns>
+        /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+        /// <see cref="IHelixResponse{result_type}.result"/> contains the information about each requested user.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if parameters is null when no valid bearer token specified.</exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+        /// Thrown if all specified user logins and user ID's are null, empty, or only contains whitespace when no valid bearer token is specified.
+        /// Thrown if more than 100 total user logins and/or user IDs are specified.
+        /// </exception>
+        /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
+        /// <exception cref="RestException">Thrown if an error was returned by Twitch after executing the request.</exception>
+        /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
         public static async Task<IHelixResponse<Data<User>>>
-        GetUsersAsync(string bearer_token, string client_id, UsersParameters parameters, RequestSettings settings = default(RequestSettings))
+        GetUsersAsync(string bearer_token, string client_id, UsersParameters parameters, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestInfo<Data<User>> info = new RestInfo<Data<User>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
+            info.client_id = client_id;
 
-            IHelixResponse<Data<User>> users = await TwitchApiInternal.GetUsersAsync(request_info, parameters, settings);
+            IHelixResponse<Data<User>> response = await TwitchApiInternal.GetUsersAsync(info, parameters);
 
-            return users;
+            return response;
         }
 
-        /// <summary>
-        /// <para>Asynchronously sets the description of a user specified by the Bearer token provided.</para>
-        /// <para>Required Scope: 'user:edit'</para>
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="description">The new description to set.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<Data<User>>>
-        SetUserDescriptionAsync(string bearer_token, string description, RequestSettings settings = default(RequestSettings))
+        SetUserDescriptionAsync(string bearer_token, string description, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
+            RestInfo<Data<User>> info = new RestInfo<Data<User>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
 
-            IHelixResponse<Data<User>> success = await TwitchApiInternal.SetUserDescriptionAsync(request_info, description, settings);
+            IHelixResponse<Data<User>> response = await TwitchApiInternal.SetUserDescriptionAsync(info, description);
 
-            return success;
+            return response;
         }
 
-        /// <summary>
-        /// <para>Asynchronously sets the description of a user specified by the Bearer token provided.</para>
-        /// <para>Required Scope: 'user:edit'</para>
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="description">The new description to set.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
         public static async Task<IHelixResponse<Data<User>>>
-        SetUserDescriptionAsync(string bearer_token, string client_id, string description, RequestSettings settings = default(RequestSettings))
+        SetUserDescriptionAsync(string bearer_token, string client_id, string description, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+            RestInfo<Data<User>> info = new RestInfo<Data<User>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
+            info.client_id = client_id;
 
-            IHelixResponse<Data<User>> result = await TwitchApiInternal.SetUserDescriptionAsync(request_info, description, settings);
-
-            return result;
-        }
-
-        #endregion
-
-        #region /users/extensions
-
-        /// <summary>
-        /// <para>
-        /// Asynchronously gets a list of active extensions installed by a user.
-        /// The user is identified either by user ID or by the provided Bearer token.
-        /// </para>
-        /// <para>Optional Scope: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        public static async Task<IHelixResponse<ActiveExtensionsData>>
-        GetUserActiveExtensionsAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
-        {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token = bearer_token;
-
-            IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.GetUserActiveExtensionsAsync(request_info, default(ActiveExtensionsParameters), settings);
+            IHelixResponse<Data<User>> response = await TwitchApiInternal.SetUserDescriptionAsync(info, description);
 
             return response;
         }
 
-        /// <summary>
-        /// <para>
-        /// Asynchronously gets a list of active extensions installed by a user.
-        /// The user is identified either by user ID or by the provided Bearer token.
-        /// </para>
-        /// <para>Optional Scope: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        public static async Task<IHelixResponse<ActiveExtensionsData>>
-        GetUserActiveExtensionsAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
+        public static async Task<IHelixResponse<Data<User>>>
+        SetUserDescriptionAsync(string bearer_token, DescriptionParameters parameters, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token = bearer_token;
-            request_info.client_id = client_id;
+            RestInfo<Data<User>> info = new RestInfo<Data<User>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
 
-            IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.GetUserActiveExtensionsAsync(request_info, default(ActiveExtensionsParameters), settings);
+            IHelixResponse<Data<User>> response = await TwitchApiInternal.SetUserDescriptionAsync(info, parameters);
 
             return response;
         }
 
-        /// <summary>
-        /// <para>
-        /// Asynchronously gets a list of active extensions installed by a user.
-        /// The user is identified either by user ID or by the provided Bearer token.
-        /// </para>
-        /// <para>Optional Scope: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        public static async Task<IHelixResponse<ActiveExtensionsData>>
-        GetUserActiveExtensionsAsync(string bearer_token, ActiveExtensionsParameters parameters, RequestSettings settings = default(RequestSettings))
+        public static async Task<IHelixResponse<Data<User>>>
+        SetUserDescriptionAsync(string bearer_token, string client_id, DescriptionParameters parameters, RequestSettings settings = default)
         {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token = bearer_token;
+            RestInfo<Data<User>> info = new RestInfo<Data<User>>(RestClients.Helix, settings);
+            info.bearer_token = bearer_token;
+            info.client_id = client_id;
 
-            IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.GetUserActiveExtensionsAsync(request_info, parameters, settings);
-
-            return response;
-        }
-
-        /// <summary>
-        /// <para>
-        /// Asynchronously gets a list of active extensions installed by a user.
-        /// The user is identified either by user ID or by the provided Bearer token.
-        /// </para>
-        /// <para>Optional Scope: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        public static async Task<IHelixResponse<ActiveExtensionsData>>
-        GetUserActiveExtensionsAsync(string bearer_token, string client_id, ActiveExtensionsParameters parameters, RequestSettings settings = default(RequestSettings))
-        {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
-
-            IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.GetUserActiveExtensionsAsync(request_info, parameters, settings);
-
-            return response;
-        }
-
-        /// <summary>
-        /// <para>
-        /// Asynchronously updates the active extensions for a user identified by a user ID or by the provided Bearer token.
-        /// The activation state, extension ID, verison number, or x/y coordinates (components only) can be updated.
-        /// </para>
-        /// <para>Required Scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        public static async Task<IHelixResponse<ActiveExtensionsData>>
-        UpdateUserExtensionsAsync(string bearer_token, UpdateExtensionsParameters parameters, RequestSettings settings = default(RequestSettings))
-        {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token = bearer_token;
-
-            IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.UpdateUserExtensionsAsync(request_info, parameters, settings);
-
-            return response;
-        }
-
-        /// <summary>
-        /// <para>
-        /// Asynchronously updates the active extensions for a user identified by a user ID or by the provided Bearer token.
-        /// The activation state, extension ID, verison number, or x/y coordinates (components only) can be updated.
-        /// </para>
-        /// <para>Required Scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="parameters">A set of rest parameters to customize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        public static async Task<IHelixResponse<ActiveExtensionsData>>
-        UpdateUserExtensionsAsync(string bearer_token, string client_id, UpdateExtensionsParameters parameters, RequestSettings settings = default(RequestSettings))
-        {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
-
-            IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.UpdateUserExtensionsAsync(request_info, parameters, settings);
+            IHelixResponse<Data<User>> response = await TwitchApiInternal.SetUserDescriptionAsync(info, parameters);
 
             return response;
         }
 
         #endregion
+        /*
+    #region /users/extensions
 
-        #region /users/extensions/list
+    /// <summary>
+    /// <para>
+    /// Asynchronously gets a list of active extensions installed by a user.
+    /// The user is identified either by user ID or by the provided Bearer token.
+    /// </para>
+    /// <para>Optional Scope: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
+    /// </summary>
+    /// <param name="bearer_token">The Bearer token to authorize the request.</param>
+    /// <param name="settings">Settings to customize how the API request is handled.</param>
+    /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+    public static async Task<IHelixResponse<ActiveExtensionsData>>
+    GetUserActiveExtensionsAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
+    {
+        HelixInfo request_info = new HelixInfo();
+        request_info.bearer_token = bearer_token;
 
-        /// <summary>
-        /// <para>Asynchronously gets a list of all extensions a user has installed, active or inactive.</para>
-        /// <para>Required Scope: 'user:read:broadcast'</para>
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        public static async Task<IHelixResponse<Data<Extension>>>
-        GetUserExtensionsAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
-        {
-            HelixInfo helix_info = new HelixInfo();
-            helix_info.bearer_token = bearer_token;
+        IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.GetUserActiveExtensionsAsync(request_info, default(ActiveExtensionsParameters), settings);
 
-            IHelixResponse<Data<Extension>> response = await TwitchApiInternal.GetUserExtensionsAsync(helix_info, settings);
+        return response;
+    }
 
-            return response;
-        }
+    /// <summary>
+    /// <para>
+    /// Asynchronously gets a list of active extensions installed by a user.
+    /// The user is identified either by user ID or by the provided Bearer token.
+    /// </para>
+    /// <para>Optional Scope: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
+    /// </summary>
+    /// <param name="bearer_token">The Bearer token to authorize the request.</param>
+    /// <param name="client_id">The Client ID to identify the application making the request.</param>
+    /// <param name="settings">Settings to customize how the API request is handled.</param>
+    /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+    public static async Task<IHelixResponse<ActiveExtensionsData>>
+    GetUserActiveExtensionsAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
+    {
+        HelixInfo request_info = new HelixInfo();
+        request_info.bearer_token = bearer_token;
+        request_info.client_id = client_id;
 
-        /// <summary>
-        /// <para>Asynchronously gets a list of all extensions a user has installed, active or inactive.</para>
-        /// <para>Required Scope: 'user:read:broadcast'</para>
-        /// </summary>
-        /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-        /// <param name="client_id">The Client ID to identify the application making the request.</param>
-        /// <param name="settings">Settings to customize how the API request is handled.</param>
-        /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-        public static async Task<IHelixResponse<Data<Extension>>>
-        GetUserExtensionsAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
-        {
-            HelixInfo request_info = new HelixInfo();
-            request_info.bearer_token   = bearer_token;
-            request_info.client_id      = client_id;
+        IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.GetUserActiveExtensionsAsync(request_info, default(ActiveExtensionsParameters), settings);
 
-            IHelixResponse<Data<Extension>> response = await TwitchApiInternal.GetUserExtensionsAsync(request_info, settings);
+        return response;
+    }
 
-            return response;
-        }
+    /// <summary>
+    /// <para>
+    /// Asynchronously gets a list of active extensions installed by a user.
+    /// The user is identified either by user ID or by the provided Bearer token.
+    /// </para>
+    /// <para>Optional Scope: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
+    /// </summary>
+    /// <param name="bearer_token">The Bearer token to authorize the request.</param>
+    /// <param name="parameters">A set of rest parameters to customize the request.</param>
+    /// <param name="settings">Settings to customize how the API request is handled.</param>
+    /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+    public static async Task<IHelixResponse<ActiveExtensionsData>>
+    GetUserActiveExtensionsAsync(string bearer_token, ActiveExtensionsParameters parameters, RequestSettings settings = default(RequestSettings))
+    {
+        HelixInfo request_info = new HelixInfo();
+        request_info.bearer_token = bearer_token;
 
-        #endregion
-        */
+        IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.GetUserActiveExtensionsAsync(request_info, parameters, settings);
+
+        return response;
+    }
+
+    /// <summary>
+    /// <para>
+    /// Asynchronously gets a list of active extensions installed by a user.
+    /// The user is identified either by user ID or by the provided Bearer token.
+    /// </para>
+    /// <para>Optional Scope: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
+    /// </summary>
+    /// <param name="bearer_token">The Bearer token to authorize the request.</param>
+    /// <param name="client_id">The Client ID to identify the application making the request.</param>
+    /// <param name="parameters">A set of rest parameters to customize the request.</param>
+    /// <param name="settings">Settings to customize how the API request is handled.</param>
+    /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+    public static async Task<IHelixResponse<ActiveExtensionsData>>
+    GetUserActiveExtensionsAsync(string bearer_token, string client_id, ActiveExtensionsParameters parameters, RequestSettings settings = default(RequestSettings))
+    {
+        HelixInfo request_info = new HelixInfo();
+        request_info.bearer_token   = bearer_token;
+        request_info.client_id      = client_id;
+
+        IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.GetUserActiveExtensionsAsync(request_info, parameters, settings);
+
+        return response;
+    }
+
+    /// <summary>
+    /// <para>
+    /// Asynchronously updates the active extensions for a user identified by a user ID or by the provided Bearer token.
+    /// The activation state, extension ID, verison number, or x/y coordinates (components only) can be updated.
+    /// </para>
+    /// <para>Required Scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
+    /// </summary>
+    /// <param name="bearer_token">The Bearer token to authorize the request.</param>
+    /// <param name="parameters">A set of rest parameters to customize the request.</param>
+    /// <param name="settings">Settings to customize how the API request is handled.</param>
+    /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+    public static async Task<IHelixResponse<ActiveExtensionsData>>
+    UpdateUserExtensionsAsync(string bearer_token, UpdateExtensionsParameters parameters, RequestSettings settings = default(RequestSettings))
+    {
+        HelixInfo request_info = new HelixInfo();
+        request_info.bearer_token = bearer_token;
+
+        IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.UpdateUserExtensionsAsync(request_info, parameters, settings);
+
+        return response;
+    }
+
+    /// <summary>
+    /// <para>
+    /// Asynchronously updates the active extensions for a user identified by a user ID or by the provided Bearer token.
+    /// The activation state, extension ID, verison number, or x/y coordinates (components only) can be updated.
+    /// </para>
+    /// <para>Required Scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
+    /// </summary>
+    /// <param name="bearer_token">The Bearer token to authorize the request.</param>
+    /// <param name="client_id">The Client ID to identify the application making the request.</param>
+    /// <param name="parameters">A set of rest parameters to customize the request.</param>
+    /// <param name="settings">Settings to customize how the API request is handled.</param>
+    /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+    public static async Task<IHelixResponse<ActiveExtensionsData>>
+    UpdateUserExtensionsAsync(string bearer_token, string client_id, UpdateExtensionsParameters parameters, RequestSettings settings = default(RequestSettings))
+    {
+        HelixInfo request_info = new HelixInfo();
+        request_info.bearer_token   = bearer_token;
+        request_info.client_id      = client_id;
+
+        IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.UpdateUserExtensionsAsync(request_info, parameters, settings);
+
+        return response;
+    }
+
+    #endregion
+
+    #region /users/extensions/list
+
+    /// <summary>
+    /// <para>Asynchronously gets a list of all extensions a user has installed, active or inactive.</para>
+    /// <para>Required Scope: 'user:read:broadcast'</para>
+    /// </summary>
+    /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+    /// <param name="settings">Settings to customize how the API request is handled.</param>
+    /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+    public static async Task<IHelixResponse<Data<Extension>>>
+    GetUserExtensionsAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
+    {
+        HelixInfo helix_info = new HelixInfo();
+        helix_info.bearer_token = bearer_token;
+
+        IHelixResponse<Data<Extension>> response = await TwitchApiInternal.GetUserExtensionsAsync(helix_info, settings);
+
+        return response;
+    }
+
+    /// <summary>
+    /// <para>Asynchronously gets a list of all extensions a user has installed, active or inactive.</para>
+    /// <para>Required Scope: 'user:read:broadcast'</para>
+    /// </summary>
+    /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
+    /// <param name="client_id">The Client ID to identify the application making the request.</param>
+    /// <param name="settings">Settings to customize how the API request is handled.</param>
+    /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+    public static async Task<IHelixResponse<Data<Extension>>>
+    GetUserExtensionsAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
+    {
+        HelixInfo request_info = new HelixInfo();
+        request_info.bearer_token   = bearer_token;
+        request_info.client_id      = client_id;
+
+        IHelixResponse<Data<Extension>> response = await TwitchApiInternal.GetUserExtensionsAsync(request_info, settings);
+
+        return response;
+    }
+
+    #endregion
+    */
 
         #region /users/follows
 

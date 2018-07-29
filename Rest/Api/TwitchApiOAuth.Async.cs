@@ -1148,6 +1148,23 @@ TwitchNet.Rest.Api
             return response;
         }
 
+        /// <summary>
+        /// <para>Asynchronously sets the description of a user from the specified bearer token.</para>
+        /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
+        /// </summary>
+        /// <param name="bearer_token">An user access OAuth token.</param>
+        /// <param name="client_id">The application ID to identify the source of the request.</param>
+        /// <param name="description">The text to set the user's description to.</param>
+        /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+        /// <returns>
+        /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+        /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the bearer token or description is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
+        /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
+        /// <exception cref="RestException">Thrown if an error was returned by Twitch after executing the request.</exception>
+        /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
         public static async Task<IHelixResponse<Data<User>>>
         SetUserDescriptionAsync(string bearer_token, string description, RequestSettings settings = default)
         {
@@ -1159,6 +1176,23 @@ TwitchNet.Rest.Api
             return response;
         }
 
+        /// <summary>
+        /// <para>Asynchronously sets the description of a user from the specified bearer token.</para>
+        /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
+        /// </summary>
+        /// <param name="bearer_token">An user access OAuth token.</param>
+        /// <param name="client_id">The application ID to identify the source of the request.</param>
+        /// <param name="description">The text to set the user's description to.</param>
+        /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+        /// <returns>
+        /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+        /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the bearer token or description is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
+        /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
+        /// <exception cref="RestException">Thrown if an error was returned by Twitch after executing the request.</exception>
+        /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
         public static async Task<IHelixResponse<Data<User>>>
         SetUserDescriptionAsync(string bearer_token, string client_id, string description, RequestSettings settings = default)
         {
@@ -1171,6 +1205,23 @@ TwitchNet.Rest.Api
             return response;
         }
 
+        /// <summary>
+        /// <para>Asynchronously sets the description of a user from the specified bearer token.</para>
+        /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
+        /// </summary>
+        /// <param name="bearer_token">An user access OAuth token.</param>
+        /// <param name="parameters">A set of rest parameters to add to the request.</param>
+        /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+        /// <returns>
+        /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+        /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if the bearer token or description is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
+        /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
+        /// <exception cref="RestException">Thrown if an error was returned by Twitch after executing the request.</exception>
+        /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
         public static async Task<IHelixResponse<Data<User>>>
         SetUserDescriptionAsync(string bearer_token, DescriptionParameters parameters, RequestSettings settings = default)
         {
@@ -1182,6 +1233,24 @@ TwitchNet.Rest.Api
             return response;
         }
 
+        /// <summary>
+        /// <para>Asynchronously sets the description of a user from the specified bearer token.</para>
+        /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
+        /// </summary>
+        /// <param name="bearer_token">An user access OAuth token.</param>
+        /// <param name="client_id">The application ID to identify the source of the request.</param>
+        /// <param name="parameters">A set of rest parameters to add to the request.</param>
+        /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+        /// <returns>
+        /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+        /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if the bearer token or description is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
+        /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
+        /// <exception cref="RestException">Thrown if an error was returned by Twitch after executing the request.</exception>
+        /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
         public static async Task<IHelixResponse<Data<User>>>
         SetUserDescriptionAsync(string bearer_token, string client_id, DescriptionParameters parameters, RequestSettings settings = default)
         {

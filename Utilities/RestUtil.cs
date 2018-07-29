@@ -220,6 +220,7 @@ TwitchNet.Utilities
             }
 
             // Handles StatusHandling.Retry
+            // TODO: Check to see if this is only modifying the values for the one specific status code setting, and not all of them.
             ++info.settings.status_codes[code].retry_count;
             if (info.settings.status_codes[code].retry_count > info.settings.status_codes[code].retry_limit && info.settings.status_codes[code].retry_limit != -1)
             {
@@ -275,6 +276,7 @@ TwitchNet.Utilities
             }
 
             // Handles StatusHandling.Retry
+            // TODO: Check to see if this is only modifying the values for the one specific status code setting, and not all of them.
             ++info.settings.status_codes[code].retry_count;
             if (info.settings.status_codes[code].retry_count > info.settings.status_codes[code].retry_limit && info.settings.status_codes[code].retry_limit != -1)
             {

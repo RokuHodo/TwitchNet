@@ -1,16 +1,50 @@
-﻿// standard namespaces
-using System;
+﻿using System;
 using System.Runtime.Serialization;
 
-// project namespaces
 using TwitchNet.Helpers.Json;
 
-// imported .dll's
 using Newtonsoft.Json;
 
-namespace
-TwitchNet.Rest
+namespace TwitchNet.Rest
 {
+    public enum
+    Method
+    {
+        GET,
+
+        POST,
+
+        PUT,
+    }
+
+    public enum
+    HttpParameterType
+    {
+        Query,
+
+        Body,
+
+        Header
+    }
+
+    public enum
+    ErrorHandling
+    {
+        Error = 0,
+
+        Return
+    }
+
+    public enum
+    StatusHandling
+    {
+        Error = 0,
+
+        Return,
+
+        Retry
+    }
+
     [Flags]
     [JsonConverter(typeof(EnumConverter))]
     public enum
@@ -34,48 +68,48 @@ TwitchNet.Rest
         /// <para>Allows game analytic data to be obtained.</para>
         /// </summary>
         [EnumMember(Value = "analytics:read:games")]
-        AnalyticsReadGames      = 1 << 1,
+        AnalyticsReadGames = 1 << 1,
 
         /// <summary>
         /// <para>bits:read</para>
         /// <para>Allows bits information to be obtained.</para>
         /// </summary>
         [EnumMember(Value = "bits:read")]
-        BitsRead                = 1 << 2,
+        BitsRead = 1 << 2,
 
         /// <summary>
         /// <para>clips:edit</para>
         /// <para>Allows for clips to be edited.</para>
         /// </summary>
         [EnumMember(Value = "clips:edit")]
-        ClipsEdit               = 1<< 3,
+        ClipsEdit = 1 << 3,
 
         /// <summary>
         /// <para>user:edit</para>
         /// <para>Allows the user's information to be changed.</para>
         /// </summary>
         [EnumMember(Value = "user:edit")]
-        UserEdit                = 1 << 4,
+        UserEdit = 1 << 4,
 
         /// <summary>
         /// <para>user:edit:broadcast</para>
         /// <para>Allows the channel's broadcast configuration to be changes, including extensions.</para>
         /// </summary>
         [EnumMember(Value = "user:edit:broadcast")]
-        UserEditBroadcast       = 1 << 5,
+        UserEditBroadcast = 1 << 5,
 
         /// <summary>
         /// <para>user:edit:broadcast</para>
         /// <para>Allows the channel's broadcast configuration to be changes, including extensions.</para>
         /// </summary>
         [EnumMember(Value = "user:read:broadcast")]
-        UserReadBroadcast       = 1 << 6,
+        UserReadBroadcast = 1 << 6,
 
         /// <summary>
         /// <para>user:read:email</para>
         /// <para>Allows for the user's email address to be obtained.</para>
         /// </summary>
         [EnumMember(Value = "user:read:email")]
-        UserReadEmail           = 1 << 7
+        UserReadEmail = 1 << 7
     }
 }

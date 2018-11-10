@@ -5,11 +5,6 @@ TwitchNet.Rest
     StatusCodeSetting
     {
         /// <summary>
-        /// Returns the default value of a <see cref="StatusCodeSetting"/>.
-        /// </summary>
-        public static readonly StatusCodeSetting Default = new StatusCodeSetting();
-
-        /// <summary>
         /// How many times the request has been retried.
         /// </summary>
         public int              retry_count                     { get; internal set; }

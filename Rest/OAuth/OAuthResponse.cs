@@ -3,9 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 
-// imported .dll's
-using RestSharp;
-
 namespace
 TwitchNet.Rest.OAuth
 {
@@ -28,17 +25,12 @@ TwitchNet.Rest.OAuth
         public Dictionary<string, string>   headers             { get; internal set; }
 
         /// <summary>
-        /// The source of the error encountered while making the request.
-        /// If more than one error was encountered, this represents the last error encountered.
-        /// </summary>
-        public RestErrorSource              exception_source    { get; internal set; }
-
-        /// <summary>
         /// The details of the error if one occured.
         /// </summary>
         public IEnumerable<Exception>       exceptions          { get; internal set; }
 
-        public OAuthResponse(RestInfo info)
+        // TODO: Replace with actual type
+        public OAuthResponse(object info)
         {
             /*
             status_description = info.response.StatusDescription;
@@ -71,9 +63,10 @@ TwitchNet.Rest.OAuth
     {
         public result_type result { get; internal set; }
 
-        public OAuthResponse(RestInfo<result_type> info) : base(info)
+        // TODO: Replace with actual type
+        public OAuthResponse(object info) : base(info)
         {
-            result = info.response.Data;
+            result = default;// info.response.Data;
         }
     }
 }

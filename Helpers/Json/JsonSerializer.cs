@@ -1,22 +1,17 @@
 ﻿// imported .dll's
 using Newtonsoft.Json;
 
-using RestSharp.Serializers;
-
 namespace
 TwitchNet.Helpers.Json
 {
     internal class
     JsonSerializer : ISerializer
     {
-        public string RootElement   { get; set; }
-        public string Namespace     { get; set; }
-        public string DateFormat    { get; set; }
-        public string ContentType   { get; set; }
+        public string content_type { get; set; }
 
         public JsonSerializer()
         {
-            ContentType = "application/json";
+            content_type = "application/json";
         }
 
         /// <summary>
@@ -27,7 +22,13 @@ TwitchNet.Helpers.Json
         public string
         Serialize(object obj)
         {
-            string result = JsonConvert.SerializeObject(obj);
+            JsonSerializerSettings settings = new JsonSerializerSettings();
+            settings.NullValueHandling = NullValueHandling.Ignore;
+            settings.DateParseHandling = DateParseHandling.DateTime;
+            settings.DateTimeZoneHandling = DateTimeZoneHandling.Local;
+            settings.FloatParseHandling = FloatParseHandling.Double;
+
+            string result = JsonConvert.SerializeObject(obj, settings);
 
             return result;
         }

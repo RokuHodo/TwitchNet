@@ -11,6 +11,6 @@ TwitchNet.Rest.Api.Users
         /// Contains data for the extensions a user has active.
         /// </summary>
         [JsonProperty("data")]
-        public ActiveExtensionsTypes data { get; protected set; }
+        public ActiveExtensionsTypes data { get; set; }
     }
 }

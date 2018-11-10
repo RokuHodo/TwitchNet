@@ -195,7 +195,7 @@ TwitchNet.Clients.Irc
         private void
         Callback_OnBeginConnect(IAsyncResult result)
         {
-            socket.EndConnect(result);
+            socket. EndConnect(result);
 
             Login();
         }

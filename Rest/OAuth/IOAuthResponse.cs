@@ -25,12 +25,6 @@ TwitchNet.Rest.OAuth
         Dictionary<string, string>  headers             { get; }
 
         /// <summary>
-        /// The source of the error encountered while making the request.
-        /// If more than one error was encountered, this represents the last error encountered.
-        /// </summary>
-        RestErrorSource             exception_source    { get; }
-
-        /// <summary>
         /// The exception(s) that were encountered.
         /// </summary>
         IEnumerable<Exception>      exceptions          { get; }

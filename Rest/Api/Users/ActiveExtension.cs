@@ -37,13 +37,13 @@ TwitchNet.Rest.Api.Users
         /// The x-coordinate of the extension.
         /// </summary>
         [JsonProperty("x")]
-        public int x { get; set; }
+        public int? x { get; set; }
 
         /// <summary>
         /// Valid for <see cref="ExtensionType.Component"/> extensions only.
         /// The Y-coordinate of the extension.
         /// </summary>
         [JsonProperty("y")]
-        public int y { get; set; }
+        public int? y { get; set; }
     }
 }

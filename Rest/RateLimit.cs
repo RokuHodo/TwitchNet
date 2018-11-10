@@ -1,12 +1,11 @@
 ﻿// standard namespaces
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http.Headers;
 
 // project namespaces
 using TwitchNet.Extensions;
-
-// imported .dll's
-using RestSharp;
 
 namespace
 TwitchNet.Rest
@@ -14,8 +13,6 @@ TwitchNet.Rest
     public class
     RateLimit
     {
-        public static readonly RateLimit None = new RateLimit();
-
         /// <summary>
         /// The number of requests you can use for the rate-limit window (60 seconds).
         /// </summary>
@@ -35,35 +32,24 @@ TwitchNet.Rest
         /// Creates a new instance of the <see cref="RateLimit"/> class.
         /// </summary>
         /// <param name="headers">The headers from the <see cref="IRestResponse"/>.</param>
-        public RateLimit(IList<Parameter> headers)
+        public RateLimit(HttpResponseHeaders headers)
         {
-            Dictionary<string, string> _headers = new Dictionary<string, string>();
-            foreach(Parameter header in headers)
-            {
-                if (_headers.ContainsKey(header.Name))
-                {
-                    continue;
-                }
-
-                _headers.Add(header.Name, header.Value.ToString());
-            }
-
             limit = 0;
-            if (_headers.ContainsKey("Ratelimit-Limit"))
+            if (headers.TryGetValues("Ratelimit-Limit", out IEnumerable<string> _limit))
             {
-                limit = Convert.ToUInt16(_headers["Ratelimit-Limit"]);
+                limit = Convert.ToUInt16(_limit.ElementAt(0));
             }
 
             remaining = 0;
-            if (_headers.ContainsKey("Ratelimit-Remaining"))
+            if (headers.TryGetValues("Ratelimit-Remaining", out IEnumerable<string> _remaining))
             {
-                remaining = Convert.ToUInt16(_headers["Ratelimit-Remaining"]);
+                remaining = Convert.ToUInt16(_remaining.ElementAt(0));
             }
 
             reset_time = DateTime.MinValue;
-            if (_headers.ContainsKey("Ratelimit-Reset"))
+            if (headers.TryGetValues("Ratelimit-Reset", out IEnumerable<string> _reset_time))
             {
-                long reset_double = Convert.ToInt64(_headers["Ratelimit-Reset"]);
+                long reset_double = Convert.ToInt64(_reset_time.ElementAt(0));
                 reset_time = reset_double.FromUnixEpochSeconds();
             }
         }

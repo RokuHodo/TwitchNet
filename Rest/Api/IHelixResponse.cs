@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http.Headers;
 
 namespace
 TwitchNet.Rest.Api
@@ -12,33 +13,27 @@ TwitchNet.Rest.Api
         /// <summary>
         /// The description of the status code.
         /// </summary>
-        string                      status_description { get; }
+        string              status_description  { get; }
 
         /// <summary>
         /// The HTTP status code of the response.
         /// </summary>
-        HttpStatusCode              status_code { get; }
+        HttpStatusCode      status_code         { get; }
 
         /// <summary>
         /// The response headers.
         /// </summary>
-        Dictionary<string, string>  headers { get; }
+        HttpResponseHeaders headers             { get; }
 
         /// <summary>
-        /// The request limit, remaining requests, and when the rate limit resets.
+        /// The request limit, remaining requcests, and when the rate limit resets.
         /// </summary>
-        RateLimit                   rate_limit  { get; }
+        RateLimit           rate_limit          { get; }
 
         /// <summary>
-        /// The source of the error encountered while making the request.
-        /// If more than one error was encountered, this represents the last error encountered.
+        /// The error(s) that occurred, if any, in order of occurrence.
         /// </summary>
-        RestErrorSource             exception_source { get; }
-
-        /// <summary>
-        /// The error(s) that occurred, if any.
-        /// </summary>
-        IEnumerable<Exception>      exceptions { get; }
+        Exception           exception           { get; }
     }
 
     public interface
@@ -47,6 +42,6 @@ TwitchNet.Rest.Api
         /// <summary>
         /// The deserialized result form the Twitch API.
         /// </summary>
-        result_type result      { get; }
+        result_type result                      { get; }
     }
 }

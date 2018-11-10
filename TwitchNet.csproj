@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TwitchNet</RootNamespace>
     <AssemblyName>TwitchNet</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -33,11 +33,8 @@
     <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="RestSharp, Version=106.1.0.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
-      <HintPath>..\packages\RestSharp.106.1.0\lib\net452\RestSharp.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -59,6 +56,8 @@
     <Compile Include="Extensions\CollectionExtensions.cs" />
     <Compile Include="Helpers\ClampedList.cs" />
     <Compile Include="Helpers\Json\EnumConverter.cs" />
+    <Compile Include="Helpers\Json\ISerializer.cs" />
+    <Compile Include="Helpers\Json\IDeserializer.cs" />
     <Compile Include="Helpers\Json\JsonSerializer.cs" />
     <Compile Include="Rest\Api\Bits\BitsLeaderboardData.cs" />
     <Compile Include="Rest\Api\Bits\BitsLeaderboardPeriod.cs" />
@@ -70,10 +69,11 @@
     <Compile Include="Rest\Api\Analytics\ExtensionAnalytics.cs" />
     <Compile Include="Rest\Api\Analytics\GameAnalyticsType.cs" />
     <Compile Include="Rest\Api\Bits\BitsUser.cs" />
+    <Compile Include="Rest\Api\HelixInfo.cs" />
     <Compile Include="Rest\Api\TwitchApi.Sync.cs" />
     <Compile Include="Rest\Api\TwitchApi.Async.cs" />
     <Compile Include="Rest\Api\TwitchApiOAuth.Sync.cs" />
-    <Compile Include="Rest\Api\TwitchApiOAuth.Async.cs" />
+    <Compile Include="Rest\Api\TwitchApi.OAuth.Async.cs" />
     <Compile Include="Clients\Irc\IrcClient.Handlers.cs" />
     <Compile Include="Clients\Irc\IrcClient.cs" />
     <Compile Include="Clients\Irc\Twitch\TwitchIrcClient.Handlers.cs" />
@@ -92,21 +92,16 @@
     <Compile Include="Rest\Api\Users\Extension.cs" />
     <Compile Include="Rest\Api\Users\ActiveExtensionsParameters.cs" />
     <Compile Include="Rest\Api\Users\DescriptionParameters.cs" />
-    <Compile Include="Rest\DefaultBodyConverter.cs" />
-    <Compile Include="Rest\RetryLimitReachedException.cs" />
-    <Compile Include="Rest\RestException.cs" />
-    <Compile Include="Rest\MissingScopesException.cs" />
-    <Compile Include="Rest\RequestBodyAttribute.cs" />
-    <Compile Include="Rest\RestParameterAttribute.cs" />
-    <Compile Include="Rest\RestInfo.cs" />
-    <Compile Include="Rest\RFC3339QueryConverter.cs" />
-    <Compile Include="Rest\SpaceDelineatedQueryConverter.cs" />
-    <Compile Include="Rest\SeparateQueryConverter.cs" />
-    <Compile Include="Rest\DelineatedQueryConverter.cs" />
+    <Compile Include="Rest\Attributes.cs" />
+    <Compile Include="Rest\Converters.cs" />
+    <Compile Include="Rest\Enums.cs" />
+    <Compile Include="Rest\Parameters.cs" />
+    <Compile Include="Rest\RequestSettings.cs" />
+    <Compile Include="Rest\RestClient.cs" />
+    <Compile Include="Rest\RestRequest.cs" />
+    <Compile Include="Rest\RestResponse.cs" />
+    <Compile Include="Rest\Exceptions.cs" />
     <Compile Include="Rest\OAuth\Token\RefreshTokenParameters.cs" />
-    <Compile Include="Rest\RestParameterConverter.cs" />
-    <Compile Include="Rest\DefaultQueryConverter.cs" />
-    <Compile Include="Rest\Scopes.cs" />
     <Compile Include="Clients\ClientState.cs" />
     <Compile Include="Clients\Irc\Twitch\CommercialLength.cs" />
     <Compile Include="Clients\Irc\Twitch\ChatCommand.cs" />
@@ -119,12 +114,10 @@
     <Compile Include="Clients\Irc\Twitch\UserNoticeType.cs" />
     <Compile Include="Clients\Irc\Twitch\RoomStateType.cs" />
     <Compile Include="Clients\Irc\Twitch\BadgeType.cs" />
-    <Compile Include="Rest\StatusHandling.cs" />
     <Compile Include="BroadcasterLanguage.cs" />
     <Compile Include="Rest\Api\Streams\StreamLanguage.cs" />
     <Compile Include="Rest\Api\Streams\StreamType.cs" />
     <Compile Include="Rest\Api\Users\BroadcasterType.cs" />
-    <Compile Include="Rest\RestErrorSource.cs" />
     <Compile Include="Rest\Api\Videos\VideoType.cs" />
     <Compile Include="Rest\Api\Videos\VideoSort.cs" />
     <Compile Include="Rest\Api\Videos\VideoPeriod.cs" />
@@ -193,7 +186,6 @@
     <Compile Include="Helpers\Json\JsonDeserializer.cs" />
     <Compile Include="Helpers\Json\VideoDurationConverter.cs" />
     <Compile Include="Rest\Api\IPagingParameters.cs" />
-    <Compile Include="Rest\ErrorHandling.cs" />
     <Compile Include="Rest\OAuth\IOAuthResponse.cs" />
     <Compile Include="Rest\Api\IDataPage.cs" />
     <Compile Include="Rest\Api\IData.cs" />
@@ -202,7 +194,6 @@
     <Compile Include="Clients\Irc\Twitch\ISharedUserStateTags.cs" />
     <Compile Include="Clients\Irc\Twitch\ISharedPrivmsgTags.cs" />
     <Compile Include="Rest\OAuth\OAuthResponse.cs" />
-    <Compile Include="Rest\ClientInfo.cs" />
     <Compile Include="Rest\Api\Clips\ClipCreationParameters.cs" />
     <Compile Include="Rest\Api\Clips\CreatedClip.cs" />
     <Compile Include="Rest\Api\Clips\Clip.cs" />
@@ -226,7 +217,6 @@
     <Compile Include="Helpers\ClampedNumber.cs" />
     <Compile Include="Rest\Api\Games\GamesParameters.cs" />
     <Compile Include="Rest\Api\PagingParameters.cs" />
-    <Compile Include="Rest\QueryParameterAttribute.cs" />
     <Compile Include="Rest\Api\Streams\StreamsParameters.cs" />
     <Compile Include="Rest\Api\Users\FollowsParameters.cs" />
     <Compile Include="Rest\Api\IHelixResponse.cs" />
@@ -237,7 +227,7 @@
     <Compile Include="Rest\Api\Users\Follow.cs" />
     <Compile Include="Rest\Api\Users\User.cs" />
     <Compile Include="Rest\RateLimit.cs" />
-    <Compile Include="Rest\RequestSettings.cs" />
+    <Compile Include="Rest\HelixRequestSettings.cs" />
     <Compile Include="Rest\Api\Users\UsersParameters.cs" />
     <Compile Include="Rest\Api\Videos\VideosParameters.cs" />
     <Compile Include="Clients\Irc\IrcMessage.cs" />
@@ -272,7 +262,7 @@
     <Compile Include="Utilities\TwitchUtil.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Rest\Api\TwitchApiInternal.cs" />
+    <Compile Include="Rest\Api\TwitchApi.Internal.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />

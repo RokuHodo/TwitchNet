@@ -1,4 +1,6 @@
 ﻿// standard namespaces
+using System;
+using System.Net.Http;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -9,79 +11,125 @@ TwitchNet.Rest
     RequestSettings
     {
         /// <summary>
-        /// Returns the default rest request settings.
-        /// </summary>
-        public static readonly RequestSettings Default = new RequestSettings();
-
-        /// <summary>
         /// <para>The token used to cancel the request.</para>
         /// <para>Default: <see cref="CancellationToken.None"/>.</para>
         /// </summary>
         public CancellationToken                    cancelation_token               { get; set; }
 
         /// <summary>
-        /// <para>The settings usded to handle the different status codes when an API error is returned.</para>
+        /// Determines how to handle the <see cref="InvalidOperationException"/>.
         /// </summary>
-        public Dictionary<int, StatusCodeSetting>   status_codes                    { get; set; }
+        public ErrorHandling                        invalid_operation_handling      { get; set; }
 
         /// <summary>
-        /// <para>How to handle errors experienced while executing the request.</para>
-        /// <para>Default: <see cref="ErrorHandling.Error"/>.</para>
+        /// Determines how to handle the <see cref="HttpRequestException"/>.
         /// </summary>
-        public ErrorHandling                        error_handling_inputs           { get; set; }
+        public ErrorHandling                        request_handling                { get; set; }
 
         /// <summary>
-        /// <para>How to handle wrong or improperly formatted user inputs.</para>
-        /// <para>Default: <see cref="ErrorHandling.Error"/>.</para>
+        /// <para>The settings usded to handle the different status codes when an error is returned.</para>
         /// </summary>
-        public ErrorHandling                        error_handling_execution        { get; set; }
-
-        /// <summary>
-        /// <para>
-        /// How to handle OAuth tokens with missing scopes needed to authenticate the request.
-        /// This setting is only valid when available scopes are specified.
-        /// </para>
-        /// <para>Default: <see cref="ErrorHandling.Error"/>.</para>
-        /// </summary>
-        public ErrorHandling                        error_handling_missing_scopes   { get; set; }
-
-        /// <summary>
-        /// <para>
-        /// The scopes that were requested when creating an OAuth token.
-        /// The scopes contained within an OAuth token can be obtained by using <see cref="OAuth2.ValidateToken(string, RequestSettings)"/>.
-        /// </para>
-        /// <para>
-        /// If specified when making an authenticated request, the available scopes will be used to check if the required scope(s) to make the request are present.
-        /// If not specified when making an authenticated request, the reuqest will be made normally without perfomring preemptive checks.
-        /// If specified when making a request that does not require authentication, the available scopes are ignored.
-        /// </para>
-        /// </summary>
-        public Scopes[]                             available_scopes                { get; set; }
+        public Dictionary<int, StatusCodeSetting>   status_error                    { get; set; }
 
         public RequestSettings()
         {
-            Reset();
+            // Copy paste from Reset() to avoid duplicate instantiation when derived classes instantiated.
+            // Keep these synchronized at all times!
+
+            cancelation_token = CancellationToken.None;
+
+            // This covers practically everything under the sun used by major sites.
+            // If this doesn't cover a status code receieved, what is that site doing?
+            // Just in case, 000 is reserved as a default fallback handler.
+            int[] status_codes_0XX = { 000 };
+            int[] status_codes_1XX = { 100, 101, 102, 103 };
+            int[] status_codes_2XX = { 200, 201, 202, 203, 204, 205, 206, 207, 208, 218, 226 };
+            int[] status_codes_3XX = { 300, 301, 302, 303, 304, 305, 306, 307, 308 };
+            int[] status_codes_4XX = { 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 428, 429, 431, 440, 444, 449, 450, 451, 494, 495, 496, 497, 498, 499 };
+            int[] status_codes_5XX = { 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 520, 521, 522, 523, 524, 525, 526, 527, 530, 598, 599 };
+
+            status_error = new Dictionary<int, StatusCodeSetting>(1000);
+
+            foreach (int code in status_codes_0XX)
+            {
+                status_error[code] = new StatusCodeSetting();
+            }
+
+            foreach (int code in status_codes_1XX)
+            {
+                status_error[code] = new StatusCodeSetting();
+            }
+
+            foreach (int code in status_codes_2XX)
+            {
+                status_error[code] = new StatusCodeSetting();
+            }
+
+            foreach (int code in status_codes_3XX)
+            {
+                status_error[code] = new StatusCodeSetting();
+            }
+
+            foreach (int code in status_codes_4XX)
+            {
+                status_error[code] = new StatusCodeSetting();
+            }
+
+            foreach (int code in status_codes_5XX)
+            {
+                status_error[code] = new StatusCodeSetting();
+            }
         }
 
         /// <summary>
         /// Sets the request settings back to their default values.
         /// </summary>
-        public void
+        public virtual void
         Reset()
         {
             cancelation_token = CancellationToken.None;
 
-            status_codes = new Dictionary<int, StatusCodeSetting>();
-            for(int code = 100; code < 600; ++code)
+            // This covers practically everything under the sun used by major sites.
+            // If this doesn't cover a status code receieved, what is that site doing?
+            // Just in case, 000 is reserved as a default fallback handler.
+            int[] status_codes_0XX = { 000 };
+            int[] status_codes_1XX = { 100, 101, 102, 103 };
+            int[] status_codes_2XX = { 200, 201, 202, 203, 204, 205, 206, 207, 208, 218, 226 };
+            int[] status_codes_3XX = { 300, 301, 302, 303, 304, 305, 306, 307, 308 };
+            int[] status_codes_4XX = { 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 428, 429, 431, 440, 444, 449, 450, 451, 494, 495, 496, 497, 498, 499 };
+            int[] status_codes_5XX = { 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 520, 521, 522, 523, 524, 525, 526, 527, 530, 598, 599 };
+
+            status_error = new Dictionary<int, StatusCodeSetting>(1000);
+
+            foreach(int code in status_codes_0XX)
             {
-                status_codes[code] = StatusCodeSetting.Default;
+                status_error[code] = new StatusCodeSetting();
             }
 
-            error_handling_inputs = ErrorHandling.Error;
-            error_handling_execution = ErrorHandling.Error;
-            error_handling_missing_scopes = ErrorHandling.Error;
+            foreach (int code in status_codes_1XX)
+            {
+                status_error[code] = new StatusCodeSetting();
+            }
 
-            available_scopes = new Scopes[0];
+            foreach (int code in status_codes_2XX)
+            {
+                status_error[code] = new StatusCodeSetting();
+            }
+
+            foreach (int code in status_codes_3XX)
+            {
+                status_error[code] = new StatusCodeSetting();
+            }
+
+            foreach (int code in status_codes_4XX)
+            {
+                status_error[code] = new StatusCodeSetting();
+            }
+
+            foreach (int code in status_codes_5XX)
+            {
+                status_error[code] = new StatusCodeSetting();
+            }
         }
     }
 }

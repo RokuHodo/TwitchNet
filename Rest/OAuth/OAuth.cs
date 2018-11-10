@@ -9,9 +9,6 @@ using TwitchNet.Rest.OAuth.Token;
 using TwitchNet.Rest.OAuth.Validate;
 using TwitchNet.Utilities;
 
-// imported .dll's
-using RestSharp;
-
 namespace
 TwitchNet.Rest.OAuth
 {

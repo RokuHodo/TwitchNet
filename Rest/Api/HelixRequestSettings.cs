@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 
 namespace
-TwitchNet.Rest
+TwitchNet.Rest.Api
 {
     public class
     HelixRequestSettings : RequestSettings

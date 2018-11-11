@@ -16,8 +16,7 @@ namespace TwitchNet.Rest
     public class
     RestRequest : IDisposable
     {
-        private HttpRequestMessage _message;
-        public HttpRequestMessage message => _message;
+        public HttpRequestMessage message { get; private set; }
 
         public bool disposed { get; private set; } = true;
 
@@ -47,7 +46,7 @@ namespace TwitchNet.Rest
         {
             json_serialzier = new JsonSerializer();
 
-            _message = new HttpRequestMessage();
+            message = new HttpRequestMessage();
 
             query_parameters = new List<QueryParameter>();
 
@@ -74,8 +73,8 @@ namespace TwitchNet.Rest
                 return;
             }
 
-            _message.Dispose();
-            _message = null;
+            message.Dispose();
+            message = null;
 
             disposed = true;
         }
@@ -85,6 +84,22 @@ namespace TwitchNet.Rest
         {
             message.RequestUri = BuildUri(client_uri);
             message.Method = new HttpMethod(EnumUtil.GetName(method));
+
+            return message;
+        }
+
+        public HttpRequestMessage
+        CloneMessage()
+        {
+            HttpRequestMessage clone = new HttpRequestMessage(message.Method, message.RequestUri);
+            clone.Content = message.Content;
+
+            foreach(KeyValuePair<string, IEnumerable<string>> header in message.Headers)
+            {
+                clone.Headers.Add(header.Key, header.Value);
+            }
+
+            message = clone;
 
             return message;
         }

@@ -227,7 +227,7 @@
     <Compile Include="Rest\Api\Users\Follow.cs" />
     <Compile Include="Rest\Api\Users\User.cs" />
     <Compile Include="Rest\RateLimit.cs" />
-    <Compile Include="Rest\HelixRequestSettings.cs" />
+    <Compile Include="Rest\Api\HelixRequestSettings.cs" />
     <Compile Include="Rest\Api\Users\UsersParameters.cs" />
     <Compile Include="Rest\Api\Videos\VideosParameters.cs" />
     <Compile Include="Clients\Irc\IrcMessage.cs" />

@@ -225,9 +225,8 @@ namespace TwitchNet.Rest
                             return await HandleResponse(response);
                         }
 
-                        // TODO: This will throw InvalidOperationException since it will use the same HttpRequestMessage instance again.
-                        //       In order for this to work, we need to crease a new instance with the same data.
-                        //       Alternatively, we could set Timeout to < 60 seconds and then reuse the same instabnce?
+                        // Clone the message to a new instance because the same instance can't be sent twice.
+                        response.request.CloneMessage();
                         response = await ExecuteAsync<data_type>(response.request);
                     };
                     break;

@@ -141,10 +141,10 @@ namespace TwitchNet.Rest
                 result = parameter.value.ToString();
             }
 
-            if (!result.IsValid())
-            {
-                return;
-            }
+            //if (!result.IsValid())
+            //{
+            //    return;
+            //}
 
             request.AddQueryParameter(parameter.name, result);
 
@@ -238,10 +238,10 @@ namespace TwitchNet.Rest
                     return;
                 }
 
-                if (!names.IsValid())
-                {
-                    return;
-                }
+                //if (!names.IsValid())
+                //{
+                //    return;
+                //}
 
                 string value = string.Join(delineator, names);
                 request.AddQueryParameter(parameter.name, value);
@@ -302,10 +302,10 @@ namespace TwitchNet.Rest
                 else
                 {
                     string value = string.Join(delineator, list);
-                    if (!value.IsValid())
-                    {
-                        return;
-                    }
+                    //if (!value.IsValid())
+                    //{
+                    //    return;
+                    //}
 
                     request.AddQueryParameter(parameter.name, value);
                 }
@@ -373,10 +373,10 @@ namespace TwitchNet.Rest
 
                 foreach (string element in names)
                 {
-                    if (!element.IsValid())
-                    {
-                        continue;
-                    }
+                    //if (!element.IsValid())
+                    //{
+                    //    continue;
+                    //}
 
                     request.AddQueryParameter(parameter.name, element);
                 }
@@ -428,10 +428,10 @@ namespace TwitchNet.Rest
 
                         // TODO: We don't want to allow null, but an empty string *could* be desirable. Allow empty strings and assume they're intentional by the user?
                         string value = element.ToString();
-                        if (!value.IsValid())
-                        {
-                            continue;
-                        }
+                        //if (!value.IsValid())
+                        //{
+                        //    continue;
+                        //}
 
                         request.AddQueryParameter(parameter.name, value);
                     }

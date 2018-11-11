@@ -20,8 +20,8 @@ namespace TwitchNet.Extensions
                 return list;
             }
 
-            list = list.Distinct().ToList();
             list.RemoveAll(str => !str.IsValid());
+            list = list.Distinct().ToList();
 
             return list;
         }

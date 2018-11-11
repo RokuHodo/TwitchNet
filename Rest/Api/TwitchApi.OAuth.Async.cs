@@ -1034,8 +1034,7 @@ TwitchNet.Rest.Api
             public static async Task<IHelixResponse<Data<User>>>
             GetUserAsync(string bearer_token, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo();
-                info.settings = settings;
+                HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
 
                 IHelixResponse<Data<User>> response = await Internal.GetUsersAsync(info, default);
@@ -1064,8 +1063,7 @@ TwitchNet.Rest.Api
             public static async Task<IHelixResponse<Data<User>>>
             GetUserAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo();
-                info.settings = settings;
+                HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
                 info.client_id = client_id;
 
@@ -1083,7 +1081,7 @@ TwitchNet.Rest.Api
             /// </summary>
             /// <param name="bearer_token">An user access OAuth token.</param>
             /// <param name="parameters">
-            /// A set of rest parameters to add to the request.
+            /// A set of rest parameters specific to this request.
             /// If not specified, the user is looked up by the specified bearer token.
             /// </param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
@@ -1103,8 +1101,7 @@ TwitchNet.Rest.Api
             public static async Task<IHelixResponse<Data<User>>>
             GetUsersAsync(string bearer_token, UsersParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo();
-                info.settings = settings;
+                HelixInfo info = new HelixInfo(settings);                
                 info.bearer_token = bearer_token;
 
                 IHelixResponse<Data<User>> response = await Internal.GetUsersAsync(info, parameters);
@@ -1122,7 +1119,7 @@ TwitchNet.Rest.Api
             /// <param name="bearer_token">An user access OAuth token.</param>
             /// <param name="client_id">The application ID to identify the source of the request.</param>
             /// <param name="parameters">
-            /// A set of rest parameters to add to the request.
+            /// A set of rest parameters specific to this request.
             /// If not specified, the user is looked up by the specified bearer token.
             /// </param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
@@ -1142,8 +1139,7 @@ TwitchNet.Rest.Api
             public static async Task<IHelixResponse<Data<User>>>
             GetUsersAsync(string bearer_token, string client_id, UsersParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo();
-                info.settings = settings;
+                HelixInfo info = new HelixInfo(settings);                
                 info.bearer_token = bearer_token;
                 info.client_id = client_id;
 
@@ -1164,7 +1160,7 @@ TwitchNet.Rest.Api
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
             /// </returns>
-            /// <exception cref="ArgumentException">Thrown if the bearer token or description is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="ArgumentException">Thrown if the bearer token is null, empty, or contains only whitespace.</exception>
             /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -1172,8 +1168,7 @@ TwitchNet.Rest.Api
             public static async Task<IHelixResponse<Data<User>>>
             SetUserDescriptionAsync(string bearer_token, string description, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo();
-                info.settings = settings;
+                HelixInfo info = new HelixInfo(settings);                
                 info.bearer_token = bearer_token;
 
                 IHelixResponse<Data<User>> response = await Internal.SetUserDescriptionAsync(info, description);
@@ -1193,7 +1188,7 @@ TwitchNet.Rest.Api
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
             /// </returns>
-            /// <exception cref="ArgumentException">Thrown if the bearer token or description is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="ArgumentException">Thrown if the bearer token is null, empty, or contains only whitespace.</exception>
             /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -1201,8 +1196,7 @@ TwitchNet.Rest.Api
             public static async Task<IHelixResponse<Data<User>>>
             SetUserDescriptionAsync(string bearer_token, string client_id, string description, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo();
-                info.settings = settings;
+                HelixInfo info = new HelixInfo(settings);                
                 info.bearer_token = bearer_token;
                 info.client_id = client_id;
 
@@ -1216,14 +1210,13 @@ TwitchNet.Rest.Api
             /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
             /// </summary>
             /// <param name="bearer_token">An user access OAuth token.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
+            /// <param name="parameters">A set of rest parameters specific to this request.</param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
             /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">Thrown if the bearer token or description is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="ArgumentException">Thrown if the bearer token is null, empty, or contains only whitespace.</exception>
             /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -1231,8 +1224,7 @@ TwitchNet.Rest.Api
             public static async Task<IHelixResponse<Data<User>>>
             SetUserDescriptionAsync(string bearer_token, DescriptionParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo();
-                info.settings = settings;
+                HelixInfo info = new HelixInfo(settings);                
                 info.bearer_token = bearer_token;
 
                 IHelixResponse<Data<User>> response = await Internal.SetUserDescriptionAsync(info, parameters);
@@ -1246,14 +1238,13 @@ TwitchNet.Rest.Api
             /// </summary>
             /// <param name="bearer_token">An user access OAuth token.</param>
             /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
+            /// <param name="parameters">A set of rest parameters specific to this request.</param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
             /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">Thrown if the bearer token or description is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="ArgumentException">Thrown if the bearer token is null, empty, or contains only whitespace.</exception>
             /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -1261,8 +1252,7 @@ TwitchNet.Rest.Api
             public static async Task<IHelixResponse<Data<User>>>
             SetUserDescriptionAsync(string bearer_token, string client_id, DescriptionParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo();
-                info.settings = settings;
+                HelixInfo info = new HelixInfo(settings);                
                 info.bearer_token = bearer_token;
                 info.client_id = client_id;
 

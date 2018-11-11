@@ -5,7 +5,7 @@ namespace
 TwitchNet.Rest
 {
     public class
-    RestError
+    HelixError
     {
         /// <summary>
         /// The error associated with the status code, i.e., the status description.
@@ -17,7 +17,7 @@ TwitchNet.Rest
         /// The HTTP status code of the returned response.
         /// </summary>
         [JsonProperty("status")]
-        public ushort status    { get; protected set; }
+        public int status    { get; protected set; }
 
         /// <summary>
         /// The descriptive error message that gives more detailed information on the type of error.

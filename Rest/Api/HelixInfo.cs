@@ -1,5 +1,7 @@
 ﻿using System;
 
+using TwitchNet.Extensions;
+
 namespace TwitchNet.Rest.Api
 {
     public class
@@ -11,6 +13,11 @@ namespace TwitchNet.Rest.Api
 
         public HelixRequestSettings settings;
 
-        public Scopes required_scopes;             
+        public Scopes required_scopes;
+
+        public HelixInfo(HelixRequestSettings settings)
+        {
+            this.settings = settings.IsNull() ? new HelixRequestSettings() : settings;
+        }
     }
 }

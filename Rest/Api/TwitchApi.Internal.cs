@@ -36,48 +36,43 @@ TwitchNet.Rest.Api
             GetHelixClient()
             {
                 RestClient client = new RestClient("https://api.twitch.tv/helix");
-                client.OnResponseErrorAsync = Callback_OnResponseErrorAsync;
+                client.OnPreResponseErrorHandlingAsync = Callback_OnPreResponseErrorHandlingAsync;
 
                 return client;
-            }
 
-            internal static async Task
-            Callback_OnResponseErrorAsync(RestResponse response)
-            {
-                if (!(response.exception is StatusException))
+                async Task
+                Callback_OnPreResponseErrorHandlingAsync(RestResponse response)
                 {
+                    if (!(response.exception is StatusException))
+                    {
+                        return;
+                    }
+
+                    int code = (int)response.status_code;
+                    if (response.request.settings.status_error[code].handling != StatusHandling.Retry)
+                    {
+                        return;
+                    }
+
+                    RateLimit rate_limit = new RateLimit(response.headers);
+                    if (rate_limit.reset_time == DateTime.MinValue)
+                    {
+                        return;
+                    }
+
+                    TimeSpan difference = rate_limit.reset_time - DateTime.Now;
+                    if (rate_limit.remaining == 0 && difference.TotalMilliseconds > 0)
+                    {
+                        await Task.Delay(difference);
+                    }
+
                     return;
                 }
-
-                int code = (int)response.status_code;
-                if (response.request.settings.status_error[code].handling != StatusHandling.Retry)
-                {
-                    return;
-                }
-
-                RateLimit rate_limit = new RateLimit(response.headers);
-                if (rate_limit.reset_time == DateTime.MinValue)
-                {
-                    return;
-                }
-
-                TimeSpan difference = rate_limit.reset_time - DateTime.Now;
-                if (rate_limit.remaining == 0 && difference.TotalMilliseconds > 0)
-                {
-                    await Task.Delay(difference);
-                }
-
-                return;
             }
 
             internal static RestRequest
-            GetBaseRequest(string endpoint, Method method, HelixInfo info, HelixResponse response)
+            GetBaseRequest(string endpoint, Method method, HelixInfo info)
             {
-                if (!ValidateRequiredBaseParameters(info, response))
-                {
-                    return default;
-                }
-
                 RestRequest request = new RestRequest(endpoint, method);
                 request.settings = info.settings;
                 if (info.bearer_token.IsValid())
@@ -131,7 +126,8 @@ TwitchNet.Rest.Api
                         else
                         {
                             // Authentication is requirted, all required scopes are included in available_scopes.
-                            // I could just let this fall through, but return just for logical consitency.
+
+                            // I could just let this fall through, but return just for logical flow.
                             return true;
                         }
                     }
@@ -140,6 +136,8 @@ TwitchNet.Rest.Api
                         // Bearer token has been provided, no available scopes have been specified.
                         // If no available scopes were specified, it's not inherently an error.
                         // The user might not want to verify the scopes or didn't provide any.
+
+                        // I could just let this fall through, but return just for logical flow.
                         return true;
                     }
                 }
@@ -726,7 +724,7 @@ TwitchNet.Rest.Api
             /// </summary>
             /// <param name="info">The information used to assemble and execute the request.</param>
             /// <param name="parameters">
-            /// A set of rest parameters to add to the request.
+            /// A set of rest parameters specific to this request.
             /// If not specified, the user is looked up by the specified bearer token.
             /// </param>
             /// <returns>
@@ -747,8 +745,7 @@ TwitchNet.Rest.Api
             {
                 HelixResponse<Data<User>> response = new HelixResponse<Data<User>>();
 
-                RestRequest request = GetBaseRequest("users", Method.GET, info, response);
-                if (!response.exception.IsNull())
+                if (!ValidateRequiredBaseParameters(info, response))
                 {
                     return response;
                 }
@@ -756,7 +753,6 @@ TwitchNet.Rest.Api
                 int total_query_parameters = 0;
                 if (!parameters.IsNull())
                 {
-                    // Is there a reason why I'm not explicitly re-assigning the result to the lists?
                     parameters.ids.Sanitize();
                     parameters.logins.Sanitize();
 
@@ -786,6 +782,7 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
+                RestRequest request = GetBaseRequest("users", Method.GET, info);
                 request.AddParameters(parameters);
 
                 RestResponse<Data<User>> _response = await CLIENT_HELIX.ExecuteAsync<Data<User>>(request);
@@ -825,7 +822,7 @@ TwitchNet.Rest.Api
             /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
             /// </summary>
             /// <param name="info">The information used to assemble and execute the request.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
+            /// <param name="parameters">A set of rest parameters specific to this request.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
@@ -842,11 +839,10 @@ TwitchNet.Rest.Api
 
                 // TODO: Change MissingScopesException to handle 403 - Forbidden as well, e.g., "Missing user:edit scope"?
                 info.required_scopes = Scopes.UserEdit;
-                RestRequest request = GetBaseRequest("users", Method.PUT, info, response);
-                if (!response.exception.IsNull())
+                if (!ValidateRequiredBaseParameters(info, response))
                 {
                     return response;
-                }
+                }        
 
                 if (parameters.IsNull())
                 {
@@ -859,6 +855,7 @@ TwitchNet.Rest.Api
                     parameters.description = string.Empty;
                 }
 
+                RestRequest request = GetBaseRequest("users", Method.PUT, info);
                 request.AddParameters(parameters);
 
                 RestResponse<Data<User>> _response = await CLIENT_HELIX.ExecuteAsync<Data<User>>(request);
@@ -869,10 +866,6 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            #region To Reimpliment 2
-
-            /*
-
             #region /users/extensions
 
             /// <summary>
@@ -881,7 +874,7 @@ TwitchNet.Rest.Api
             /// </summary>
             /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
             /// <param name="parameters">
-            /// A set of rest parameters to add to the request.
+            /// A set of rest parameters specific to this request.
             /// If no user ID is specified, the user is implicityly specified from the bearer token.
             /// </param>
             /// <returns>
@@ -893,47 +886,41 @@ TwitchNet.Rest.Api
             /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
             /// Thrown if the specified user ID is null, empty, or only contains whitespace when no valid bearer token is specified.
             /// </exception>
-            /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
             /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<ActiveExtensionsData>>
-            GetUserActiveExtensionsAsync(RestInfo<ActiveExtensionsData> info, ActiveExtensionsParameters parameters)
+            GetUserActiveExtensionsAsync(HelixInfo info, ActiveExtensionsParameters parameters)
             {
-                IHelixResponse<ActiveExtensionsData> response = default;
+                HelixResponse<ActiveExtensionsData> response = new HelixResponse<ActiveExtensionsData>();
+
+                if (!ValidateRequiredBaseParameters(info, response))
+                {
+                    return response;
+                }                
 
                 if (!info.bearer_token.IsValid())
                 {
                     if (parameters.IsNull())
                     {
-                        info.SetInputError(new ArgumentNullException(nameof(parameters), "Parameters must be specified if no bearer token is specified."));
-
-                        response = new HelixResponse<ActiveExtensionsData>(info.exception_source, info.exceptions);
+                        response.SetInputError(new ArgumentNullException(nameof(parameters), "Parameters must be specified if no bearer token is specified."), info.settings);
 
                         return response;
                     }
 
                     if (!parameters.user_id.IsValid())
                     {
-                        info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.user_id)));
-
-                        response = new HelixResponse<ActiveExtensionsData>(info.exception_source, info.exceptions);
+                        response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.user_id)), info.settings);
 
                         return response;
                     }
                 }
 
-                info = RestUtil.CreateHelixRequest("users/extensions", Method.GET, info);
-                if (info.exception_source != RestErrorSource.None)
-                {
-                    response = new HelixResponse<ActiveExtensionsData>(info.exception_source, info.exceptions);
+                RestRequest request = GetBaseRequest("users/extensions", Method.GET, info);
+                request.AddParameters(parameters);
 
-                    return response;
-                }
-
-                info.request = info.request.AddParameters(parameters);
-                info = await RestUtil.ExecuteAsync(info);
-
-                response = new HelixResponse<ActiveExtensionsData>(info.response, info.rate_limit, info.exception_source, info.exceptions);
+                RestResponse<ActiveExtensionsData> _response = await CLIENT_HELIX.ExecuteAsync<ActiveExtensionsData>(request);
+                response = new HelixResponse<ActiveExtensionsData>(_response);
 
                 return response;
             }
@@ -950,48 +937,47 @@ TwitchNet.Rest.Api
             /// </summary>
             /// <exception cref="ArgumentNullException">Thrown if parameters or the parameters' data is null.</exception>
             /// <exception cref="ArgumentException">Thrown if both bearer token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
             /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<ActiveExtensionsData>>
-            UpdateUserExtensionsAsync(RestInfo<ActiveExtensionsData> info, UpdateExtensionsParameters parameters)
+            UpdateUserExtensionsAsync(HelixInfo info, UpdateExtensionsParameters parameters)
             {
-                if (!info.bearer_token.IsValid())
-                {
-                    info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(info.bearer_token)));
+                HelixResponse<ActiveExtensionsData> response = new HelixResponse<ActiveExtensionsData>();
 
-                    return new HelixResponse<ActiveExtensionsData>(info.exception_source, info.exceptions); ;
+                info.required_scopes = Scopes.UserEditBroadcast;
+                if (!ValidateRequiredBaseParameters(info, response))
+                {
+                    return response;
                 }
 
                 if (parameters.IsNull())
                 {
-                    info.SetInputError(new ArgumentNullException(nameof(parameters)));
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
 
-                    return new HelixResponse<ActiveExtensionsData>(info.exception_source, info.exceptions); ;
+                    return response;
                 }
 
                 if (parameters.data.IsNull())
                 {
-                    info.SetInputError(new ArgumentNullException(nameof(parameters.data)));
+                    response.SetInputError(new ArgumentNullException(nameof(parameters.data)), info.settings);
 
-                    return new HelixResponse<ActiveExtensionsData>(info.exception_source, info.exceptions);
+                    return response;
                 }
 
-                info.required_scopes = Scopes.UserEditBroadcast;
-                info = RestUtil.CreateHelixRequest("users/extensions", Method.PUT, info);
-                if (info.exception_source != RestErrorSource.None)
-                {
-                    return new HelixResponse<ActiveExtensionsData>(info.exception_source, info.exceptions); ;
-                }
+                RestRequest request = GetBaseRequest("users/extensions", Method.PUT, info);
+                request.AddParameters(parameters);
 
-                info.request = info.request.AddParameters(parameters);
-                info = await RestUtil.ExecuteAsync(info);
+                RestResponse<ActiveExtensionsData> _response = await CLIENT_HELIX.ExecuteAsync<ActiveExtensionsData>(request);
+                response = new HelixResponse<ActiveExtensionsData>(_response);
 
-                return new HelixResponse<ActiveExtensionsData>(info.response, info.rate_limit, info.exception_source, info.exceptions); ;
+                return response;
             }
 
             #endregion
+
+            #region To Reimpliment 2
 
             /*
             #region /users/extensions/list

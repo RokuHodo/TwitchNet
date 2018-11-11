@@ -69,10 +69,11 @@
     <Compile Include="Rest\Api\Analytics\ExtensionAnalytics.cs" />
     <Compile Include="Rest\Api\Analytics\GameAnalyticsType.cs" />
     <Compile Include="Rest\Api\Bits\BitsUser.cs" />
+    <Compile Include="Rest\Api\HelixException.cs" />
     <Compile Include="Rest\Api\HelixInfo.cs" />
     <Compile Include="Rest\Api\TwitchApi.Sync.cs" />
     <Compile Include="Rest\Api\TwitchApi.Async.cs" />
-    <Compile Include="Rest\Api\TwitchApiOAuth.Sync.cs" />
+    <Compile Include="Rest\Api\TwitchApi.OAuth.Sync.cs" />
     <Compile Include="Rest\Api\TwitchApi.OAuth.Async.cs" />
     <Compile Include="Clients\Irc\IrcClient.Handlers.cs" />
     <Compile Include="Clients\Irc\IrcClient.cs" />
@@ -221,7 +222,7 @@
     <Compile Include="Rest\Api\Users\FollowsParameters.cs" />
     <Compile Include="Rest\Api\IHelixResponse.cs" />
     <Compile Include="Rest\Api\Pagination.cs" />
-    <Compile Include="Rest\RestError.cs" />
+    <Compile Include="Rest\Api\HelixError.cs" />
     <Compile Include="Rest\Api\HelixResponse.cs" />
     <Compile Include="Rest\Api\Streams\Stream.cs" />
     <Compile Include="Rest\Api\Users\Follow.cs" />

@@ -12,6 +12,8 @@ using TwitchNet.Helpers.Json;
 
 namespace TwitchNet.Rest
 {
+    
+
     public class
     RestClient : IDisposable
     {
@@ -37,7 +39,7 @@ namespace TwitchNet.Rest
 
         public Dictionary<string, IDeserializer> content_handlers { get; }
 
-        public Func<RestResponse, Task> OnResponseErrorAsync { get; set; }
+        public Func<RestResponse, Task> OnPreResponseErrorHandlingAsync { get; set; }
 
         public RestClient(string base_address)
         {
@@ -190,7 +192,7 @@ namespace TwitchNet.Rest
             return await HandleResponse(response);
         }
 
-        private async Task<RestResponse<data_type>>
+        public virtual async Task<RestResponse<data_type>>
         HandleResponse<data_type>(RestResponse<data_type> response)
         {
             if(response.exception.IsNull())
@@ -198,9 +200,9 @@ namespace TwitchNet.Rest
                 return response;
             }
 
-            if (!OnResponseErrorAsync.IsNull())
+            if (!OnPreResponseErrorHandlingAsync.IsNull())
             {
-                await OnResponseErrorAsync(response);
+                await OnPreResponseErrorHandlingAsync(response);
             }
 
             if (response.exception is StatusException)
@@ -210,6 +212,10 @@ namespace TwitchNet.Rest
                 {
                     case StatusHandling.Error:
                     {
+                        // NOTE: Throwing here causes issues down the pipeline for deserializing the content into HelixError.
+                        //       Overriding isn't an option because TwitchAPI uses RestClient as a member and doesn't inherit the class.
+                        //       The handler can't be manually set because of the use of generics.
+                        // TODO: Pass the custom handler with each execution call from outside the RestClient?
                         throw response.exception;
                     };
 

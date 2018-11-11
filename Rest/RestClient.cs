@@ -153,14 +153,12 @@ namespace TwitchNet.Rest
             data_type data = default;
 
             HttpRequestMessage _request = request.BuildMessage(base_address);
-
             HttpResponseMessage _response = default;
 
             // I hate using try/catch blocks, but my hand is forced here.
             try
             {
                 _response = await client.SendAsync(_request, request.settings.cancelation_token);
-
                 if (!_response.Content.IsNull() && _response.Content.Headers.ContentLength > 0)
                 {
                     content = await _response.Content.ReadAsStringAsync();
@@ -172,11 +170,12 @@ namespace TwitchNet.Rest
                 response = new RestResponse<data_type>(request, _response, content, exception);
 
                 return await HandleResponse(response);
-            }            
+            }
 
+            StatusException status_exception = default;
             if (!_response.IsSuccessStatusCode)
             {
-                StatusException exception = new StatusException(_response.StatusCode + " - " + _response.ReasonPhrase, _response.StatusCode, _response.ReasonPhrase);                
+                status_exception = new StatusException((int)_response.StatusCode + " - " + _response.ReasonPhrase, _response.StatusCode, _response.ReasonPhrase);                
             }
             else if (content.IsValid())
             {
@@ -186,7 +185,7 @@ namespace TwitchNet.Rest
                 }
             }                
 
-            response = new RestResponse<data_type>(request, _response, content, data);
+            response = new RestResponse<data_type>(request, _response, content, data, status_exception);
 
             return await HandleResponse(response);
         }
@@ -219,14 +218,16 @@ namespace TwitchNet.Rest
                         StatusCodeSetting status_setting = response.request.settings.status_error[code];
 
                         ++status_setting.retry_count;
-                        if (status_setting.retry_count > status_setting.retry_limit)
+                        if (status_setting.retry_count > status_setting.retry_limit && status_setting.retry_limit != -1)
                         {
-                            // TODO: Aggregate exception?
                             response.exception = new RetryLimitReachedException("The retry limit " + status_setting.retry_limit + " has been reached for status code " + code + ".", status_setting.retry_limit, response.exception);
 
                             return await HandleResponse(response);
                         }
 
+                        // TODO: This will throw InvalidOperationException since it will use the same HttpRequestMessage instance again.
+                        //       In order for this to work, we need to crease a new instance with the same data.
+                        //       Alternatively, we could set Timeout to < 60 seconds and then reuse the same instabnce?
                         response = await ExecuteAsync<data_type>(response.request);
                     };
                     break;

@@ -426,6 +426,7 @@ namespace TwitchNet.Rest
                             continue;
                         }
 
+                        // TODO: We don't want to allow null, but an empty string *could* be desirable. Allow empty strings and assume they're intentional by the user?
                         string value = element.ToString();
                         if (!value.IsValid())
                         {

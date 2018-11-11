@@ -154,15 +154,6 @@ namespace TwitchNet.Rest
                 return false;
             }
 
-            // Remove this for now. Might ad this back as a setting? Probably not.
-            //foreach (QueryParameter query in query_parameters)
-            //{
-            //    if (query.name == name)
-            //    {
-            //        return false;
-            //    }
-            //}
-
             QueryParameter parameter = new QueryParameter();
             parameter.name = name;
             parameter.value = value;
@@ -226,32 +217,27 @@ namespace TwitchNet.Rest
 
                 RestParameterAttribute attribute;
 
-                Type    member_type;
-                object  member_value;
-
                 PropertyInfo    property    = member as PropertyInfo;
                 FieldInfo       field       = member as FieldInfo;
                 if (!property.IsNull())
                 {
-                    attribute = property.GetAttribute<RestParameterAttribute>();
-
-                    member_type = property.PropertyType;
-                    member_value = property.GetValue(parameters);
+                    attribute                   = property.GetAttribute<RestParameterAttribute>();
+                    attribute.reflected_type    = property.PropertyType;
+                    attribute.value             = property.GetValue(parameters);
                 }
                 else if (!field.IsNull())
                 {
-                    attribute = field.GetAttribute<RestParameterAttribute>();
-
-                    member_type = field.FieldType;
-                    member_value = field.GetValue(parameters);
+                    attribute                   = field.GetAttribute<RestParameterAttribute>();
+                    attribute.reflected_type    = field.FieldType;
+                    attribute.value             = field.GetValue(parameters);
                 }
                 else
                 {
                     continue;
                 }
 
-                member_type = member_type.IsNullable() ? Nullable.GetUnderlyingType(member_type) : member_type;
-                if (member_type.IsNull())
+                attribute.reflected_type = attribute.reflected_type.IsNullable() ? Nullable.GetUnderlyingType(attribute.reflected_type) : attribute.reflected_type;
+                if (attribute.reflected_type.IsNull())
                 {
                     continue;
                 }
@@ -264,15 +250,16 @@ namespace TwitchNet.Rest
 
                 RestParameter parameter = new RestParameter();
                 parameter.name          = attribute.name;
-                parameter.value         = member_value;
+                parameter.value         = attribute.value;
                 parameter.content_type  = attribute.content_type;
-                
-                if (!converter.CanConvert(parameter, member_type))
+
+                // TODO: Add attribute.reflected_type to RestParameter?
+                if (!converter.CanConvert(parameter, attribute.reflected_type))
                 {
                     continue;
                 }
 
-                converter.AddParameter(this, parameter, member_type);
+                converter.AddParameter(this, parameter, attribute.reflected_type);
             }
         }        
 

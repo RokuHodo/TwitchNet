@@ -71,15 +71,15 @@ TwitchNet.Rest.Api
             }
 
             internal static RestRequest
-            GetBaseRequest(string endpoint, Method method, HelixInfo info)
+            GetBaseRequest(string endpoint, Method method, HelixInfo info, HelixResponse response)
             {
-
-                if (!ValidateAuthentication(info))
+                if (!ValidateRequiredBaseParameters(info, response))
                 {
                     return default;
                 }
 
                 RestRequest request = new RestRequest(endpoint, method);
+                request.settings = info.settings;
                 if (info.bearer_token.IsValid())
                 {
                     request.AddHeader("Authorization", "Bearer " + info.bearer_token);
@@ -94,62 +94,65 @@ TwitchNet.Rest.Api
             }
 
             internal static bool
-            ValidateAuthentication(HelixInfo info)
+            ValidateRequiredBaseParameters(HelixInfo info, HelixResponse response)
             {
-                if (!info.bearer_token.IsValid() && !info.client_id.IsValid())
-                {
-                    info.SetInputError(new ArgumentException("A bearer token or client ID must be provided."));
-
-                    return false;
-                }
-                else if (info.required_scopes == 0)
-                {
-                    return true;
-                }
-                else if (!info.bearer_token.IsValid())
-                {
-                    Scopes[] missing_scopes = EnumUtil.GetFlagValues<Scopes>(info.required_scopes);
-                    info.SetScopesError(new MissingScopesException("One or more scopes are missing from the specified OAuth token.", missing_scopes));
-
-                    return false;
-                }
-
-                Scopes[] available_scopes = info.settings.available_scopes;
-                if (!available_scopes.IsValid())
-                {
-                    // If no available scopes were specified, it's not inherently an error.
-                    // The user might just not want to verify the scopes or didn't provide any.
-                    return true;
-                }
-
-                foreach (Scopes scope in available_scopes)
-                {
-                    if ((scope & info.required_scopes) == scope)
-                    {
-                        info.required_scopes ^= scope;
-                    }
-                }
-
                 if (info.required_scopes != 0)
                 {
-                    Scopes[] missing_scopes = EnumUtil.GetFlagValues<Scopes>(info.required_scopes);
-                    info.SetScopesError(new MissingScopesException("One or more scopes are missing from the specified OAuth token.", missing_scopes));
+                    // Authentication is requirted, a Bearer token must be provided.
+                    if (!info.bearer_token.IsValid())
+                    {
+                        // Bearer token has not been provided.
+                        Scopes[] missing_scopes = EnumUtil.GetFlagValues<Scopes>(info.required_scopes);
+                        MissingScopesException inner_exception = new MissingScopesException("One or more scopes are required for authentication.", missing_scopes);
+
+                        response.SetInputError(new ArgumentException("Authenticaion was required and a bearer token was either not provided, null, empty, or contain only whitespace. See the inner exception for the required authentication.", nameof(info.bearer_token), inner_exception), info.settings);
+
+                        return false;
+                    }
+                    else if(info.settings.available_scopes != Scopes.Other)
+                    {
+                        // Bearer token has been provided, available scopes have been specified.
+                        Scopes[] available_scopes = EnumUtil.GetFlagValues<Scopes>(info.settings.available_scopes);
+                        foreach (Scopes scope in available_scopes)
+                        {
+                            if ((scope & info.required_scopes) == scope)
+                            {
+                                info.required_scopes ^= scope;
+                            }
+                        }
+
+                        if (info.required_scopes != 0)
+                        {
+                            Scopes[] missing_scopes = EnumUtil.GetFlagValues<Scopes>(info.required_scopes);
+                            response.SetScopesError(new MissingScopesException("One or more scopes are missing from the specified OAuth token.", missing_scopes), info.settings);
+
+                            return false;
+                        }
+                        else
+                        {
+                            // Authentication is requirted, all required scopes are included in available_scopes.
+                            // I could just let this fall through, but return just for logical consitency.
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        // Bearer token has been provided, no available scopes have been specified.
+                        // If no available scopes were specified, it's not inherently an error.
+                        // The user might not want to verify the scopes or didn't provide any.
+                        return true;
+                    }
+                }
+                else if (!info.bearer_token.IsValid() && !info.client_id.IsValid())
+                {
+                    // Authentication is not requirted, neither a bearer token or client ID was provided.
+                    response.SetInputError(new ArgumentException("A bearer token or client ID must be provided."), info.settings);
 
                     return false;
                 }
 
+                // Authentication is not requirted, either a bearer token and/or a client ID was provided.
                 return true;
-            }
-
-            internal static void
-            SetInputError(HelixRequestSettings settings)
-            {
-                if (settings.error_handling_inputs == ErrorHandling.Error)
-                {
-
-                }
-
-                return;
             }
 
             #region To Reimplement
@@ -742,20 +745,18 @@ TwitchNet.Rest.Api
             public static async Task<IHelixResponse<Data<User>>>
             GetUsersAsync(HelixInfo info, UsersParameters parameters)
             {
-                IHelixResponse<Data<User>> response = default;
+                HelixResponse<Data<User>> response = new HelixResponse<Data<User>>();
 
-                // Build the request up here because it simplifies error checking down below.
-                RestRequest request = GetBaseRequest("users", Method.GET, info);
-                if (!info.exception.IsNull())
+                RestRequest request = GetBaseRequest("users", Method.GET, info, response);
+                if (!response.exception.IsNull())
                 {
-                    response = new HelixResponse<Data<User>>(info.exception);
-
                     return response;
                 }
 
                 int total_query_parameters = 0;
                 if (!parameters.IsNull())
                 {
+                    // Is there a reason why I'm not explicitly re-assigning the result to the lists?
                     parameters.ids.Sanitize();
                     parameters.logins.Sanitize();
 
@@ -763,9 +764,7 @@ TwitchNet.Rest.Api
 
                     if (total_query_parameters > 100)
                     {
-                        info.SetInputError(new ArgumentException("A maximum of 100 total user logins and/or user IDs can be specified at one time.", nameof(parameters)));
-
-                        response = new HelixResponse<Data<User>>(info.exception);
+                        response.SetInputError(new ArgumentException("A maximum of 100 total user logins and/or user IDs can be specified at one time.", nameof(parameters)), info.settings);
 
                         return response;
                     }
@@ -777,21 +776,19 @@ TwitchNet.Rest.Api
                     // But these conditions must still be true to have a valid request.
                     if (parameters.IsNull())
                     {
-                        info.SetInputError(new ArgumentNullException(nameof(parameters)));
+                        response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
                     }
                     else
                     {
-                        info.SetInputError(new ArgumentException("A bearer token must be specified if parameters is null, or all specified ids and logins are null, empty, or only contain whitespace.", nameof(info.bearer_token)));
+                        response.SetInputError(new ArgumentException("A bearer token must be specified if parameters is null, or all specified ids and logins are null, empty, or only contain whitespace.", nameof(info.bearer_token)), info.settings);
                     }
-
-                    response = new HelixResponse<Data<User>>(info.exception);
 
                     return response;
                 }
 
                 request.AddParameters(parameters);
-                RestResponse<Data<User>> _response = await CLIENT_HELIX.ExecuteAsync<Data<User>>(request);
 
+                RestResponse<Data<User>> _response = await CLIENT_HELIX.ExecuteAsync<Data<User>>(request);
                 response = new HelixResponse<Data<User>>(_response);
 
                 return response;
@@ -807,10 +804,7 @@ TwitchNet.Rest.Api
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
             /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token and client ID, or the description are null, empty, or contains only whitespace.
-            /// Thrown if the description is null, empty, or contains only whitespace.
-            /// </exception>
+            /// <exception cref="ArgumentException">Thrown if both bearer token and client ID, or the description are null, empty, or contains only whitespace.</exception>
             /// <exception cref="MissingScopesException">Thrown if the bearer token does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -836,7 +830,6 @@ TwitchNet.Rest.Api
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
             /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">Thrown if the bearer token or description is null, empty, or contains only whitespace.</exception>
             /// <exception cref="MissingScopesException">Thrown if the bearer token does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -845,48 +838,30 @@ TwitchNet.Rest.Api
             public static async Task<IHelixResponse<Data<User>>>
             SetUserDescriptionAsync(HelixInfo info, DescriptionParameters parameters)
             {
-                IHelixResponse<Data<User>> response = default;
+                HelixResponse<Data<User>> response = new HelixResponse<Data<User>>();
 
-                if (!info.bearer_token.IsValid())
+                // TODO: Change MissingScopesException to handle 403 - Forbidden as well, e.g., "Missing user:edit scope"?
+                info.required_scopes = Scopes.UserEdit;
+                RestRequest request = GetBaseRequest("users", Method.PUT, info, response);
+                if (!response.exception.IsNull())
                 {
-                    info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(info.bearer_token)));
-
-                    response = new HelixResponse<Data<User>>(info.exception);
-
                     return response;
                 }
 
                 if (parameters.IsNull())
                 {
-                    info.SetInputError(new ArgumentNullException(nameof(parameters)));
-
-                    response = new HelixResponse<Data<User>>(info.exception);
-
-                    return response;
+                    parameters = new DescriptionParameters();
                 }
 
                 if (!parameters.description.IsValid())
                 {
-                    info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.description)));
-
-                    response = new HelixResponse<Data<User>>(info.exception);
-
-                    return response;
-                }
-
-                // TODO: Change MissingScopesException to handle 403 - Forbidden as well, e.g., "Missing user:edit scope"?
-                info.required_scopes = Scopes.UserEdit;
-                RestRequest request = GetBaseRequest("users", Method.PUT, info);
-                if (!info.exception.IsNull())
-                {
-                    response = new HelixResponse<Data<User>>(info.exception);
-
-                    return response;
+                    // There's the possibility that it's null or white space, so make sure we sanitize it.
+                    parameters.description = string.Empty;
                 }
 
                 request.AddParameters(parameters);
-                RestResponse<Data<User>> _response = await CLIENT_HELIX.ExecuteAsync<Data<User>>(request);
 
+                RestResponse<Data<User>> _response = await CLIENT_HELIX.ExecuteAsync<Data<User>>(request);
                 response = new HelixResponse<Data<User>>(_response);
 
                 return response;

@@ -32,15 +32,17 @@ namespace TwitchNet.Rest
     public class
     RestParameterAttribute : Attribute
     {
-        public string name { get; protected set; }
+        public string name { get; internal set; }
 
-        public object value { get; protected set; }
+        public object value { get; internal set; }
 
-        public string content_type { get; protected set; }
+        public string content_type { get; internal set; }
 
-        public HttpParameterType parameter_type { get; protected set; }
+        public HttpParameterType parameter_type { get; internal set; }
 
-        public Type converter { get; protected set; }
+        public Type converter { get; internal set; }
+
+        public Type reflected_type { get; internal set; }
 
         public RestParameterAttribute(Type converter = null)
         {

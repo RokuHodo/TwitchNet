@@ -48,14 +48,42 @@ TwitchNet.Rest.Api
                 headers             = response.headers;
 
                 exception           = response.exception;
+
+                rate_limit          = new RateLimit(response.headers);
             }
 
-            this.rate_limit         = new RateLimit(response.headers);
         }
 
         public HelixResponse(Exception exception)
         {
             this.exception = exception;
+        }
+
+        public HelixResponse()
+        {
+
+        }
+
+        public void
+        SetInputError(ArgumentException exception, HelixRequestSettings settings)
+        {
+            this.exception = exception;
+
+            if (settings.error_handling_inputs == ErrorHandling.Error)
+            {
+                throw exception;
+            }
+        }
+
+        public void
+        SetScopesError(MissingScopesException exception, HelixRequestSettings settings)
+        {
+            this.exception = exception;
+
+            if (settings.error_handling_missing_scopes == ErrorHandling.Error)
+            {
+                throw exception;
+            }
         }
     }
 
@@ -74,7 +102,12 @@ TwitchNet.Rest.Api
 
         public HelixResponse(Exception exception) : base(exception)
         {
-            result = default;
+
+        }
+
+        public HelixResponse() : base()
+        {
+
         }
     }
 }

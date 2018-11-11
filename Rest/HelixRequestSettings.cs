@@ -12,7 +12,7 @@ TwitchNet.Rest
         /// <para>How to handle errors experienced while executing the request.</para>
         /// <para>Default: <see cref="ErrorHandling.Error"/>.</para>
         /// </summary>
-        public ErrorHandling                        error_handling_inputs           { get; set; }
+        public ErrorHandling    error_handling_inputs           { get; set; }
 
         /// <summary>
         /// <para>
@@ -21,9 +21,7 @@ TwitchNet.Rest
         /// </para>
         /// <para>Default: <see cref="ErrorHandling.Error"/>.</para>
         /// </summary>
-        public ErrorHandling                        error_handling_missing_scopes   { get; set; }
-
-        // TODO: Turn this into a bitfield?
+        public ErrorHandling    error_handling_missing_scopes   { get; set; }
 
         /// <summary>
         /// <para>
@@ -36,7 +34,7 @@ TwitchNet.Rest
         /// If specified when making a request that does not require authentication, the available scopes are ignored.
         /// </para>
         /// </summary>
-        public Scopes[]                             available_scopes                { get; set; }
+        public Scopes           available_scopes                { get; set; }
 
         public HelixRequestSettings()
         {
@@ -44,7 +42,7 @@ TwitchNet.Rest
             error_handling_inputs = ErrorHandling.Error;
             error_handling_missing_scopes = ErrorHandling.Error;
 
-            available_scopes = new Scopes[0];
+            available_scopes = Scopes.Other;
         }
 
         /// <summary>
@@ -56,7 +54,7 @@ TwitchNet.Rest
             error_handling_inputs = ErrorHandling.Error;
             error_handling_missing_scopes = ErrorHandling.Error;
 
-            available_scopes = new Scopes[0];
+            available_scopes = Scopes.Other;
 
             base.Reset();
         }

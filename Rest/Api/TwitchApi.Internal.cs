@@ -36,38 +36,8 @@ TwitchNet.Rest.Api
             GetHelixClient()
             {
                 RestClient client = new RestClient("https://api.twitch.tv/helix");
-                client.OnPreResponseErrorHandlingAsync = Callback_OnPreResponseErrorHandlingAsync;
 
                 return client;
-
-                async Task
-                Callback_OnPreResponseErrorHandlingAsync(RestResponse response)
-                {
-                    if (!(response.exception is StatusException))
-                    {
-                        return;
-                    }
-
-                    int code = (int)response.status_code;
-                    if (response.request.settings.status_error[code].handling != StatusHandling.Retry)
-                    {
-                        return;
-                    }
-
-                    RateLimit rate_limit = new RateLimit(response.headers);
-                    if (rate_limit.reset_time == DateTime.MinValue)
-                    {
-                        return;
-                    }
-
-                    TimeSpan difference = rate_limit.reset_time - DateTime.Now;
-                    if (rate_limit.remaining == 0 && difference.TotalMilliseconds > 0)
-                    {
-                        await Task.Delay(difference);
-                    }
-
-                    return;
-                }
             }
 
             internal static RestRequest
@@ -151,6 +121,95 @@ TwitchNet.Rest.Api
 
                 // Authentication is not requirted, either a bearer token and/or a client ID was provided.
                 return true;
+            }
+
+            public static async Task<RestResponse<data_type>>
+            HandleResponse<data_type>(RestResponse<data_type> response)
+            {
+                if (response.exception.IsNull())
+                {
+                    return response;
+                }
+
+                if (response.exception is StatusException)
+                {
+                    // Yep, this is the only difference between the native handler, and this one.
+                    response.exception = new HelixException("An error was returned by Twitch after executing the requets.", response.content, response.exception);
+
+                    int code = (int)response.status_code;
+                    switch (response.request.settings.status_error[code].handling)
+                    {
+                        case StatusHandling.Error:
+                        {
+                            throw response.exception;
+                        };
+
+                        case StatusHandling.Retry:
+                        {
+                            StatusCodeSetting status_setting = response.request.settings.status_error[code];
+
+                            ++status_setting.retry_count;
+                            if (status_setting.retry_count > status_setting.retry_limit && status_setting.retry_limit != -1)
+                            {
+                                response.exception = new RetryLimitReachedException("The retry limit " + status_setting.retry_limit + " has been reached for status code " + code + ".", status_setting.retry_limit, response.exception);
+
+                                return await HandleResponse(response);
+                            }
+
+                            RateLimit rate_limit = new RateLimit(response.headers);
+                            TimeSpan difference = rate_limit.reset_time - DateTime.Now;
+                            if (rate_limit.remaining == 0 && difference.TotalMilliseconds > 0)
+                            {
+                                await Task.Delay(difference);
+                            }
+
+                            // Clone the message to a new instance because the same instance can't be sent twice.
+                            response.request.CloneMessage();
+                            response = await CLIENT_HELIX.ExecuteAsync<data_type>(response.request, HandleResponse);
+                        };
+                        break;
+
+                        case StatusHandling.Return:
+                        default:
+                        {
+                            return response;
+                        }
+                    }
+                }
+                else
+                {
+                    ErrorHandling handling;
+                    if (response.exception is InvalidOperationException)
+                    {
+                        handling = response.request.settings.invalid_operation_handling;
+
+                    }
+                    else if (response.exception is HttpRequestException)
+                    {
+                        handling = response.request.settings.request_handling;
+                    }
+                    else
+                    {
+                        int code = (int)response.status_code;
+                        handling = response.request.settings.status_error[code].handling_rety_limit_reached;
+                    }
+
+                    switch (handling)
+                    {
+                        case ErrorHandling.Error:
+                            {
+                                throw response.exception;
+                            };
+
+                        case ErrorHandling.Return:
+                        default:
+                            {
+                                return response;
+                            }
+                    }
+                }
+
+                return response;
             }
 
             #region To Reimplement
@@ -785,7 +844,7 @@ TwitchNet.Rest.Api
                 RestRequest request = GetBaseRequest("users", Method.GET, info);
                 request.AddParameters(parameters);
 
-                RestResponse<Data<User>> _response = await CLIENT_HELIX.ExecuteAsync<Data<User>>(request);
+                RestResponse<Data<User>> _response = await CLIENT_HELIX.ExecuteAsync<Data<User>>(request, HandleResponse);
                 response = new HelixResponse<Data<User>>(_response);
 
                 return response;
@@ -858,7 +917,7 @@ TwitchNet.Rest.Api
                 RestRequest request = GetBaseRequest("users", Method.PUT, info);
                 request.AddParameters(parameters);
 
-                RestResponse<Data<User>> _response = await CLIENT_HELIX.ExecuteAsync<Data<User>>(request);
+                RestResponse<Data<User>> _response = await CLIENT_HELIX.ExecuteAsync<Data<User>>(request, HandleResponse);
                 response = new HelixResponse<Data<User>>(_response);
 
                 return response;
@@ -919,7 +978,7 @@ TwitchNet.Rest.Api
                 RestRequest request = GetBaseRequest("users/extensions", Method.GET, info);
                 request.AddParameters(parameters);
 
-                RestResponse<ActiveExtensionsData> _response = await CLIENT_HELIX.ExecuteAsync<ActiveExtensionsData>(request);
+                RestResponse<ActiveExtensionsData> _response = await CLIENT_HELIX.ExecuteAsync<ActiveExtensionsData>(request, HandleResponse);
                 response = new HelixResponse<ActiveExtensionsData>(_response);
 
                 return response;
@@ -969,7 +1028,7 @@ TwitchNet.Rest.Api
                 RestRequest request = GetBaseRequest("users/extensions", Method.PUT, info);
                 request.AddParameters(parameters);
 
-                RestResponse<ActiveExtensionsData> _response = await CLIENT_HELIX.ExecuteAsync<ActiveExtensionsData>(request);
+                RestResponse<ActiveExtensionsData> _response = await CLIENT_HELIX.ExecuteAsync<ActiveExtensionsData>(request, HandleResponse);
                 response = new HelixResponse<ActiveExtensionsData>(_response);
 
                 return response;

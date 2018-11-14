@@ -39,8 +39,6 @@ namespace TwitchNet.Rest
 
         public Dictionary<string, IDeserializer> content_handlers { get; }
 
-        public Func<RestResponse, Task> OnPreResponseErrorHandlingAsync { get; set; }
-
         public RestClient(string base_address)
         {
             if (!base_address.IsValid())
@@ -50,7 +48,15 @@ namespace TwitchNet.Rest
 
             base_address = base_address.TrimEnd('/');
 
-            client = new HttpClient();
+            // For some reaosn, Twitch compresses select responses using GZip.
+            // Enable automatic decompression for when this shit occurs.
+            HttpClientHandler handler = new HttpClientHandler();
+            if (handler.SupportsAutomaticDecompression)
+            {
+                handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+            }
+
+            client = new HttpClient(handler);
             client.BaseAddress = new Uri(base_address);
 
             disposed = false;
@@ -137,7 +143,7 @@ namespace TwitchNet.Rest
         }
 
         public async Task<RestResponse<data_type>>
-        ExecuteAsync<data_type>(RestRequest request)
+        ExecuteAsync<data_type>(RestRequest request, Func<RestResponse<data_type>, Task<RestResponse<data_type>>> CustomResponseHandler = default)
         {
             RestResponse<data_type> response = default;
 
@@ -189,7 +195,18 @@ namespace TwitchNet.Rest
 
             response = new RestResponse<data_type>(request, _response, content, data, status_exception);
 
-            return await HandleResponse(response);
+            // TODO: Implement custom handler for Helix (and OAUth2 whenevr I get around to it).
+            // Hack to prevent premature throwing, but it works.
+            if (!CustomResponseHandler.IsNull())
+            {
+                response = await CustomResponseHandler(response);
+            }
+            else
+            {
+                response = await HandleResponse(response);
+            }
+
+            return response;
         }
 
         public virtual async Task<RestResponse<data_type>>
@@ -198,11 +215,6 @@ namespace TwitchNet.Rest
             if(response.exception.IsNull())
             {
                 return response;
-            }
-
-            if (!OnPreResponseErrorHandlingAsync.IsNull())
-            {
-                await OnPreResponseErrorHandlingAsync(response);
             }
 
             if (response.exception is StatusException)

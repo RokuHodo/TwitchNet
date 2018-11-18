@@ -17,7 +17,7 @@ namespace TwitchNet.Rest.Api
 
         public HelixInfo(HelixRequestSettings settings)
         {
-            this.settings = settings.IsNull() ? new HelixRequestSettings() : settings;
+            this.settings = settings ?? new HelixRequestSettings();
         }
     }
 }

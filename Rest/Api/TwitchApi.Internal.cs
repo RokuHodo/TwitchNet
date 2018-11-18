@@ -133,7 +133,7 @@ TwitchNet.Rest.Api
 
                 if (response.exception is StatusException)
                 {
-                    // Yep, this is the only difference between the native handler, and this one.
+                    // Yep, this is the only difference between the native handler and this one.
                     response.exception = new HelixException("An error was returned by Twitch after executing the requets.", response.content, response.exception);
 
                     int code = (int)response.status_code;
@@ -910,7 +910,7 @@ TwitchNet.Rest.Api
 
                 if (!parameters.description.IsValid())
                 {
-                    // There's the possibility that it's null or white space, so make sure we sanitize it.
+                    // There's the possibility that it's null or white space, sanitize it.
                     parameters.description = string.Empty;
                 }
 

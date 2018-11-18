@@ -1262,16 +1262,16 @@ TwitchNet.Rest.Api
             }
 
             #endregion
-            /*
+
             #region /users/extensions
 
             public static async Task<IHelixResponse<ActiveExtensionsData>>
             GetUserActiveExtensionsAsync(string bearer_token, HelixRequestSettings settings = default)
             {
-                RestInfo<ActiveExtensionsData> info = new RestInfo<ActiveExtensionsData>(RestClients.Helix, settings);
+                HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
 
-                IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.GetUserActiveExtensionsAsync(info, default(ActiveExtensionsParameters));
+                IHelixResponse<ActiveExtensionsData> response = await Internal.GetUserActiveExtensionsAsync(info, default);
 
                 return response;
             }
@@ -1279,10 +1279,10 @@ TwitchNet.Rest.Api
             public static async Task<IHelixResponse<ActiveExtensionsData>>
             GetUserActiveExtensionsAsync(string bearer_token, ActiveExtensionsParameters parameters, HelixRequestSettings settings = default)
             {
-                RestInfo<ActiveExtensionsData> info = new RestInfo<ActiveExtensionsData>(RestClients.Helix, settings);
+                HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
 
-                IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.GetUserActiveExtensionsAsync(info, parameters);
+                IHelixResponse<ActiveExtensionsData> response = await Internal.GetUserActiveExtensionsAsync(info, parameters);
 
                 return response;
             }
@@ -1290,11 +1290,11 @@ TwitchNet.Rest.Api
             public static async Task<IHelixResponse<ActiveExtensionsData>>
             GetUserActiveExtensionsAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
             {
-                RestInfo<ActiveExtensionsData> info = new RestInfo<ActiveExtensionsData>(RestClients.Helix, settings);
+                HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
                 info.client_id = client_id;
 
-                IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.GetUserActiveExtensionsAsync(info, default(ActiveExtensionsParameters));
+                IHelixResponse<ActiveExtensionsData> response = await Internal.GetUserActiveExtensionsAsync(info, default);
 
                 return response;
             }
@@ -1302,11 +1302,11 @@ TwitchNet.Rest.Api
             public static async Task<IHelixResponse<ActiveExtensionsData>>
             GetUserActiveExtensionsAsync(string bearer_token, string client_id, ActiveExtensionsParameters parameters, HelixRequestSettings settings = default)
             {
-                RestInfo<ActiveExtensionsData> info = new RestInfo<ActiveExtensionsData>(RestClients.Helix, settings);
+                HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
                 info.client_id = client_id;
 
-                IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.GetUserActiveExtensionsAsync(info, parameters);
+                IHelixResponse<ActiveExtensionsData> response = await Internal.GetUserActiveExtensionsAsync(info, parameters);
 
                 return response;
             }
@@ -1314,10 +1314,10 @@ TwitchNet.Rest.Api
             public static async Task<IHelixResponse<ActiveExtensionsData>>
             UpdateUserExtensionsAsync(string bearer_token, UpdateExtensionsParameters parameters, HelixRequestSettings settings = default)
             {
-                RestInfo<ActiveExtensionsData> info = new RestInfo<ActiveExtensionsData>(RestClients.Helix, settings);
+                HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
 
-                IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.UpdateUserExtensionsAsync(info, parameters);
+                IHelixResponse<ActiveExtensionsData> response = await Internal.UpdateUserExtensionsAsync(info, parameters);
 
                 return response;
             }
@@ -1325,17 +1325,17 @@ TwitchNet.Rest.Api
             public static async Task<IHelixResponse<ActiveExtensionsData>>
             UpdateUserExtensionsAsync(string bearer_token, string client_id, UpdateExtensionsParameters parameters, HelixRequestSettings settings = default)
             {
-                RestInfo<ActiveExtensionsData> info = new RestInfo<ActiveExtensionsData>(RestClients.Helix, settings);
+                HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
                 info.client_id = client_id;
 
-                IHelixResponse<ActiveExtensionsData> response = await TwitchApiInternal.UpdateUserExtensionsAsync(info, parameters);
+                IHelixResponse<ActiveExtensionsData> response = await Internal.UpdateUserExtensionsAsync(info, parameters);
 
                 return response;
             }
 
             #endregion
-            */
+
             /*
             #region /users/extensions/list
 

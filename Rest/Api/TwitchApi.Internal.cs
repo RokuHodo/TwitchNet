@@ -796,7 +796,7 @@ TwitchNet.Rest.Api
             /// Thrown if all specified user logins and user ID's are null, empty, or only contains whitespace when no valid bearer token is specified.
             /// Thrown if more than 100 total user logins and/or user IDs are specified.
             /// </exception>
-            /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<User>>>
@@ -862,7 +862,7 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentException">Thrown if both bearer token and client ID, or the description are null, empty, or contains only whitespace.</exception>
             /// <exception cref="MissingScopesException">Thrown if the bearer token does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
-            /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<User>>>
@@ -888,7 +888,7 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentException">Thrown if the bearer token or description is null, empty, or contains only whitespace.</exception>
             /// <exception cref="MissingScopesException">Thrown if the bearer token does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
-            /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<User>>>
@@ -945,7 +945,7 @@ TwitchNet.Rest.Api
             /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
             /// Thrown if the specified user ID is null, empty, or only contains whitespace when no valid bearer token is specified.
             /// </exception>
-            /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<ActiveExtensionsData>>
@@ -997,7 +997,7 @@ TwitchNet.Rest.Api
             /// <exception cref="ArgumentNullException">Thrown if parameters or the parameters' data is null.</exception>
             /// <exception cref="ArgumentException">Thrown if both bearer token is null, empty, or contains only whitespace.</exception>
             /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
-            /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<ActiveExtensionsData>>

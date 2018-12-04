@@ -264,6 +264,7 @@ namespace TwitchNet.Rest
                 }
 
                 RestParameter parameter = new RestParameter();
+                parameter.type          = attribute.parameter_type;
                 parameter.name          = attribute.name;
                 parameter.value         = attribute.value;
                 parameter.content_type  = attribute.content_type;

@@ -14,7 +14,7 @@ namespace TwitchNet.Rest
         /// <param name="name">The name of the query parameter.</param>
         public QueryParameterAttribute(string name, Type converter = null) : base(name, HttpParameterType.Query)
         {
-            base.converter = converter.IsNull() ? typeof(DefaultQueryConverter) : converter;
+            base.converter = converter ?? typeof(DefaultQueryConverter);
         }
     }
 
@@ -24,7 +24,7 @@ namespace TwitchNet.Rest
     {
         public BodyAttribute(Type converter = null) : base(HttpParameterType.Body)
         {
-            this.converter = converter.IsNull() ? typeof(DefaultBodyConverter) : converter;
+            this.converter = converter ?? typeof(DefaultBodyConverter);
         }
     }
 

@@ -197,15 +197,15 @@ TwitchNet.Rest.Api
                     switch (handling)
                     {
                         case ErrorHandling.Error:
-                            {
-                                throw response.exception;
-                            };
+                        {
+                            throw response.exception;
+                        }
 
                         case ErrorHandling.Return:
                         default:
-                            {
-                                return response;
-                            }
+                        {
+                            return response;
+                        }
                     }
                 }
 
@@ -812,8 +812,8 @@ TwitchNet.Rest.Api
                 int total_query_parameters = 0;
                 if (!parameters.IsNull())
                 {
-                    parameters.ids.Sanitize();
-                    parameters.logins.Sanitize();
+                    parameters.ids.RemoveInvalidAndDuplicateValues();
+                    parameters.logins.RemoveInvalidAndDuplicateValues();
 
                     total_query_parameters = parameters.ids.Count + parameters.logins.Count;
 
@@ -943,7 +943,7 @@ TwitchNet.Rest.Api
             /// <exception cref="ArgumentNullException">Thrown if parameters is null when no valid bearer token is specified.</exception>
             /// <exception cref="ArgumentException">
             /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
-            /// Thrown if the specified user ID is null, empty, or only contains whitespace when no valid bearer token is specified.
+            /// Thrown if the specified user ID is null, empty, or only contains whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -956,23 +956,22 @@ TwitchNet.Rest.Api
                 if (!ValidateRequiredBaseParameters(info, response))
                 {
                     return response;
-                }                
+                }
 
-                if (!info.bearer_token.IsValid())
+                if (!info.bearer_token.IsValid() && parameters.IsNull())
                 {
-                    if (parameters.IsNull())
-                    {
-                        response.SetInputError(new ArgumentNullException(nameof(parameters), "Parameters must be specified if no bearer token is specified."), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters), "Parameters must be specified if no bearer token is specified."), info.settings);
 
-                        return response;
-                    }
+                    return response;
+                }
 
-                    if (!parameters.user_id.IsValid())
-                    {
-                        response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.user_id)), info.settings);
+                // Always do this check regardless if a bearer token was provided.
+                // If the user provided parameters, they did it for a reason.
+                if (!parameters.IsNull() && !parameters.user_id.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.user_id)), info.settings);
 
-                        return response;
-                    }
+                    return response;
                 }
 
                 RestRequest request = GetBaseRequest("users/extensions", Method.GET, info);
@@ -994,8 +993,11 @@ TwitchNet.Rest.Api
             /// </para>
             /// <para>Required scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
             /// </summary>
-            /// <exception cref="ArgumentNullException">Thrown if parameters or the parameters' data is null.</exception>
-            /// <exception cref="ArgumentException">Thrown if both bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="ArgumentNullException">Thrown if parameters or the parameters' data or all extension types' are null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if both bearer token is null, empty, or contains only whitespace.
+            /// Thrown if each extension slot for each extension type is null.
+            /// </exception>
             /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -1011,6 +1013,8 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
+                // Everything below here is valid going by the API and effectively behaves the same as performing a 'GET'.
+                // It shouldn't be allowed. Don't allow any of this.
                 if (parameters.IsNull())
                 {
                     response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
@@ -1018,12 +1022,46 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                if (parameters.data.IsNull())
+                if (parameters.extensions.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters.data)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters.extensions)), info.settings);
 
                     return response;
                 }
+
+                if (parameters.extensions.data.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters.extensions.data)), info.settings);
+
+                    return response;
+                }
+
+                parameters.extensions.data.panel = ValidateExtensionSlots(parameters.extensions.data.panel, response, info.settings);
+                if (!response.exception.IsNull())
+                {
+                    return response;
+                }
+
+                parameters.extensions.data.overlay = ValidateExtensionSlots(parameters.extensions.data.overlay, response, info.settings);
+                if (!response.exception.IsNull())
+                {
+                    return response;
+                }
+
+                parameters.extensions.data.component = ValidateExtensionSlots(parameters.extensions.data.component, response, info.settings);
+                if (!response.exception.IsNull())
+                {
+                    return response;
+                }
+
+                if (!parameters.extensions.data.component.IsValid() && !parameters.extensions.data.panel.IsValid() && !parameters.extensions.data.overlay.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("At least one extension type must be updated."), info.settings);
+
+                    return response;
+                }
+
+                // TODO: Check and see if any duplicate extension ID's were provided. Only allow unique ID's to guarantee requests.
 
                 RestRequest request = GetBaseRequest("users/extensions", Method.PUT, info);
                 request.AddParameters(parameters);
@@ -1032,6 +1070,62 @@ TwitchNet.Rest.Api
                 response = new HelixResponse<ActiveExtensionsData>(_response);
 
                 return response;
+            }
+
+            private static Dictionary<string, ActiveExtension>
+            ValidateExtensionSlots(Dictionary<string, ActiveExtension> extensions, HelixResponse<ActiveExtensionsData> response, HelixRequestSettings settings, bool is_component = false)
+            {
+                extensions = extensions.RemoveNullValues();
+
+                if (!extensions.IsValid())
+                {
+                    // other types still might have valid extensions
+                    return extensions;
+                }
+
+                foreach (KeyValuePair<string, ActiveExtension> pair in extensions)
+                {
+                    if (!pair.Value.id.IsValid())
+                    {
+                        response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(pair.Value.id)), settings);
+
+                        return extensions;
+                    }
+
+                    if (!pair.Value.name.IsValid())
+                    {
+                        response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(pair.Value.name)), settings);
+
+                        return extensions;
+                    }
+
+                    if (!pair.Value.version.IsValid())
+                    {
+                        response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(pair.Value.version)), settings);
+
+                        return extensions;
+                    }
+
+                    // TODO: Check these regardless of the extension type? If they were specified, it was probably done intentionally.
+                    if (is_component)
+                    {
+                        if(pair.Value.x < 0 || pair.Value.x > 8000)
+                        {
+                            response.SetInputError(new ArgumentOutOfRangeException(nameof(pair.Value.x), pair.Value.x, "The x coordinate must be between 0 and 8000, inclusive."), settings);
+
+                            return extensions;
+                        }
+
+                        if (pair.Value.y < 0 || pair.Value.x > 5000)
+                        {
+                            response.SetInputError(new ArgumentOutOfRangeException(nameof(pair.Value.y), pair.Value.y, "The y coordinate must be between 0 and 8000, inclusive."), settings);
+
+                            return extensions;
+                        }
+                    }
+                }
+
+                return extensions;
             }
 
             #endregion

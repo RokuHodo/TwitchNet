@@ -1,4 +1,7 @@
-﻿// imported .dll's
+﻿// standard namespaces
+using System.Collections.Generic;
+
+// imported .dll's
 using Newtonsoft.Json;
 
 namespace
@@ -12,5 +15,11 @@ TwitchNet.Rest.Api.Users
         /// </summary>
         [JsonProperty("data")]
         public ActiveExtensionsTypes data { get; set; }
+
+        public
+        ActiveExtensionsData()
+        {
+            data = new ActiveExtensionsTypes();            
+        }
     }
 }

@@ -59,7 +59,7 @@ TwitchNet.Rest.Api
             }
 
             internal static bool
-            ValidateRequiredBaseParameters(HelixInfo info, HelixResponse response)
+            ValidateAuthorizationParameters(HelixInfo info, HelixResponse response)
             {
                 if (info.required_scopes != 0)
                 {
@@ -804,7 +804,7 @@ TwitchNet.Rest.Api
             {
                 HelixResponse<Data<User>> response = new HelixResponse<Data<User>>();
 
-                if (!ValidateRequiredBaseParameters(info, response))
+                if (!ValidateAuthorizationParameters(info, response))
                 {
                     return response;
                 }
@@ -898,7 +898,7 @@ TwitchNet.Rest.Api
 
                 // TODO: Change MissingScopesException to handle 403 - Forbidden as well, e.g., "Missing user:edit scope"?
                 info.required_scopes = Scopes.UserEdit;
-                if (!ValidateRequiredBaseParameters(info, response))
+                if (!ValidateAuthorizationParameters(info, response))
                 {
                     return response;
                 }        
@@ -953,7 +953,7 @@ TwitchNet.Rest.Api
             {
                 HelixResponse<ActiveExtensions> response = new HelixResponse<ActiveExtensions>();
 
-                if (!ValidateRequiredBaseParameters(info, response))
+                if (!ValidateAuthorizationParameters(info, response))
                 {
                     return response;
                 }
@@ -1002,13 +1002,13 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if the <see cref="UpdateExtensionsParameters"/>, <see cref="UpdateExtensionsParameters.extensions"/>, or <see cref="ActiveExtensions.data"/> are null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token is null, empty, or contains only whitespace.
+            /// Thrown if the bearer token is null, empty, or contains only whitespace.
             /// Thrown if each extension slot for each extension type is empty or null.
             /// Thrown if the name, ID, or version for each specified active extension is null, empty, or only contains whitespace.
             /// </exception>
             /// <exception cref="ArgumentOutOfRangeException">Thrown if the the either (x, y) coordinate for a component extension exceeds the range (0, 0) to (8000, 5000).</exception>
             /// <exception cref="DuplicateExtensionException">Thrown if an extension ID is set in more then one valid slot across all extension types.</exception>
-            /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
+            /// <exception cref="MissingScopesException">Thrown if the available scopes, when specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -1018,7 +1018,7 @@ TwitchNet.Rest.Api
                 HelixResponse<ActiveExtensions> response = new HelixResponse<ActiveExtensions>();
 
                 info.required_scopes = Scopes.UserEditBroadcast;
-                if (!ValidateRequiredBaseParameters(info, response))
+                if (!ValidateAuthorizationParameters(info, response))
                 {
                     return response;
                 }
@@ -1211,42 +1211,54 @@ TwitchNet.Rest.Api
                 }
 
                 return true;
-            }            
+            }
+
+            #endregion
+
+            #region /users/extensions/list
+
+            /// <summary>
+            /// <para>
+            /// Asynchronously gets a list of all extensions a user has installed, activated or deactivated.
+            /// The user is specified by the provided bearer token.
+            /// </para>
+            /// <para>Required Scope: <see cref="Scopes.UserReadBroadcast"/></para>
+            /// </summary>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains extensions the user has instlled, activated or deactivated..
+            /// </returns>
+            /// <exception cref="ArgumentException">Thrown if the bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="MissingScopesException">Thrown if the available scopes, when specified, does not include the <see cref="Scopes.UserReadBroadcast"/> scope.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<Data<Extension>>>
+            GetUserExtensionsAsync(HelixInfo info)
+            {
+                HelixResponse<Data<Extension>> response = new HelixResponse<Data<Extension>>();
+
+                info.required_scopes = Scopes.UserReadBroadcast;
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                RestRequest request = GetBaseRequest("users/extensions/list", Method.GET, info);
+
+                RestResponse<Data<Extension>> _response = await CLIENT_HELIX.ExecuteAsync<Data<Extension>>(request, HandleResponse);
+                response = new HelixResponse<Data<Extension>>(_response);
+
+                return response;
+            }
 
             #endregion
 
             #region To Reimpliment 2
 
             /*
-            #region /users/extensions/list
 
-            /// <summary>
-            /// <para>Asynchronously gets a list of all extensions a user has installed, active or inactive.</para>
-            /// <para>Required Scope: <see cref="Scopes.UserReadBroadcast"/></para>
-            /// </summary>
-            public static async Task<IHelixResponse<Data<Extension>>>
-            GetUserExtensionsAsync(RestInfo<Data<Extension>> info)
-            {
-                IHelixResponse<Data<Extension>> response = default;
-
-                info.required_scopes = Scopes.UserReadBroadcast;
-                info = RestUtil.CreateHelixRequest("users/extensions/list", Method.GET, info);
-
-                if (info.exception_source != RestErrorSource.None)
-                {
-                    response = new HelixResponse<Data<Extension>>(info);
-
-                    return response;
-                }
-
-                info = await RestUtil.ExecuteAsync(info);
-
-                response = new HelixResponse<Data<Extension>>(info);
-
-                return response;
-            }
-
-            #endregion
             #region /users/follows        
 
             /// <summary>

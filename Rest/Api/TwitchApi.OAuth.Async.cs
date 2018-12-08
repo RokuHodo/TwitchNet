@@ -1190,7 +1190,7 @@ TwitchNet.Rest.Api
             /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
             /// </returns>
             /// <exception cref="ArgumentException">Thrown if the bearer token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
+            /// <exception cref="MissingScopesException">Thrown if the available scopes, when specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -1218,7 +1218,7 @@ TwitchNet.Rest.Api
             /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
             /// </returns>
             /// <exception cref="ArgumentException">Thrown if the bearer token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
+            /// <exception cref="MissingScopesException">Thrown if the available scopes, when specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -1246,7 +1246,7 @@ TwitchNet.Rest.Api
             /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
             /// </returns>
             /// <exception cref="ArgumentException">Thrown if the bearer token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
+            /// <exception cref="MissingScopesException">Thrown if the available scopes, when specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -1276,7 +1276,7 @@ TwitchNet.Rest.Api
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains active extensions the user has instlled.
             /// </returns>
-            /// <exception cref="ArgumentException">Thrown if both bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="ArgumentException">Thrown if the bearer token is null, empty, or contains only whitespace.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -1306,7 +1306,7 @@ TwitchNet.Rest.Api
             /// <see cref="IHelixResponse{result_type}.result"/> contains active extensions the user has instlled.
             /// </returns>
             /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token is null, empty, or contains only whitespace.
+            /// Thrown if the bearer token is null, empty, or contains only whitespace.
             /// Thrown if the specified user ID is null, empty, or only contains whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1336,7 +1336,7 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentException">
             /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
-            /// Thrown if both bearer token is null, empty, or contains only whitespace.
+            /// Thrown if the bearer token is null, empty, or contains only whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -1371,7 +1371,7 @@ TwitchNet.Rest.Api
             /// <exception cref="ArgumentNullException">Thrown if parameters is null when no valid bearer token is specified.</exception>
             /// <exception cref="ArgumentException">
             /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
-            /// Thrown if both bearer token is null, empty, or contains only whitespace.
+            /// Thrown if the bearer token is null, empty, or contains only whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -1408,13 +1408,13 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if the <see cref="UpdateExtensionsParameters"/>, <see cref="UpdateExtensionsParameters.extensions"/>, or <see cref="ActiveExtensions.data"/> are null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token is null, empty, or contains only whitespace.
+            /// Thrown if the bearer token is null, empty, or contains only whitespace.
             /// Thrown if each extension slot for each extension type is empty or null.
             /// Thrown if the name, ID, or version for each specified active extension is null, empty, or only contains whitespace.
             /// </exception>
             /// <exception cref="ArgumentOutOfRangeException">Thrown if the the either (x, y) coordinate for a component extension exceeds the range (0, 0) to (8000, 5000).</exception>
             /// <exception cref="DuplicateExtensionException">Thrown if an extension ID is set in more then one valid slot across all extension types.</exception>
-            /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
+            /// <exception cref="MissingScopesException">Thrown if the available scopes, when specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -1450,13 +1450,13 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if the <see cref="UpdateExtensionsParameters"/>, <see cref="UpdateExtensionsParameters.extensions"/>, or <see cref="ActiveExtensions.data"/> are null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token is null, empty, or contains only whitespace.
+            /// Thrown if the bearer token is null, empty, or contains only whitespace.
             /// Thrown if each extension slot for each extension type is empty or null.
             /// Thrown if the name, ID, or version for each specified active extension is null, empty, or only contains whitespace.
             /// </exception>
             /// <exception cref="ArgumentOutOfRangeException">Thrown if the the either (x, y) coordinate for a component extension exceeds the range (0, 0) to (8000, 5000).</exception>
             /// <exception cref="DuplicateExtensionException">Thrown if an extension ID is set in more then one valid slot across all extension types.</exception>
-            /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
+            /// <exception cref="MissingScopesException">Thrown if the available scopes, when specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -1474,49 +1474,70 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            /*
             #region /users/extensions/list
 
             /// <summary>
-            /// <para>Asynchronously gets a list of all extensions a user has installed, active or inactive.</para>
-            /// <para>Required Scope: 'user:read:broadcast'</para>
+            /// <para>
+            /// Asynchronously gets a list of all extensions a user has installed, activated or deactivated.
+            /// The user is specified by the provided bearer token.
+            /// </para>
+            /// <para>Required Scope: <see cref="Scopes.UserReadBroadcast"/></para>
             /// </summary>
-            /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+            /// <param name="bearer_token">A user access OAuth token.</param>
+            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains extensions the user has instlled, activated or deactivated..
+            /// </returns>
+            /// <exception cref="ArgumentException">Thrown if the bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="MissingScopesException">Thrown if the available scopes, when specified, does not include the <see cref="Scopes.UserReadBroadcast"/> scope.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<Extension>>>
-            GetUserExtensionsAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
+            GetUserExtensionsAsync(string bearer_token, HelixRequestSettings settings = default)
             {
-                HelixInfo helix_info = new HelixInfo();
-                helix_info.bearer_token = bearer_token;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
 
-                IHelixResponse<Data<Extension>> response = await TwitchApiInternal.GetUserExtensionsAsync(helix_info, settings);
+                IHelixResponse<Data<Extension>> response = await Internal.GetUserExtensionsAsync(info);
 
                 return response;
             }
 
             /// <summary>
-            /// <para>Asynchronously gets a list of all extensions a user has installed, active or inactive.</para>
-            /// <para>Required Scope: 'user:read:broadcast'</para>
+            /// <para>
+            /// Asynchronously gets a list of all extensions a user has installed, activated or deactivated.
+            /// The user is specified by the provided bearer token.
+            /// </para>
+            /// <para>Required Scope: <see cref="Scopes.UserReadBroadcast"/></para>
             /// </summary>
-            /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-            /// <param name="client_id">The Client ID to identify the application making the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
+            /// <param name="bearer_token">A user access OAuth token.</param>
+            /// <param name="client_id">The application ID to identify the source of the request.</param>
+            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains extensions the user has instlled, activated or deactivated..
+            /// </returns>
+            /// <exception cref="ArgumentException">Thrown if the bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="MissingScopesException">Thrown if the available scopes, when specified, does not include the <see cref="Scopes.UserReadBroadcast"/> scope.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<Extension>>>
-            GetUserExtensionsAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
+            GetUserExtensionsAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
-                request_info.client_id      = client_id;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token   = bearer_token;
+                info.client_id      = client_id;
 
-                IHelixResponse<Data<Extension>> response = await TwitchApiInternal.GetUserExtensionsAsync(request_info, settings);
+                IHelixResponse<Data<Extension>> response = await Internal.GetUserExtensionsAsync(info);
 
                 return response;
             }
 
             #endregion
-            */
+
             /*
             #region /users/follows
 

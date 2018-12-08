@@ -1021,7 +1021,7 @@ TwitchNet.Rest.Api
             /// If provided, the user's email is included in the response.
             /// </para>
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
@@ -1049,7 +1049,7 @@ TwitchNet.Rest.Api
             /// If provided, the user's email is included in the response.
             /// </para>
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="client_id">The application ID to identify the source of the request.</param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
             /// <returns>
@@ -1079,7 +1079,7 @@ TwitchNet.Rest.Api
             /// If provided, the user's email is included in the response.
             /// </para>
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="parameters">
             /// A set of rest parameters specific to this request.
             /// If not specified, the user is looked up by the specified bearer token.
@@ -1116,7 +1116,7 @@ TwitchNet.Rest.Api
             /// If provided, the user's email is included in the response.
             /// </para>
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="client_id">The application ID to identify the source of the request.</param>
             /// <param name="parameters">
             /// A set of rest parameters specific to this request.
@@ -1152,7 +1152,7 @@ TwitchNet.Rest.Api
             /// <para>Asynchronously sets the description of a user specified by the bearer token.</para>
             /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="client_id">The application ID to identify the source of the request.</param>
             /// <param name="description">The text to set the user's description to.</param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
@@ -1161,7 +1161,8 @@ TwitchNet.Rest.Api
             /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
             /// </returns>
             /// <exception cref="ArgumentException">Thrown if the bearer token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
+            /// <exception cref="MissingScopesException">Thrown if the available scopes
+            /// does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -1180,7 +1181,7 @@ TwitchNet.Rest.Api
             /// <para>Asynchronously sets the description of a user specified by the bearer token.</para>
             /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="client_id">The application ID to identify the source of the request.</param>
             /// <param name="description">The text to set the user's description to.</param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
@@ -1209,7 +1210,7 @@ TwitchNet.Rest.Api
             /// <para>Asynchronously sets the description of a user specified by the bearer token.</para>
             /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="parameters">A set of rest parameters specific to this request.</param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
             /// <returns>
@@ -1236,7 +1237,7 @@ TwitchNet.Rest.Api
             /// <para>Asynchronously sets the description of a user specified by the bearer token.</para>
             /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="client_id">The application ID to identify the source of the request.</param>
             /// <param name="parameters">A set of rest parameters specific to this request.</param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
@@ -1265,71 +1266,208 @@ TwitchNet.Rest.Api
 
             #region /users/extensions
 
-            public static async Task<IHelixResponse<ActiveExtensionsData>>
+            /// <summary>
+            /// <para>Asynchronously gets a list of active extensions a user has installed.</para>
+            /// <para>Optional scopes: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
+            /// </summary>
+            /// <param name="bearer_token">A user access OAuth token.</param>
+            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains active extensions the user has instlled.
+            /// </returns>
+            /// <exception cref="ArgumentException">Thrown if both bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<ActiveExtensions>>
             GetUserActiveExtensionsAsync(string bearer_token, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
 
-                IHelixResponse<ActiveExtensionsData> response = await Internal.GetUserActiveExtensionsAsync(info, default);
+                IHelixResponse<ActiveExtensions> response = await Internal.GetUserActiveExtensionsAsync(info, default);
 
                 return response;
             }
 
-            public static async Task<IHelixResponse<ActiveExtensionsData>>
+            /// <summary>
+            /// <para>Asynchronously gets a list of active extensions a user has installed.</para>
+            /// <para>Optional scopes: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
+            /// </summary>
+            /// <param name="bearer_token">A user access OAuth token.</param>
+            /// <param name="parameters">
+            /// A set of rest parameters specific to this request.
+            /// If no user ID is specified, the user is implicityly specified from the bearer token.
+            /// </param>
+            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains active extensions the user has instlled.
+            /// </returns>
+            /// <exception cref="ArgumentException">
+            /// Thrown if both bearer token is null, empty, or contains only whitespace.
+            /// Thrown if the specified user ID is null, empty, or only contains whitespace.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<ActiveExtensions>>
             GetUserActiveExtensionsAsync(string bearer_token, ActiveExtensionsParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
 
-                IHelixResponse<ActiveExtensionsData> response = await Internal.GetUserActiveExtensionsAsync(info, parameters);
+                IHelixResponse<ActiveExtensions> response = await Internal.GetUserActiveExtensionsAsync(info, parameters);
 
                 return response;
             }
 
-            public static async Task<IHelixResponse<ActiveExtensionsData>>
+            /// <summary>
+            /// <para>Asynchronously gets a list of active extensions a user has installed.</para>
+            /// <para>Optional scopes: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
+            /// </summary>
+            /// <param name="bearer_token">A user access OAuth token.</param>
+            /// <param name="client_id">The application ID to identify the source of the request.</param>
+            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains active extensions the user has instlled.
+            /// </returns>
+            /// <exception cref="ArgumentException">
+            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if both bearer token is null, empty, or contains only whitespace.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<ActiveExtensions>>
             GetUserActiveExtensionsAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
                 info.client_id = client_id;
 
-                IHelixResponse<ActiveExtensionsData> response = await Internal.GetUserActiveExtensionsAsync(info, default);
+                IHelixResponse<ActiveExtensions> response = await Internal.GetUserActiveExtensionsAsync(info, default);
 
                 return response;
             }
 
-            public static async Task<IHelixResponse<ActiveExtensionsData>>
+            /// <summary>
+            /// <para>Asynchronously gets a list of active extensions a user has installed.</para>
+            /// <para>Optional scopes: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
+            /// </summary>
+            /// <param name="bearer_token">A user access OAuth token.</param>
+            /// <param name="client_id">The application ID to identify the source of the request.</param>
+            /// <param name="parameters">
+            /// A set of rest parameters specific to this request.
+            /// If no user ID is specified, the user is implicityly specified from the bearer token.
+            /// </param>
+            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains active extensions the user has instlled.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if parameters is null when no valid bearer token is specified.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if both bearer token is null, empty, or contains only whitespace.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<ActiveExtensions>>
             GetUserActiveExtensionsAsync(string bearer_token, string client_id, ActiveExtensionsParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
                 info.client_id = client_id;
 
-                IHelixResponse<ActiveExtensionsData> response = await Internal.GetUserActiveExtensionsAsync(info, parameters);
+                IHelixResponse<ActiveExtensions> response = await Internal.GetUserActiveExtensionsAsync(info, parameters);
 
                 return response;
             }
 
-            public static async Task<IHelixResponse<ActiveExtensionsData>>
+            /// <summary>
+            /// <para>Asynchronously updates the installed extensions for a user specified by the bearer token.</para>
+            /// <para>Required scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
+            /// </summary>
+            /// <param name="bearer_token">A user access OAuth token.</param>
+            /// <param name="parameters">
+            /// <para>A set of rest parameters specific to this request.</para>
+            /// <para>
+            /// Any extensions specified outside of the valid extension slots for each type are ignored.
+            /// The valid extension slots for each type are specified under each <see cref="ActiveExtensionsData"/> member.
+            /// The (x, y) corrdinates are applicable only to component extensions.
+            /// </para>
+            /// </param>
+            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains active extensions the user has instlled after the changes have been applied.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if the <see cref="UpdateExtensionsParameters"/>, <see cref="UpdateExtensionsParameters.extensions"/>, or <see cref="ActiveExtensions.data"/> are null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if both bearer token is null, empty, or contains only whitespace.
+            /// Thrown if each extension slot for each extension type is empty or null.
+            /// Thrown if the name, ID, or version for each specified active extension is null, empty, or only contains whitespace.
+            /// </exception>
+            /// <exception cref="ArgumentOutOfRangeException">Thrown if the the either (x, y) coordinate for a component extension exceeds the range (0, 0) to (8000, 5000).</exception>
+            /// <exception cref="DuplicateExtensionException">Thrown if an extension ID is set in more then one valid slot across all extension types.</exception>
+            /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<ActiveExtensions>>
             UpdateUserExtensionsAsync(string bearer_token, UpdateExtensionsParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
 
-                IHelixResponse<ActiveExtensionsData> response = await Internal.UpdateUserExtensionsAsync(info, parameters);
+                IHelixResponse<ActiveExtensions> response = await Internal.UpdateUserExtensionsAsync(info, parameters);
 
                 return response;
             }
 
-            public static async Task<IHelixResponse<ActiveExtensionsData>>
+            /// <summary>
+            /// <para>Asynchronously updates the installed extensions for a user specified by the bearer token.</para>
+            /// <para>Required scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
+            /// </summary>
+            /// <param name="bearer_token">A user access OAuth token.</param>
+            /// <param name="client_id">The application ID to identify the source of the request.</param>
+            /// <param name="parameters">
+            /// <para>A set of rest parameters specific to this request.</para>
+            /// <para>
+            /// Any extensions specified outside of the valid extension slots for each type are ignored.
+            /// The valid extension slots for each type are specified under each <see cref="ActiveExtensionsData"/> member.
+            /// The (x, y) corrdinates are applicable only to component extensions.
+            /// </para>
+            /// </param>
+            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains active extensions the user has instlled after the changes have been applied.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if the <see cref="UpdateExtensionsParameters"/>, <see cref="UpdateExtensionsParameters.extensions"/>, or <see cref="ActiveExtensions.data"/> are null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if both bearer token is null, empty, or contains only whitespace.
+            /// Thrown if each extension slot for each extension type is empty or null.
+            /// Thrown if the name, ID, or version for each specified active extension is null, empty, or only contains whitespace.
+            /// </exception>
+            /// <exception cref="ArgumentOutOfRangeException">Thrown if the the either (x, y) coordinate for a component extension exceeds the range (0, 0) to (8000, 5000).</exception>
+            /// <exception cref="DuplicateExtensionException">Thrown if an extension ID is set in more then one valid slot across all extension types.</exception>
+            /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<ActiveExtensions>>
             UpdateUserExtensionsAsync(string bearer_token, string client_id, UpdateExtensionsParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
                 info.client_id = client_id;
 
-                IHelixResponse<ActiveExtensionsData> response = await Internal.UpdateUserExtensionsAsync(info, parameters);
+                IHelixResponse<ActiveExtensions> response = await Internal.UpdateUserExtensionsAsync(info, parameters);
 
                 return response;
             }
@@ -1385,7 +1523,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a single page of user's following list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="from_id">The user ID to get the following list for.</param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
             /// <returns>
@@ -1413,7 +1551,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a single page of user's following list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="from_id">The user ID to get the following list for.</param>
             /// <param name="parameters">
             /// A set of rest parameters to add to the request.
@@ -1445,7 +1583,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a single page of user's following list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="client_id">The application ID to identify the source of the request.</param>
             /// <param name="from_id">The user ID to get the following list for.</param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
@@ -1475,7 +1613,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a single page of user's following list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="client_id">The application ID to identify the source of the request.</param>
             /// <param name="from_id">The user ID to get the following list for.</param>
             /// <param name="parameters">
@@ -1509,7 +1647,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a user's complete following list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="from_id">The user ID to get the following list for.</param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
             /// <returns>
@@ -1537,7 +1675,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a user's complete following list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="from_id">The user ID to get the following list for.</param>
             /// <param name="parameters">
             /// A set of rest parameters to add to the request.
@@ -1569,7 +1707,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a user's complete following list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="client_id">The application ID to identify the source of the request.</param>
             /// <param name="from_id">The user ID to get the following list for.</param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
@@ -1599,7 +1737,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a user's complete following list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="client_id">The application ID to identify the source of the request.</param>
             /// <param name="from_id">The user ID to get the following list for.</param>
             /// <param name="parameters">
@@ -1633,7 +1771,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a single page of a user's followers list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="to_id">The user ID to get the follower list for.</param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
             /// <returns>
@@ -1661,7 +1799,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a single page of a user's followers list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="to_id">The user ID to get the follower list for.</param>
             /// <param name="parameters">
             /// A set of rest parameters to add to the request.
@@ -1693,7 +1831,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a single page of a user's followers list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="client_id">The application ID to identify the source of the request.</param>
             /// <param name="to_id">The user ID to get the follower list for.</param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
@@ -1723,7 +1861,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a single page of a user's followers list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="client_id">The application ID to identify the source of the request.</param>
             /// <param name="to_id">The user ID to get the follower list for.</param>
             /// <param name="parameters">
@@ -1757,7 +1895,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a user's complete follower list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="to_id">The user ID to get the follower list for.</param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
             /// <returns>
@@ -1785,7 +1923,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a user's complete follower list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="to_id">The user ID to get the follower list for.</param>
             /// <param name="parameters">
             /// A set of rest parameters to add to the request.
@@ -1817,7 +1955,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a user's complete follower list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="client_id">The application ID to identify the source of the request.</param>
             /// <param name="to_id">The user ID to get the follower list for.</param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
@@ -1847,7 +1985,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a user's complete follower list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="client_id">The application ID to identify the source of the request.</param>
             /// <param name="to_id">The user ID to get the follower list for.</param>
             /// <param name="parameters">
@@ -1881,7 +2019,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously checks to see if a user is following another user.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="from_id">The user ID to check if they are following another user.</param>
             /// <param name="to_id">The user ID to check if another user is following them.</param>
             /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
@@ -1910,7 +2048,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously checks to see if a user is following another user.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="client_id">The application ID to identify the source of the request.</param>
             /// <param name="from_id">The user ID to check if they are following another user.</param>
             /// <param name="to_id">The user ID to check if another user is following them.</param>
@@ -1941,7 +2079,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets the relationship between two users, or a single page of a user's following/follower list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="parameters">
             /// <para>A set of rest parameters to add to the request.</para>
             /// <para>A from_id or to_id must be specified.</para>
@@ -1972,7 +2110,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets the relationship between two users, or a single page of a user's following/follower list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="client_id">The application ID to identify the source of the request.</param>
             /// <param name="parameters">
             /// <para>A set of rest parameters to add to the request.</para>
@@ -2005,7 +2143,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets the relationship between two users, or a user's complete following/follower list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="parameters">
             /// <para>A set of rest parameters to add to the request.</para>
             /// <para>A from_id or to_id must be specified.</para>
@@ -2037,7 +2175,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets the relationship between two users, or a user's complete following/follower list.
             /// </summary>
-            /// <param name="bearer_token">An user access OAuth token.</param>
+            /// <param name="bearer_token">A user access OAuth token.</param>
             /// <param name="client_id">The application ID to identify the source of the request.</param>
             /// <param name="parameters">
             /// <para>A set of rest parameters to add to the request.</para>

@@ -931,7 +931,7 @@ TwitchNet.Rest.Api
             /// <para>Asynchronously gets a list of active extensions a user has installed.</para>
             /// <para>Optional scopes: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
             /// </summary>
-            /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">
             /// A set of rest parameters specific to this request.
             /// If no user ID is specified, the user is implicityly specified from the bearer token.
@@ -948,10 +948,10 @@ TwitchNet.Rest.Api
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<ActiveExtensionsData>>
+            public static async Task<IHelixResponse<ActiveExtensions>>
             GetUserActiveExtensionsAsync(HelixInfo info, ActiveExtensionsParameters parameters)
             {
-                HelixResponse<ActiveExtensionsData> response = new HelixResponse<ActiveExtensionsData>();
+                HelixResponse<ActiveExtensions> response = new HelixResponse<ActiveExtensions>();
 
                 if (!ValidateRequiredBaseParameters(info, response))
                 {
@@ -977,35 +977,45 @@ TwitchNet.Rest.Api
                 RestRequest request = GetBaseRequest("users/extensions", Method.GET, info);
                 request.AddParameters(parameters);
 
-                RestResponse<ActiveExtensionsData> _response = await CLIENT_HELIX.ExecuteAsync<ActiveExtensionsData>(request, HandleResponse);
-                response = new HelixResponse<ActiveExtensionsData>(_response);
+                RestResponse<ActiveExtensions> _response = await CLIENT_HELIX.ExecuteAsync<ActiveExtensions>(request, HandleResponse);
+                response = new HelixResponse<ActiveExtensions>(_response);
 
                 return response;
             }
 
             /// <summary>
-            /// <para>
-            /// Asynchronously updates the installed extensions for a user specified by the bearer token.
-            /// The activation state, extension ID, verison number, or {x,y} coordinates (components only) can be updated.
-            /// </para>
-            /// <para>If a given extension is updated under multiple extension types, the last write wins.
-            /// There is no guarantee of write order.
-            /// </para>
+            /// <para>Asynchronously updates the installed extensions for a user specified by the bearer token.</para>
             /// <para>Required scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
             /// </summary>
-            /// <exception cref="ArgumentNullException">Thrown if parameters or the parameters' data or all extension types' are null.</exception>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="parameters">
+            /// <para>A set of rest parameters specific to this request.</para>
+            /// <para>
+            /// Any extensions specified outside of the valid extension slots for each type are ignored.
+            /// The valid extension slots for each type are specified under each <see cref="ActiveExtensionsData"/> member.
+            /// The (x, y) corrdinates are applicable only to component extensions.
+            /// </para>
+            /// </param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains active extensions the user has instlled after the changes have been applied.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if the <see cref="UpdateExtensionsParameters"/>, <see cref="UpdateExtensionsParameters.extensions"/>, or <see cref="ActiveExtensions.data"/> are null.</exception>
             /// <exception cref="ArgumentException">
             /// Thrown if both bearer token is null, empty, or contains only whitespace.
-            /// Thrown if each extension slot for each extension type is null.
+            /// Thrown if each extension slot for each extension type is empty or null.
+            /// Thrown if the name, ID, or version for each specified active extension is null, empty, or only contains whitespace.
             /// </exception>
+            /// <exception cref="ArgumentOutOfRangeException">Thrown if the the either (x, y) coordinate for a component extension exceeds the range (0, 0) to (8000, 5000).</exception>
+            /// <exception cref="DuplicateExtensionException">Thrown if an extension ID is set in more then one valid slot across all extension types.</exception>
             /// <exception cref="MissingScopesException">Thrown if the available scopes, if specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<ActiveExtensionsData>>
+            public static async Task<IHelixResponse<ActiveExtensions>>
             UpdateUserExtensionsAsync(HelixInfo info, UpdateExtensionsParameters parameters)
             {
-                HelixResponse<ActiveExtensionsData> response = new HelixResponse<ActiveExtensionsData>();
+                HelixResponse<ActiveExtensions> response = new HelixResponse<ActiveExtensions>();
 
                 info.required_scopes = Scopes.UserEditBroadcast;
                 if (!ValidateRequiredBaseParameters(info, response))
@@ -1036,19 +1046,19 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                parameters.extensions.data.panel = ValidateExtensionSlots(parameters.extensions.data.panel, response, info.settings);
+                parameters.extensions.data.panel = ValidateExtensionSlots(parameters.extensions.data.panel, ExtensionType.Panel, response, info.settings);
                 if (!response.exception.IsNull())
                 {
                     return response;
                 }
 
-                parameters.extensions.data.overlay = ValidateExtensionSlots(parameters.extensions.data.overlay, response, info.settings);
+                parameters.extensions.data.overlay = ValidateExtensionSlots(parameters.extensions.data.overlay, ExtensionType.Overlay, response, info.settings);
                 if (!response.exception.IsNull())
                 {
                     return response;
                 }
 
-                parameters.extensions.data.component = ValidateExtensionSlots(parameters.extensions.data.component, response, info.settings);
+                parameters.extensions.data.component = ValidateExtensionSlots(parameters.extensions.data.component, ExtensionType.Component, response, info.settings);
                 if (!response.exception.IsNull())
                 {
                     return response;
@@ -1061,64 +1071,65 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                // TODO: Check and see if any duplicate extension ID's were provided. Only allow unique ID's to guarantee requests.
+                if (!ValidateUniqueExtensionIDs(parameters.extensions.data, response, info.settings))
+                {
+                    return response;
+                }
 
                 RestRequest request = GetBaseRequest("users/extensions", Method.PUT, info);
                 request.AddParameters(parameters);
 
-                RestResponse<ActiveExtensionsData> _response = await CLIENT_HELIX.ExecuteAsync<ActiveExtensionsData>(request, HandleResponse);
-                response = new HelixResponse<ActiveExtensionsData>(_response);
+                RestResponse<ActiveExtensions> _response = await CLIENT_HELIX.ExecuteAsync<ActiveExtensions>(request, HandleResponse);
+                response = new HelixResponse<ActiveExtensions>(_response);
 
                 return response;
             }
 
             private static Dictionary<string, ActiveExtension>
-            ValidateExtensionSlots(Dictionary<string, ActiveExtension> extensions, HelixResponse<ActiveExtensionsData> response, HelixRequestSettings settings, bool is_component = false)
+            ValidateExtensionSlots(Dictionary<string, ActiveExtension> extensions, ExtensionType type, HelixResponse<ActiveExtensions> response, HelixRequestSettings settings)
             {
-                extensions = extensions.RemoveNullValues();
-
+                // Only look for the keys we care about in case the user set other keys by accident.
+                extensions = FilterExtensionSlots(extensions, type);
                 if (!extensions.IsValid())
                 {
-                    // other types still might have valid extensions
                     return extensions;
-                }
+                }                
 
-                foreach (KeyValuePair<string, ActiveExtension> pair in extensions)
+                foreach (ActiveExtension extension in extensions.Values)
                 {
-                    if (!pair.Value.id.IsValid())
+                    if (!extension.id.IsValid())
                     {
-                        response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(pair.Value.id)), settings);
+                        response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(extension.id)), settings);
 
                         return extensions;
                     }
 
-                    if (!pair.Value.name.IsValid())
+                    if (!extension.name.IsValid())
                     {
-                        response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(pair.Value.name)), settings);
+                        response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(extension.name)), settings);
 
                         return extensions;
                     }
 
-                    if (!pair.Value.version.IsValid())
+                    if (!extension.version.IsValid())
                     {
-                        response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(pair.Value.version)), settings);
+                        response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(extension.version)), settings);
 
                         return extensions;
                     }
 
-                    // TODO: Check these regardless of the extension type? If they were specified, it was probably done intentionally.
-                    if (is_component)
+                    if (type == ExtensionType.Component)
                     {
-                        if(pair.Value.x < 0 || pair.Value.x > 8000)
+                        if (!extension.x.IsNull() && (extension.x.Value < 0 || extension.x.Value > 8000))
                         {
-                            response.SetInputError(new ArgumentOutOfRangeException(nameof(pair.Value.x), pair.Value.x, "The x coordinate must be between 0 and 8000, inclusive."), settings);
+                            response.SetInputError(new ArgumentOutOfRangeException(nameof(extension.x), extension.x.Value, "The x coordinate must be between 0 and 8000, inclusive."), settings);
 
                             return extensions;
                         }
 
-                        if (pair.Value.y < 0 || pair.Value.x > 5000)
+                        if (!extension.y.IsNull() && (extension.y.Value < 0 || extension.y.Value > 5000))
                         {
-                            response.SetInputError(new ArgumentOutOfRangeException(nameof(pair.Value.y), pair.Value.y, "The y coordinate must be between 0 and 8000, inclusive."), settings);
+                            response.SetInputError(new ArgumentOutOfRangeException(nameof(extension.y), extension.y.Value, "The y coordinate must be between 0 and 8000, inclusive."), settings);
 
                             return extensions;
                         }
@@ -1127,6 +1138,80 @@ TwitchNet.Rest.Api
 
                 return extensions;
             }
+
+            private static Dictionary<string, ActiveExtension>
+            FilterExtensionSlots(Dictionary<string, ActiveExtension> extensions, ExtensionType type)
+            {
+                extensions = extensions.RemoveNullValues();
+                if (!extensions.IsValid())
+                {
+                    return extensions;
+                }
+
+                string[] keys;
+                if (type == ExtensionType.Panel)
+                {
+                    keys = new string[] { "1", "2", "3" };
+                }
+                else if (type == ExtensionType.Overlay)
+                {
+                    keys = new string[] { "1" };
+                }
+                else
+                {
+                    keys = new string[] { "1", "2", "3" };
+                }
+
+                Dictionary<string, ActiveExtension> result = new Dictionary<string, ActiveExtension>();
+                foreach (string key in keys)
+                {
+                    if(!extensions.TryGetValue(key, out ActiveExtension temp))
+                    {
+                        continue;
+                    }
+
+                    result[key] = temp;
+                }
+
+                return result;
+            }
+
+            private static bool
+            ValidateUniqueExtensionIDs(ActiveExtensionsData types, HelixResponse<ActiveExtensions> response, HelixRequestSettings settings)
+            {                
+                List<ActiveExtension> extensions = new List<ActiveExtension>(6);
+                if (types.panel.IsValid())
+                {
+                    extensions.AddRange(types.panel.Values);
+                }
+
+                if (types.overlay.IsValid())
+                {
+                    extensions.AddRange(types.overlay.Values);
+                }
+
+                if (types.component.IsValid())
+                {
+                    extensions.AddRange(types.component.Values);
+                }
+
+                extensions.TrimExcess();
+
+                List<string> ids = new List<string>(extensions.Count);
+                foreach (ActiveExtension extension in extensions) 
+                {
+                    if (ids.Contains(extension.id))
+                    {
+                        response.SetInputError(new DuplicateExtensionException("The extension ID, " + extension.id + ", was attempted to be set in two or more extension slots. An extension can only be set to one slot.", extension), settings);
+
+                        return false;
+                    }
+
+                    ids.Add(extension.id);
+                }
+
+                return true;
+            }            
 
             #endregion
 
@@ -1167,7 +1252,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a single page of user's following list.
             /// </summary>
-            /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
             /// <param name="from_id">The user ID to get the following list for.</param>
             /// <param name="parameters">
             /// A set of rest parameters to add to the request.
@@ -1216,7 +1301,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a user's complete following list.
             /// </summary>
-            /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
             /// <param name="from_id">The user ID to get the following list for.</param>
             /// <param name="parameters">
             /// A set of rest parameters to add to the request.
@@ -1265,7 +1350,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a single page of a user's followers list.
             /// </summary>
-            /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
             /// <param name="to_id">The user ID to get the follower list for.</param>
             /// <param name="parameters">
             /// A set of rest parameters to add to the request.
@@ -1314,7 +1399,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a user's complete follower list.
             /// </summary>
-            /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
             /// <param name="to_id">The user ID to get the follower list for.</param>
             /// <param name="parameters">
             /// A set of rest parameters to add to the request.
@@ -1363,7 +1448,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously checks to see if a user is following another user.
             /// </summary>
-            /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
             /// <param name="from_id">The user ID to check if they are following another user.</param>
             /// <param name="to_id">The user ID to check if another user is following them.</param>
             /// <returns>
@@ -1406,7 +1491,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets the relationship between two users, or a single page of a user's following/follower list.
             /// </summary>
-            /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">
             /// <para>A set of rest parameters to add to the request.</para>
             /// <para>A from_id or to_id must be specified.</para>
@@ -1465,7 +1550,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets the relationship between two users, or a user's complete following/follower list.
             /// </summary>
-            /// <param name="info">The information used to assemble and execute the request, and while handling the response and any errors that may have occurred.</param>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">
             /// <para>A set of rest parameters to add to the request.</para>
             /// <para>A from_id or to_id must be specified.</para>

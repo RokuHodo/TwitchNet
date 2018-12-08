@@ -8,16 +8,16 @@ TwitchNet.Rest.Api.Users
         /// The ID of the user whose installed active extensions will be returned.
         /// </summary>
         [Body]
-        public virtual ActiveExtensionsData extensions { get; set; }
+        public virtual ActiveExtensions extensions { get; set; }
 
         public
         UpdateExtensionsParameters()
         {
-            extensions = new ActiveExtensionsData();
+            extensions = new ActiveExtensions();
         }
 
         public
-        UpdateExtensionsParameters(ActiveExtensionsData data)
+        UpdateExtensionsParameters(ActiveExtensions data)
         {
             this.extensions = data;
         }

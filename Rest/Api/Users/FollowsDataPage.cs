@@ -13,6 +13,6 @@ TwitchNet.Rest.Api.Users
         /// When providing both 'from_id' and 'to_id', 'total' is either '1' or '0' depending if 'from_id' is following 'to_id'.
         /// </summary>
         [JsonProperty("total")]
-        public string total { get; protected set; }
+        public int  total { get; protected set; }
     }
 }

@@ -38,6 +38,18 @@ TwitchNet.Rest.Api
         /// </summary>
         public Exception            exception           { get; protected set; }
 
+        public HelixResponse(IHelixResponse response)
+        {
+            status_code         = response.status_code;
+            status_description  = response.status_description;
+
+            headers             = response.headers;
+
+            exception           = response.exception;
+
+            rate_limit          = response.rate_limit;
+        }
+
         public HelixResponse(RestResponse response)
         {
             if (!response.IsNull())
@@ -51,7 +63,6 @@ TwitchNet.Rest.Api
 
                 rate_limit          = new RateLimit(response.headers);
             }
-
         }
 
         public HelixResponse(Exception exception)
@@ -94,6 +105,11 @@ TwitchNet.Rest.Api
         /// The deserialized result form the Twitch API.
         /// </summary>
         public result_type result { get; protected set; }
+
+        public HelixResponse(IHelixResponse response, result_type result) : base(response)
+        {
+            this.result = result;
+        }
 
         public HelixResponse(RestResponse<result_type> response) : base(response)
         {

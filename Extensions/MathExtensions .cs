@@ -21,7 +21,7 @@ TwitchNet.Extensions
         /// </returns>
         public static type
         ClampMin<type>(this type value, type minimum)
-        where type : IComparable<type>
+        where type : IComparable, IFormattable, IComparable<type>, IEquatable<type>
         {
             if (value.CompareTo(minimum) < 0)
             {
@@ -45,7 +45,7 @@ TwitchNet.Extensions
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the default value is less than the minimum.</exception>
         public static type
         ClampMin<type>(this type value, type minimum, type default_value)
-        where type : IComparable<type>
+        where type : IComparable, IFormattable, IComparable<type>, IEquatable<type>
         {
             if (default_value.IsLessThan(minimum))
             {
@@ -72,7 +72,7 @@ TwitchNet.Extensions
         /// </returns>
         public static type
         ClampMax<type>(this type value, type maximum)
-        where type : IComparable<type>
+        where type : IComparable, IFormattable, IComparable<type>, IEquatable<type>
         {
             if (value.CompareTo(maximum) > 0)
             {
@@ -96,7 +96,7 @@ TwitchNet.Extensions
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the default value is greater than the maximum.</exception>
         public static type
         ClampMax<type>(this type value, type maximum, type default_value)
-        where type : IComparable<type>
+        where type : IComparable, IFormattable, IComparable<type>, IEquatable<type>
         {
             if (default_value.IsGreaterThan(maximum))
             {
@@ -126,7 +126,7 @@ TwitchNet.Extensions
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the maximum value is less than the minimum.</exception>
         public static type
         Clamp<type>(this type value, type minimum, type maximum)
-        where type : IComparable<type>
+        where type : IComparable, IFormattable, IComparable<type>, IEquatable<type>
         {
             if (maximum.IsLessThan(minimum))
             {
@@ -155,7 +155,7 @@ TwitchNet.Extensions
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the default value is less than the minimum or greater than the maximum.</exception>
         public static type
         Clamp<type>(this type value, type minimum, type maximum, type default_value)
-        where type : IComparable<type>
+        where type : IComparable, IFormattable, IComparable<type>, IEquatable<type>
         {
             if (maximum.IsLessThan(minimum))
             {

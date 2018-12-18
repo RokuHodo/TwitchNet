@@ -781,7 +781,7 @@ TwitchNet.Rest.Api
             /// If provided, the user's email is included in the response.
             /// </para>
             /// </summary>
-            /// <param name="info">The information used to assemble and execute the request.</param>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">
             /// A set of rest parameters specific to this request.
             /// If not specified, the user is looked up by the specified bearer token.
@@ -854,7 +854,7 @@ TwitchNet.Rest.Api
             /// <para>Asynchronously sets the description of a user specified by the bearer token.</para>
             /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
             /// </summary>
-            /// <param name="info">The information used to assemble and execute the request.</param>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
             /// <param name="description">The text to set the user's description to.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
@@ -880,7 +880,7 @@ TwitchNet.Rest.Api
             /// <para>Asynchronously sets the description of a user specified by the bearer token.</para>
             /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
             /// </summary>
-            /// <param name="info">The information used to assemble and execute the request.</param>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters specific to this request.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
@@ -1255,55 +1255,55 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            #region To Reimpliment 2
-
-            /*
-
             #region /users/follows        
 
             /// <summary>
-            /// Asynchronously gets a single page of user's following list.
+            /// Asynchronously gets a single page of a user's following list.
             /// </summary>
             /// <param name="info">The information used to authorize and/or authenticate the request.</param>
-            /// <param name="from_id">The user ID to get the following list for.</param>
             /// <param name="parameters">
             /// A set of rest parameters to add to the request.
-            /// If specified, from_id and to_id are ignored.
+            /// The to_id is ignored if specified.
             /// </param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of user's following list.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of a user's following list.
             /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">
             /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
-            /// Thrown if <paramref name="from_id"/> is null, empty, or contains only whitespace.
+            /// Thrown if from_id is null, empty, or contains only whitespace.
             /// </exception>
-            /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
-            /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowingPageAsync(RestInfo<FollowsDataPage<Follow>> info, string from_id, FollowsParameters parameters)
+            GetUserFollowingPageAsync(HelixInfo info, FollowsParameters parameters)
             {
-                IHelixResponse<FollowsDataPage<Follow>> response = default;
+                HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
 
-                if (!from_id.IsValid())
+                if (!ValidateAuthorizationParameters(info, response))
                 {
-                    info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(from_id)));
-
-                    response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
-
                     return response;
                 }
 
                 if (parameters.IsNull())
                 {
-                    parameters = new FollowsParameters(from_id, string.Empty);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
                 }
-                else
+
+                if (!parameters.from_id.IsValid())
                 {
-                    parameters.from_id = from_id;
-                    parameters.to_id = string.Empty;
+                    response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.from_id)), info.settings);
+
+                    return response;
                 }
+
+                // Get rid of any junk the user may have provided.
+                // Leave the after alone in case they're requesting a specific page.
+                parameters.to_id = string.Empty;
 
                 response = await GetUserRelationshipPageAsync(info, parameters);
 
@@ -1314,47 +1314,51 @@ TwitchNet.Rest.Api
             /// Asynchronously gets a user's complete following list.
             /// </summary>
             /// <param name="info">The information used to authorize and/or authenticate the request.</param>
-            /// <param name="from_id">The user ID to get the following list for.</param>
             /// <param name="parameters">
             /// A set of rest parameters to add to the request.
-            /// If specified, from_id and to_id are ignored.
+            /// The to_id is ignored if specified.
             /// </param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the user's complete following list.
             /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">
             /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
-            /// Thrown if <paramref name="from_id"/> is null, empty, or contains only whitespace.
+            /// Thrown if from_id is null, empty, or contains only whitespace.
             /// </exception>
-            /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
-            /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowingAsync(RestInfo<FollowsDataPage<Follow>> info, string from_id, FollowsParameters parameters)
+            GetUserFollowingAsync(HelixInfo info, FollowsParameters parameters)
             {
-                IHelixResponse<FollowsDataPage<Follow>> response = default;
+                HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
 
-                if (!from_id.IsValid())
+                if (!ValidateAuthorizationParameters(info, response))
                 {
-                    info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(from_id)));
-
-                    response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
-
                     return response;
                 }
 
                 if (parameters.IsNull())
                 {
-                    parameters = new FollowsParameters(from_id, string.Empty);
-                }
-                else
-                {
-                    parameters.from_id = from_id;
-                    parameters.to_id = string.Empty;
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
                 }
 
-                response = await GetUserRelationshipAsync(info, parameters);
+                if (!parameters.from_id.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.from_id)), info.settings);
+
+                    return response;
+                }
+
+                // Get rid of any junk the user may have provided.
+                // Leave the after alone in case they want all users after a specific page.
+                parameters.to_id = string.Empty;
+
+                response = await GetUserRelationshipAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
 
                 return response;
             }
@@ -1363,47 +1367,51 @@ TwitchNet.Rest.Api
             /// Asynchronously gets a single page of a user's followers list.
             /// </summary>
             /// <param name="info">The information used to authorize and/or authenticate the request.</param>
-            /// <param name="to_id">The user ID to get the follower list for.</param>
             /// <param name="parameters">
             /// A set of rest parameters to add to the request.
-            /// If specified, from_id and to_id are ignored.
+            /// The from_id is ignored if specified.
             /// </param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of a user's followers list.
             /// </returns>        
+            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">
             /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
-            /// Thrown if <paramref name="to_id"/> is null, empty, or contains only whitespace.
+            /// Thrown if to_id is null, empty, or contains only whitespace.
             /// </exception>
-            /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
-            /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowersPageAsync(RestInfo<FollowsDataPage<Follow>> info, string to_id, FollowsParameters parameters)
+            GetUserFollowersPageAsync(HelixInfo info, FollowsParameters parameters)
             {
-                IHelixResponse<FollowsDataPage<Follow>> response = default;
+                HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
 
-                if (!to_id.IsValid())
+                if (!ValidateAuthorizationParameters(info, response))
                 {
-                    info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(to_id)));
-
-                    response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
-
                     return response;
                 }
 
                 if (parameters.IsNull())
                 {
-                    parameters = new FollowsParameters(string.Empty, to_id);
-                }
-                else
-                {
-                    parameters.from_id = string.Empty;
-                    parameters.to_id = to_id;
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
                 }
 
-                response = await GetUserRelationshipPageAsync(info, parameters);
+                if (!parameters.to_id.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.to_id)), info.settings);
+
+                    return response;
+                }
+
+                // Get rid of any junk the user may have provided.
+                // Leave the after alone in case they're requesting a specific page.
+                parameters.from_id = string.Empty;
+
+                response = await GetUserRelationshipPageAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
 
                 return response;
             }
@@ -1412,47 +1420,51 @@ TwitchNet.Rest.Api
             /// Asynchronously gets a user's complete follower list.
             /// </summary>
             /// <param name="info">The information used to authorize and/or authenticate the request.</param>
-            /// <param name="to_id">The user ID to get the follower list for.</param>
             /// <param name="parameters">
             /// A set of rest parameters to add to the request.
-            /// If specified, from_id and to_id are ignored.
+            /// The from_id is ignored if specified.
             /// </param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the user's complete follower list.
-            /// </returns>        
+            /// </returns>  
+            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">
             /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
-            /// Thrown if <paramref name="to_id"/> is null, empty, or contains only whitespace.
+            /// Thrown if to_id is null, empty, or contains only whitespace.
             /// </exception>
-            /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
-            /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowersAsync(RestInfo<FollowsDataPage<Follow>> info, string to_id, FollowsParameters parameters)
+            GetUserFollowersAsync(HelixInfo info, FollowsParameters parameters)
             {
-                IHelixResponse<FollowsDataPage<Follow>> response = default;
+                HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
 
-                if (!to_id.IsValid())
+                if (!ValidateAuthorizationParameters(info, response))
                 {
-                    info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(to_id)));
-
-                    response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
-
                     return response;
                 }
 
                 if (parameters.IsNull())
                 {
-                    parameters = new FollowsParameters(string.Empty, to_id);
-                }
-                else
-                {
-                    parameters.from_id = string.Empty;
-                    parameters.to_id = to_id;
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
                 }
 
-                response = await GetUserRelationshipAsync(info, parameters);
+                if (!parameters.to_id.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.to_id)), info.settings);
+
+                    return response;
+                }
+
+                // Get rid of any junk the user may have provided.
+                // Leave the after alone in case they want all users after a specific page.
+                parameters.from_id = string.Empty;
+
+                response = await GetUserRelationshipAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
 
                 return response;
             }
@@ -1471,30 +1483,24 @@ TwitchNet.Rest.Api
             /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
             /// Thrown if either from_id and to_id are null, empty, or contains only whitespace.
             /// </exception>
-            /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
-            /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<bool>>
-            IsUserFollowingAsync(RestInfo<FollowsDataPage<Follow>> info, string from_id, string to_id)
+            IsUserFollowingAsync(HelixInfo info, string from_id, string to_id)
             {
-                IHelixResponse<FollowsDataPage<Follow>> _response = default;
-                IHelixResponse<bool> response = default;
+                HelixResponse<bool> response = new HelixResponse<bool>();
 
                 if (!to_id.IsValid() || !from_id.IsValid())
                 {
-                    info.SetInputError(new ArgumentException("Both from_id and to_id must be specified and cannot be null, empty, or contain only whitespace."));
-
-                    _response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
-                    response = new HelixResponse<bool>(_response, false);
+                    response.SetInputError(new ArgumentException("Both from_id and to_id must be specified and cannot be null, empty, or contain only whitespace."), info.settings);
 
                     return response;
                 }
 
-                FollowsParameters parameters = new FollowsParameters();
-                parameters.from_id = from_id;
-                parameters.to_id = to_id;
+                FollowsParameters parameters = new FollowsParameters(from_id, to_id);
 
-                _response = await GetUserRelationshipPageAsync(info, parameters);
+                IHelixResponse<FollowsDataPage<Follow>> _response = await GetUserRelationshipPageAsync(info, parameters);
                 response = new HelixResponse<bool>(_response, _response.result.data.IsValid());
 
                 return response;
@@ -1517,44 +1523,39 @@ TwitchNet.Rest.Api
             /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
             /// Thrown if both from_id and to_id are null, empty, or contains only whitespace.
             /// </exception>
-            /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
-            /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserRelationshipPageAsync(RestInfo<FollowsDataPage<Follow>> info, FollowsParameters parameters)
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<HelixResponse<FollowsDataPage<Follow>>>
+            GetUserRelationshipPageAsync(HelixInfo info, FollowsParameters parameters)
             {
-                IHelixResponse<FollowsDataPage<Follow>> response = default;
+                HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
 
                 if (parameters.IsNull())
                 {
-                    info.SetInputError(new ArgumentNullException(nameof(parameters)));
-
-                    response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
 
                     return response;
                 }
 
                 if (!parameters.to_id.IsValid() && !parameters.from_id.IsValid())
                 {
-                    info.SetInputError(new ArgumentException("At least either from_id or to_id must be specified and cannot be null, empty, or contain only whitespace."));
-
-                    response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
+                    response.SetInputError(new ArgumentException("At least either from_id or to_id must be specified and cannot be null, empty, or contain only whitespace."), info.settings);
 
                     return response;
                 }
 
-                info = RestUtil.CreateHelixRequest("users/follows", Method.GET, info);
-                if (info.exception_source != RestErrorSource.None)
+                if (parameters.first == 0)
                 {
-                    response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
-
-                    return response;
+                    parameters.first = 20;
                 }
+                parameters.first = parameters.first.Clamp<ushort>(1, 100);
 
-                info.request = info.request.AddParameters(parameters);
-                info = await RestUtil.ExecuteAsync(info);
+                RestRequest request = GetBaseRequest("users/follows", Method.GET, info);
+                request.AddParameters(parameters);
 
-                response = new HelixResponse<FollowsDataPage<Follow>>(info.response, info.rate_limit, info.exception_source, info.exceptions);
+                RestResponse<FollowsDataPage<Follow>> _response = await CLIENT_HELIX.ExecuteAsync<FollowsDataPage<Follow>>(request, HandleResponse);
+                response = new HelixResponse<FollowsDataPage<Follow>>(_response);
 
                 return response;
             }
@@ -1576,49 +1577,47 @@ TwitchNet.Rest.Api
             /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
             /// Thrown if both from_id and to_id are null, empty, or contains only whitespace.
             /// </exception>
-            /// <exception cref="Exception">Thrown if an error occurred in an external assembly while assembling or executing a request, or while deserializing a response.</exception>
-            /// <exception cref="StatusException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserRelationshipAsync(RestInfo<FollowsDataPage<Follow>> info, FollowsParameters parameters)
+            GetUserRelationshipAsync(HelixInfo info, FollowsParameters parameters)
             {
-                IHelixResponse<FollowsDataPage<Follow>> response = default;
+                HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
 
                 if (parameters.IsNull())
                 {
-                    info.SetInputError(new ArgumentNullException(nameof(parameters)));
-
-                    response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
 
                     return response;
                 }
 
                 if (!parameters.to_id.IsValid() && !parameters.from_id.IsValid())
                 {
-                    info.SetInputError(new ArgumentException("At least either from_id or to_id must be specified and cannot be null, empty, or contain only whitespace."));
-
-                    response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
+                    response.SetInputError(new ArgumentException("At least either from_id or to_id must be specified and cannot be null, empty, or contain only whitespace."), info.settings);
 
                     return response;
                 }
 
-                info = RestUtil.CreateHelixRequest("users/follows", Method.GET, info);
-                if (info.exception_source != RestErrorSource.None)
+                if(parameters.first == 0)
                 {
-                    response = new HelixResponse<FollowsDataPage<Follow>>(info.exception_source, info.exceptions);
-
-                    return response;
+                    parameters.first = 20;
                 }
+                parameters.first = parameters.first.Clamp<ushort>(1, 100);
 
-                info.request = info.request.AddParameters(parameters);
-                info = await RestUtil.TraceExecuteAsync<Follow, FollowsDataPage<Follow>>(info, parameters);
+                RestRequest request = GetBaseRequest("users/follows", Method.GET, info);
+                request.AddParameters(parameters);
 
-                response = new HelixResponse<FollowsDataPage<Follow>>(info.response, info.rate_limit, info.exception_source, info.exceptions);
+                RestResponse<FollowsDataPage<Follow>> _response = await CLIENT_HELIX.TraceExecuteAsync<Follow, FollowsDataPage<Follow>>(request, HandleResponse);
+                response = new HelixResponse<FollowsDataPage<Follow>>(_response);
 
                 return response;
             }
 
             #endregion
+
+            #region To Reimpliment 2
+
             /*
             #region /videos
 

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 using TwitchNet.Extensions;
 using TwitchNet.Helpers.Json;
+using TwitchNet.Rest.Api;
 
 namespace TwitchNet.Rest
 {
@@ -195,8 +196,6 @@ namespace TwitchNet.Rest
 
             response = new RestResponse<data_type>(request, _response, content, data, status_exception);
 
-            // TODO: Implement custom handler for Helix (and OAUth2 whenevr I get around to it).
-            // Hack to prevent premature throwing, but it works.
             if (!CustomResponseHandler.IsNull())
             {
                 response = await CustomResponseHandler(response);
@@ -205,6 +204,44 @@ namespace TwitchNet.Rest
             {
                 response = await HandleResponse(response);
             }
+
+            return response;
+        }
+
+        // TODO: Move inside of TwitchApi.Internal since this is specific only to that API?
+        public async Task<RestResponse<result_type>>
+        TraceExecuteAsync<data_type, result_type>(RestRequest request, Func<RestResponse<result_type>, Task<RestResponse<result_type>>> CustomResponseHandler = default)
+        where result_type : DataPage<data_type>, IDataPage<data_type>
+        {
+            RestResponse<result_type> response = new RestResponse<result_type>();
+
+            List<data_type> data = new List<data_type>();
+
+            bool requesting = true;
+            do
+            {
+                RestResponse<result_type> page = await ExecuteAsync(request, CustomResponseHandler);
+                if (page.data.data.IsValid())
+                {
+                    data.AddRange(page.data.data);
+                }
+
+                requesting = page.data.data.IsValid() && page.data.pagination.cursor.IsValid() && page.exception.IsNull();
+                if (requesting)
+                {
+                    // For some reason we need a new instance even though the changing the query parameters changes the URI.
+                    // This doesn't change the instance?
+                    request.CloneMessage();
+                    request.RemoveQueryParameter("after");
+                    request.AddQueryParameter("after", page.data.pagination.cursor);
+                }
+                else
+                {
+                    response = page;
+                    response.data.data = data;
+                }
+            }
+            while (requesting);
 
             return response;
         }

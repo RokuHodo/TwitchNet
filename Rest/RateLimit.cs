@@ -35,18 +35,24 @@ TwitchNet.Rest
         public RateLimit(HttpResponseHeaders headers)
         {
             limit = 0;
+            remaining = 0;
+            reset_time = DateTime.MinValue;
+
+            if (headers.IsNull())
+            {
+                return;
+            }
+
             if (headers.TryGetValues("Ratelimit-Limit", out IEnumerable<string> _limit))
             {
                 limit = Convert.ToUInt16(_limit.ElementAt(0));
             }
 
-            remaining = 0;
             if (headers.TryGetValues("Ratelimit-Remaining", out IEnumerable<string> _remaining))
             {
                 remaining = Convert.ToUInt16(_remaining.ElementAt(0));
             }
 
-            reset_time = DateTime.MinValue;
             if (headers.TryGetValues("Ratelimit-Reset", out IEnumerable<string> _reset_time))
             {
                 long reset_double = Convert.ToInt64(_reset_time.ElementAt(0));

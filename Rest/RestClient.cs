@@ -221,6 +221,16 @@ namespace TwitchNet.Rest
             do
             {
                 RestResponse<result_type> page = await ExecuteAsync(request, CustomResponseHandler);
+                if (!page.exception.IsNull())
+                {
+                    response = page;
+                    response.data = default;
+
+                    requesting = false;
+
+                    continue;
+                }
+
                 if (page.data.data.IsValid())
                 {
                     data.AddRange(page.data.data);
@@ -230,7 +240,7 @@ namespace TwitchNet.Rest
                 if (requesting)
                 {
                     // For some reason we need a new instance even though the changing the query parameters changes the URI.
-                    // This doesn't change the instance?
+                    // That doesn't change the instance?
                     request.CloneMessage();
                     request.RemoveQueryParameter("after");
                     request.AddQueryParameter("after", page.data.pagination.cursor);

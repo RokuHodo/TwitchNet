@@ -1085,6 +1085,16 @@ TwitchNet.Rest.Api
                 return response;
             }
 
+            /// <summary>
+            /// Checks to make sure that the required extension members are not null, empty, contain only whitespace, and/or are not out of bounds.
+            /// </summary>
+            /// <param name="extensions">The extensions to be updated.</param>
+            /// <param name="type">The extension type.</param>
+            /// <param name="response">The Helix response to handle errors.</param>
+            /// <param name="settings">The request settings to determine how errors are handled.</param>
+            /// <returns>Returns the filtered extensions that Twitch accepts.</returns>
+            /// <exception cref="ArgumentException">Thrown if the name, ID, or version for each specified active extension is null, empty, or only contains whitespace.</exception>
+            /// <exception cref="ArgumentOutOfRangeException">Thrown if the the either (x, y) coordinate for a component extension exceeds the range (0, 0) to (8000, 5000).</exception>
             private static Dictionary<string, ActiveExtension>
             ValidateExtensionSlots(Dictionary<string, ActiveExtension> extensions, ExtensionType type, HelixResponse<ActiveExtensions> response, HelixRequestSettings settings)
             {
@@ -1139,6 +1149,12 @@ TwitchNet.Rest.Api
                 return extensions;
             }
 
+            /// <summary>
+            /// Filteres through the extensions to be updated and returns only the slots that Twitch accepts.
+            /// </summary>
+            /// <param name="extensions">The extensions to be updated.</param>
+            /// <param name="type">The extension type.</param>
+            /// <returns>Returns the filtered extensions that Twitch accepts.</returns>
             private static Dictionary<string, ActiveExtension>
             FilterExtensionSlots(Dictionary<string, ActiveExtension> extensions, ExtensionType type)
             {
@@ -1176,23 +1192,34 @@ TwitchNet.Rest.Api
                 return result;
             }
 
+            /// <summary>
+            /// Checks to make sure that each extension ID is unique across all extension types and slots.
+            /// </summary>
+            /// <param name="data">The filtered and validated extension data to update.</param>
+            /// <param name="response">The Helix response to handle errors.</param>
+            /// <param name="settings">The request settings to determine how errors are handled.</param>
+            /// <returns>
+            /// Returns true if each extension ID is unique across all extension types and slots.
+            /// Returns false otherwise.
+            /// </returns>
+            /// <exception cref="DuplicateExtensionException">Thrown if an extension ID is set in more then one valid slot across all extension types.</exception>
             private static bool
-            ValidateUniqueExtensionIDs(ActiveExtensionsData types, HelixResponse<ActiveExtensions> response, HelixRequestSettings settings)
+            ValidateUniqueExtensionIDs(ActiveExtensionsData data, HelixResponse<ActiveExtensions> response, HelixRequestSettings settings)
             {                
                 List<ActiveExtension> extensions = new List<ActiveExtension>(6);
-                if (types.panel.IsValid())
+                if (data.panel.IsValid())
                 {
-                    extensions.AddRange(types.panel.Values);
+                    extensions.AddRange(data.panel.Values);
                 }
 
-                if (types.overlay.IsValid())
+                if (data.overlay.IsValid())
                 {
-                    extensions.AddRange(types.overlay.Values);
+                    extensions.AddRange(data.overlay.Values);
                 }
 
-                if (types.component.IsValid())
+                if (data.component.IsValid())
                 {
-                    extensions.AddRange(types.component.Values);
+                    extensions.AddRange(data.component.Values);
                 }
 
                 extensions.TrimExcess();
@@ -1305,7 +1332,7 @@ TwitchNet.Rest.Api
                 // Leave the after alone in case they're requesting a specific page.
                 parameters.to_id = string.Empty;
 
-                response = await GetUserRelationshipPageAsync(info, parameters);
+                response = await GetUserRelationshipPageAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
 
                 return response;
             }
@@ -1470,11 +1497,11 @@ TwitchNet.Rest.Api
             }
 
             /// <summary>
-            /// Asynchronously checks to see if a user is following another user.
+            /// Asynchronously checks to see if the from_id user is following the to_id user.
             /// </summary>
             /// <param name="info">The information used to authorize and/or authenticate the request.</param>
-            /// <param name="from_id">The user ID to check if they are following another user.</param>
-            /// <param name="to_id">The user ID to check if another user is following them.</param>
+            /// <param name="from_id">The ID of the following user.</param>
+            /// <param name="to_id">The ID of the followed user.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> is set true if from_id is following to_id, otherwise false.
@@ -1501,7 +1528,9 @@ TwitchNet.Rest.Api
                 FollowsParameters parameters = new FollowsParameters(from_id, to_id);
 
                 IHelixResponse<FollowsDataPage<Follow>> _response = await GetUserRelationshipPageAsync(info, parameters);
-                response = new HelixResponse<bool>(_response, _response.result.data.IsValid());
+
+                bool result = !_response.exception.IsNull() ? false : _response.result.data.IsValid();
+                response = new HelixResponse<bool>(_response, result);
 
                 return response;
             }
@@ -1526,7 +1555,7 @@ TwitchNet.Rest.Api
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<HelixResponse<FollowsDataPage<Follow>>>
+            public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserRelationshipPageAsync(HelixInfo info, FollowsParameters parameters)
             {
                 HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();

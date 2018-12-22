@@ -15,7 +15,7 @@ TwitchNet.Rest.Api.Videos
     VideoSort
     {
         /// <summary>
-        /// Returns videos sorted by time.
+        /// Returns videos sorted by time, newest to oldest.
         /// </summary>
         [EnumMember(Value = "time")]
         Time     = 0,

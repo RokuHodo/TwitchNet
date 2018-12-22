@@ -77,9 +77,8 @@ TwitchNet.Rest.Api.Videos
 
         /// <summary>
         /// The type of the video.
-        /// Bitfield enum.
         /// </summary>
-        [QueryParameter("type", typeof(SeparateQueryConverter))]
+        [QueryParameter("type")]
         public virtual VideoType?           type        { get; set; }
     }
 }

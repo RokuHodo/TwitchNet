@@ -11,7 +11,7 @@ TwitchNet.Rest.Api.Games
         /// The game id.
         /// </summary>
         [JsonProperty("id")]
-        public string id            { get ; protected set; }
+        public string id            { get; protected set; }
 
         /// <summary>
         /// The game name.

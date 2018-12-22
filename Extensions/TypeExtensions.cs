@@ -28,6 +28,25 @@ TwitchNet.Extensions
         }
 
         /// <summary>
+        /// Gets the underlying type of a nullable type.
+        /// </summary>
+        /// <param name="type">The type tp get the underlying type of.</param>
+        /// <returns>
+        /// Returns the underlying type if the type was nullable.
+        /// Returns the original type otherwise.
+        /// </returns>
+        public static Type
+        GetTrueType(this Type type)
+        {
+            if (type.IsNull())
+            {
+                return null;
+            }
+
+            return type.IsNullable() ? Nullable.GetUnderlyingType(type) : type;
+        }
+
+        /// <summary>
         /// Checks to see if an <see cref="object"/>'s type is a generic list.
         /// </summary>
         /// <param name="type">The object type to check.</param>

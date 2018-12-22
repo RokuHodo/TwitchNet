@@ -1,28 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// standard namespaces
+using System;
 
 namespace TwitchNet.Rest
 {
     public class
     QueryParameter
     {
+        /// <summary>
+        /// The name of the query parameter.
+        /// </summary>
         public string name;
 
+        /// <summary>
+        /// The value of the query parameter.
+        /// </summary>
         public string value;
     }
 
     public class
     RestParameter
     {
+        /// <summary>
+        /// The name of the rest parameter.
+        /// </summary>
         public string name;
 
+        /// <summary>
+        /// The value of the rest parameter.
+        /// </summary>
         public object value;
 
+        /// <summary>
+        /// The content type.
+        /// </summary>
         public string content_type;
 
-        public HttpParameterType type;
+        /// <summary>
+        /// The type of rest parameter.
+        /// </summary>
+        public HttpParameterType parameter_type;
+
+        /// <summary>
+        /// <para>
+        /// The reflected type of the rest parameter member.
+        /// The member type will never be null.
+        /// </para>
+        /// <para>If the reflected type is nullable, this type is the underlying type.</para>
+        /// </summary>
+        public Type member_type;
     }
 }

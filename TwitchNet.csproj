@@ -259,7 +259,6 @@
     <Compile Include="Utilities\ExceptionUtil.cs" />
     <Compile Include="Rest\OAuth\OAuth.cs" />
     <Compile Include="Utilities\RegexPatternUtil.cs" />
-    <Compile Include="Utilities\RestUtil.cs" />
     <Compile Include="Utilities\TagsUtil.cs" />
     <Compile Include="Utilities\TwitchUtil.cs" />
   </ItemGroup>

@@ -39,7 +39,17 @@ TwitchNet.Helpers.Json
         {
             string name = reader.TokenType == JsonToken.Null ? string.Empty : reader.Value.ToString();
 
+            #if !DEBUG
+
+            // It's okay if it crashes dureing testing, that's a good thing.
+            // If it crashes in a release build, that would be a bad thing.
             object value = EnumUtil.Parse(object_type, name);
+
+            #else
+
+            EnumUtil.TryParse(object_type, name, out object value);
+
+            #endif
 
             return value;
         }
@@ -76,9 +86,7 @@ TwitchNet.Helpers.Json
         public override bool
         CanConvert(Type object_type)
         {
-            Type type = object_type.IsNullable() ? Nullable.GetUnderlyingType(object_type) : object_type;
-
-            return type.IsEnum;
+            return object_type.GetTrueType().IsEnum;
         }
     }
 }

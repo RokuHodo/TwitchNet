@@ -19,7 +19,7 @@ TwitchNet.Rest.Api
         /// </para>
         /// </summary>
         [QueryParameter("first")]
-        public ushort first { get; set; }
+        public int? first { get; set; }
 
         /// <summary>
         /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.

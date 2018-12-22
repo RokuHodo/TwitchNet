@@ -17,10 +17,6 @@ using TwitchNet.Rest.Api.Users;
 using TwitchNet.Rest.Api.Videos;
 using TwitchNet.Utilities;
 
-// imported .dll's
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
 namespace
 TwitchNet.Rest.Api
 {
@@ -1578,7 +1574,11 @@ TwitchNet.Rest.Api
                 {
                     parameters.first = 20;
                 }
-                parameters.first = parameters.first.Clamp<ushort>(1, 100);
+
+                if (parameters.first.HasValue)
+                {
+                    parameters.first = parameters.first.Value.Clamp(1, 100);
+                }
 
                 RestRequest request = GetBaseRequest("users/follows", Method.GET, info);
                 request.AddParameters(parameters);
@@ -1628,11 +1628,10 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                if(parameters.first == 0)
+                if (parameters.first.HasValue)
                 {
-                    parameters.first = 20;
+                    parameters.first = parameters.first.Value.Clamp(1, 100);
                 }
-                parameters.first = parameters.first.Clamp<ushort>(1, 100);
 
                 RestRequest request = GetBaseRequest("users/follows", Method.GET, info);
                 request.AddParameters(parameters);
@@ -1645,51 +1644,53 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            #region To Reimpliment 2
-
-            /*
             #region /videos
 
             /// <summary>
             /// Asynchronously gets information on one or more videos.
             /// </summary>
             public static async Task<IHelixResponse<DataPage<Video>>>
-            GetVideosPageAsync(RestInfo<DataPage<Video>> info, VideosParameters parameters, RequestSettings settings)
+            GetVideosPageAsync(HelixInfo info, VideosParameters parameters, RequestSettings settings)
             {
-                IHelixResponse<DataPage<Video>> response = default;
+                HelixResponse<DataPage<Video>> response = new HelixResponse<DataPage<Video>>();
+
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
 
                 if (parameters.IsNull())
                 {
-                    info.SetInputError(new ArgumentNullException(nameof(parameters)));
-
-                    response = new HelixResponse<DataPage<Video>>(info);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
 
                     return response;
+                }
+
+                if (!parameters.ids.IsValid() && !parameters.user_id.IsValid() && !parameters.game_id.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("At least one video ID, one user ID, or one game ID must be provided."), info.settings);
+
+                    return response;                         
                 }
 
                 if((parameters.ids.IsValid() && (parameters.user_id.IsValid() ||parameters.game_id.IsValid())) ||
                    (parameters.user_id.IsValid() && parameters.game_id.IsValid()))
                 {
-                    info.SetInputError(new ArgumentException("Only one or more video ID's, one user ID, or one game ID can be provided."));
-
-                    response = new HelixResponse<DataPage<Video>>(info);
+                    response.SetInputError(new ArgumentException("Only one or more video ID's, one user ID, or one game ID can be provided."), info.settings);
 
                     return response;
                 }
 
-                info = RestUtil.CreateHelixRequest("videos", Method.GET, info);
-
-                if (info.exception_source != RestErrorSource.None)
+                if (parameters.first.HasValue)
                 {
-                    response = new HelixResponse<DataPage<Video>>(info);
-
-                    return response;
+                    parameters.first = parameters.first.Value.Clamp(1, 100);
                 }
 
-                info.request = info.request.AddPaging(parameters);
-                info = await RestUtil.ExecuteAsync(info);
+                RestRequest request = GetBaseRequest("videos", Method.GET, info);
+                request.AddParameters(parameters);
 
-                response = new HelixResponse<DataPage<Video>>(info);
+                RestResponse<DataPage<Video>> _response = await CLIENT_HELIX.ExecuteAsync<DataPage<Video>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<Video>>(_response);
 
                 return response;
             }
@@ -1698,15 +1699,25 @@ TwitchNet.Rest.Api
             /// Asynchronously gets a complete list of information on one or more videos.
             /// </summary>
             public static async Task<IHelixResponse<DataPage<Video>>>
-            GetVideosAsync(RestInfo<DataPage<Video>> info, VideosParameters parameters, RequestSettings settings)
+            GetVideosAsync(HelixInfo info, VideosParameters parameters, RequestSettings settings)
             {
-                IHelixResponse<DataPage<Video>> response = default;
+                HelixResponse<DataPage<Video>> response = new HelixResponse<DataPage<Video>>();
+
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
 
                 if (parameters.IsNull())
                 {
-                    info.SetInputError(new ArgumentNullException(nameof(parameters)));
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
 
-                    response = new HelixResponse<DataPage<Video>>(info);
+                    return response;
+                }
+
+                if (!parameters.ids.IsValid() && !parameters.user_id.IsValid() && !parameters.game_id.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("At least one video ID, one user ID, or one game ID must be provided."), info.settings);
 
                     return response;
                 }
@@ -1714,32 +1725,24 @@ TwitchNet.Rest.Api
                 if ((parameters.ids.IsValid() && (parameters.user_id.IsValid() || parameters.game_id.IsValid())) ||
                    (parameters.user_id.IsValid() && parameters.game_id.IsValid()))
                 {
-                    info.SetInputError(new ArgumentException("Only one or more video ID's, one user ID, or one game ID can be provided."));
-
-                    response = new HelixResponse<DataPage<Video>>(info);
+                    response.SetInputError(new ArgumentException("Only one or more video ID's, one user ID, or one game ID can be provided."), info.settings);
 
                     return response;
                 }
 
-                info = RestUtil.CreateHelixRequest("videos", Method.GET, info);
-
-                if (info.exception_source != RestErrorSource.None)
+                if (parameters.first.HasValue)
                 {
-                    response = new HelixResponse<DataPage<Video>>(info);
-
-                    return response;
+                    parameters.first = parameters.first.Value.Clamp(1, 100);
                 }
 
-                info.request = info.request.AddPaging(parameters);
-                info = await RestUtil.TraceExecuteAsync<Video, DataPage<Video>>(info, parameters);
+                RestRequest request = GetBaseRequest("videos", Method.GET, info);
+                request.AddParameters(parameters);
 
-                response = new HelixResponse<DataPage<Video>>(info);
+                RestResponse<DataPage<Video>> _response = await CLIENT_HELIX.TraceExecuteAsync<Video, DataPage<Video>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<Video>>(_response);
 
                 return response;
             }
-
-            #endregion
-            */
 
             #endregion
         }

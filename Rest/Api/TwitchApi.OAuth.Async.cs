@@ -2254,87 +2254,55 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            /*
             #region /videos
 
-            /// <summary>
-            /// Asynchronously gets a single page of information on one or more videos.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-            /// <param name="parameters">A set of rest parameters to customize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
             public static async Task<IHelixResponse<DataPage<Video>>>
-            GetVideosPageAsync(string bearer_token, VideosParameters parameters, RequestSettings settings = default(RequestSettings))
+            GetVideosPageAsync(string bearer_token, VideosParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token   = bearer_token;
 
-                IHelixResponse<DataPage<Video>> videos = await TwitchApiInternal.GetVideosPageAsync(request_info, parameters, settings);
+                IHelixResponse<DataPage<Video>> videos = await Internal.GetVideosPageAsync(info, parameters, settings);
 
                 return videos;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of information on one or more videos.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-            /// <param name="client_id">The Client ID to identify the application making the request.</param>
-            /// <param name="parameters">A set of rest parameters to customize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
             public static async Task<IHelixResponse<DataPage<Video>>>
-            GetVideosPageAsync(string bearer_token, string client_id, VideosParameters parameters, RequestSettings settings = default(RequestSettings))
+            GetVideosPageAsync(string bearer_token, string client_id, VideosParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
-                request_info.client_id      = client_id;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token   = bearer_token;
+                info.client_id      = client_id;
 
-                IHelixResponse<DataPage<Video>> videos = await TwitchApiInternal.GetVideosPageAsync(request_info, parameters, settings);
+                IHelixResponse<DataPage<Video>> videos = await Internal.GetVideosPageAsync(info, parameters, settings);
 
                 return videos;
             }
 
-            /// <summary>
-            /// Asynchronously gets a complete list of information on one or more videos.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-            /// <param name="parameters">A set of rest parameters to customize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
             public static async Task<IHelixResponse<DataPage<Video>>>
-            GetVideosAsync(string bearer_token, VideosParameters parameters, RequestSettings settings = default(RequestSettings))
+            GetVideosAsync(string bearer_token, VideosParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token   = bearer_token;
 
-                IHelixResponse<DataPage<Video>> videos = await TwitchApiInternal.GetVideosAsync(request_info, parameters, settings);
+                IHelixResponse<DataPage<Video>> videos = await Internal.GetVideosAsync(info, parameters, settings);
 
                 return videos;
             }
 
-            /// <summary>
-            /// Asynchronously gets a complete list of information on one or more videos.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-            /// <param name="client_id">The Client ID to identify the application making the request.</param>
-            /// <param name="parameters">A set of rest parameters to customize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
             public static async Task<IHelixResponse<DataPage<Video>>>
-            GetVideosAsync(string bearer_token, string client_id, VideosParameters parameters, RequestSettings settings = default(RequestSettings))
+            GetVideosAsync(string bearer_token, string client_id, VideosParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
-                request_info.client_id      = client_id;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token   = bearer_token;
+                info.client_id      = client_id;
 
-                IHelixResponse<DataPage<Video>> videos = await TwitchApiInternal.GetVideosAsync(request_info, parameters, settings);
+                IHelixResponse<DataPage<Video>> videos = await Internal.GetVideosAsync(info, parameters, settings);
 
                 return videos;
             }
 
             #endregion
-            */
         }
     }
 }

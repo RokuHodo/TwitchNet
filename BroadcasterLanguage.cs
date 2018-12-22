@@ -90,6 +90,12 @@ TwitchNet
         Pt,
 
         /// <summary>
+        /// Română (Romanian)
+        /// </summary>
+        [EnumMember(Value = "ro")]
+        Ro,
+
+        /// <summary>
         /// Slovenčina (Slovak)
         /// </summary>
         [EnumMember(Value = "sk")]
@@ -140,25 +146,25 @@ TwitchNet
         /// <summary>
         /// Pусский (Slovenian)
         /// </summary>
-        [EnumMember(Value = "")]
+        [EnumMember(Value = "ru")]
         Ru,
 
         /// <summary>
         /// العربية (Arabic)
         /// </summary>
-        [EnumMember(Value = "ru")]
+        [EnumMember(Value = "ar")]
         Ar,
 
         /// <summary>
         /// ภาษาไทย (Thai)
         /// </summary>
-        [EnumMember(Value = "ar")]
+        [EnumMember(Value = "th")]
         Th,
 
         /// <summary>
         /// 中文 (Chinese)
         /// </summary>
-        [EnumMember(Value = "th")]
+        [EnumMember(Value = "zh")]
         Zh,
 
         /// <summary>

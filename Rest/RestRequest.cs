@@ -16,29 +16,17 @@ namespace TwitchNet.Rest
     public class
     RestRequest : IDisposable
     {
-        public HttpRequestMessage message { get; private set; }
-
         public bool disposed { get; private set; } = true;
 
-        private string _endpoint;
-        public string endpoint
-        {
-            get
-            {
-                return _endpoint;
-            }
-            set
-            {
-                _endpoint = !value.IsValid() ? string.Empty : value.Trim('/');
-            }
-        }
+        public string endpoint;
 
-        // Don't expose any methods that aren't supported.
         public Method method { get; set; }
 
-        public ISerializer json_serialzier { get; set; }
+        public List<QueryParameter> query_parameters { get; private set; }
 
-        public List<QueryParameter> query_parameters { get; set; }
+        public HttpRequestMessage message { get; private set; }
+
+        public ISerializer json_serialzier { get; set; }
 
         public RequestSettings settings { get; set; }
 
@@ -82,6 +70,16 @@ namespace TwitchNet.Rest
         public HttpRequestMessage
         BuildMessage(Uri client_uri)
         {
+            if (disposed)
+            {
+                throw new ObjectDisposedException(nameof(message));
+            }
+
+            if (client_uri.IsNull())
+            {
+                throw new ArgumentNullException(nameof(client_uri));
+            }
+
             message.RequestUri = BuildUri(client_uri);
             message.Method = new HttpMethod(EnumUtil.GetName(method));
 
@@ -91,6 +89,11 @@ namespace TwitchNet.Rest
         public HttpRequestMessage
         CloneMessage()
         {
+            if (disposed)
+            {
+                throw new ObjectDisposedException(nameof(message));
+            }
+
             HttpRequestMessage clone = new HttpRequestMessage(message.Method, message.RequestUri);
             clone.Content = message.Content;
 
@@ -159,12 +162,11 @@ namespace TwitchNet.Rest
         {
             if (disposed)
             {
-                return false;
+                throw new ObjectDisposedException(nameof(message));
             }
 
-            // There might be a time where an empty or null value *might* be desired.
-            // Don't check for it here. Leave that up to the the user.
-            if (!name.IsValid())
+            // Disallow null values but still allow empty values.
+            if (!name.IsValid() || value.IsNull())
             {
                 return false;
             }
@@ -183,7 +185,7 @@ namespace TwitchNet.Rest
         {
             if (disposed)
             {
-                return false;
+                throw new ObjectDisposedException(nameof(message));
             }
 
             // There might be a time where an empty or null value *might* be desired.
@@ -212,6 +214,11 @@ namespace TwitchNet.Rest
         public void
         AddParameters(object parameters)
         {
+            if (disposed)
+            {
+                throw new ObjectDisposedException(nameof(message));
+            }
+
             if (parameters.IsNull())
             {
                 return;
@@ -251,7 +258,7 @@ namespace TwitchNet.Rest
                     continue;
                 }
 
-                attribute.reflected_type = attribute.reflected_type.IsNullable() ? Nullable.GetUnderlyingType(attribute.reflected_type) : attribute.reflected_type;
+                attribute.reflected_type = attribute.reflected_type.GetTrueType();
                 if (attribute.reflected_type.IsNull())
                 {
                     continue;
@@ -264,18 +271,18 @@ namespace TwitchNet.Rest
                 }
 
                 RestParameter parameter = new RestParameter();
-                parameter.type          = attribute.parameter_type;
-                parameter.name          = attribute.name;
-                parameter.value         = attribute.value;
-                parameter.content_type  = attribute.content_type;
+                parameter.name              = attribute.name;
+                parameter.value             = attribute.value;
+                parameter.parameter_type    = attribute.parameter_type;
+                parameter.content_type      = attribute.content_type;
+                parameter.member_type       = attribute.reflected_type;
 
-                // TODO: Add attribute.reflected_type to RestParameter?
-                if (!converter.CanConvert(parameter, attribute.reflected_type))
+                if (!converter.CanConvert(parameter))
                 {
                     continue;
                 }
 
-                converter.AddParameter(this, parameter, attribute.reflected_type);
+                converter.AddParameter(this, parameter);
             }
         }        
 
@@ -284,7 +291,7 @@ namespace TwitchNet.Rest
         {
             if (disposed)
             {
-                return false;
+                throw new ObjectDisposedException(nameof(message));
             }
 
             // There might be a time where an empty or null value *might* be desired.
@@ -304,7 +311,7 @@ namespace TwitchNet.Rest
         {
             if (disposed)
             {
-                return false;
+                throw new ObjectDisposedException(nameof(message));
             }
 
             if (!name.IsValid())
@@ -312,17 +319,15 @@ namespace TwitchNet.Rest
                 return false;
             }
 
-            bool removed = message.Headers.Remove(name);
-
-            return removed;
+            return message.Headers.Remove(name);
         }
 
         public bool
-        ClearHeaders(string name)
+        RemoveHeaders(string name)
         {
             if (disposed)
             {
-                return false;
+                throw new ObjectDisposedException(nameof(message));
             }
 
             if (!name.IsValid())
@@ -350,7 +355,7 @@ namespace TwitchNet.Rest
         {
             if (disposed)
             {
-                return false;
+                throw new ObjectDisposedException(nameof(message));
             }
 
             message.Headers.Clear();
@@ -358,24 +363,22 @@ namespace TwitchNet.Rest
             return true;
         }
 
-        public bool
+        public void
         SetBody(object obj)
         {
             if (disposed)
             {
-                return false;
+                throw new ObjectDisposedException(nameof(message));
             }
 
+            // This will only ever happen if the user intentionally sets this to null.
             if (json_serialzier.IsNull())
             {
-                return false;
+                json_serialzier = new JsonSerializer();
             }
 
             string content = json_serialzier.Serialize(obj);
-
             message.Content = new StringContent(content, Encoding.UTF8, json_serialzier.content_type);
-
-            return true;
         }
 
         public void
@@ -383,7 +386,7 @@ namespace TwitchNet.Rest
         {
             if (disposed)
             {
-                return;
+                throw new ObjectDisposedException(nameof(message));
             }
 
             message.Content = default;

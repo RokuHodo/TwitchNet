@@ -883,12 +883,7 @@ TwitchNet.Utilities
         /// Restricted to a struct.
         /// </typeparam>
         /// <param name="value">The enum value to get the name of.</param>
-        /// <returns>
-        /// Returns resolved name of the enum value.
-        /// </returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if the specified value is null.
-        /// </exception>
+        /// <returns>Returns resolved name of the enum value.</returns>
         /// <exception cref="ArgumentException">
         /// Thrown if the type is not an enum.
         /// Thrown if no names or values exist in the enum type.
@@ -909,9 +904,7 @@ TwitchNet.Utilities
         /// </summary>
         /// <param name="type">The enum's type.</param>
         /// <param name="value">The enum value to get the name of.</param>
-        /// <returns>
-        /// Returns resolved name of the enum value.
-        /// </returns>
+        /// <returns>Returns resolved name of the enum value.</returns>
         /// <exception cref="ArgumentNullException">
         /// Thrown if the type is null.
         /// Thrown if the specified value is null.
@@ -926,10 +919,10 @@ TwitchNet.Utilities
         public static string
         GetName(Type type, object value)
         {
+            type = type.GetTrueType();
             EnumTypeCache cache = GetOrAddCache(type);
-            string result = cache.GetName(value);
 
-            return result;
+            return cache.GetName(value);
         }
 
         /// <summary>
@@ -973,6 +966,7 @@ TwitchNet.Utilities
         public static bool
         TryGetName(Type type, object value, out string result)
         {
+            type = type.GetTrueType();
             if (type.IsNull() || !type.IsEnum)
             {
                 result = null;
@@ -981,9 +975,8 @@ TwitchNet.Utilities
             }
 
             EnumTypeCache cache = GetOrAddCache(type);
-            bool success = cache.TryGetName(value, out result);
 
-            return success;
+            return cache.TryGetName(value, out result);
         }
 
         /// <summary>
@@ -995,9 +988,6 @@ TwitchNet.Utilities
         /// </typeparam>
         /// <param name="value">The bitfield enum value to get the names of.</param>
         /// <returns>Returns the names of the individual flags that are set in the specified bitfield enum value</returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if the specified value is null.
-        /// </exception>
         /// <exception cref="ArgumentException">
         /// Thrown if the type is not an enum.
         /// Thrown if no names or values exist in the enum.
@@ -1032,10 +1022,10 @@ TwitchNet.Utilities
         public static string[]
         GetFlagNames(Type type, object value)
         {
+            type = type.GetTrueType();
             EnumTypeCache cache = GetOrAddCache(type);
-            string[] result = cache.GetFlagNames(value);
 
-            return result;
+            return cache.GetFlagNames(value);
         }
 
         /// <summary>
@@ -1077,6 +1067,7 @@ TwitchNet.Utilities
         public static bool
         TryGetFlagNames(Type type, object value, out string[] result)
         {
+            type = type.GetTrueType();
             if (type.IsNull() || !type.IsEnum || !type.HasAttribute<FlagsAttribute>())
             {
                 result = new string[0];
@@ -1085,9 +1076,8 @@ TwitchNet.Utilities
             }
 
             EnumTypeCache cache = GetOrAddCache(type);
-            bool success = cache.TryGetFlagNames(value, out result);
 
-            return success;
+            return cache.TryGetFlagNames(value, out result);
         }
 
         /// <summary>
@@ -1099,10 +1089,7 @@ TwitchNet.Utilities
         /// </typeparam>
         /// <param name="value">The bitfield enum value to get the names of.</param>
         /// <returns>The values of the individual flags that are set in the specified bitfield enum value.</returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if the type is null.
-        /// Thrown if the specified value is null.
-        /// </exception>
+        /// <exception cref="ArgumentNullException">Thrown if the specified value is null.</exception>
         /// <exception cref="ArgumentException">
         /// Thrown if the type is not an enum.
         /// Thrown if no names or values exist in the enum.
@@ -1145,10 +1132,10 @@ TwitchNet.Utilities
         public static object[]
         GetFlagValues(Type type, object value)
         {
+            type = type.GetTrueType();
             EnumTypeCache cache = GetOrAddCache(type);
-            object[] result = cache.GetFlagValues(value);
 
-            return result;
+            return cache.GetFlagValues(value);
         }
 
         /// <summary>
@@ -1159,13 +1146,17 @@ TwitchNet.Utilities
         /// Restricted to a struct.
         /// </typeparam>
         /// <param name="value">The bitfield enum value to get the names of.</param>
-        /// <param name="result">The values of the individual flags that are set in the specified bitfield enum value.</param>
+        /// <param name="result">
+        /// Set to the values of the individual flags that are set in the specified bitfield enum value, if successful.
+        /// Set to an empty array otherwise.
+        /// </param>
         /// <returns>
         /// Returns true if all set flags could be found and were resolved into values.
         /// Returns false otherwise.
         /// </returns>
         public static bool
         TryGetFlagValues<enum_type>(object value, out enum_type[] result)
+        where enum_type : struct
         {
             bool success = TryGetFlagValues(typeof(enum_type), value, out object[] _result);
 
@@ -1191,6 +1182,7 @@ TwitchNet.Utilities
         public static bool
         TryGetFlagValues(Type type, object value, out object[] result)
         {
+            type = type.GetTrueType();
             if (type.IsNull() || !type.IsEnum || !type.HasAttribute<FlagsAttribute>())
             {
                 result = new object[0];
@@ -1199,9 +1191,8 @@ TwitchNet.Utilities
             }
 
             EnumTypeCache cache = GetOrAddCache(type);
-            bool success = cache.TryGetFlagValues(value, out result);
 
-            return success;
+            return cache.TryGetFlagValues(value, out result);
         }
 
         /// <summary>
@@ -1217,9 +1208,7 @@ TwitchNet.Utilities
         /// <para>This can either be the resolved or native (unresolved) name.</para>
         /// </param>        
         /// <returns>Returns the equivalent constant enum value of its string representation.</returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if the specified value is null.
-        /// </exception>
+        /// <exception cref="ArgumentNullException">Thrown if the specified value is null.</exception>
         /// <exception cref="ArgumentException">
         /// Thrown if the type is not an enum.
         /// Thrown if no names or values exist in the enum.
@@ -1273,9 +1262,7 @@ TwitchNet.Utilities
         /// </param>
         /// <param name="ignore_case">Whether or not to ignore case when parsing.</param>
         /// <returns>Returns the equivalent constant enum value of its string representation.</returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if the specified value is null.
-        /// </exception>
+        /// <exception cref="ArgumentNullException">Thrown if the specified value is null.</exception>
         /// <exception cref="ArgumentException">
         /// Thrown if the type is not an enum.
         /// Thrown if no names or values exist in the enum.
@@ -1313,10 +1300,10 @@ TwitchNet.Utilities
         public static object
         Parse(Type type, string value, bool ignore_case)
         {
+            type = type.GetTrueType();
             EnumTypeCache cache = GetOrAddCache(type);
-            object result = cache.Parse(value, ignore_case);
 
-            return result;
+            return cache.Parse(value, ignore_case);
         }
 
         /// <summary>
@@ -1428,17 +1415,17 @@ TwitchNet.Utilities
         public static bool
         TryParse(Type type, string value, bool ignore_case, out object result)
         {
-            if(type.IsNull() || !type.IsEnum)
+            type = type.GetTrueType();
+            if (type.IsNull() || !type.IsEnum)
             {
-                result = null;
+                result = type.GetDefaultValue();
 
                 return false;
             }
 
             EnumTypeCache cache = GetOrAddCache(type);
-            bool success = cache.TryParse(value, ignore_case, out result);
 
-            return success;
+            return cache.TryParse(value, ignore_case, out result);
         }
 
         /// <summary>
@@ -1450,10 +1437,7 @@ TwitchNet.Utilities
         /// Restricted to a struct.
         /// </typeparam>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="type"/> is null when creating a cache.</exception>
-        /// <exception cref="ArgumentException">
-        /// Thrown if the <typeparamref name="enum_type"/> is not an enum when creating a cache.
-        /// </exception>
+        /// <exception cref="ArgumentException">Thrown if the <typeparamref name="enum_type"/> is not an enum.</exception>
         public static EnumTypeCache
         GetOrAddCache<enum_type>()
         where enum_type : struct
@@ -1469,10 +1453,8 @@ TwitchNet.Utilities
         /// </summary>
         /// <param name="type">The enum's type.</param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="type"/> is null when creating a cache.</exception>
-        /// <exception cref="ArgumentException">
-        /// Thrown if the <paramref name="type"/> is not an enum when creating a cache.
-        /// </exception>
+        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="type"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if the <paramref name="type"/> is not an enum.</exception>
         public static EnumTypeCache
         GetOrAddCache(Type type)
         {

@@ -107,7 +107,7 @@ TwitchNet.Rest.Api.Streams
         /// Português - Brasil (Portuguese - Brazil)
         /// </summary>
         [EnumMember(Value = "pt-br")]
-        PtBr   = 1 << 13,
+        PtBr   = 1 << 13,        
 
         /// <summary>
         /// Slovenčina (Slovak)
@@ -198,5 +198,11 @@ TwitchNet.Rest.Api.Streams
         /// </summary>
         [EnumMember(Value = "ko")]
         Ko      = 1 << 28,
+
+        /// <summary>
+        /// Română (Romanian)
+        /// </summary>
+        [EnumMember(Value = "ro")]
+        Ro      = 1 << 29
     }
 }

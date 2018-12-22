@@ -19,10 +19,16 @@ TwitchNet.Rest.Api.Videos
         public string               id              { get; protected set; }
 
         /// <summary>
-        /// The id of the user.
+        /// The id of the user who owns the video.
         /// </summary>
         [JsonProperty("user_id")]
         public string               user_id         { get; protected set; }
+
+        /// <summary>
+        /// The login name of the user who owns the video.
+        /// </summary>
+        [JsonProperty("user_name")]
+        public string user_name { get; protected set; }
 
         /// <summary>
         /// The title of the video.
@@ -62,7 +68,7 @@ TwitchNet.Rest.Api.Videos
         public string               thumbnail_url   { get; protected set; }
 
         /// <summary>
-        /// The vieable state of the video.
+        /// The viewable state of the video.
         /// </summary>
         [JsonProperty("viewable")]
         public string               viewable        { get; protected set; }

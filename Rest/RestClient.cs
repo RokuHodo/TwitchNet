@@ -271,10 +271,6 @@ namespace TwitchNet.Rest
                 {
                     case StatusHandling.Error:
                     {
-                        // NOTE: Throwing here causes issues down the pipeline for deserializing the content into HelixError.
-                        //       Overriding isn't an option because TwitchAPI uses RestClient as a member and doesn't inherit the class.
-                        //       The handler can't be manually set because of the use of generics.
-                        // TODO: Pass the custom handler with each execution call from outside the RestClient?
                         throw response.exception;
                     };
 

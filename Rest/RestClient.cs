@@ -208,14 +208,22 @@ namespace TwitchNet.Rest
             return response;
         }
 
-        // TODO: Move inside of TwitchApi.Internal since this is specific only to that API?
         public async Task<RestResponse<result_type>>
         TraceExecuteAsync<data_type, result_type>(RestRequest request, Func<RestResponse<result_type>, Task<RestResponse<result_type>>> CustomResponseHandler = default)
+        where result_type : DataPage<data_type>, IDataPage<data_type>
+        {
+            return await TraceExecuteAsync<data_type, result_type>(request, "after", CustomResponseHandler);
+        }
+
+        // TODO: Move inside of TwitchApi.Internal since this is specific only to that API?
+        public async Task<RestResponse<result_type>>
+        TraceExecuteAsync<data_type, result_type>(RestRequest request, string direction, Func<RestResponse<result_type>, Task<RestResponse<result_type>>> CustomResponseHandler = default)
         where result_type : DataPage<data_type>, IDataPage<data_type>
         {
             RestResponse<result_type> response = new RestResponse<result_type>();
 
             List<data_type> data = new List<data_type>();
+            string last_valid_cursor = string.Empty;
 
             bool requesting = true;
             do
@@ -236,19 +244,38 @@ namespace TwitchNet.Rest
                     data.AddRange(page.data.data);
                 }
 
-                requesting = page.data.data.IsValid() && page.data.pagination.cursor.IsValid() && page.exception.IsNull();
+                if (page.data.pagination.cursor.IsValid())
+                {
+                    last_valid_cursor = page.data.pagination.cursor;
+                }
+
+                //string encoded = last_valid_cursor;
+                //int mod = encoded.Length % 4;
+                //if(mod != 0)
+                //{
+                //    encoded += new string('=', 4 - mod);
+                //}
+
+                //byte[] bytes = Convert.FromBase64String(encoded);
+                //string decoded = Encoding.UTF8.GetString(bytes);
+
+                // TODO: Change how we detemrine whether or not we are done requesting. This works fine for 'after' but not 'before'. Decode the cursor, and check if b==null?
+                //       Not sure if this is the best practice since cursors are never meant to be decoded by the user and meant to be used as is.
+                //       Hard coding this could break because the cursor structure could change at any time since it is not documented by Twitch.
+                requesting = page.data.data.IsValid() && page.data.pagination.cursor.IsValid();
                 if (requesting)
                 {
                     // For some reason we need a new instance even though the changing the query parameters changes the URI.
                     // That doesn't change the instance?
                     request.CloneMessage();
-                    request.RemoveQueryParameter("after");
-                    request.AddQueryParameter("after", page.data.pagination.cursor);
+                    request.RemoveQueryParameter(direction);
+                    request.AddQueryParameter(direction, page.data.pagination.cursor);
                 }
                 else
                 {
                     response = page;
                     response.data.data = data;
+                    response.data.pagination.cursor = last_valid_cursor;
                 }
             }
             while (requesting);

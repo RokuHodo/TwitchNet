@@ -815,7 +815,7 @@ TwitchNet.Rest.Api
 
                     if (total_query_parameters > 100)
                     {
-                        response.SetInputError(new ArgumentException("A maximum of 100 total user logins and/or user IDs can be specified at one time.", nameof(parameters)), info.settings);
+                        response.SetInputError(new ArgumentException("A maximum of 100 total user logins and/or user ID's can be specified at one time.", nameof(parameters)), info.settings);
 
                         return response;
                     }
@@ -892,7 +892,6 @@ TwitchNet.Rest.Api
             {
                 HelixResponse<Data<User>> response = new HelixResponse<Data<User>>();
 
-                // TODO: Change MissingScopesException to handle 403 - Forbidden as well, e.g., "Missing user:edit scope"?
                 info.required_scopes = Scopes.UserEdit;
                 if (!ValidateAuthorizationParameters(info, response))
                 {
@@ -1666,6 +1665,15 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
+                if(parameters.after.IsValid() && parameters.before.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("Only one pagination direction can be specified. Only use either 'after' or 'before'."), info.settings);
+
+                    return response;
+                }
+
+                parameters.ids.RemoveInvalidAndDuplicateValues();
+
                 if (!parameters.ids.IsValid() && !parameters.user_id.IsValid() && !parameters.game_id.IsValid())
                 {
                     response.SetInputError(new ArgumentException("At least one video ID, one user ID, or one game ID must be provided."), info.settings);
@@ -1679,6 +1687,35 @@ TwitchNet.Rest.Api
                     response.SetInputError(new ArgumentException("Only one or more video ID's, one user ID, or one game ID can be provided."), info.settings);
 
                     return response;
+                }
+
+                if (parameters.ids.IsValid() && parameters.ids.Count > 100)
+                {
+                    response.SetInputError(new ArgumentException("A maximum of 100 video ID's can be specified at one time."), info.settings);
+
+                    return response;
+                }
+
+                if (!parameters.user_id.IsValid())
+                {
+                    parameters.user_id = null;
+                }
+
+                if (!parameters.game_id.IsValid())
+                {
+                    parameters.game_id = null;
+                }
+
+                // There's still a chance these are just white space or an empty string.
+                // Null them to make sure they aren't added to the request.
+                if (!parameters.after.IsValid())
+                {
+                    parameters.after = null;
+                }
+
+                if (!parameters.before.IsValid())
+                {
+                    parameters.before = null;
                 }
 
                 if (parameters.first.HasValue)
@@ -1715,6 +1752,15 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
+                if (parameters.after.IsValid() && parameters.before.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("Only one pagination direction can be specified. Only use either 'after' or 'before'."), info.settings);
+
+                    return response;
+                }
+
+                parameters.ids.RemoveInvalidAndDuplicateValues();
+
                 if (!parameters.ids.IsValid() && !parameters.user_id.IsValid() && !parameters.game_id.IsValid())
                 {
                     response.SetInputError(new ArgumentException("At least one video ID, one user ID, or one game ID must be provided."), info.settings);
@@ -1730,6 +1776,37 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
+                if(parameters.ids.IsValid() && parameters.ids.Count > 100)
+                {
+                    response.SetInputError(new ArgumentException("A maximum of 100 video ID's can be specified at one time."), info.settings);
+
+                    return response;
+                }
+
+                if (!parameters.user_id.IsValid())
+                {
+                    parameters.user_id = null;
+                }
+
+                if (!parameters.game_id.IsValid())
+                {
+                    parameters.game_id = null;
+                }
+
+                // There's still a chance these are just white space.
+                // Null them to make sure they aren't added to the request.
+                string direction = "after";
+                if (parameters.after.IsValid())
+                {
+                    direction = "after";
+                    parameters.before = null;
+                }
+                else if (parameters.before.IsValid())
+                {
+                    direction = "before";
+                    parameters.after = null;
+                }
+
                 if (parameters.first.HasValue)
                 {
                     parameters.first = parameters.first.Value.Clamp(1, 100);
@@ -1738,7 +1815,7 @@ TwitchNet.Rest.Api
                 RestRequest request = GetBaseRequest("videos", Method.GET, info);
                 request.AddParameters(parameters);
 
-                RestResponse<DataPage<Video>> _response = await CLIENT_HELIX.TraceExecuteAsync<Video, DataPage<Video>>(request, HandleResponse);
+                RestResponse<DataPage<Video>> _response = await CLIENT_HELIX.TraceExecuteAsync<Video, DataPage<Video>>(request, direction, HandleResponse);
                 response = new HelixResponse<DataPage<Video>>(_response);
 
                 return response;

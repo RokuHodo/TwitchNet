@@ -7,27 +7,31 @@ TwitchNet.Rest.Api.Users
     public class
     UsersParameters
     {
-        private List<string> _ids = new List<string>(100);
-        private List<string> _logins = new List<string>(100);
-
         /// <summary>
-        /// <para>A list of user id's names to get information about.</para>
+        /// <para>A list of user ID's to query.</para>
         /// <para>
-        /// Maximum: 100 id's.
-        /// If more than 100 id's are specified, only the first 100 will be added.
+        /// A maximum of 100 total elements can be specified between ids and logins.
+        /// All elements that are null, empty, or only contain whitespace are filtered out and all duplicate elements are removed before calclating the final count.
         /// </para>
         /// </summary>
         [QueryParameter("id", typeof(SeparateQueryConverter))]
-        public virtual List<string> ids     => _ids;
+        public virtual List<string> ids     { get; set; }
 
         /// <summary>
-        /// <para>A list of user login names to get information about.</para>
+        /// <para>A list of user login names to query.</para>
         /// <para>
-        /// Maximum: 100 logins.
-        /// If more than 100 logins are specified, only the first 100 will be added.
+        /// A maximum of 100 total elements can be specified between ids and logins.
+        /// All elements that are null, empty, or only contain whitespace are filtered out and all duplicate elements are removed before calclating the final count.
         /// </para>
         /// </summary>
         [QueryParameter("login", typeof(SeparateQueryConverter))]
-        public virtual List<string> logins  => _logins;
-}
+        public virtual List<string> logins  { get; set; }
+
+        public UsersParameters()
+        {
+            ids = new List<string>();
+
+            logins = new List<string>();
+        }
+    }
 }

@@ -2256,17 +2256,60 @@ TwitchNet.Rest.Api
 
             #region /videos
 
+            /// <summary>
+            /// Asynchronously gets information about specific videos, or a single page of videos.
+            /// </summary>
+            /// <param name="bearer_token">A user access OAuth token.</param>
+            /// <param name="parameters">A set of rest parameters to add to the request.</param>
+            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> containts the queried videos.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if the bearer token is null, empty, or contains only whitespace.
+            /// Thrown if both after and before parameters were specified.
+            /// Thrown if no video ID's were specified, and both game ID and user ID were null, empty, or contains only whitespace.
+            /// Thrown if any mutiple combination of video ID's, game ID, or user ID were specified.
+            /// Thrown if more than 100 video ID's were specified.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Video>>>
             GetVideosPageAsync(string bearer_token, VideosParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token   = bearer_token;
 
-                IHelixResponse<DataPage<Video>> videos = await Internal.GetVideosPageAsync(info, parameters, settings);
+                IHelixResponse<DataPage<Video>> videos = await Internal.GetVideosPageAsync(info, parameters);
 
                 return videos;
             }
 
+            /// <summary>
+            /// Asynchronously gets information about specific videos, or a single page of videos.
+            /// </summary>
+            /// <param name="bearer_token">A user access OAuth token.</param>
+            /// <param name="client_id">The application ID to identify the source of the request.</param>
+            /// <param name="parameters">A set of rest parameters to add to the request.</param>
+            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> containts the queried videos.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if both after and before parameters were specified.
+            /// Thrown if no video ID's were specified, and both game ID and user ID were null, empty, or contains only whitespace.
+            /// Thrown if any mutiple combination of video ID's, game ID, or user ID were specified.
+            /// Thrown if more than 100 video ID's were specified.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Video>>>
             GetVideosPageAsync(string bearer_token, string client_id, VideosParameters parameters, HelixRequestSettings settings = default)
             {
@@ -2274,22 +2317,65 @@ TwitchNet.Rest.Api
                 info.bearer_token   = bearer_token;
                 info.client_id      = client_id;
 
-                IHelixResponse<DataPage<Video>> videos = await Internal.GetVideosPageAsync(info, parameters, settings);
+                IHelixResponse<DataPage<Video>> videos = await Internal.GetVideosPageAsync(info, parameters);
 
                 return videos;
             }
 
+            /// <summary>
+            /// Asynchronously gets information about specific videos, or a complete list of videos.
+            /// </summary>
+            /// <param name="bearer_token">A user access OAuth token.</param>
+            /// <param name="parameters">A set of rest parameters to add to the request.</param>
+            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> containts the queried videos.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if the bearer token is null, empty, or contains only whitespace.
+            /// Thrown if both after and before parameters were specified.
+            /// Thrown if no video ID's were specified, and both game ID and user ID were null, empty, or contains only whitespace.
+            /// Thrown if any mutiple combination of video ID's, game ID, or user ID were specified.
+            /// Thrown if more than 100 video ID's were specified.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Video>>>
             GetVideosAsync(string bearer_token, VideosParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token   = bearer_token;
 
-                IHelixResponse<DataPage<Video>> videos = await Internal.GetVideosAsync(info, parameters, settings);
+                IHelixResponse<DataPage<Video>> videos = await Internal.GetVideosAsync(info, parameters);
 
                 return videos;
             }
 
+            /// <summary>
+            /// Asynchronously gets information about specific videos, or a complete list of videos.
+            /// </summary>
+            /// <param name="bearer_token">A user access OAuth token.</param>
+            /// <param name="client_id">The application ID to identify the source of the request.</param>
+            /// <param name="parameters">A set of rest parameters to add to the request.</param>
+            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> containts the queried videos.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if both after and before parameters were specified.
+            /// Thrown if no video ID's were specified, and both game ID and user ID were null, empty, or contains only whitespace.
+            /// Thrown if any mutiple combination of video ID's, game ID, or user ID were specified.
+            /// Thrown if more than 100 video ID's were specified.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Video>>>
             GetVideosAsync(string bearer_token, string client_id, VideosParameters parameters, HelixRequestSettings settings = default)
             {
@@ -2297,7 +2383,7 @@ TwitchNet.Rest.Api
                 info.bearer_token   = bearer_token;
                 info.client_id      = client_id;
 
-                IHelixResponse<DataPage<Video>> videos = await Internal.GetVideosAsync(info, parameters, settings);
+                IHelixResponse<DataPage<Video>> videos = await Internal.GetVideosAsync(info, parameters);
 
                 return videos;
             }

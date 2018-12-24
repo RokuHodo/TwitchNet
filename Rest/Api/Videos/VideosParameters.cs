@@ -1,17 +1,12 @@
 ﻿// standard namespaces
 using System.Collections.Generic;
 
-// project namespaces
-using TwitchNet.Helpers;
-
 namespace
 TwitchNet.Rest.Api.Videos
 {
     public class
     VideosParameters : PagingParameters, IPagingParameters
     {
-        private ClampedList<string> _ids = new ClampedList<string>();
-
         /// <summary>
         /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
         /// </summary>
@@ -34,27 +29,16 @@ TwitchNet.Rest.Api.Videos
 
         /// <summary>
         /// <para>
-        /// A list of video ID's.
-        /// Only one or more video ID, one user ID, or one game ID can be provided with each request.
-        /// No other query parameters may be provided if a video ID's are provided.
-        /// </para>        
-        /// <para>
-        /// Maximum: 100 id's.
-        /// If more than 100 id's are specified, only the first 100 will be added.
+        /// A list of video ID's, up to 100.
+        /// All elements that are null, empty, or only contain whitespace are filtered out and all duplicate elements are removed before calclating the final count.
         /// </para>
+        /// <para>
+        /// Only one or more video ID, one user ID, or one game ID can be provided with each request.
+        /// No other query parameters may be provided if a video ID's are specified.
+        /// </para>        
         /// </summary>
         [QueryParameter("id", typeof(SeparateQueryConverter))]
-        public virtual List<string> ids
-        {
-            get
-            {
-                return _ids.values;
-            }
-            set
-            {
-                _ids.values = value;
-            }
-        }
+        public virtual List<string>         ids         { get; set; }
 
         /// <summary>
         /// The language of the video.
@@ -80,5 +64,10 @@ TwitchNet.Rest.Api.Videos
         /// </summary>
         [QueryParameter("type")]
         public virtual VideoType?           type        { get; set; }
+
+        public VideosParameters()
+        {
+            ids = new List<string>();
+        }
     }
 }

@@ -790,7 +790,7 @@ TwitchNet.Rest.Api
             /// <exception cref="ArgumentException">
             /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
             /// Thrown if all specified user logins and user ID's are null, empty, or only contains whitespace when no valid bearer token is specified.
-            /// Thrown if more than 100 total user logins and/or user IDs are specified.
+            /// Thrown if more than 100 total user logins and/or user IDs were specified.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -983,9 +983,7 @@ TwitchNet.Rest.Api
             /// <para>Required scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
             /// </summary>
             /// <param name="info">The information used to authorize and/or authenticate the request.</param>
-            /// <param name="parameters">
-            /// <para>A set of rest parameters specific to this request.</para>
-            /// <para>
+            /// <param name="parameters">A set of rest parameters specific to this request.<para>
             /// Any extensions specified outside of the valid extension slots for each type are ignored.
             /// The valid extension slots for each type are specified under each <see cref="ActiveExtensionsData"/> member.
             /// The (x, y) corrdinates are applicable only to component extensions.
@@ -1646,10 +1644,27 @@ TwitchNet.Rest.Api
             #region /videos
 
             /// <summary>
-            /// Asynchronously gets information on one or more videos.
+            /// Asynchronously gets information about specific videos, or a single page of videos.
             /// </summary>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="parameters">A set of rest parameters to add to the request.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> containts the queried videos.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if both after and before parameters were specified.
+            /// Thrown if no video ID's were specified, and both game ID and user ID were null, empty, or contains only whitespace.
+            /// Thrown if any mutiple combination of video ID's, game ID, or user ID were specified.
+            /// Thrown if more than 100 video ID's were specified.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Video>>>
-            GetVideosPageAsync(HelixInfo info, VideosParameters parameters, RequestSettings settings)
+            GetVideosPageAsync(HelixInfo info, VideosParameters parameters)
             {
                 HelixResponse<DataPage<Video>> response = new HelixResponse<DataPage<Video>>();
 
@@ -1733,10 +1748,27 @@ TwitchNet.Rest.Api
             }
 
             /// <summary>
-            /// Asynchronously gets a complete list of information on one or more videos.
+            /// Asynchronously gets information about specific videos, or a complete list of videos.
             /// </summary>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="parameters">A set of rest parameters to add to the request.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> containts the queried videos.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if both after and before parameters were specified.
+            /// Thrown if no video ID's were specified, and both game ID and user ID were null, empty, or contains only whitespace.
+            /// Thrown if any mutiple combination of video ID's, game ID, or user ID were specified.
+            /// Thrown if more than 100 video ID's were specified.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Video>>>
-            GetVideosAsync(HelixInfo info, VideosParameters parameters, RequestSettings settings)
+            GetVideosAsync(HelixInfo info, VideosParameters parameters)
             {
                 HelixResponse<DataPage<Video>> response = new HelixResponse<DataPage<Video>>();
 
@@ -1792,6 +1824,8 @@ TwitchNet.Rest.Api
                 {
                     parameters.game_id = null;
                 }
+
+                // TODO: Disallow 'before' until it works properly?
 
                 // There's still a chance these are just white space.
                 // Null them to make sure they aren't added to the request.

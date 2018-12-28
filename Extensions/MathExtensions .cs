@@ -140,6 +140,37 @@ TwitchNet.Extensions
         }
 
         /// <summary>
+        /// Clamps a nullable <see cref="int"/> value between a minimum and maximum.
+        /// </summary>
+        /// <param name="value">The value to be clamped.</param>
+        /// <param name="minimum">The smallest allowable value.</param>
+        /// <param name="maximum">The largest allowable value.</param>
+        /// <returns>
+        /// Returns the minimum value when the original value is less than the maximum.
+        /// Returns the maximum value when the original value is greater than the maximum.
+        /// Returns the original value otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the maximum value is less than the minimum.</exception>
+        public static int?
+        Clamp(this int? value, int minimum, int maximum)
+        {
+            if (!value.HasValue)
+            {
+                return value;
+            }
+
+            if (maximum.IsLessThan(minimum))
+            {
+                throw new ArgumentOutOfRangeException(nameof(maximum), maximum, nameof(maximum) + " must be greater than or equal to the " + nameof(minimum));
+            }
+
+            value = value.Value.ClampMin(minimum);
+            value = value.Value.ClampMax(maximum);
+
+            return value;
+        }
+
+        /// <summary>
         /// Clamps a comparable value between a minimum and maximum.
         /// </summary>
         /// <typeparam name="type">The value's implicit type.</typeparam>

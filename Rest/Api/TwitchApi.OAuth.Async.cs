@@ -475,201 +475,142 @@ TwitchNet.Rest.Api
             }
 
             #endregion
+            */
 
+            // TODO: Test /games
             #region /games
 
-            /// <summary>
-            /// Asynchronously gets information about a list of games.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-            /// <param name="parameters">A set of rest parameters to customize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
             public static async Task<IHelixResponse<Data<Game>>>
-            GetGamesAsync(string bearer_token, GamesParameters parameters, RequestSettings settings = default(RequestSettings))
+            GetGamesAsync(string bearer_token, GamesParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token   = bearer_token;
 
-                IHelixResponse<Data<Game>> games = await TwitchApiInternal.GetGamesAsync(request_info, parameters, settings);
+                IHelixResponse<Data<Game>> response = await Internal.GetGamesAsync(info, parameters);
 
-                return games;
+                return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets information about a list of games.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-            /// <param name="client_id">The Client ID to identify the application making the request.</param>
-            /// <param name="parameters">A set of rest parameters to customize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
             public static async Task<IHelixResponse<Data<Game>>>
-            GetGamesAsync(string bearer_token, string client_id, GamesParameters parameters, RequestSettings settings = default(RequestSettings))
+            GetGamesAsync(string bearer_token, string client_id, GamesParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
-                request_info.client_id      = client_id;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token   = bearer_token;
+                info.client_id      = client_id;
 
-                IHelixResponse<Data<Game>> games = await TwitchApiInternal.GetGamesAsync(request_info, parameters, settings);
+                IHelixResponse<Data<Game>> response = await Internal.GetGamesAsync(info, parameters);
 
-                return games;
+                return response;
             }
 
             #endregion
 
+            // TODO: Test /games/top
             #region /games/top
 
-            /// <summary>
-            /// Asynchronously gets a single page of top games, most popular first.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
             public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesPageAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
+            GetTopGamesPageAsync(string bearer_token, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token   = bearer_token;
 
-                IHelixResponse<DataPage<Game>> top_games = await TwitchApiInternal.GetTopGamesPageAsync(request_info, default(TopGamesParameters), settings);
+                TopGamesParameters parameters = new TopGamesParameters();
+
+                IHelixResponse<DataPage<Game>> response = await Internal.GetTopGamesPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<Game>>>
+            GetTopGamesPageAsync(string bearer_token, TopGamesParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token   = bearer_token;
+
+                IHelixResponse<DataPage<Game>> response = await Internal.GetTopGamesPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<Game>>>
+            GetTopGamesPageAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token   = bearer_token;
+                info.client_id      = client_id;
+
+                TopGamesParameters parameters = new TopGamesParameters();
+
+                IHelixResponse<DataPage<Game>> response = await Internal.GetTopGamesPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<Game>>>
+            GetTopGamesPageAsync(string bearer_token, string client_id, TopGamesParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token   = bearer_token;
+                info.client_id      = client_id;
+
+                IHelixResponse<DataPage<Game>> top_games = await Internal.GetTopGamesPageAsync(info, parameters);
 
                 return top_games;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of top games, most popular first.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-            /// <param name="parameters">A set of rest parameters to customize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
             public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesPageAsync(string bearer_token, TopGamesParameters parameters, RequestSettings settings = default(RequestSettings))
+            GetTopGamesAsync(string bearer_token, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
+                HelixInfo request_info = new HelixInfo(settings);
                 request_info.bearer_token   = bearer_token;
 
-                IHelixResponse<DataPage<Game>> top_games = await TwitchApiInternal.GetTopGamesPageAsync(request_info, parameters, settings);
+                TopGamesParameters parameters = new TopGamesParameters();
 
-                return top_games;
+                IHelixResponse<DataPage<Game>> response = await Internal.GetTopGamesAsync(request_info, parameters);
+
+                return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of top games, most popular first.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-            /// <param name="client_id">The Client ID to identify the application making the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
             public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesPageAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
+            GetTopGamesAsync(string bearer_token, TopGamesParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token   = bearer_token;
+
+                IHelixResponse<DataPage<Game>> response = await Internal.GetTopGamesAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<Game>>>
+            GetTopGamesAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token   = bearer_token;
+                info.client_id      = client_id;
+
+                TopGamesParameters parameters = new TopGamesParameters();
+
+                IHelixResponse<DataPage<Game>> response = await Internal.GetTopGamesAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<Game>>>
+            GetTopGamesAsync(string bearer_token, string client_id, TopGamesParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo request_info = new HelixInfo(settings);
                 request_info.bearer_token   = bearer_token;
                 request_info.client_id      = client_id;
 
-                IHelixResponse<DataPage<Game>> top_games = await TwitchApiInternal.GetTopGamesPageAsync(request_info, default(TopGamesParameters), settings);
+                IHelixResponse<DataPage<Game>> response = await Internal.GetTopGamesAsync(request_info, parameters);
 
-                return top_games;
-            }
-
-            /// <summary>
-            /// Asynchronously gets a single page of top games, most popular first.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-            /// <param name="client_id">The Client ID to identify the application making the request.</param>
-            /// <param name="parameters">A set of rest parameters to customize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-            public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesPageAsync(string bearer_token, string client_id, TopGamesParameters parameters, RequestSettings settings = default(RequestSettings))
-            {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
-                request_info.client_id      = client_id;
-
-                IHelixResponse<DataPage<Game>> top_games = await TwitchApiInternal.GetTopGamesPageAsync(request_info, parameters, settings);
-
-                return top_games;
-            }
-
-            /// <summary>
-            /// Asynchronously gets a complete list of top games, most popular first.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-            public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
-            {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
-
-                IHelixResponse<DataPage<Game>> top_games = await TwitchApiInternal.GetTopGamesAsync(request_info, default(TopGamesParameters), settings);
-
-                return top_games;
-            }
-
-            /// <summary>
-            /// Asynchronously gets a complete list of top games, most popular first.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-            /// <param name="parameters">A set of rest parameters to customize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-            public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesAsync(string bearer_token, TopGamesParameters parameters, RequestSettings settings = default(RequestSettings))
-            {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
-
-                IHelixResponse<DataPage<Game>> top_games = await TwitchApiInternal.GetTopGamesAsync(request_info, parameters, settings);
-
-                return top_games;
-            }
-
-            /// <summary>
-            /// Asynchronously gets a complete list of top games, most popular first.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-            /// <param name="client_id">The Client ID to identify the application making the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-            public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
-            {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
-                request_info.client_id      = client_id;
-
-                IHelixResponse<DataPage<Game>> top_games = await TwitchApiInternal.GetTopGamesAsync(request_info, default(TopGamesParameters), settings);
-
-                return top_games;
-            }
-
-            /// <summary>
-            /// Asynchronously gets a complete list of top games, most popular first.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token used to determine whose description to update and authorize the request.</param>
-            /// <param name="client_id">The Client ID to identify the application making the request.</param>
-            /// <param name="parameters">A set of rest parameters to customize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-            public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesAsync(string bearer_token, string client_id, TopGamesParameters parameters, RequestSettings settings = default(RequestSettings))
-            {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
-                request_info.client_id      = client_id;
-
-                IHelixResponse<DataPage<Game>> top_games = await TwitchApiInternal.GetTopGamesAsync(request_info, parameters, settings);
-
-                return top_games;
+                return response;
             }
 
             #endregion
 
+            /*
             #region /streams
 
             /// <summary>
@@ -1011,7 +952,8 @@ TwitchNet.Rest.Api
             }
 
             #endregion
-                */
+            */
+
             #region /users
 
             /// <summary>
@@ -2283,9 +2225,9 @@ TwitchNet.Rest.Api
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token   = bearer_token;
 
-                IHelixResponse<DataPage<Video>> videos = await Internal.GetVideosPageAsync(info, parameters);
+                IHelixResponse<DataPage<Video>> response = await Internal.GetVideosPageAsync(info, parameters);
 
-                return videos;
+                return response;
             }
 
             /// <summary>
@@ -2317,9 +2259,9 @@ TwitchNet.Rest.Api
                 info.bearer_token   = bearer_token;
                 info.client_id      = client_id;
 
-                IHelixResponse<DataPage<Video>> videos = await Internal.GetVideosPageAsync(info, parameters);
+                IHelixResponse<DataPage<Video>> response = await Internal.GetVideosPageAsync(info, parameters);
 
-                return videos;
+                return response;
             }
 
             /// <summary>
@@ -2349,9 +2291,9 @@ TwitchNet.Rest.Api
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token   = bearer_token;
 
-                IHelixResponse<DataPage<Video>> videos = await Internal.GetVideosAsync(info, parameters);
+                IHelixResponse<DataPage<Video>> response = await Internal.GetVideosAsync(info, parameters);
 
-                return videos;
+                return response;
             }
 
             /// <summary>
@@ -2383,9 +2325,9 @@ TwitchNet.Rest.Api
                 info.bearer_token   = bearer_token;
                 info.client_id      = client_id;
 
-                IHelixResponse<DataPage<Video>> videos = await Internal.GetVideosAsync(info, parameters);
+                IHelixResponse<DataPage<Video>> response = await Internal.GetVideosAsync(info, parameters);
 
-                return videos;
+                return response;
             }
 
             #endregion

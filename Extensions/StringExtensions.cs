@@ -328,6 +328,20 @@ TwitchNet.Extensions
 
         }
 
+        /// <summary>
+        /// Nulls the string if it is invalid.
+        /// </summary>
+        /// <param name="str">The string to potentially null.</param>
+        /// <returns>
+        /// Returns the string if it is valid.
+        /// Returns null otherwise.
+        /// </returns>
+        public static string
+        NullIfInvalid(this string str)
+        {
+            return str.IsValid() ? str : null;
+        }
+
         #endregion
     }
 }

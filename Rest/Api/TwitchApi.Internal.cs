@@ -28,6 +28,8 @@ TwitchNet.Rest.Api
         {
             internal static readonly RestClient CLIENT_HELIX = GetHelixClient();
 
+            #region Helpers
+
             internal static RestClient
             GetHelixClient()
             {
@@ -208,11 +210,11 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            #region To Reimplement
+            #endregion
 
-            /*
+            // TODO: Reimplement /analytics/extensions
             #region /analytics/extensions
-
+            /*
             /// <summary>
             /// <para>Asynchronously gets analytic urls for one or more devloper extensions.</para>
             /// <para>Required Scope: <see cref="Scopes.AnalyticsReadExtensions"/>.</para>
@@ -239,11 +241,12 @@ TwitchNet.Rest.Api
 
                 return response;
             }
-
+            */
             #endregion
 
+            // TODO: Reimplement /analytics/games
             #region /analytics/games
-
+            /*
             /// <summary>
             /// <para>Asynchronously gets a single page of analytic urls for one or more devloper games.</para>
             /// <para>Required Scope: <see cref="Scopes.AnalyticsReadGames"/>.</para>
@@ -322,11 +325,12 @@ TwitchNet.Rest.Api
 
                 return response;
             }
-
+            */
             #endregion
 
-            #region bits/leaderboard
-
+            // TODO: Reimplement /bits/leaderboard
+            #region /bits/leaderboard
+            /*
             /// <summary>
             /// <para>Asynchronously gets a ranked list of bits leaderboard information for an authorized broadcaster.</para>
             /// <para>Required Scope: <see cref="Scopes.BitsRead"/>.</para>
@@ -358,11 +362,12 @@ TwitchNet.Rest.Api
 
                 return response;
             }
-
+            */
             #endregion
 
+            // TODO: Reimplement /clips
             #region /clips
-
+            /*
             /// <summary>
             /// <para>Asynchronously creates a clip.</para>
             /// <para>Required Scope: <see cref="Scopes.ClipsEdit"/>.</para>
@@ -450,11 +455,14 @@ TwitchNet.Rest.Api
 
                 return response;
             }
-
+            */
             #endregion
 
-            #region /entitlements/upload
+            // TODO: Implement /entitlements/codes
 
+            // TODO: Reimplement /entitlements/upload
+            #region /entitlements/upload
+            /*
             /// <summary>
             /// <para>Asynchronously creates a URL where you can upload a manifest file and notify users that they have an entitlement.</para>
             /// <para>Required Authorization: App Access Token.</para>
@@ -518,79 +526,106 @@ TwitchNet.Rest.Api
 
                 return response;
             }
-
+            */
             #endregion
 
+            // TODO: Implement /streams/markers
+
+            // TODO: Reimplement /games
             #region /games
 
             /// <summary>
             /// Asynchronously information about a list of games.
             /// </summary>
             public static async Task<IHelixResponse<Data<Game>>>
-            GetGamesAsync(RestInfo<Data<Game>> info, GamesParameters parameters)
+            GetGamesAsync(HelixInfo info, GamesParameters parameters)
             {
-                IHelixResponse<Data<Game>> response = default;
+                HelixResponse<Data<Game>> response = new HelixResponse<Data<Game>>();
+
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
 
                 if (parameters.IsNull())
                 {
-                    info.SetInputError(new ArgumentNullException(nameof(parameters)));
-
-                    response = new HelixResponse<Data<Game>>(info);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
 
                     return response;
                 }
+
+                parameters.ids.RemoveInvalidAndDuplicateValues();
+                parameters.names.RemoveInvalidAndDuplicateValues();
 
                 if (!parameters.ids.IsValid() && !parameters.names.IsValid())
                 {
-                    info.SetInputError(new ArgumentException("At least one game name or game ID must be provided."));
-
-                    response = new HelixResponse<Data<Game>>(info);
+                    response.SetInputError(new ArgumentException("At least one game name or game ID must be provided."), info.settings);
 
                     return response;
                 }
 
-                info = RestUtil.CreateHelixRequest("games", Method.GET, info);
-
-                if (info.exception_source != RestErrorSource.None)
+                if (parameters.ids.Count > 100)
                 {
-                    response = new HelixResponse<Data<Game>>(info);
+                    response.SetInputError(new ArgumentException("A maximum of 100 game ID's can be specified at one time.", nameof(parameters.ids)), info.settings);
 
                     return response;
                 }
 
-                info.request = info.request.AddPaging(parameters);
-                info = await RestUtil.ExecuteAsync(info);
+                if (parameters.names.Count > 100)
+                {
+                    response.SetInputError(new ArgumentException("A maximum of 100 game names can be specified at one time.", nameof(parameters.names)), info.settings);
 
-                response = new HelixResponse<Data<Game>>(info);
+                    return response;
+                }
+
+                RestRequest request = GetBaseRequest("games", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<Data<Game>> _response = await CLIENT_HELIX.ExecuteAsync<Data<Game>>(request, HandleResponse);
+                response = new HelixResponse<Data<Game>>(_response);
 
                 return response;
             }
 
             #endregion
 
-            #region /games/tpp
+            #region /games/top
 
             /// <summary>
             /// Asynchronously gets a single page of top games, most popular first.
             /// </summary>
             public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesPageAsync(RestInfo<DataPage<Game>> info, TopGamesParameters parameters)
+            GetTopGamesPageAsync(HelixInfo info, TopGamesParameters parameters)
             {
-                IHelixResponse<DataPage<Game>> response = default;
+                HelixResponse<DataPage<Game>> response = new HelixResponse<DataPage<Game>>();
 
-                info = RestUtil.CreateHelixRequest("games/top", Method.GET, info);
-
-                if (info.exception_source != RestErrorSource.None)
+                if (!ValidateAuthorizationParameters(info, response))
                 {
-                    response = new HelixResponse<DataPage<Game>>(info);
+                    return response;
+                }
+
+                // Safeguard against the user passing null.
+                if (parameters.IsNull())
+                {
+                    parameters = new TopGamesParameters();
+                }
+
+                if (parameters.after.IsValid() && parameters.before.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("Only one pagination direction can be specified. Only use either 'after' or 'before'."), info.settings);
 
                     return response;
                 }
 
-                info.request = info.request.AddPaging(parameters);
-                info = await RestUtil.ExecuteAsync(info);
+                parameters.first    = parameters.first.Clamp(1, 100);
+                parameters.after    = parameters.after.NullIfInvalid();
+                parameters.before   = parameters.before.NullIfInvalid();
 
-                response = new HelixResponse<DataPage<Game>>(info);
+                RestRequest request = GetBaseRequest("games/top", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<Game>> _response = await CLIENT_HELIX.ExecuteAsync<DataPage<Game>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<Game>>(_response);
 
                 return response;
             }
@@ -599,31 +634,49 @@ TwitchNet.Rest.Api
             /// Asynchronously gets a complete list of top games, most popular first.
             /// </summary>
             public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesAsync(RestInfo<DataPage<Game>> info, TopGamesParameters parameters)
+            GetTopGamesAsync(HelixInfo info, TopGamesParameters parameters)
             {
-                IHelixResponse<DataPage<Game>> response = default;
+                HelixResponse<DataPage<Game>> response = new HelixResponse<DataPage<Game>>();
 
-                info = RestUtil.CreateHelixRequest("games/top", Method.GET, info);
-
-                if (info.exception_source != RestErrorSource.None)
+                if (!ValidateAuthorizationParameters(info, response))
                 {
-                    response = new HelixResponse<DataPage<Game>>(info);
+                    return response;
+                }
+
+                // Safeguard against the user passing null.
+                if (parameters.IsNull())
+                {
+                    parameters = new TopGamesParameters();
+                }
+
+                if (parameters.after.IsValid() && parameters.before.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("Only one pagination direction can be specified. Only use either 'after' or 'before'."), info.settings);
 
                     return response;
                 }
 
-                info.request = info.request.AddPaging(parameters);
-                info = await RestUtil.TraceExecuteAsync<Game, DataPage<Game>>(info, parameters);
+                parameters.first    = parameters.first.Clamp(1, 100);
+                parameters.after    = parameters.after.NullIfInvalid();
+                parameters.before   = parameters.before.NullIfInvalid();
 
-                response = new HelixResponse<DataPage<Game>>(info);
+                // TODO: Disallow 'before' until it works properly?
+                string direction = parameters.before.IsValid() ? "before" : "after";
+
+                RestRequest request = GetBaseRequest("games/top", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<Game>> _response = await CLIENT_HELIX.TraceExecuteAsync<Game, DataPage<Game>>(request, direction, HandleResponse);
+                response = new HelixResponse<DataPage<Game>>(_response);
 
                 return response;
             }
 
             #endregion
 
+            // TODO: Reimplement /streams
             #region /streams
-
+            /*
             /// <summary>
             /// Asynchronously gets a single page of streams.
             /// </summary>
@@ -708,11 +761,14 @@ TwitchNet.Rest.Api
 
                 return is_live;
             }
-
+            */
             #endregion
 
-            #region /streams/metadata
+            // TODO: Implement /streams/markers
 
+            // TODO: Reimplement /streams/metadata
+            #region /streams/metadata
+            /*
             /// <summary>
             /// Asynchronously gets a single page of metadata about streams playing either Overwatch or Hearthstone.
             /// </summary>
@@ -762,10 +818,7 @@ TwitchNet.Rest.Api
 
                 return response;
             }
-
-            #endregion
-                */
-
+            */
             #endregion
 
             #region /users
@@ -1567,15 +1620,7 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                if (parameters.first == 0)
-                {
-                    parameters.first = 20;
-                }
-
-                if (parameters.first.HasValue)
-                {
-                    parameters.first = parameters.first.Value.Clamp(1, 100);
-                }
+                parameters.first = parameters.first.Clamp(1, 100);
 
                 RestRequest request = GetBaseRequest("users/follows", Method.GET, info);
                 request.AddParameters(parameters);
@@ -1625,10 +1670,7 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                if (parameters.first.HasValue)
-                {
-                    parameters.first = parameters.first.Value.Clamp(1, 100);
-                }
+                parameters.first = parameters.first.Clamp(1, 100);
 
                 RestRequest request = GetBaseRequest("users/follows", Method.GET, info);
                 request.AddParameters(parameters);
@@ -1711,32 +1753,11 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                if (!parameters.user_id.IsValid())
-                {
-                    parameters.user_id = null;
-                }
-
-                if (!parameters.game_id.IsValid())
-                {
-                    parameters.game_id = null;
-                }
-
-                // There's still a chance these are just white space or an empty string.
-                // Null them to make sure they aren't added to the request.
-                if (!parameters.after.IsValid())
-                {
-                    parameters.after = null;
-                }
-
-                if (!parameters.before.IsValid())
-                {
-                    parameters.before = null;
-                }
-
-                if (parameters.first.HasValue)
-                {
-                    parameters.first = parameters.first.Value.Clamp(1, 100);
-                }
+                parameters.first    = parameters.first.Clamp(1, 100);
+                parameters.after    = parameters.after.NullIfInvalid();
+                parameters.before   = parameters.before.NullIfInvalid();
+                parameters.game_id  = parameters.game_id.NullIfInvalid();
+                parameters.user_id  = parameters.user_id.NullIfInvalid();
 
                 RestRequest request = GetBaseRequest("videos", Method.GET, info);
                 request.AddParameters(parameters);
@@ -1815,36 +1836,14 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                if (!parameters.user_id.IsValid())
-                {
-                    parameters.user_id = null;
-                }
-
-                if (!parameters.game_id.IsValid())
-                {
-                    parameters.game_id = null;
-                }
+                parameters.first    = parameters.first.Clamp(1, 100);
+                parameters.after    = parameters.after.NullIfInvalid();
+                parameters.before   = parameters.before.NullIfInvalid();
+                parameters.game_id  = parameters.game_id.NullIfInvalid();
+                parameters.user_id  = parameters.user_id.NullIfInvalid();
 
                 // TODO: Disallow 'before' until it works properly?
-
-                // There's still a chance these are just white space.
-                // Null them to make sure they aren't added to the request.
-                string direction = "after";
-                if (parameters.after.IsValid())
-                {
-                    direction = "after";
-                    parameters.before = null;
-                }
-                else if (parameters.before.IsValid())
-                {
-                    direction = "before";
-                    parameters.after = null;
-                }
-
-                if (parameters.first.HasValue)
-                {
-                    parameters.first = parameters.first.Value.Clamp(1, 100);
-                }
+                string direction = parameters.before.IsValid() ? "before" : "after";
 
                 RestRequest request = GetBaseRequest("videos", Method.GET, info);
                 request.AddParameters(parameters);
@@ -1856,6 +1855,10 @@ TwitchNet.Rest.Api
             }
 
             #endregion
+
+            // TODO: Implement /webhook/hub
+
+            // TODO: Implement /webhook/subscriptions
         }
     }
 }

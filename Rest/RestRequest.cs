@@ -117,27 +117,28 @@ namespace TwitchNet.Rest
 
             UriBuilder builder = new UriBuilder(client_uri);
 
-            // ------------------
+            // ------------------------------------------
             // Append the endpoint (resource) to the URL
-            // ------------------
+            // ------------------------------------------
 
             if (endpoint.IsValid())
             {
                 builder.Path += '/' + endpoint;
             }
 
-            // ------------------
+            // ------------------------------------------
             // Append any query parameters to the URL
-            // ------------------
+            // ------------------------------------------
 
             if (query_parameters.IsValid())
             {
-                // No need to manually URL encode anything.
-                // UriBuilder.Uri will encode everything for us.            
+                // While UriBuilder.Uri will encode the URI for us, it does not encode the characters '&', '=', or '+' since they are URL delineators and must remain unencoded.
+                // There are certain instances where the name or value of a query parameter *might* include these. We must encode these corner cases before hand.
+                // If we don't encode these corner cases, the receiving parser will see these query parameters as invalid and fail to parse them correctly.
                 if (query_parameters.Count == 1)
                 {
                     string value = query_parameters[0].value.IsNull() ? string.Empty : query_parameters[0].value;
-                    builder.Query = query_parameters[0].name + "=" + value;
+                    builder.Query = EncodeSpecialCharacters(query_parameters[0].name) + "=" + EncodeSpecialCharacters(value);
                 }
                 else
                 {
@@ -147,7 +148,7 @@ namespace TwitchNet.Rest
                     {
                         string value = parameter.value.IsNull() ? string.Empty : parameter.value;
 
-                        concat.Add(parameter.name + "=" + value);
+                        concat.Add(EncodeSpecialCharacters(parameter.name) + "=" + EncodeSpecialCharacters(value));
                     }
 
                     builder.Query = string.Join("&", concat);
@@ -155,6 +156,12 @@ namespace TwitchNet.Rest
             }
 
             return builder.Uri;
+        }
+
+        private string EncodeSpecialCharacters(string str)
+        {
+            // TODO: This is incredibly hacky. Fine a more proper way to encode special characters.
+            return str.Replace("&", "%26").Replace("=", "%3D").Replace("+", "%2B");
         }
 
         public bool

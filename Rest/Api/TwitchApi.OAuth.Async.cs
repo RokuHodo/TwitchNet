@@ -477,9 +477,27 @@ TwitchNet.Rest.Api
             #endregion
             */
 
-            // TODO: Test /games
             #region /games
 
+            /// <summary>
+            /// Asynchronously gets the information about a list of games.
+            /// </summary>
+            /// <param name="bearer_token">A user access OAuth token.</param>
+            /// <param name="parameters">A set of rest parameters to add to the request.</param>
+            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the list of videos.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if the bearer token is null, empty, or contains only whitespace.
+            /// Thrown if all specified game name and game ID's are null, empty, or only contains whitespace.
+            /// Thrown if more than 100 total game names and/or game ID's were specified.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<Game>>>
             GetGamesAsync(string bearer_token, GamesParameters parameters, HelixRequestSettings settings = default)
             {
@@ -491,6 +509,26 @@ TwitchNet.Rest.Api
                 return response;
             }
 
+            /// <summary>
+            /// Asynchronously gets the information about a list of games.
+            /// </summary>
+            /// <param name="bearer_token">A user access OAuth token.</param>
+            /// <param name="client_id">The application ID to identify the source of the request.</param>
+            /// <param name="parameters">A set of rest parameters to add to the request.</param>
+            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the list of videos.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if all specified game name and game ID's are null, empty, or only contains whitespace.
+            /// Thrown if more than 100 total game names and/or game ID's were specified.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<Game>>>
             GetGamesAsync(string bearer_token, string client_id, GamesParameters parameters, HelixRequestSettings settings = default)
             {

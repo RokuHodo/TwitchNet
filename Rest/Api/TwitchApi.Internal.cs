@@ -531,12 +531,26 @@ TwitchNet.Rest.Api
 
             // TODO: Implement /streams/markers
 
-            // TODO: Reimplement /games
             #region /games
 
             /// <summary>
-            /// Asynchronously information about a list of games.
+            /// Asynchronously gets the information about a list of games.
             /// </summary>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="parameters">A set of rest parameters specific to this request.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the list of videos.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if all specified game name and game ID's are null, empty, or only contains whitespace.
+            /// Thrown if more than 100 total game names and/or game ID's were specified.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<Game>>>
             GetGamesAsync(HelixInfo info, GamesParameters parameters)
             {
@@ -564,23 +578,16 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                if (parameters.ids.Count > 100)
+                if (parameters.ids.Count + parameters.names.Count > 100)
                 {
-                    response.SetInputError(new ArgumentException("A maximum of 100 game ID's can be specified at one time.", nameof(parameters.ids)), info.settings);
-
-                    return response;
-                }
-
-                if (parameters.names.Count > 100)
-                {
-                    response.SetInputError(new ArgumentException("A maximum of 100 game names can be specified at one time.", nameof(parameters.names)), info.settings);
+                    response.SetInputError(new ArgumentException("A maximum of 100 total game ID's and/or names can be specified at one time.", nameof(parameters.ids)), info.settings);
 
                     return response;
                 }
 
                 RestRequest request = GetBaseRequest("games", Method.GET, info);
                 request.AddParameters(parameters);
-
+                
                 RestResponse<Data<Game>> _response = await CLIENT_HELIX.ExecuteAsync<Data<Game>>(request, HandleResponse);
                 response = new HelixResponse<Data<Game>>(_response);
 

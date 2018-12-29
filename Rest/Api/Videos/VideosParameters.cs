@@ -30,7 +30,7 @@ TwitchNet.Rest.Api.Videos
         /// <summary>
         /// <para>
         /// A list of video ID's, up to 100.
-        /// All elements that are null, empty, or only contain whitespace are filtered out and all duplicate elements are removed before calclating the final count.
+        /// All elements that are null, empty, or only contain whitespace are filtered out and all duplicate elements are removed before calculating the final count.
         /// </para>
         /// <para>
         /// Only one or more video ID, one user ID, or one game ID can be provided with each request.

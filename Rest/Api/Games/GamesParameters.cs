@@ -1,59 +1,37 @@
 ﻿// standard namespaces
 using System.Collections.Generic;
 
-// project namespaces
-using TwitchNet.Helpers;
-
 namespace
 TwitchNet.Rest.Api.Games
 {
     public class
     GamesParameters
     {
-        private ClampedList<string> _ids    = new ClampedList<string>();
-        private ClampedList<string> _names  = new ClampedList<string>();
-
         /// <summary>
-        /// <para>A list of game id's to get information about.</para>
+        /// <para>A list of game ID's to query.</para>
         /// <para>
-        /// Maximum: 100 id's.
-        /// If more than 100 id's are specified, only the first 100 will be added.
+        /// A maximum of 100 total elements can be specified between ids and names.
+        /// All elements that are null, empty, or only contain whitespace are filtered out and all duplicate elements are removed before calculating the final count.
         /// </para>
         /// </summary>
         [QueryParameter("id", typeof(SeparateQueryConverter))]
-        public virtual List<string> ids
-        {
-            get
-            {
-                return _ids.values;
-            }
-            set
-            {
-                _ids.values = value;
-            }
-        }
+        public virtual List<string> ids { get; set; }
 
         /// <summary>
+        /// <para>A list of game names to query.</para>
         /// <para>
-        /// A list of game names to get information about.
-        /// The game name must be an exact match and can not be used as a query search.
-        /// </para>
-        /// <para>
-        /// Maximum: 100 names.
-        /// If more than 100 names are specified, only the first 100 will be added.
+        /// A maximum of 100 total elements can be specified between ids and names.
+        /// All elements that are null, empty, or only contain whitespace are filtered out and all duplicate elements are removed before calculating the final count.
         /// </para>
         /// </summary>
         [QueryParameter("name", typeof(SeparateQueryConverter))]
-        public virtual List<string> names
+        public virtual List<string> names { get; set; }
+
+        public GamesParameters()
         {
-            get
-            {
-                return _names.values;
-            }
-            set
-            {
-                _names.values = value;
-            }
+            ids = new List<string>();
+
+            names  = new List<string>();
         }
     }
 }

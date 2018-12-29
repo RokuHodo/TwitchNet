@@ -601,6 +601,19 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a single page of top games, most popular first.
             /// </summary>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="parameters">A set of rest parameters specific to this request.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the single sorted page of top videos.
+            /// </returns>
+            /// <exception cref="ArgumentException">
+            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if both after and before parameters were specified.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Game>>>
             GetTopGamesPageAsync(HelixInfo info, TopGamesParameters parameters)
             {
@@ -631,6 +644,9 @@ TwitchNet.Rest.Api
                 RestRequest request = GetBaseRequest("games/top", Method.GET, info);
                 request.AddParameters(parameters);
 
+                // TODO: If a game is searched by its ID and name in the same request, duplicate values will be returned twitch. Manually return a distinct list instead?
+                //       However, if a game ID and/or name is included multiple times, the duplicate ID's and/or name's is ignored.
+                //       The latter is a non-issue since we manually remove duplicate ID's and names, but the first issue remains.
                 RestResponse<DataPage<Game>> _response = await CLIENT_HELIX.ExecuteAsync<DataPage<Game>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<Game>>(_response);
 
@@ -640,6 +656,19 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a complete list of top games, most popular first.
             /// </summary>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="parameters">A set of rest parameters specific to this request.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of top videos.
+            /// </returns>
+            /// <exception cref="ArgumentException">
+            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if both after and before parameters were specified.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Game>>>
             GetTopGamesAsync(HelixInfo info, TopGamesParameters parameters)
             {

@@ -186,16 +186,12 @@ namespace TwitchNet.Rest
             {
                 status_exception = new StatusException((int)_response.StatusCode + " - " + _response.ReasonPhrase, _response.StatusCode, _response.ReasonPhrase);                
             }
-            else if (content.IsValid())
+            else if (content.IsValid() && content_handlers.TryGetValue(_response.Content.Headers.ContentType.MediaType, out IDeserializer deserializer))
             {
-                if (content_handlers.TryGetValue(_response.Content.Headers.ContentType.MediaType, out IDeserializer deserializer))
-                {
-                    data = deserializer.Deserialize<data_type>(content);
-                }
+                data = deserializer.Deserialize<data_type>(content);
             }                
 
             response = new RestResponse<data_type>(request, _response, content, data, status_exception);
-
             if (!CustomResponseHandler.IsNull())
             {
                 response = await CustomResponseHandler(response);

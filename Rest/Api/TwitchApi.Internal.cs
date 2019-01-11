@@ -544,7 +544,7 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
             /// Thrown if all specified game name and game ID's are null, empty, or only contains whitespace.
             /// Thrown if more than 100 total game names and/or game ID's were specified.
             /// </exception>
@@ -608,7 +608,7 @@ TwitchNet.Rest.Api
             /// <see cref="IHelixResponse{result_type}.result"/> contains the single sorted page of top videos.
             /// </returns>
             /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
             /// Thrown if both after and before parameters were specified.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -624,22 +624,19 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                // Safeguard against the user passing null.
-                if (parameters.IsNull())
+                if (!parameters.IsNull())
                 {
-                    parameters = new TopGamesParameters();
-                }
+                    if (parameters.after.IsValid() && parameters.before.IsValid())
+                    {
+                        response.SetInputError(new ArgumentException("Only one pagination direction can be specified. Only use either 'after' or 'before'."), info.settings);
 
-                if (parameters.after.IsValid() && parameters.before.IsValid())
-                {
-                    response.SetInputError(new ArgumentException("Only one pagination direction can be specified. Only use either 'after' or 'before'."), info.settings);
+                        return response;
+                    }
 
-                    return response;
-                }
-
-                parameters.first    = parameters.first.Clamp(1, 100);
-                parameters.after    = parameters.after.NullIfInvalid();
-                parameters.before   = parameters.before.NullIfInvalid();
+                    parameters.first    = parameters.first.Clamp(1, 100);
+                    parameters.after    = parameters.after.NullIfInvalid();
+                    parameters.before   = parameters.before.NullIfInvalid();
+                }                
 
                 RestRequest request = GetBaseRequest("games/top", Method.GET, info);
                 request.AddParameters(parameters);
@@ -663,7 +660,7 @@ TwitchNet.Rest.Api
             /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of top videos.
             /// </returns>
             /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
             /// Thrown if both after and before parameters were specified.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -679,25 +676,26 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                // Safeguard against the user passing null.
-                if (parameters.IsNull())
+                string direction = "after";
+                if (!parameters.IsNull())
                 {
-                    parameters = new TopGamesParameters();
+                    if (parameters.after.IsValid() && parameters.before.IsValid())
+                    {
+                        response.SetInputError(new ArgumentException("Only one pagination direction can be specified. Only use either 'after' or 'before'."), info.settings);
+
+                        return response;
+                    }
+
+                    parameters.first    = parameters.first.Clamp(1, 100);
+                    parameters.after    = parameters.after.NullIfInvalid();
+                    parameters.before   = parameters.before.NullIfInvalid();
+
+                    // TODO: Disallow 'before' until it works properly?
+                    if (parameters.before.IsValid())
+                    {
+                        direction = "before";
+                    }
                 }
-
-                if (parameters.after.IsValid() && parameters.before.IsValid())
-                {
-                    response.SetInputError(new ArgumentException("Only one pagination direction can be specified. Only use either 'after' or 'before'."), info.settings);
-
-                    return response;
-                }
-
-                parameters.first    = parameters.first.Clamp(1, 100);
-                parameters.after    = parameters.after.NullIfInvalid();
-                parameters.before   = parameters.before.NullIfInvalid();
-
-                // TODO: Disallow 'before' until it works properly?
-                string direction = parameters.before.IsValid() ? "before" : "after";
 
                 RestRequest request = GetBaseRequest("games/top", Method.GET, info);
                 request.AddParameters(parameters);
@@ -710,30 +708,92 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            // TODO: Reimplement /streams
             #region /streams
-            /*
+
             /// <summary>
             /// Asynchronously gets a single page of streams.
             /// </summary>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="parameters">A set of rest parameters specific to this request.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of streams.
+            /// </returns>
+            /// <exception cref="ArgumentException">
+            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
+            /// Thrown if more than 100 total user ID's were specified.
+            /// Thrown if more than 100 total user logins were specified.
+            /// Thrown if more than 100 total game ID's were specified.
+            /// Thrown if more than 100 total community ID's were specified.
+            /// Thrown if both after and before parameters were specified.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Stream>>>
-            GetStreamsPageAsync(RestInfo<DataPage<Stream>> info, StreamsParameters parameters)
+            GetStreamsPageAsync(HelixInfo info, StreamsParameters parameters)
             {
-                IHelixResponse<DataPage<Stream>> response = default;
-
-                info = RestUtil.CreateHelixRequest("streams", Method.GET, info);
-
-                if (info.exception_source != RestErrorSource.None)
+                HelixResponse<DataPage<Stream>> response = new HelixResponse<DataPage<Stream>>();
+                if (!ValidateAuthorizationParameters(info, response))
                 {
-                    response = new HelixResponse<DataPage<Stream>>(info);
-
                     return response;
                 }
 
-                info.request = info.request.AddPaging(parameters);
-                info = await RestUtil.ExecuteAsync(info);
+                if (!parameters.IsNull())
+                {
+                    parameters.first = parameters.first.Clamp(1, 100);
 
-                response = new HelixResponse<DataPage<Stream>>(info);
+                    parameters.after = parameters.after.NullIfInvalid();
+                    parameters.before = parameters.before.NullIfInvalid();
+
+                    parameters.user_ids.RemoveInvalidAndDuplicateValues();
+                    parameters.user_logins.RemoveInvalidAndDuplicateValues();
+                    parameters.community_ids.RemoveInvalidAndDuplicateValues();
+                    parameters.game_ids.RemoveInvalidAndDuplicateValues();
+
+                    if (parameters.after.IsValid() && parameters.before.IsValid())
+                    {
+                        response.SetInputError(new ArgumentException("Only one pagination direction can be specified. Only use either 'after' or 'before'."), info.settings);
+
+                        return response;
+                    }
+
+                    if (parameters.user_ids.Count > 100)
+                    {
+                        response.SetInputError(new ArgumentException("A maximum of 100 user ID's can be specified at one time.", nameof(parameters.user_ids)), info.settings);
+
+                        return response;
+                    }
+
+                    if (parameters.user_logins.Count > 100)
+                    {
+                        response.SetInputError(new ArgumentException("A maximum of 100 user logins can be specified at one time.", nameof(parameters.user_logins)), info.settings);
+
+                        return response;
+                    }
+
+                    if (parameters.community_ids.Count > 100)
+                    {
+                        response.SetInputError(new ArgumentException("A maximum of 100 community ID's can be specified at one time.", nameof(parameters.community_ids)), info.settings);
+
+                        return response;
+                    }
+
+                    if (parameters.game_ids.Count > 100)
+                    {
+                        response.SetInputError(new ArgumentException("A maximum of 100 game ID's can be specified at one time.", nameof(parameters.game_ids)), info.settings);
+
+                        return response;
+                    }
+                }
+
+                RestRequest request = GetBaseRequest("streams", Method.GET, info);
+                request.AddParameters(parameters);
+
+                // TODO: Sanitize the data so that only one instance of each stream ID is returned.
+                //       Duplicate streams can be returned if a stream is queried by ID and login at the same time.
+                RestResponse<DataPage<Stream>> _response = await CLIENT_HELIX.ExecuteAsync<DataPage<Stream>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<Stream>>(_response);
 
                 return response;
             }
@@ -741,24 +801,87 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a complete list of streams.
             /// </summary>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="parameters">A set of rest parameters specific to this request.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of streams.
+            /// </returns>
+            /// <exception cref="ArgumentException">
+            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
+            /// Thrown if more than 100 total user ID's were specified.
+            /// Thrown if more than 100 total user logins were specified.
+            /// Thrown if more than 100 total game ID's were specified.
+            /// Thrown if more than 100 total community ID's were specified.
+            /// Thrown if both after and before parameters were specified.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Stream>>>
-            GetStreamsAsync(RestInfo<DataPage<Stream>> info, StreamsParameters parameters)
+            GetStreamsAsync(HelixInfo info, StreamsParameters parameters)
             {
-                IHelixResponse<DataPage<Stream>> response = default;
-
-                info = RestUtil.CreateHelixRequest("streams", Method.GET, info);
-
-                if (info.exception_source != RestErrorSource.None)
+                HelixResponse<DataPage<Stream>> response = new HelixResponse<DataPage<Stream>>();
+                if (!ValidateAuthorizationParameters(info, response))
                 {
-                    response = new HelixResponse<DataPage<Stream>>(info);
-
                     return response;
                 }
 
-                info.request = info.request.AddPaging(parameters);
-                info = await RestUtil.TraceExecuteAsync<Stream, DataPage<Stream>>(info, parameters);
+                if (!parameters.IsNull())
+                {
+                    parameters.first = parameters.first.Clamp(1, 100);
 
-                response = new HelixResponse<DataPage<Stream>>(info);
+                    parameters.after = parameters.after.NullIfInvalid();
+                    parameters.before = parameters.before.NullIfInvalid();
+
+                    parameters.user_ids.RemoveInvalidAndDuplicateValues();
+                    parameters.user_logins.RemoveInvalidAndDuplicateValues();
+                    parameters.community_ids.RemoveInvalidAndDuplicateValues();
+                    parameters.game_ids.RemoveInvalidAndDuplicateValues();
+
+                    if (parameters.after.IsValid() && parameters.before.IsValid())
+                    {
+                        response.SetInputError(new ArgumentException("Only one pagination direction can be specified. Only use either 'after' or 'before'."), info.settings);
+
+                        return response;
+                    }
+
+                    if (parameters.user_ids.Count > 100)
+                    {
+                        response.SetInputError(new ArgumentException("A maximum of 100 user ID's can be specified at one time.", nameof(parameters.user_ids)), info.settings);
+
+                        return response;
+                    }
+
+                    if (parameters.user_logins.Count > 100)
+                    {
+                        response.SetInputError(new ArgumentException("A maximum of 100 user logins can be specified at one time.", nameof(parameters.user_logins)), info.settings);
+
+                        return response;
+                    }
+
+                    if (parameters.community_ids.Count > 100)
+                    {
+                        response.SetInputError(new ArgumentException("A maximum of 100 community ID's can be specified at one time.", nameof(parameters.community_ids)), info.settings);
+
+                        return response;
+                    }
+
+                    if (parameters.game_ids.Count > 100)
+                    {
+                        response.SetInputError(new ArgumentException("A maximum of 100 game ID's can be specified at one time.", nameof(parameters.game_ids)), info.settings);
+
+                        return response;
+                    }
+                }
+
+                RestRequest request = GetBaseRequest("streams", Method.GET, info);
+                request.AddParameters(parameters);
+
+                // TODO: Sanitize the data so that only one instance of each stream ID is returned.
+                //       Duplicate streams can be returned if a stream is queried by ID and login at the same time.
+                RestResponse<DataPage<Stream>> _response = await CLIENT_HELIX.TraceExecuteAsync<Stream, DataPage<Stream>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<Stream>>(_response);
 
                 return response;
             }
@@ -766,38 +889,89 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously checks to see if a user is streaming.
             /// </summary>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="user_id">The ID of the user to check.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> is set to true is the user is streaming, otherwise false.
+            /// </returns>
+            /// <exception cref="ArgumentException">
+            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
+            /// Thrown if user_id is null, empty, or contains only whitespace.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<bool>>
-            IsStreamLiveAsync(RestInfo<DataPage<Stream>> info, string user_id)
+            IsStreamLiveByUserIDAsync(HelixInfo info, string user_id)
             {
-                IHelixResponse<DataPage<Stream>> response = default;
-                IHelixResponse<bool> is_live = default;
+                HelixResponse<bool> response = new HelixResponse<bool>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
 
                 if (!user_id.IsValid())
                 {
-                    info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(user_id)));
+                    response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(user_id)), info.settings);
 
-                    response = new HelixResponse<DataPage<Stream>>(info);
-                    is_live = new HelixResponse<bool>(info, false);
-
-                    return is_live;
+                    return response;
                 }
 
-                StreamsParameters parameters = new StreamsParameters()
-                {
-                    user_ids = new List<string>()
-                    {
-                        user_id
-                    }
-                };
+                StreamsParameters parameters = new StreamsParameters();
+                parameters.user_ids.Add(user_id);
 
-                // Info *should* get populated with valid results after the stream is requested.
-                // TODO: Make sure this is the case.
-                response = await GetStreamsPageAsync(info, parameters);
-                is_live = new HelixResponse<bool>(info, response.result.data.IsValid());
+                IHelixResponse<DataPage<Stream>> _response = await GetStreamsPageAsync(info, parameters);
 
-                return is_live;
+                bool result = _response.exception.IsNull() ? _response.result.data.IsValid() : false;
+                response = new HelixResponse<bool>(_response, result);
+
+                return response;
             }
-            */
+
+            /// <summary>
+            /// Asynchronously checks to see if a user is streaming.
+            /// </summary>
+            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="user_login">The login of the user to check.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> is set to true is the user is streaming, otherwise false.
+            /// </returns>
+            /// <exception cref="ArgumentException">
+            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
+            /// Thrown if user_login is null, empty, or contains only whitespace.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<bool>>
+            IsStreamLiveByUserLoginAsync(HelixInfo info, string user_login)
+            {
+                HelixResponse<bool> response = new HelixResponse<bool>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (!user_login.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(user_login)), info.settings);
+
+                    return response;
+                }
+
+                StreamsParameters parameters = new StreamsParameters();
+                parameters.user_logins.Add(user_login);
+
+                IHelixResponse<DataPage<Stream>> _response = await GetStreamsPageAsync(info, parameters);
+
+                bool result = _response.exception.IsNull() ? _response.result.data.IsValid() : false;
+                response = new HelixResponse<bool>(_response, result);
+
+                return response;
+            }
+
             #endregion
 
             // TODO: Implement /streams/markers
@@ -877,7 +1051,7 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null when no valid bearer token specified.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
             /// Thrown if all specified user logins and user ID's are null, empty, or only contains whitespace when no valid bearer token is specified.
             /// Thrown if more than 100 total user logins and/or user IDs were specified.
             /// </exception>
@@ -971,6 +1145,7 @@ TwitchNet.Rest.Api
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
             /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">Thrown if the bearer token or description is null, empty, or contains only whitespace.</exception>
             /// <exception cref="MissingScopesException">Thrown if the bearer token does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -989,12 +1164,13 @@ TwitchNet.Rest.Api
 
                 if (parameters.IsNull())
                 {
-                    parameters = new DescriptionParameters();
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
                 }
 
                 if (!parameters.description.IsValid())
                 {
-                    // There's the possibility that it's null or white space, sanitize it.
                     parameters.description = string.Empty;
                 }
 
@@ -1026,7 +1202,7 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null when no valid bearer token is specified.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
             /// Thrown if the specified user ID is null, empty, or only contains whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1380,7 +1556,7 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
             /// Thrown if from_id is null, empty, or contains only whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1433,7 +1609,7 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
             /// Thrown if from_id is null, empty, or contains only whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1486,7 +1662,7 @@ TwitchNet.Rest.Api
             /// </returns>        
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
             /// Thrown if to_id is null, empty, or contains only whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1539,7 +1715,7 @@ TwitchNet.Rest.Api
             /// </returns>  
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
             /// Thrown if to_id is null, empty, or contains only whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1589,7 +1765,7 @@ TwitchNet.Rest.Api
             /// <see cref="IHelixResponse{result_type}.result"/> is set true if from_id is following to_id, otherwise false.
             /// </returns>
             /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
             /// Thrown if either from_id and to_id are null, empty, or contains only whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1611,7 +1787,7 @@ TwitchNet.Rest.Api
 
                 IHelixResponse<FollowsDataPage<Follow>> _response = await GetUserRelationshipPageAsync(info, parameters);
 
-                bool result = !_response.exception.IsNull() ? false : _response.result.data.IsValid();
+                bool result = _response.exception.IsNull() ? _response.result.data.IsValid() : false;
                 response = new HelixResponse<bool>(_response, result);
 
                 return response;
@@ -1631,7 +1807,7 @@ TwitchNet.Rest.Api
             /// </returns> 
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
             /// Thrown if both from_id and to_id are null, empty, or contains only whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1681,7 +1857,7 @@ TwitchNet.Rest.Api
             /// </returns>        
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
             /// Thrown if both from_id and to_id are null, empty, or contains only whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1732,7 +1908,7 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
             /// Thrown if both after and before parameters were specified.
             /// Thrown if no video ID's were specified, and both game ID and user ID were null, empty, or contains only whitespace.
             /// Thrown if any mutiple combination of video ID's, game ID, or user ID were specified.
@@ -1815,7 +1991,7 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if both bearer token and client ID are null, empty, or contains only whitespace.
+            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
             /// Thrown if both after and before parameters were specified.
             /// Thrown if no video ID's were specified, and both game ID and user ID were null, empty, or contains only whitespace.
             /// Thrown if any mutiple combination of video ID's, game ID, or user ID were specified.

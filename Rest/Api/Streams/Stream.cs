@@ -24,6 +24,12 @@ TwitchNet.Rest.Api.Streams
         public string           user_id         { get; protected set; }
 
         /// <summary>
+        /// The name of the user who is streaming.
+        /// </summary>
+        [JsonProperty("user_name")]
+        public string           user_name       { get; protected set; }
+
+        /// <summary>
         /// The id of the game being played.
         /// </summary>
         [JsonProperty("game_id")]
@@ -72,5 +78,11 @@ TwitchNet.Rest.Api.Streams
         /// </summary>
         [JsonProperty("thumbnail_url")]
         public string           thumbnail_url   { get; protected set; }
+
+        /// <summary>
+        /// The stream tags the broadcaster has selected.
+        /// </summary>
+        [JsonProperty("tag_ids")]
+        public List<string>     tag_ids         { get; protected set; }
     }
 }

@@ -87,7 +87,7 @@ TwitchNet.Rest.Api
         }
 
         public void
-        SetScopesError(MissingScopesException exception, HelixRequestSettings settings)
+        SetScopesError(AvailableScopesException exception, HelixRequestSettings settings)
         {
             this.exception = exception;
 
@@ -121,7 +121,7 @@ TwitchNet.Rest.Api
 
         }
 
-        public HelixResponse() : base()
+        public HelixResponse()
         {
 
         }

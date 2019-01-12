@@ -7,8 +7,6 @@ TwitchNet.Rest.Api
     public class
     PagingParameters : IPagingParameters
     {
-        private ClampedNumber<ushort>   _first  = new ClampedNumber<ushort>(1, 100, 20);
-
         /// <summary>
         /// <para>Maximum number of objects to return.</para>
         /// <para>

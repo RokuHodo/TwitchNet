@@ -50,28 +50,44 @@ namespace TwitchNet.Rest
     }
 
     public class
-    MissingScopesException : Exception
+    AvailableScopesException : Exception
     {
         public Scopes[] missing_scopes { get; private set; }
 
-        public MissingScopesException()
-        {
-
-        }
-
-        public MissingScopesException(string message) : base(message)
-        {
-
-        }
-
-        public MissingScopesException(Scopes[] scopes)
+        public AvailableScopesException(Scopes[] scopes)
         {
             missing_scopes = scopes.IsValid() ? scopes : new Scopes[0];
         }
 
-        public MissingScopesException(string message, Scopes[] scopes) : base(message)
+        public AvailableScopesException(string message, Scopes[] scopes) : base(message)
         {
             missing_scopes = scopes.IsValid() ? scopes : new Scopes[0];
+        }
+    }
+
+    public class
+    ParameterCountException: ArgumentException
+    {
+        public int maximum { get; private set; }
+
+        public int count { get; private set; }
+
+        public ParameterCountException(int maximum, int count)
+        {
+            this.maximum = maximum;
+            this.count = count;
+        }
+
+        public ParameterCountException(string message, int maximum, int count) : base(message)
+        {
+            this.maximum = maximum;
+            this.count = count;
+        }
+
+        public ParameterCountException(string message, string name, int maximum, int count) : base(message, name)
+        {
+            this.maximum = maximum;
+            this.count = count;
         }
     }
 
@@ -80,15 +96,6 @@ namespace TwitchNet.Rest
     {
         public int retry_limit { get; protected set; }
 
-        public RetryLimitReachedException()
-        {
-
-        }
-
-        public RetryLimitReachedException(string message, Exception inner_exception = default) : base(message, inner_exception)
-        {
-
-        }
 
         public RetryLimitReachedException(int retry_limit)
 

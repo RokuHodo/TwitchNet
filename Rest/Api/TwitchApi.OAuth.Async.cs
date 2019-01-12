@@ -479,25 +479,6 @@ TwitchNet.Rest.Api
 
             #region /games
 
-            /// <summary>
-            /// Asynchronously gets the information about a list of games.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the list of videos.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if all specified game name and game ID's are null, empty, or only contains whitespace.
-            /// Thrown if more than 100 total game names and/or game ID's were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<Game>>>
             GetGamesAsync(string bearer_token, GamesParameters parameters, HelixRequestSettings settings = default)
             {
@@ -509,26 +490,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets the information about a list of games.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the list of videos.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if all specified game name and game ID's are null, empty, or only contains whitespace.
-            /// Thrown if more than 100 total game names and/or game ID's were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<Game>>>
             GetGamesAsync(string bearer_token, string client_id, GamesParameters parameters, HelixRequestSettings settings = default)
             {
@@ -545,22 +506,6 @@ TwitchNet.Rest.Api
 
             #region /games/top
 
-            /// <summary>
-            /// Asynchronously gets a single page of top games, most popular first.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single sorted page of top videos.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if both after and before parameters were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Game>>>
             GetTopGamesPageAsync(string bearer_token, HelixRequestSettings settings = default)
             {
@@ -574,23 +519,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of top games, most popular first.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single sorted page of top videos.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if both after and before parameters were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Game>>>
             GetTopGamesPageAsync(string bearer_token, TopGamesParameters parameters, HelixRequestSettings settings = default)
             {
@@ -602,23 +530,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of top games, most popular first.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single sorted page of top videos.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if both after and before parameters were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Game>>>
             GetTopGamesPageAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
             {
@@ -633,24 +544,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of top games, most popular first.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single sorted page of top videos.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if both after and before parameters were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Game>>>
             GetTopGamesPageAsync(string bearer_token, string client_id, TopGamesParameters parameters, HelixRequestSettings settings = default)
             {
@@ -663,22 +556,6 @@ TwitchNet.Rest.Api
                 return top_games;
             }
 
-            /// <summary>
-            /// Asynchronously gets a complete list of top games, most popular first.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of top videos.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if both after and before parameters were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Game>>>
             GetTopGamesAsync(string bearer_token, HelixRequestSettings settings = default)
             {
@@ -692,23 +569,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a complete list of top games, most popular first.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of top videos.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if both after and before parameters were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Game>>>
             GetTopGamesAsync(string bearer_token, TopGamesParameters parameters, HelixRequestSettings settings = default)
             {
@@ -720,23 +580,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a complete list of top games, most popular first.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of top videos.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if both after and before parameters were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Game>>>
             GetTopGamesAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
             {
@@ -751,24 +594,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a complete list of top games, most popular first.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of top videos.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if both after and before parameters were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Game>>>
             GetTopGamesAsync(string bearer_token, string client_id, TopGamesParameters parameters, HelixRequestSettings settings = default)
             {
@@ -785,26 +610,6 @@ TwitchNet.Rest.Api
 
             #region /streams
 
-            /// <summary>
-            /// Asynchronously gets a single page of streams.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of streams.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if more than 100 total user ID's were specified.
-            /// Thrown if more than 100 total user logins were specified.
-            /// Thrown if more than 100 total game ID's were specified.
-            /// Thrown if more than 100 total community ID's were specified.
-            /// Thrown if both after and before parameters were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Stream>>>
             GetStreamsPageAsync(string bearer_token, HelixRequestSettings settings = default)
             {
@@ -816,27 +621,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of streams.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of streams.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if more than 100 total user ID's were specified.
-            /// Thrown if more than 100 total user logins were specified.
-            /// Thrown if more than 100 total game ID's were specified.
-            /// Thrown if more than 100 total community ID's were specified.
-            /// Thrown if both after and before parameters were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Stream>>>
             GetStreamsPageAsync(string bearer_token, StreamsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -848,20 +632,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of streams.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of streams.
-            /// </returns>
-            /// <exception cref="ArgumentException">Thrown if bearer_token and client_id are null, empty, or contains only whitespace.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Stream>>>
             GetStreamsPageAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
             {
@@ -874,28 +644,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of streams.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of streams.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if more than 100 total user ID's were specified.
-            /// Thrown if more than 100 total user logins were specified.
-            /// Thrown if more than 100 total game ID's were specified.
-            /// Thrown if more than 100 total community ID's were specified.
-            /// Thrown if both after and before parameters were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Stream>>>
             GetStreamsPageAsync(string bearer_token,string client_id, StreamsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -908,21 +656,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a complete list of streams.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of streams.
-            /// </returns>
-            /// <exception cref="ArgumentException">Thrown if bearer_token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Stream>>>
             GetStreamsAsync(string bearer_token, HelixRequestSettings settings = default)
             {
@@ -934,28 +667,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a complete list of streams.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of streams.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if more than 100 total user ID's were specified.
-            /// Thrown if more than 100 total user logins were specified.
-            /// Thrown if more than 100 total game ID's were specified.
-            /// Thrown if more than 100 total community ID's were specified.
-            /// Thrown if both after and before parameters were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Stream>>>
             GetStreamsAsync(string bearer_token, StreamsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -967,20 +678,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a complete list of streams.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of streams.
-            /// </returns>
-            /// <exception cref="ArgumentException">Thrown if bearer_token and client_id are null, empty, or contains only whitespace.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Stream>>>
             GetStreamsAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
             {
@@ -993,28 +690,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a complete list of streams.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of streams.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if more than 100 total user ID's were specified.
-            /// Thrown if more than 100 total user logins were specified.
-            /// Thrown if more than 100 total game ID's were specified.
-            /// Thrown if more than 100 total community ID's were specified.
-            /// Thrown if both after and before parameters were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Stream>>>
             GetStreamsAsync(string bearer_token, string client_id, StreamsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -1027,23 +702,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously checks to see if a user is streaming.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="user_id">The ID of the user to check.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> is set to true is the user is streaming, otherwise false.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if user_id is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<bool>>
             IsStreamLiveByUserIDAsync(string bearer_token, string user_id, HelixRequestSettings settings = default)
             {
@@ -1055,24 +713,6 @@ TwitchNet.Rest.Api
                 return is_live;
             }
 
-            /// <summary>
-            /// Asynchronously checks to see if a user is streaming.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="user_id">The ID of the user to check.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> is set to true is the user is streaming, otherwise false.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if user_id is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<bool>>
             IsStreamLiveByUserIDAsync(string bearer_token, string client_id, string user_id, HelixRequestSettings settings = default)
             {
@@ -1085,23 +725,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously checks to see if a user is streaming.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="user_login">The login of the user to check.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> is set to true is the user is streaming, otherwise false.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if user_login is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<bool>>
             IsStreamLiveByUserLoginAsync(string bearer_token, string user_login, HelixRequestSettings settings = default)
             {
@@ -1113,24 +736,6 @@ TwitchNet.Rest.Api
                 return is_live;
             }
 
-            /// <summary>
-            /// Asynchronously checks to see if a user is streaming.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="user_login">The login of the user to check.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> is set to true is the user is streaming, otherwise false.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if user_login is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<bool>>
             IsStreamLiveByUserLoginAsync(string bearer_token, string client_id, string user_login, HelixRequestSettings settings = default)
             {
@@ -1144,6 +749,7 @@ TwitchNet.Rest.Api
             }
 
             #endregion
+
             /*
             #region /streams/metadata
 
@@ -1300,23 +906,6 @@ TwitchNet.Rest.Api
 
             #region /users
 
-            /// <summary>
-            /// <para>Asynchronously gets the information about a user from the specified bearer token.</para>
-            /// <para>
-            /// Optional scope: <see cref="Scopes.UserReadEmail"/>.
-            /// If provided, the user's email is included in the response.
-            /// </para>
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the information about the requested user.
-            /// </returns>
-            /// <exception cref="ArgumentException">Thrown if bearer_token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<User>>>
             GetUserAsync(string bearer_token, HelixRequestSettings settings = default)
             {
@@ -1328,24 +917,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// <para>Asynchronously gets the information about a user from the specified bearer token.</para>
-            /// <para>
-            /// Optional scope: <see cref="Scopes.UserReadEmail"/>.
-            /// If provided, the user's email is included in the response.
-            /// </para>
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the information about the requested user.
-            /// </returns>
-            /// <exception cref="ArgumentException">Thrown if bearer_token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<User>>>
             GetUserAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
             {
@@ -1358,32 +929,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// <para>Asynchronously gets the information about one or more users.</para>
-            /// <para>
-            /// Optional scope: <see cref="Scopes.UserReadEmail"/>.
-            /// If provided, the user's email is included in the response.
-            /// </para>
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="parameters">
-            /// A set of rest parameters specific to this request.
-            /// If not specified, the user is looked up by the specified bearer token.
-            /// </param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the information about each requested user.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null when no valid bearer token specified.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if all specified user logins and user ID's are null, empty, or only contains whitespace when no valid bearer token is specified.
-            /// Thrown if more than 100 total user logins and/or user IDs are specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<User>>>
             GetUsersAsync(string bearer_token, UsersParameters parameters, HelixRequestSettings settings = default)
             {
@@ -1395,33 +940,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// <para>Asynchronously gets the information about one or more users.</para>
-            /// <para>
-            /// Optional scope: <see cref="Scopes.UserReadEmail"/>.
-            /// If provided, the user's email is included in the response.
-            /// </para>
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">
-            /// A set of rest parameters specific to this request.
-            /// If not specified, the user is looked up by the specified bearer token.
-            /// </param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the information about each requested user.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null when no valid bearer token specified.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if all specified user logins and user ID's are null, empty, or only contains whitespace when no valid bearer token is specified.
-            /// Thrown if more than 100 total user logins and/or user IDs are specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<User>>>
             GetUsersAsync(string bearer_token, string client_id, UsersParameters parameters, HelixRequestSettings settings = default)
             {
@@ -1434,24 +952,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// <para>Asynchronously sets the description of a user specified by the bearer token.</para>
-            /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="description">The text to set the user's description to.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
-            /// </returns>
-            /// <exception cref="ArgumentException">Thrown if bearer_token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="MissingScopesException">Thrown if the available scopes
-            /// does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<User>>>
             SetUserDescriptionAsync(string bearer_token, string description, HelixRequestSettings settings = default)
             {
@@ -1463,23 +963,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// <para>Asynchronously sets the description of a user specified by the bearer token.</para>
-            /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="description">The text to set the user's description to.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
-            /// </returns>
-            /// <exception cref="ArgumentException">Thrown if bearer_token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="MissingScopesException">Thrown if the available scopes, when specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<User>>>
             SetUserDescriptionAsync(string bearer_token, string client_id, string description, HelixRequestSettings settings = default)
             {
@@ -1492,23 +975,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// <para>Asynchronously sets the description of a user specified by the bearer token.</para>
-            /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="parameters">A set of rest parameters specific to this request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">Thrown if bearer_token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="MissingScopesException">Thrown if the available scopes, when specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<User>>>
             SetUserDescriptionAsync(string bearer_token, DescriptionParameters parameters, HelixRequestSettings settings = default)
             {
@@ -1520,24 +986,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// <para>Asynchronously sets the description of a user specified by the bearer token.</para>
-            /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">A set of rest parameters specific to this request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains information about the user with the updated description.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">Thrown if bearer_token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="MissingScopesException">Thrown if the available scopes, when specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<User>>>
             SetUserDescriptionAsync(string bearer_token, string client_id, DescriptionParameters parameters, HelixRequestSettings settings = default)
             {
@@ -1554,20 +1002,6 @@ TwitchNet.Rest.Api
 
             #region /users/extensions
 
-            /// <summary>
-            /// <para>Asynchronously gets a list of active extensions a user has installed.</para>
-            /// <para>Optional scopes: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains active extensions the user has instlled.
-            /// </returns>
-            /// <exception cref="ArgumentException">Thrown if bearer_token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<ActiveExtensions>>
             GetUserActiveExtensionsAsync(string bearer_token, HelixRequestSettings settings = default)
             {
@@ -1579,27 +1013,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// <para>Asynchronously gets a list of active extensions a user has installed.</para>
-            /// <para>Optional scopes: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="parameters">
-            /// A set of rest parameters specific to this request.
-            /// If no user ID is specified, the user is implicityly specified from the bearer token.
-            /// </param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains active extensions the user has instlled.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if the specified user ID is null, empty, or only contains whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<ActiveExtensions>>
             GetUserActiveExtensionsAsync(string bearer_token, ActiveExtensionsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -1611,24 +1024,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// <para>Asynchronously gets a list of active extensions a user has installed.</para>
-            /// <para>Optional scopes: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains active extensions the user has instlled.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<ActiveExtensions>>
             GetUserActiveExtensionsAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
             {
@@ -1641,29 +1036,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// <para>Asynchronously gets a list of active extensions a user has installed.</para>
-            /// <para>Optional scopes: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">
-            /// A set of rest parameters specific to this request.
-            /// If no user ID is specified, the user is implicityly specified from the bearer token.
-            /// </param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains active extensions the user has instlled.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null when no valid bearer token is specified.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<ActiveExtensions>>
             GetUserActiveExtensionsAsync(string bearer_token, string client_id, ActiveExtensionsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -1676,36 +1048,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// <para>Asynchronously updates the installed extensions for a user specified by the bearer token.</para>
-            /// <para>Required scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="parameters">
-            /// <para>A set of rest parameters specific to this request.</para>
-            /// <para>
-            /// Any extensions specified outside of the valid extension slots for each type are ignored.
-            /// The valid extension slots for each type are specified under each <see cref="ActiveExtensionsData"/> member.
-            /// The (x, y) corrdinates are applicable only to component extensions.
-            /// </para>
-            /// </param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains active extensions the user has instlled after the changes have been applied.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if the <see cref="UpdateExtensionsParameters"/>, <see cref="UpdateExtensionsParameters.extensions"/>, or <see cref="ActiveExtensions.data"/> are null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if each extension slot for each extension type is empty or null.
-            /// Thrown if the name, ID, or version for each specified active extension is null, empty, or only contains whitespace.
-            /// </exception>
-            /// <exception cref="ArgumentOutOfRangeException">Thrown if the the either (x, y) coordinate for a component extension exceeds the range (0, 0) to (8000, 5000).</exception>
-            /// <exception cref="DuplicateExtensionException">Thrown if an extension ID is set in more then one valid slot across all extension types.</exception>
-            /// <exception cref="MissingScopesException">Thrown if the available scopes, when specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<ActiveExtensions>>
             UpdateUserExtensionsAsync(string bearer_token, UpdateExtensionsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -1717,37 +1059,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// <para>Asynchronously updates the installed extensions for a user specified by the bearer token.</para>
-            /// <para>Required scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">
-            /// <para>A set of rest parameters specific to this request.</para>
-            /// <para>
-            /// Any extensions specified outside of the valid extension slots for each type are ignored.
-            /// The valid extension slots for each type are specified under each <see cref="ActiveExtensionsData"/> member.
-            /// The (x, y) corrdinates are applicable only to component extensions.
-            /// </para>
-            /// </param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains active extensions the user has instlled after the changes have been applied.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if the <see cref="UpdateExtensionsParameters"/>, <see cref="UpdateExtensionsParameters.extensions"/>, or <see cref="ActiveExtensions.data"/> are null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if each extension slot for each extension type is empty or null.
-            /// Thrown if the name, ID, or version for each specified active extension is null, empty, or only contains whitespace.
-            /// </exception>
-            /// <exception cref="ArgumentOutOfRangeException">Thrown if the the either (x, y) coordinate for a component extension exceeds the range (0, 0) to (8000, 5000).</exception>
-            /// <exception cref="DuplicateExtensionException">Thrown if an extension ID is set in more then one valid slot across all extension types.</exception>
-            /// <exception cref="MissingScopesException">Thrown if the available scopes, when specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<ActiveExtensions>>
             UpdateUserExtensionsAsync(string bearer_token, string client_id, UpdateExtensionsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -1764,24 +1075,6 @@ TwitchNet.Rest.Api
 
             #region /users/extensions/list
 
-            /// <summary>
-            /// <para>
-            /// Asynchronously gets a list of all extensions a user has installed, activated or deactivated.
-            /// The user is specified by the provided bearer token.
-            /// </para>
-            /// <para>Required Scope: <see cref="Scopes.UserReadBroadcast"/></para>
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains extensions the user has instlled, activated or deactivated..
-            /// </returns>
-            /// <exception cref="ArgumentException">Thrown if bearer_token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="MissingScopesException">Thrown if the available scopes, when specified, does not include the <see cref="Scopes.UserReadBroadcast"/> scope.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<Extension>>>
             GetUserExtensionsAsync(string bearer_token, HelixRequestSettings settings = default)
             {
@@ -1793,25 +1086,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// <para>
-            /// Asynchronously gets a list of all extensions a user has installed, activated or deactivated.
-            /// The user is specified by the provided bearer token.
-            /// </para>
-            /// <para>Required Scope: <see cref="Scopes.UserReadBroadcast"/></para>
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains extensions the user has instlled, activated or deactivated..
-            /// </returns>
-            /// <exception cref="ArgumentException">Thrown if bearer_token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="MissingScopesException">Thrown if the available scopes, when specified, does not include the <see cref="Scopes.UserReadBroadcast"/> scope.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<Extension>>>
             GetUserExtensionsAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
             {
@@ -1828,23 +1102,6 @@ TwitchNet.Rest.Api
 
             #region /users/follows
 
-            /// <summary>
-            /// Asynchronously gets a single page of a user's following list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="from_id">The ID of the user to get the following page for.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of a user's following list.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if the both bearer token is null, empty, or contains only whitespace.
-            /// Thrown if from_id is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserFollowingPageAsync(string bearer_token, string from_id, HelixRequestSettings settings = default)
             {
@@ -1859,27 +1116,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of a user's following list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="parameters">
-            /// A set of rest parameters to add to the request.
-            /// The to_id is ignored if specified.
-            /// </param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of a user's following list.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if from_id is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserFollowingPageAsync(string bearer_token, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -1891,24 +1127,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of a user's following list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="from_id">The ID of the user to get the following page for.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of a user's following list.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if from_id is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserFollowingPageAsync(string bearer_token, string client_id, string from_id, HelixRequestSettings settings = default)
             {
@@ -1924,28 +1142,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of a user's following list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">
-            /// A set of rest parameters to add to the request.
-            /// The to_id is ignored if specified.
-            /// </param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of a user's following list.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if from_id is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserFollowingPageAsync(string bearer_token, string client_id, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -1958,23 +1154,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a user's complete following list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="from_id">The ID of the user to get the following for.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the user's complete following list.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if from_id is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserFollowingAsync(string bearer_token, string from_id, HelixRequestSettings settings = default)
             {
@@ -1989,27 +1168,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a user's complete following list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="parameters">
-            /// A set of rest parameters to add to the request.
-            /// The to_id is ignored if specified.
-            /// </param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the user's complete following list.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if from_id is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserFollowingAsync(string bearer_token, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -2021,24 +1179,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a user's complete following list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="from_id">The ID of the user to get the following for.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the user's complete following list.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if from_id is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserFollowingAsync(string bearer_token, string client_id, string from_id, HelixRequestSettings settings = default)
             {
@@ -2054,28 +1194,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a user's complete following list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">
-            /// A set of rest parameters to add to the request.
-            /// The to_id is ignored if specified.
-            /// </param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the user's complete following list.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if from_id is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserFollowingAsync(string bearer_token, string client_id, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -2088,23 +1206,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of a user's followers list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="to_id">The ID of the user to get the followers for.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of a user's followers list.
-            /// </returns>        
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if to_id is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserFollowersPageAsync(string bearer_token, string to_id, HelixRequestSettings settings = default)
             {
@@ -2119,27 +1220,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of a user's followers list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="parameters">
-            /// A set of rest parameters to add to the request.
-            /// The from_id is ignored if specified.
-            /// </param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of a user's followers list.
-            /// </returns>        
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if to_id is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserFollowersPageAsync(string bearer_token, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -2151,24 +1231,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of a user's followers list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="to_id">The ID of the user to get the followers for.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of a user's followers list.
-            /// </returns>        
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if to_id is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserFollowersPageAsync(string bearer_token, string client_id, string to_id, HelixRequestSettings settings = default)
             {
@@ -2184,28 +1246,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of a user's followers list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">
-            /// A set of rest parameters to add to the request.
-            /// The from_id is ignored if specified.
-            /// </param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of a user's followers list.
-            /// </returns>        
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if to_id is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserFollowersPageAsync(string bearer_token, string client_id, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -2218,23 +1258,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a user's complete follower list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="to_id">The ID of the user to get the followers for.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the user's complete follower list.
-            /// </returns>  
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if to_id is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserFollowersAsync(string bearer_token, string to_id, HelixRequestSettings settings = default)
             {
@@ -2249,27 +1272,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a user's complete follower list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="parameters">
-            /// A set of rest parameters to add to the request.
-            /// The from_id is ignored if specified.
-            /// </param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the user's complete follower list.
-            /// </returns> 
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if to_id is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserFollowersAsync(string bearer_token, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -2281,24 +1283,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a user's complete follower list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="to_id">The ID of the user to get the followers for.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the user's complete follower list.
-            /// </returns>  
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if to_id is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserFollowersAsync(string bearer_token, string client_id, string to_id, HelixRequestSettings settings = default)
             {
@@ -2314,28 +1298,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a user's complete follower list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">
-            /// A set of rest parameters to add to the request.
-            /// The from_id is ignored if specified.
-            /// </param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the user's complete follower list.
-            /// </returns> 
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if to_id is null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserFollowersAsync(string bearer_token, string client_id, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -2348,24 +1310,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously checks to see if the from_id user is following the to_id user.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="from_id">The ID of the following user.</param>
-            /// <param name="to_id">The ID of the followed user.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> is set true if from_id is following to_id, otherwise false.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if either from_id and to_id are null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<bool>>
             IsUserFollowingAsync(string bearer_token, string from_id, string to_id, HelixRequestSettings settings = default)
             {
@@ -2377,25 +1321,6 @@ TwitchNet.Rest.Api
                 return is_following;
             }
 
-            /// <summary>
-            /// Asynchronously checks to see if the from_id user is following the to_id user.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="from_id">The ID of the following user.</param>
-            /// <param name="to_id">The ID of the followed user.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> is set true if from_id is following to_id, otherwise false.
-            /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if either from_id and to_id are null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<bool>>
             IsUserFollowingAsync(string bearer_token, string client_id, string from_id, string to_id, HelixRequestSettings settings = default)
             {
@@ -2408,27 +1333,6 @@ TwitchNet.Rest.Api
                 return is_following;
             }
 
-            /// <summary>
-            /// Asynchronously gets the relationship between two users, or a single page of a user's following/follower list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="parameters">
-            /// <para>A set of rest parameters to add to the request.</para>
-            /// <para>A from_id or to_id must be specified.</para>
-            /// </param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the user relationship page, or a single page of the following/follower list of one user.
-            /// </returns> 
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if both from_id and to_id are null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserRelationshipPageAsync(string bearer_token, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -2440,28 +1344,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets the relationship between two users, or a single page of a user's following/follower list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">
-            /// <para>A set of rest parameters to add to the request.</para>
-            /// <para>A from_id or to_id must be specified.</para>
-            /// </param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the user relationship page, or a single page of the following/follower list of one user.
-            /// </returns> 
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if both from_id and to_id are null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserRelationshipPageAsync(string bearer_token, string client_id, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -2474,27 +1356,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets the relationship between two users, or a user's complete following/follower list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="parameters">
-            /// <para>A set of rest parameters to add to the request.</para>
-            /// <para>A from_id or to_id must be specified.</para>
-            /// </param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the user relationship, or the complete following/follower list of one user.
-            /// </returns>        
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if both from_id and to_id are null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserRelationshipAsync(string bearer_token, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -2506,28 +1367,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets the relationship between two users, or a user's complete following/follower list.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">
-            /// <para>A set of rest parameters to add to the request.</para>
-            /// <para>A from_id or to_id must be specified.</para>
-            /// </param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the user relationship, or the complete following/follower list of one user.
-            /// </returns>        
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if both from_id and to_id are null, empty, or contains only whitespace.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
             GetUserRelationshipAsync(string bearer_token, string client_id, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
@@ -2544,27 +1383,6 @@ TwitchNet.Rest.Api
 
             #region /videos
 
-            /// <summary>
-            /// Asynchronously gets information about specific videos, or a single page of videos.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> containts the queried videos.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if both after and before parameters were specified.
-            /// Thrown if no video ID's were specified, and both game ID and user ID were null, empty, or contains only whitespace.
-            /// Thrown if any mutiple combination of video ID's, game ID, or user ID were specified.
-            /// Thrown if more than 100 video ID's were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Video>>>
             GetVideosPageAsync(string bearer_token, VideosParameters parameters, HelixRequestSettings settings = default)
             {
@@ -2576,28 +1394,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets information about specific videos, or a single page of videos.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> containts the queried videos.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if both after and before parameters were specified.
-            /// Thrown if no video ID's were specified, and both game ID and user ID were null, empty, or contains only whitespace.
-            /// Thrown if any mutiple combination of video ID's, game ID, or user ID were specified.
-            /// Thrown if more than 100 video ID's were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Video>>>
             GetVideosPageAsync(string bearer_token, string client_id, VideosParameters parameters, HelixRequestSettings settings = default)
             {
@@ -2610,27 +1406,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets information about specific videos, or a complete list of videos.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> containts the queried videos.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token is null, empty, or contains only whitespace.
-            /// Thrown if both after and before parameters were specified.
-            /// Thrown if no video ID's were specified, and both game ID and user ID were null, empty, or contains only whitespace.
-            /// Thrown if any mutiple combination of video ID's, game ID, or user ID were specified.
-            /// Thrown if more than 100 video ID's were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Video>>>
             GetVideosAsync(string bearer_token, VideosParameters parameters, HelixRequestSettings settings = default)
             {
@@ -2642,28 +1417,6 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets information about specific videos, or a complete list of videos.
-            /// </summary>
-            /// <param name="bearer_token">A user access OAuth token.</param>
-            /// <param name="client_id">The application ID to identify the source of the request.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
-            /// <param name="settings">Settings to customize how the inputs, request, and response are handled.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> containts the queried videos.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if both after and before parameters were specified.
-            /// Thrown if no video ID's were specified, and both game ID and user ID were null, empty, or contains only whitespace.
-            /// Thrown if any mutiple combination of video ID's, game ID, or user ID were specified.
-            /// Thrown if more than 100 video ID's were specified.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Video>>>
             GetVideosAsync(string bearer_token, string client_id, VideosParameters parameters, HelixRequestSettings settings = default)
             {

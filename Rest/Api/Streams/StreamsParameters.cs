@@ -1,9 +1,6 @@
 ﻿//standard namespaces
 using System.Collections.Generic;
 
-// project namespaces
-using TwitchNet.Helpers;
-
 namespace
 TwitchNet.Rest.Api.Streams
 {
@@ -14,7 +11,7 @@ TwitchNet.Rest.Api.Streams
         /// <para>A list of communities to query.</para>
         /// <para>
         /// A maximum of 100 total elements can be specified.
-        /// All elements that are null, empty, or only contain whitespace are filtered out and all duplicate elements are removed before calculating the final count.
+        /// All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.
         /// </para>
         /// </summary>
         [QueryParameter("community_id", typeof(SeparateQueryConverter))]
@@ -24,7 +21,7 @@ TwitchNet.Rest.Api.Streams
         /// <para>A list of game ID's to query.</para>
         /// <para>
         /// A maximum of 100 total elements can be specified.
-        /// All elements that are null, empty, or only contain whitespace are filtered out and all duplicate elements are removed before calculating the final count.
+        /// All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.
         /// </para>
         /// </summary>
         [QueryParameter("game_id", typeof(SeparateQueryConverter))]
@@ -42,7 +39,7 @@ TwitchNet.Rest.Api.Streams
         /// <para>A list of user ID's to query.</para>
         /// <para>
         /// A maximum of 100 total elements can be specified.
-        /// All elements that are null, empty, or only contain whitespace are filtered out and all duplicate elements are removed before calculating the final count.
+        /// All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.
         /// </para>
         /// </summary>
         [QueryParameter("user_id", typeof(SeparateQueryConverter))]
@@ -52,7 +49,7 @@ TwitchNet.Rest.Api.Streams
         /// <para>A list of user login names to query.</para>
         /// <para>
         /// A maximum of 100 total elements can be specified.
-        /// All elements that are null, empty, or only contain whitespace are filtered out and all duplicate elements are removed before calculating the final count.
+        /// All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.
         /// </para>
         /// </summary>
         [QueryParameter("user_login", typeof(SeparateQueryConverter))]

@@ -8,8 +8,6 @@ TwitchNet.Rest.Api.Bits
     public class
     BitsLeaderboardParameters
     {
-        private ClampedNumber<uint> _count = new  ClampedNumber<uint>(1, 100, 10);
-
         /// <summary>
         /// <para>The number of results to be returned.</para>
         /// <para>
@@ -19,17 +17,7 @@ TwitchNet.Rest.Api.Bits
         /// </para>
         /// </summary>
         [QueryParameter("count")]
-        public virtual uint count
-        {
-            get
-            {
-                return _count.value;
-            }
-            set
-            {
-                _count.value = value;
-            }
-        }
+        public virtual uint count { get; set; }
 
         /// <summary>
         /// <para>The time period over which data is aggregated according to started_at.</para>

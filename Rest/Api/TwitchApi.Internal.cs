@@ -1129,7 +1129,10 @@ TwitchNet.Rest.Api
             }
 
             /// <summary>
-            /// <para>Asynchronously sets the description of a user. The user is specified by the bearer token.</para>
+            /// <para>
+            /// Asynchronously sets the description of a user. 
+            /// The user is implicitly specified by the provided Bearer token.
+            /// </para>
             /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
@@ -1138,7 +1141,7 @@ TwitchNet.Rest.Api
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains updated user information.
             /// </returns>
-            /// <exception cref="ArgumentException">Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.</exception>
+            /// <exception cref="ArgumentException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -1155,7 +1158,10 @@ TwitchNet.Rest.Api
             }
 
             /// <summary>
-            /// <para>Asynchronously sets the description of a user specified by the bearer token.</para>
+            /// <para>
+            /// Asynchronously sets the description of a user.
+            /// The user is implicitly specified by the provided Bearer token.
+            /// </para>
             /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
@@ -1165,7 +1171,7 @@ TwitchNet.Rest.Api
             /// <see cref="IHelixResponse{result_type}.result"/> contains updated user information.
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="ArgumentException">Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.</exception>
+            /// <exception cref="ArgumentException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -1207,22 +1213,25 @@ TwitchNet.Rest.Api
             #region /users/extensions
 
             /// <summary>
-            /// <para>Asynchronously gets a list of active extensions a user has installed.</para>
+            /// <para>
+            /// Asynchronously gets a list of extensions a user has active.
+            /// The user is implicitly specified by the provided Bearer token.
+            /// </para>
             /// <para>Optional scopes: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
             /// </summary>
-            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">
-            /// A set of rest parameters specific to this request.
+            /// A set of rest parameters.
             /// If no user ID is specified, the user is implicityly specified from the bearer token.
             /// </param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains active extensions the user has instlled.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the list of extensions a user has active.
             /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null and no Bearer token is provided.</exception>            
+            /// <exception cref="ArgumentNullException">Thrown if parameters is null and no Bearer token is provided.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if the user_id parameter, if specified, is null, empty, or contains only whitespace.
+            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
+            /// Thrown if the user ID is null, empty, or contains only whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -1231,24 +1240,24 @@ TwitchNet.Rest.Api
             GetUserActiveExtensionsAsync(HelixInfo info, ActiveExtensionsParameters parameters)
             {
                 HelixResponse<ActiveExtensions> response = new HelixResponse<ActiveExtensions>();
-
                 if (!ValidateAuthorizationParameters(info, response))
                 {
                     return response;
                 }
 
-                if (!info.bearer_token.IsValid() && parameters.IsNull())
+                if (!parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters), "Parameters must be specified if no bearer token is specified."), info.settings);
+                    // If the user provided parameters, they did it for a reason.
+                    if (!parameters.user_id.IsValid())
+                    {
+                        response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.user_id)), info.settings);
 
-                    return response;
+                        return response;
+                    }                    
                 }
-
-                // Always do this check regardless if a bearer token was provided.
-                // If the user provided parameters, they did it for a reason.
-                if (!parameters.IsNull() && !parameters.user_id.IsValid())
+                else if (!info.bearer_token.IsValid())
                 {
-                    response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.user_id)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters), "Parameters cannot be null when no Bearer token is provided."), info.settings);
 
                     return response;
                 }
@@ -1263,38 +1272,42 @@ TwitchNet.Rest.Api
             }
 
             /// <summary>
-            /// <para>Asynchronously updates the installed extensions for a user specified by the bearer token.</para>
+            /// <para>
+            /// Asynchronously updates a user's active extensions.
+            /// The user is implicitly specified by the provided Bearer token.
+            /// </para>
             /// <para>Required scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
             /// </summary>
-            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
-            /// <param name="parameters">A set of rest parameters specific to this request.<para>
-            /// Any extensions specified outside of the valid extension slots for each type are ignored.
-            /// The valid extension slots for each type are specified under each <see cref="ActiveExtensionsData"/> member.
-            /// The (x, y) corrdinates are applicable only to component extensions.
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">
+            /// <para>A set of rest parameters.</para>
+            /// <para>
+            /// Any extensions specified outside of the supported extension slots for each type are ignored.
+            /// The supported extension slots for each type are specified under each <see cref="ActiveExtensionsData"/> member.
             /// </para>
             /// </param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains active extensions the user has instlled after the changes have been applied.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the updated active extensions information.
             /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if the <see cref="UpdateExtensionsParameters"/>, <see cref="UpdateExtensionsParameters.extensions"/>, or <see cref="ActiveExtensions.data"/> are null.</exception>
+            /// <exception cref="ArgumentNullException">Thrown if parameters, parameters.extensions, or parameters.extensions.data are null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if the bearer token is null, empty, or contains only whitespace.
-            /// Thrown if each extension slot for each extension type is empty or null.
-            /// Thrown if the name, ID, or version for each specified active extension is null, empty, or contains only whitespace.
+            /// Thrown if the Bearer token is null, empty, or contains only whitespace.
+            /// Thrown if the extension ID or extension version for any active supported extension slot is null, empty, or contains only whitespace.
+            /// Thrown if no supported extension slots are found across all extension types.
             /// </exception>
-            /// <exception cref="ArgumentOutOfRangeException">Thrown if the the either (x, y) coordinate for a component extension exceeds the range (0, 0) to (8000, 5000).</exception>
-            /// <exception cref="DuplicateExtensionException">Thrown if an extension ID is set in more then one valid slot across all extension types.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes, when specified, does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
+            /// <exception cref="ArgumentOutOfRangeException">Thrown if either (x, y) coordinate for an active supported component extension slot exceeds the range (0, 0) to (8000, 5000).</exception>
+            /// <exception cref="DuplicateExtensionException">Thrown if an extension ID is found in more then one active supported slot across all extension types.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserEditBroadcast"/> scope</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<ActiveExtensions>>
-            UpdateUserExtensionsAsync(HelixInfo info, UpdateExtensionsParameters parameters)
+            UpdateUserActiveExtensionsAsync(HelixInfo info, UpdateExtensionsParameters parameters)
             {
-                HelixResponse<ActiveExtensions> response = new HelixResponse<ActiveExtensions>();
-
                 info.required_scopes = Scopes.UserEditBroadcast;
+                
+                HelixResponse<ActiveExtensions> response = new HelixResponse<ActiveExtensions>();
                 if (!ValidateAuthorizationParameters(info, response))
                 {
                     return response;
@@ -1343,7 +1356,7 @@ TwitchNet.Rest.Api
 
                 if (!parameters.extensions.data.component.IsValid() && !parameters.extensions.data.panel.IsValid() && !parameters.extensions.data.overlay.IsValid())
                 {
-                    response.SetInputError(new ArgumentException("At least one extension type must be updated."), info.settings);
+                    response.SetInputError(new ArgumentException("No supported extension slots were provided, or all supported extension slots were null."), info.settings);
 
                     return response;
                 }
@@ -1363,20 +1376,19 @@ TwitchNet.Rest.Api
             }
 
             /// <summary>
-            /// Checks to make sure that the required extension members are not null, empty, contain only whitespace, and/or are not out of bounds.
+            /// Validates that the supported extension slot members are not null, empty, contain only whitespace, and/or are not out of bounds.
             /// </summary>
-            /// <param name="extensions">The extensions to be updated.</param>
+            /// <param name="extensions">The extensions to be validated.</param>
             /// <param name="type">The extension type.</param>
             /// <param name="response">The Helix response to handle errors.</param>
             /// <param name="settings">The request settings to determine how errors are handled.</param>
-            /// <returns>Returns the filtered extensions that Twitch accepts.</returns>
-            /// <exception cref="ArgumentException">Thrown if the name, ID, or version for each specified active extension is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="ArgumentOutOfRangeException">Thrown if the the either (x, y) coordinate for a component extension exceeds the range (0, 0) to (8000, 5000).</exception>
+            /// <returns>Returns the supported and validated extensions.</returns>
+            /// <exception cref="ArgumentException">Thrown if the extension ID or extension version for any active supported extension slot is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="ArgumentOutOfRangeException">Thrown if either (x, y) coordinate for an active supported component extension slot exceeds the range (0, 0) to (8000, 5000).</exception>
             private static Dictionary<string, ActiveExtension>
             ValidateExtensionSlots(Dictionary<string, ActiveExtension> extensions, ExtensionType type, HelixResponse<ActiveExtensions> response, HelixRequestSettings settings)
             {
-                // Only look for the keys we care about in case the user set other keys by accident.
-                extensions = FilterExtensionSlots(extensions, type);
+                extensions = GetSupportedSlots(extensions, type);
                 if (!extensions.IsValid())
                 {
                     return extensions;
@@ -1384,16 +1396,16 @@ TwitchNet.Rest.Api
 
                 foreach (ActiveExtension extension in extensions.Values)
                 {
+                    // If a slot is being deactivated, none of the other parameters matter.
+                    if (!extension.active)
+                    {
+                        continue;
+                    }
+
+                    // If a slot is already active and is being updated or is being activated for the first time, the ID and version are mandatory.
                     if (!extension.id.IsValid())
                     {
                         response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(extension.id)), settings);
-
-                        return extensions;
-                    }
-
-                    if (!extension.name.IsValid())
-                    {
-                        response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(extension.name)), settings);
 
                         return extensions;
                     }
@@ -1405,16 +1417,17 @@ TwitchNet.Rest.Api
                         return extensions;
                     }
 
+                    // Twitch only cares about these when a component is being updated.
                     if (type == ExtensionType.Component)
                     {
-                        if (!extension.x.IsNull() && (extension.x.Value < 0 || extension.x.Value > 8000))
+                        if (extension.x.HasValue && (extension.x.Value < 0 || extension.x.Value > 8000))
                         {
                             response.SetInputError(new ArgumentOutOfRangeException(nameof(extension.x), extension.x.Value, "The x coordinate must be between 0 and 8000, inclusive."), settings);
 
                             return extensions;
                         }
 
-                        if (!extension.y.IsNull() && (extension.y.Value < 0 || extension.y.Value > 5000))
+                        if (extension.y.HasValue && (extension.y.Value < 0 || extension.y.Value > 5000))
                         {
                             response.SetInputError(new ArgumentOutOfRangeException(nameof(extension.y), extension.y.Value, "The y coordinate must be between 0 and 8000, inclusive."), settings);
 
@@ -1427,13 +1440,13 @@ TwitchNet.Rest.Api
             }
 
             /// <summary>
-            /// Filteres through the extensions to be updated and returns only the slots that Twitch accepts.
+            /// Gets the extension slots that can be updated per type.
             /// </summary>
-            /// <param name="extensions">The extensions to be updated.</param>
+            /// <param name="extensions">The extensions to be validated.</param>
             /// <param name="type">The extension type.</param>
-            /// <returns>Returns the filtered extensions that Twitch accepts.</returns>
+            /// <returns>Returns the supported extensions that Twitch accepts.</returns>
             private static Dictionary<string, ActiveExtension>
-            FilterExtensionSlots(Dictionary<string, ActiveExtension> extensions, ExtensionType type)
+            GetSupportedSlots(Dictionary<string, ActiveExtension> extensions, ExtensionType type)
             {
                 extensions = extensions.RemoveNullValues();
                 if (!extensions.IsValid())
@@ -1452,7 +1465,7 @@ TwitchNet.Rest.Api
                 }
                 else
                 {
-                    keys = new string[] { "1", "2", "3" };
+                    keys = new string[] { "1", "2" };
                 }
 
                 Dictionary<string, ActiveExtension> result = new Dictionary<string, ActiveExtension>();
@@ -1470,16 +1483,16 @@ TwitchNet.Rest.Api
             }
 
             /// <summary>
-            /// Checks to make sure that each extension ID is unique across all extension types and slots.
+            /// Validates that each extension ID is unique across all extension types and slots.
             /// </summary>
-            /// <param name="data">The filtered and validated extension data to update.</param>
+            /// <param name="data">The extension data to validate.</param>
             /// <param name="response">The Helix response to handle errors.</param>
             /// <param name="settings">The request settings to determine how errors are handled.</param>
             /// <returns>
             /// Returns true if each extension ID is unique across all extension types and slots.
             /// Returns false otherwise.
             /// </returns>
-            /// <exception cref="DuplicateExtensionException">Thrown if an extension ID is set in more then one valid slot across all extension types.</exception>
+            /// <exception cref="DuplicateExtensionException">Thrown if an extension ID is found in more then one active supported slot across all extension types.</exception>
             private static bool
             ValidateUniqueExtensionIDs(ActiveExtensionsData data, HelixResponse<ActiveExtensions> response, HelixRequestSettings settings)
             {                
@@ -1499,11 +1512,14 @@ TwitchNet.Rest.Api
                     extensions.AddRange(data.component.Values);
                 }
 
-                extensions.TrimExcess();
-
                 List<string> ids = new List<string>(extensions.Count);
                 foreach (ActiveExtension extension in extensions) 
                 {
+                    if (!extension.active)
+                    {
+                        continue;
+                    }
+
                     if (ids.Contains(extension.id))
                     {
                         response.SetInputError(new DuplicateExtensionException("The extension ID, " + extension.id + ", was attempted to be set in two or more extension slots. An extension can only be set to one slot.", extension), settings);
@@ -1523,27 +1539,27 @@ TwitchNet.Rest.Api
 
             /// <summary>
             /// <para>
-            /// Asynchronously gets a list of all extensions a user has installed, activated or deactivated.
-            /// The user is specified by the provided bearer token.
+            /// Asynchronously gets a complete list of extensions a user has installed, activated or deactivated.
+            /// The user is implicitly specified by the provided Bearer token.
             /// </para>
             /// <para>Required Scope: <see cref="Scopes.UserReadBroadcast"/></para>
             /// </summary>
-            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains extensions the user has instlled, activated or deactivated..
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of extensions the user has instlled, activated or deactivated..
             /// </returns>
-            /// <exception cref="ArgumentException">Thrown if the bearer token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes, when specified, does not include the <see cref="Scopes.UserReadBroadcast"/> scope.</exception>
+            /// <exception cref="ArgumentException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserReadBroadcast"/> scope</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<Extension>>>
             GetUserExtensionsAsync(HelixInfo info)
             {
-                HelixResponse<Data<Extension>> response = new HelixResponse<Data<Extension>>();
-
                 info.required_scopes = Scopes.UserReadBroadcast;
+
+                HelixResponse<Data<Extension>> response = new HelixResponse<Data<Extension>>();
                 if (!ValidateAuthorizationParameters(info, response))
                 {
                     return response;
@@ -1564,10 +1580,10 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a single page of a user's following list.
             /// </summary>
-            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">
-            /// A set of rest parameters to add to the request.
-            /// The to_id is ignored if specified.
+            /// A set of rest parameters.
+            /// If provided, to_id is ignored.
             /// </param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
@@ -1575,7 +1591,7 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
+            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
             /// Thrown if from_id is null, empty, or contains only whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1585,7 +1601,6 @@ TwitchNet.Rest.Api
             GetUserFollowingPageAsync(HelixInfo info, FollowsParameters parameters)
             {
                 HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
-
                 if (!ValidateAuthorizationParameters(info, response))
                 {
                     return response;
@@ -1605,9 +1620,7 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                // Get rid of any junk the user may have provided.
-                // Leave the after alone in case they're requesting a specific page.
-                parameters.to_id = string.Empty;
+                parameters.to_id = null;
 
                 response = await GetUserRelationshipPageAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
 
@@ -1617,10 +1630,10 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a user's complete following list.
             /// </summary>
-            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">
-            /// A set of rest parameters to add to the request.
-            /// The to_id is ignored if specified.
+            /// A set of rest parameters.
+            /// If provided, to_id is ignored.
             /// </param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
@@ -1628,7 +1641,7 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
+            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
             /// Thrown if from_id is null, empty, or contains only whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1638,7 +1651,6 @@ TwitchNet.Rest.Api
             GetUserFollowingAsync(HelixInfo info, FollowsParameters parameters)
             {
                 HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
-
                 if (!ValidateAuthorizationParameters(info, response))
                 {
                     return response;
@@ -1658,9 +1670,7 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                // Get rid of any junk the user may have provided.
-                // Leave the after alone in case they want all users after a specific page.
-                parameters.to_id = string.Empty;
+                parameters.to_id = null;
 
                 response = await GetUserRelationshipAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
 
@@ -1670,10 +1680,10 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a single page of a user's followers list.
             /// </summary>
-            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">
-            /// A set of rest parameters to add to the request.
-            /// The from_id is ignored if specified.
+            /// A set of rest parameters.
+            /// If provided, from_id is ignored.
             /// </param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
@@ -1681,7 +1691,7 @@ TwitchNet.Rest.Api
             /// </returns>        
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
+            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
             /// Thrown if to_id is null, empty, or contains only whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1691,7 +1701,6 @@ TwitchNet.Rest.Api
             GetUserFollowersPageAsync(HelixInfo info, FollowsParameters parameters)
             {
                 HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
-
                 if (!ValidateAuthorizationParameters(info, response))
                 {
                     return response;
@@ -1711,9 +1720,7 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                // Get rid of any junk the user may have provided.
-                // Leave the after alone in case they're requesting a specific page.
-                parameters.from_id = string.Empty;
+                parameters.from_id = null;
 
                 response = await GetUserRelationshipPageAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
 
@@ -1723,10 +1730,10 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets a user's complete follower list.
             /// </summary>
-            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">
-            /// A set of rest parameters to add to the request.
-            /// The from_id is ignored if specified.
+            /// A set of rest parameters.
+            /// If provided, from_id is ignored.
             /// </param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
@@ -1734,7 +1741,7 @@ TwitchNet.Rest.Api
             /// </returns>  
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
+            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
             /// Thrown if to_id is null, empty, or contains only whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1744,7 +1751,6 @@ TwitchNet.Rest.Api
             GetUserFollowersAsync(HelixInfo info, FollowsParameters parameters)
             {
                 HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
-
                 if (!ValidateAuthorizationParameters(info, response))
                 {
                     return response;
@@ -1764,9 +1770,7 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                // Get rid of any junk the user may have provided.
-                // Leave the after alone in case they want all users after a specific page.
-                parameters.from_id = string.Empty;
+                parameters.from_id = null;
 
                 response = await GetUserRelationshipAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
 
@@ -1776,7 +1780,7 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously checks to see if the from_id user is following the to_id user.
             /// </summary>
-            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="from_id">The ID of the following user.</param>
             /// <param name="to_id">The ID of the followed user.</param>
             /// <returns>
@@ -1784,7 +1788,7 @@ TwitchNet.Rest.Api
             /// <see cref="IHelixResponse{result_type}.result"/> is set true if from_id is following to_id, otherwise false.
             /// </returns>
             /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
+            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
             /// Thrown if either from_id and to_id are null, empty, or contains only whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1794,6 +1798,10 @@ TwitchNet.Rest.Api
             IsUserFollowingAsync(HelixInfo info, string from_id, string to_id)
             {
                 HelixResponse<bool> response = new HelixResponse<bool>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
 
                 if (!to_id.IsValid() || !from_id.IsValid())
                 {
@@ -1815,10 +1823,10 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets the relationship between two users, or a single page of a user's following/follower list.
             /// </summary>
-            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">
-            /// <para>A set of rest parameters to add to the request.</para>
-            /// <para>A from_id or to_id must be specified.</para>
+            /// <para>A set of rest parameters.</para>
+            /// <para>At minimum, from_id or to_id must be provided.</para>
             /// </param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
@@ -1826,7 +1834,7 @@ TwitchNet.Rest.Api
             /// </returns> 
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
+            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
             /// Thrown if both from_id and to_id are null, empty, or contains only whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1836,6 +1844,10 @@ TwitchNet.Rest.Api
             GetUserRelationshipPageAsync(HelixInfo info, FollowsParameters parameters)
             {
                 HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
 
                 if (parameters.IsNull())
                 {
@@ -1846,7 +1858,7 @@ TwitchNet.Rest.Api
 
                 if (!parameters.to_id.IsValid() && !parameters.from_id.IsValid())
                 {
-                    response.SetInputError(new ArgumentException("At least either from_id or to_id must be specified and cannot be null, empty, or contain only whitespace."), info.settings);
+                    response.SetInputError(new ArgumentException("At minimum, from_id or to_id must be provided and cannot be null, empty, or contain only whitespace."), info.settings);
 
                     return response;
                 }
@@ -1865,10 +1877,10 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets the relationship between two users, or a user's complete following/follower list.
             /// </summary>
-            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">
-            /// <para>A set of rest parameters to add to the request.</para>
-            /// <para>A from_id or to_id must be specified.</para>
+            /// <para>A set of rest parameters.</para>
+            /// <para>At minimum, from_id or to_id must be provided.</para>
             /// </param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
@@ -1876,7 +1888,7 @@ TwitchNet.Rest.Api
             /// </returns>        
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
+            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
             /// Thrown if both from_id and to_id are null, empty, or contains only whitespace.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1886,6 +1898,10 @@ TwitchNet.Rest.Api
             GetUserRelationshipAsync(HelixInfo info, FollowsParameters parameters)
             {
                 HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
 
                 if (parameters.IsNull())
                 {
@@ -1896,7 +1912,7 @@ TwitchNet.Rest.Api
 
                 if (!parameters.to_id.IsValid() && !parameters.from_id.IsValid())
                 {
-                    response.SetInputError(new ArgumentException("At least either from_id or to_id must be specified and cannot be null, empty, or contain only whitespace."), info.settings);
+                    response.SetInputError(new ArgumentException("At minimum, from_id or to_id must be provided and cannot be null, empty, or contain only whitespace."), info.settings);
 
                     return response;
                 }

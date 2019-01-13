@@ -54,7 +54,6 @@
     <Compile Include="Debugger\ErrorLevel.cs" />
     <Compile Include="Debugger\TimeStamp.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
-    <Compile Include="Helpers\ClampedList.cs" />
     <Compile Include="Helpers\Json\EnumConverter.cs" />
     <Compile Include="Helpers\Json\ISerializer.cs" />
     <Compile Include="Helpers\Json\IDeserializer.cs" />
@@ -216,7 +215,6 @@
     <Compile Include="Rest\Api\Users\FollowsData.cs" />
     <Compile Include="Rest\Api\Videos\Video.cs" />
     <Compile Include="Rest\Api\Entitlements\EntitlementParameters.cs" />
-    <Compile Include="Helpers\ClampedNumber.cs" />
     <Compile Include="Rest\Api\Games\GamesParameters.cs" />
     <Compile Include="Rest\Api\PagingParameters.cs" />
     <Compile Include="Rest\Api\Streams\StreamsParameters.cs" />

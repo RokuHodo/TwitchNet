@@ -5,7 +5,7 @@ TwitchNet.Rest.Api.Users
     ActiveExtensionsParameters
     {
         /// <summary>
-        /// The ID of the user whose installed active extensions will be returned.
+        /// The ID of the user to query.
         /// </summary>
         [QueryParameter("user_id")]
         public virtual string user_id { get; set; }

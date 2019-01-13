@@ -1,7 +1,4 @@
-﻿// standard namespaces
-using System.Collections.Generic;
-
-// imported .dll's
+﻿// imported .dll's
 using Newtonsoft.Json;
 
 namespace
@@ -11,7 +8,7 @@ TwitchNet.Rest.Api.Users
     ActiveExtensions
     {
         /// <summary>
-        /// Contains data for the extensions a user has active.
+        /// Contains the active extension data for each extension type.
         /// </summary>
         [JsonProperty("data")]
         public ActiveExtensionsData data { get; set; }
@@ -20,6 +17,6 @@ TwitchNet.Rest.Api.Users
         ActiveExtensions()
         {
             data = new ActiveExtensionsData();            
-        }
+        }        
     }
 }

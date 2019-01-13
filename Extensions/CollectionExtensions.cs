@@ -8,7 +8,7 @@ namespace TwitchNet.Extensions
     CollectionExtensions
     {
         /// <summary>
-        /// Removes all duplicate elements, and all elements that are null, empty, or only contain whitespace.
+        /// Removes all duplicate elements, and All elements that are null, empty, or contain only whitespace.
         /// </summary>
         /// <param name="list">The list to sanitize.</param>
         /// <returns>Returns the sanitized list.</returns>

@@ -1,4 +1,4 @@
-﻿// standard namespaces
+// standard namespaces
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -72,7 +72,7 @@ TwitchNet.Rest.Api
 
                         return false;
                     }
-                    else if(info.settings.available_scopes != Scopes.Other)
+                    else if (info.settings.available_scopes != Scopes.Other)
                     {
                         // Bearer token has been provided, available scopes have been specified.
                         Scopes[] available_scopes = EnumUtil.GetFlagValues<Scopes>(info.settings.available_scopes);
@@ -138,40 +138,40 @@ TwitchNet.Rest.Api
                     switch (response.request.settings.status_error[code].handling)
                     {
                         case StatusHandling.Error:
-                        {
-                            throw response.exception;
-                        };
+                            {
+                                throw response.exception;
+                            };
 
                         case StatusHandling.Retry:
-                        {
-                            StatusCodeSetting status_setting = response.request.settings.status_error[code];
-
-                            ++status_setting.retry_count;
-                            if (status_setting.retry_count > status_setting.retry_limit && status_setting.retry_limit != -1)
                             {
-                                response.exception = new RetryLimitReachedException("The retry limit " + status_setting.retry_limit + " has been reached for status code " + code + ".", status_setting.retry_limit, response.exception);
+                                StatusCodeSetting status_setting = response.request.settings.status_error[code];
 
-                                return await HandleResponse(response);
-                            }
+                                ++status_setting.retry_count;
+                                if (status_setting.retry_count > status_setting.retry_limit && status_setting.retry_limit != -1)
+                                {
+                                    response.exception = new RetryLimitReachedException("The retry limit " + status_setting.retry_limit + " has been reached for status code " + code + ".", status_setting.retry_limit, response.exception);
 
-                            RateLimit rate_limit = new RateLimit(response.headers);
-                            TimeSpan difference = rate_limit.reset_time - DateTime.Now;
-                            if (rate_limit.remaining == 0 && difference.TotalMilliseconds > 0)
-                            {
-                                await Task.Delay(difference);
-                            }
+                                    return await HandleResponse(response);
+                                }
 
-                            // Clone the message to a new instance because the same instance can't be sent twice.
-                            response.request.CloneMessage();
-                            response = await CLIENT_HELIX.ExecuteAsync<data_type>(response.request, HandleResponse);
-                        };
-                        break;
+                                RateLimit rate_limit = new RateLimit(response.headers);
+                                TimeSpan difference = rate_limit.reset_time - DateTime.Now;
+                                if (rate_limit.remaining == 0 && difference.TotalMilliseconds > 0)
+                                {
+                                    await Task.Delay(difference);
+                                }
+
+                                // Clone the message to a new instance because the same instance can't be sent twice.
+                                response.request.CloneMessage();
+                                response = await CLIENT_HELIX.ExecuteAsync<data_type>(response.request, HandleResponse);
+                            };
+                            break;
 
                         case StatusHandling.Return:
                         default:
-                        {
-                            return response;
-                        }
+                            {
+                                return response;
+                            }
                     }
                 }
                 else
@@ -195,15 +195,15 @@ TwitchNet.Rest.Api
                     switch (handling)
                     {
                         case ErrorHandling.Error:
-                        {
-                            throw response.exception;
-                        }
+                            {
+                                throw response.exception;
+                            }
 
                         case ErrorHandling.Return:
                         default:
-                        {
-                            return response;
-                        }
+                            {
+                                return response;
+                            }
                     }
                 }
 
@@ -223,22 +223,16 @@ TwitchNet.Rest.Api
             GetExtensionAnalyticsAsync(RestInfo<Data<ExtensionAnalytics>> info, ExtensionAnalyticsParameters parameters)
             {
                 IHelixResponse<Data<ExtensionAnalytics>> response = default;
-
                 info.required_scopes = Scopes.AnalyticsReadExtensions;
                 info = RestUtil.CreateHelixRequest("analytics/extensions", Method.GET, info);
-
                 if (info.exception_source != RestErrorSource.None)
                 {
                     response = new HelixResponse<Data<ExtensionAnalytics>>(info);
-
                     return response;
                 }
-
                 info.request = info.request.AddPaging(parameters);
                 info = await RestUtil.ExecuteAsync(info);
-
                 response = new HelixResponse<Data<ExtensionAnalytics>>(info);
-
                 return response;
             }
             */
@@ -255,34 +249,24 @@ TwitchNet.Rest.Api
             GetGameAnalyticsPageAsync(RestInfo<Data<GameAnalytics>> info, GameAnalyticsParameters parameters)
             {
                 IHelixResponse<Data<GameAnalytics>> response = default;
-
                 if ((!parameters.started_at.IsNull() && parameters.ended_at.IsNull()) || (!parameters.ended_at.IsNull() && parameters.started_at.IsNull()))
                 {
                     info.SetInputError(new ArgumentException(nameof(parameters.started_at).WrapQuotes() + " and " + nameof(parameters.ended_at).WrapQuotes() + " must be specified together."));
-
                     response = new HelixResponse<Data<GameAnalytics>>(info);
-
                     return response;
                 }
-
                 info.required_scopes = Scopes.AnalyticsReadGames;
                 info = RestUtil.CreateHelixRequest("analytics/games", Method.GET, info);
-
                 if (info.exception_source != RestErrorSource.None)
                 {
                     response = new HelixResponse<Data<GameAnalytics>>(info);
-
                     return response;
                 }
-
                 info.request = info.request.AddPaging(parameters);
                 info = await RestUtil.ExecuteAsync(info);
-
                 response = new HelixResponse<Data<GameAnalytics>>(info);
-
                 return response;
             }
-
             /// <summary>
             /// <para>Asynchronously gets a complete list of analytic urls for one or more devloper games.</para>
             /// <para>Required Scope: <see cref="Scopes.AnalyticsReadGames"/>.</para>
@@ -291,38 +275,28 @@ TwitchNet.Rest.Api
             GetGameAnalyticsAsync(RestInfo<DataPage<GameAnalytics>> info, GameAnalyticsParameters parameters)
             {
                 IHelixResponse<DataPage<GameAnalytics>> response = default;
-
                 if ((!parameters.started_at.IsNull() && parameters.ended_at.IsNull()) || (!parameters.ended_at.IsNull() && parameters.started_at.IsNull()))
                 {
                     info.SetInputError(new ArgumentException(nameof(parameters.started_at).WrapQuotes() + " and " + nameof(parameters.ended_at).WrapQuotes() + " must be specified together."));
-
                     response = new HelixResponse<DataPage<GameAnalytics>>(info);
-
                     return response;
                 }            
-
                 info.required_scopes = Scopes.AnalyticsReadGames;
                 info = RestUtil.CreateHelixRequest("analytics/games", Method.GET, info);
-
                 if (info.exception_source != RestErrorSource.None)
                 {
                     response = new HelixResponse<DataPage<GameAnalytics>>(info);
-
                     return response;
                 }
-
                 // Make sure the user doesn't accidentally break shit.
                 if (parameters.IsNull())
                 {
                     parameters = new GameAnalyticsParameters();
                 }
                 parameters.game_id = string.Empty;
-
                 info.request = info.request.AddPaging(parameters);
                 info = await RestUtil.TraceExecuteAsync<GameAnalytics, DataPage<GameAnalytics>>(info, parameters);
-
                 response = new HelixResponse<DataPage<GameAnalytics>>(info);
-
                 return response;
             }
             */
@@ -339,27 +313,20 @@ TwitchNet.Rest.Api
             GetBitsLeaderboardAsync(RestInfo<BitsLeaderboardData<BitsUser>> info, BitsLeaderboardParameters parameters)
             {
                 IHelixResponse<BitsLeaderboardData<BitsUser>> response = default;
-
                 info.required_scopes = Scopes.BitsRead;
                 info = RestUtil.CreateHelixRequest("bits/leaderboard", Method.GET, info);
-
                 if (info.exception_source != RestErrorSource.None)
                 {
                     response = new HelixResponse<BitsLeaderboardData<BitsUser>>(info);
-
                     return response;
                 }
-
                 if (!parameters.IsNull() && parameters.period == BitsLeaderboardPeriod.All)
                 {
                     parameters.started_at = null;
                 }
-
                 info.request = info.request.AddPaging(parameters);
                 info = await RestUtil.ExecuteAsync(info);
-
                 response = new HelixResponse<BitsLeaderboardData<BitsUser>>(info);
-
                 return response;
             }
             */
@@ -376,43 +343,30 @@ TwitchNet.Rest.Api
             CreateClipAsync(RestInfo<Data<CreatedClip>> info, ClipCreationParameters parameters)
             {
                 IHelixResponse<Data<CreatedClip>> response = default;
-
                 if (parameters.IsNull())
                 {
                     info.SetInputError(new ArgumentNullException(nameof(parameters)));
-
                     response = new HelixResponse<Data<CreatedClip>>(info);
-
                     return response;
                 }
-
                 if (!parameters.broadcaster_id.IsValid())
                 {
                     info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.broadcaster_id)));
-
                     response = new HelixResponse<Data<CreatedClip>>(info);
-
                     return response;
                 }
-
                 info.required_scopes = Scopes.ClipsEdit;
                 info = RestUtil.CreateHelixRequest("clips", Method.POST, info);
-
                 if (info.exception_source != RestErrorSource.None)
                 {
                     response = new HelixResponse<Data<CreatedClip>>(info);
-
                     return response;
                 }
-
                 info.request = info.request.AddPaging(parameters);
                 info = await RestUtil.ExecuteAsync(info);
-
                 response = new HelixResponse<Data<CreatedClip>>(info);
-
                 return response;
             }
-
             /// <summary>
             /// Asynchronously gets information about a clip.
             /// </summary>
@@ -420,39 +374,27 @@ TwitchNet.Rest.Api
             GetClipAsync(RestInfo<Data<Clip>> info, ClipParameters parameters)
             {
                 IHelixResponse<Data<Clip>> response = default;
-
                 if (parameters.IsNull())
                 {
                     info.SetInputError(new ArgumentNullException(nameof(parameters)));
-
                     response = new HelixResponse<Data<Clip>>(info);
-
                     return response;
                 }
-
                 if (!parameters.id.IsValid())
                 {
                     info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.id)));
-
                     response = new HelixResponse<Data<Clip>>(info);
-
                     return response;
                 }
-
                 info = RestUtil.CreateHelixRequest("clips", Method.GET, info);
-
                 if (info.exception_source != RestErrorSource.None)
                 {
                     response = new HelixResponse<Data<Clip>>(info);
-
                     return response;
                 }
-
                 info.request = info.request.AddPaging(parameters);
                 info = await RestUtil.ExecuteAsync(info);
-
                 response = new HelixResponse<Data<Clip>>(info);
-
                 return response;
             }
             */
@@ -471,59 +413,41 @@ TwitchNet.Rest.Api
             CreateEntitlementGrantsUploadUrlAsync(RestInfo<Data<Url>> info, EntitlementParameters parameters)
             {
                 IHelixResponse<Data<Url>> response = default;
-
                 if (parameters.IsNull())
                 {
                     info.SetInputError(new ArgumentNullException(nameof(parameters)));
-
                     response = new HelixResponse<Data<Url>>(info);
-
                     return response;
                 }
-
                 // Check for this separately here in case the user calls the overloaded function that passes the app access token and the client ID
                 // and only the client ID is only valid, for some reason.
                 if (!info.bearer_token.IsValid())
                 {
                     info.SetInputError(new ArgumentException("An app access token must be specified.", nameof(info.bearer_token)));
-
                     response = new HelixResponse<Data<Url>>(info);
-
                     return response;
                 }
-
                 if (!parameters.manifest_id.IsValid())
                 {
                     info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.manifest_id)));
-
                     response = new HelixResponse<Data<Url>>(info);
-
                     return response;
                 }
-
                 if (!parameters.manifest_id.Length.IsInRange(1, 64))
                 {
                     info.SetInputError(new ArgumentException("The string must be between 1 and 64 characters long.", nameof(parameters.manifest_id)));
-
                     response = new HelixResponse<Data<Url>>(info);
-
                     return response;
                 }
-
                 info = RestUtil.CreateHelixRequest("entitlements/upload", Method.POST, info);
-
                 if (info.exception_source != RestErrorSource.None)
                 {
                     response = new HelixResponse<Data<Url>>(info);
-
                     return response;
                 }
-
                 info.request = info.request.AddPaging(parameters);
                 info = await RestUtil.ExecuteAsync(info);
-
                 response = new HelixResponse<Data<Url>>(info);
-
                 return response;
             }
             */
@@ -578,8 +502,8 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                parameters.ids      = parameters.ids.RemoveInvalidAndDuplicateValues();
-                parameters.names    = parameters.names.RemoveInvalidAndDuplicateValues();
+                parameters.ids = parameters.ids.RemoveInvalidAndDuplicateValues();
+                parameters.names = parameters.names.RemoveInvalidAndDuplicateValues();
 
                 count = parameters.ids.Count + parameters.names.Count;
                 if (count == 0)
@@ -590,14 +514,14 @@ TwitchNet.Rest.Api
                 }
                 else if (count > 100)
                 {
-                    response.SetInputError(new ParameterCountException("A maximum of 100 total game ID's and/or names can be specified at one time.", 100, count), info.settings);
+                    response.SetInputError(new ParameterCountException("A maximum of 100 total game ID's and/or names can be provided at one time.", 100, count), info.settings);
 
                     return response;
                 }
 
                 RestRequest request = GetBaseRequest("games", Method.GET, info);
                 request.AddParameters(parameters);
-                
+
                 RestResponse<Data<Game>> _response = await CLIENT_HELIX.ExecuteAsync<Data<Game>>(request, HandleResponse);
                 response = new HelixResponse<Data<Game>>(_response);
 
@@ -635,17 +559,17 @@ TwitchNet.Rest.Api
 
                 if (!parameters.IsNull())
                 {
-                    parameters.first    = parameters.first.Clamp(1, 100);
-                    parameters.after    = parameters.after.NullIfInvalid();
-                    parameters.before   = parameters.before.NullIfInvalid();
-
+                    parameters.after = parameters.after.NullIfInvalid();
+                    parameters.before = parameters.before.NullIfInvalid();
                     if (parameters.after.IsValid() && parameters.before.IsValid())
                     {
                         response.SetInputError(new ArgumentException("Only one pagination direction can be specified. Provide either 'after' or 'before', not both."), info.settings);
 
                         return response;
-                    }                    
-                }                
+                    }
+
+                    parameters.first = parameters.first.Clamp(1, 100);
+                }
 
                 RestRequest request = GetBaseRequest("games/top", Method.GET, info);
                 request.AddParameters(parameters);
@@ -666,10 +590,8 @@ TwitchNet.Rest.Api
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of top videos.
             /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
-            /// Thrown if after and before are provided.
-            /// </exception>
+            /// <exception cref="ArgumentException">Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.</exception>
+            /// <exception cref="NotSupportedException">Thrown if before is provided.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -685,7 +607,15 @@ TwitchNet.Rest.Api
                 string direction = "after";
                 if (!parameters.IsNull())
                 {
+                    // Temporary error until 'before' works properly.
+                    if (parameters.before.IsValid())
+                    {
+                        response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
 
+                        return response;
+                    }
+
+                    // This error will never be triggered, but keep it just for when/if 'before' works properly.
                     parameters.after = parameters.after.NullIfInvalid();
                     parameters.before = parameters.before.NullIfInvalid();
                     if (parameters.after.IsValid() && parameters.before.IsValid())
@@ -693,9 +623,8 @@ TwitchNet.Rest.Api
                         response.SetInputError(new ArgumentException("Only one pagination direction can be specified. Provide either 'after' or 'before', not both."), info.settings);
 
                         return response;
-                    }                    
+                    }
 
-                    // TODO: /games/top - Disallow 'before' until it works properly?
                     if (parameters.before.IsValid())
                     {
                         direction = "before";
@@ -763,7 +692,7 @@ TwitchNet.Rest.Api
                     parameters.community_ids = parameters.community_ids.RemoveInvalidAndDuplicateValues();
                     if (parameters.community_ids.Count > 100)
                     {
-                        response.SetInputError(new ParameterCountException("A maximum of 100 total community ID's can be specified at one time.", nameof(parameters.community_ids), 100, parameters.community_ids.Count), info.settings);
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total community ID's can be provided at one time.", nameof(parameters.community_ids), 100, parameters.community_ids.Count), info.settings);
 
                         return response;
                     }
@@ -771,15 +700,15 @@ TwitchNet.Rest.Api
                     parameters.game_ids = parameters.game_ids.RemoveInvalidAndDuplicateValues();
                     if (parameters.game_ids.Count > 100)
                     {
-                        response.SetInputError(new ParameterCountException("A maximum of 100 total game ID's can be specified at one time.", nameof(parameters.game_ids), 100, parameters.game_ids.Count), info.settings);
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total game ID's can be provided at one time.", nameof(parameters.game_ids), 100, parameters.game_ids.Count), info.settings);
 
                         return response;
                     }
 
                     parameters.user_ids = parameters.user_ids.RemoveInvalidAndDuplicateValues();
                     if (parameters.user_ids.Count > 100)
-                    {                        
-                        response.SetInputError(new ParameterCountException("A maximum of 100 total user ID's can be specified at one time.", nameof(parameters.user_ids), 100, parameters.user_ids.Count), info.settings);
+                    {
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total user ID's can be provided at one time.", nameof(parameters.user_ids), 100, parameters.user_ids.Count), info.settings);
 
                         return response;
                     }
@@ -787,10 +716,10 @@ TwitchNet.Rest.Api
                     parameters.user_logins = parameters.user_logins.RemoveInvalidAndDuplicateValues();
                     if (parameters.user_logins.Count > 100)
                     {
-                        response.SetInputError(new ParameterCountException("A maximum of 100 total user logins can be specified at one time.", nameof(parameters.user_logins), 100, parameters.user_logins.Count), info.settings);
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total user logins can be provided at one time.", nameof(parameters.user_logins), 100, parameters.user_logins.Count), info.settings);
 
                         return response;
-                    }                    
+                    }
 
                     parameters.first = parameters.first.Clamp(1, 100);
                 }
@@ -814,16 +743,14 @@ TwitchNet.Rest.Api
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of streams.
             /// </returns>
-            /// <exception cref="ArgumentException">
-            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
-            /// Thrown if after and before are provided.
-            /// </exception>
+            /// <exception cref="ArgumentException">Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.</exception>
             /// <exception cref="ParameterCountException">
             /// Thrown if more than 100 total community ID's are provided.
             /// Thrown if more than 100 total game ID's are provided.
             /// Thrown if more than 100 total user ID's are provided.
             /// Thrown if more than 100 total user logins are provided.
             /// </exception>
+            /// <exception cref="NotSupportedException">Thrown if before is provided.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -839,6 +766,15 @@ TwitchNet.Rest.Api
                 string direction = "after";
                 if (!parameters.IsNull())
                 {
+                    // Temporary error until 'before' works properly.
+                    if (parameters.before.IsValid())
+                    {
+                        response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
+
+                        return response;
+                    }
+
+                    // This error will never be triggered, but keep it just for when/if 'before' works properly.
                     parameters.after = parameters.after.NullIfInvalid();
                     parameters.before = parameters.before.NullIfInvalid();
                     if (parameters.after.IsValid() && parameters.before.IsValid())
@@ -851,7 +787,7 @@ TwitchNet.Rest.Api
                     parameters.community_ids = parameters.community_ids.RemoveInvalidAndDuplicateValues();
                     if (parameters.community_ids.Count > 100)
                     {
-                        response.SetInputError(new ParameterCountException("A maximum of 100 total community ID's can be specified at one time.", nameof(parameters.community_ids), 100, parameters.community_ids.Count), info.settings);
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total community ID's can be provided at one time.", nameof(parameters.community_ids), 100, parameters.community_ids.Count), info.settings);
 
                         return response;
                     }
@@ -859,7 +795,7 @@ TwitchNet.Rest.Api
                     parameters.game_ids = parameters.game_ids.RemoveInvalidAndDuplicateValues();
                     if (parameters.game_ids.Count > 100)
                     {
-                        response.SetInputError(new ParameterCountException("A maximum of 100 total game ID's can be specified at one time.", nameof(parameters.game_ids), 100, parameters.game_ids.Count), info.settings);
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total game ID's can be provided at one time.", nameof(parameters.game_ids), 100, parameters.game_ids.Count), info.settings);
 
                         return response;
                     }
@@ -867,7 +803,7 @@ TwitchNet.Rest.Api
                     parameters.user_ids = parameters.user_ids.RemoveInvalidAndDuplicateValues();
                     if (parameters.user_ids.Count > 100)
                     {
-                        response.SetInputError(new ParameterCountException("A maximum of 100 total user ID's can be specified at one time.", nameof(parameters.user_ids), 100, parameters.user_ids.Count), info.settings);
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total user ID's can be provided at one time.", nameof(parameters.user_ids), 100, parameters.user_ids.Count), info.settings);
 
                         return response;
                     }
@@ -875,12 +811,11 @@ TwitchNet.Rest.Api
                     parameters.user_logins = parameters.user_logins.RemoveInvalidAndDuplicateValues();
                     if (parameters.user_logins.Count > 100)
                     {
-                        response.SetInputError(new ParameterCountException("A maximum of 100 total user logins can be specified at one time.", nameof(parameters.user_logins), 100, parameters.user_logins.Count), info.settings);
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total user logins can be provided at one time.", nameof(parameters.user_logins), 100, parameters.user_logins.Count), info.settings);
 
                         return response;
                     }
 
-                    // TODO: /streams - Disallow 'before' until it works properly?
                     if (parameters.before.IsValid())
                     {
                         direction = "before";
@@ -999,24 +934,17 @@ TwitchNet.Rest.Api
             GetStreamsMetadataPageAsync(RestInfo<DataPage<Metadata>> info, StreamsParameters parameters)
             {
                 IHelixResponse<DataPage<Metadata>> response = default;
-
                 info = RestUtil.CreateHelixRequest("streams/metadata", Method.GET, info);
-
                 if (info.exception_source != RestErrorSource.None)
                 {
                     response = new HelixResponse<DataPage<Metadata>>(info);
-
                     return response;
                 }
-
                 info.request = info.request.AddPaging(parameters);
                 info = await RestUtil.ExecuteAsync(info);
-
                 response = new HelixResponse<DataPage<Metadata>>(info);
-
                 return response;
             }
-
             /// <summary>
             /// Asynchronously gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
             /// </summary>
@@ -1024,21 +952,15 @@ TwitchNet.Rest.Api
             GetStreamsMetadataAsync(RestInfo<DataPage<Metadata>> info, StreamsParameters parameters)
             {
                 IHelixResponse<DataPage<Metadata>> response = default;
-
                 info = RestUtil.CreateHelixRequest("streams/metadata", Method.GET, info);
-
                 if (info.exception_source != RestErrorSource.None)
                 {
                     response = new HelixResponse<DataPage<Metadata>>(info);
-
                     return response;
                 }
-
                 info.request = info.request.AddPaging(parameters);
                 info = await RestUtil.TraceExecuteAsync<Metadata, DataPage<Metadata>>(info, parameters);
-
                 response = new HelixResponse<DataPage<Metadata>>(info);
-
                 return response;
             }
             */
@@ -1065,7 +987,7 @@ TwitchNet.Rest.Api
             /// <exception cref="ArgumentNullException">Thrown if parameters is null and no Bearer token is provided.</exception>
             /// <exception cref="ArgumentException">
             /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
-            /// Thrown if all provided user ID's and user logins are null, empty, or contains only whitespace.
+            /// Thrown if no user ID's and user logins are provided, or all elements are null, empty, or contains only whitespace.
             /// </exception>
             /// <exception cref="ParameterCountException">
             /// Thrown if no user ID's or user logins are provided.            
@@ -1107,7 +1029,7 @@ TwitchNet.Rest.Api
                     }
                     else if (count > 100)
                     {
-                        response.SetInputError(new ParameterCountException("A maximum of 100 total user ID's and/or user logins can be specified at one time.", 100, count), info.settings);
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total user ID's and/or user logins can be provided at one time.", 100, count), info.settings);
 
                         return response;
                     }
@@ -1185,7 +1107,7 @@ TwitchNet.Rest.Api
                 if (!ValidateAuthorizationParameters(info, response))
                 {
                     return response;
-                }        
+                }
 
                 if (parameters.IsNull())
                 {
@@ -1253,7 +1175,7 @@ TwitchNet.Rest.Api
                         response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.user_id)), info.settings);
 
                         return response;
-                    }                    
+                    }
                 }
                 else if (!info.bearer_token.IsValid())
                 {
@@ -1306,7 +1228,7 @@ TwitchNet.Rest.Api
             UpdateUserActiveExtensionsAsync(HelixInfo info, UpdateExtensionsParameters parameters)
             {
                 info.required_scopes = Scopes.UserEditBroadcast;
-                
+
                 HelixResponse<ActiveExtensions> response = new HelixResponse<ActiveExtensions>();
                 if (!ValidateAuthorizationParameters(info, response))
                 {
@@ -1392,7 +1314,7 @@ TwitchNet.Rest.Api
                 if (!extensions.IsValid())
                 {
                     return extensions;
-                }                
+                }
 
                 foreach (ActiveExtension extension in extensions.Values)
                 {
@@ -1471,7 +1393,7 @@ TwitchNet.Rest.Api
                 Dictionary<string, ActiveExtension> result = new Dictionary<string, ActiveExtension>();
                 foreach (string key in keys)
                 {
-                    if(!extensions.TryGetValue(key, out ActiveExtension temp))
+                    if (!extensions.TryGetValue(key, out ActiveExtension temp))
                     {
                         continue;
                     }
@@ -1495,7 +1417,7 @@ TwitchNet.Rest.Api
             /// <exception cref="DuplicateExtensionException">Thrown if an extension ID is found in more then one active supported slot across all extension types.</exception>
             private static bool
             ValidateUniqueExtensionIDs(ActiveExtensionsData data, HelixResponse<ActiveExtensions> response, HelixRequestSettings settings)
-            {                
+            {
                 List<ActiveExtension> extensions = new List<ActiveExtension>(6);
                 if (data.panel.IsValid())
                 {
@@ -1513,7 +1435,7 @@ TwitchNet.Rest.Api
                 }
 
                 List<string> ids = new List<string>(extensions.Count);
-                foreach (ActiveExtension extension in extensions) 
+                foreach (ActiveExtension extension in extensions)
                 {
                     if (!extension.active)
                     {
@@ -1743,7 +1665,7 @@ TwitchNet.Rest.Api
             /// <exception cref="ArgumentException">
             /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
             /// Thrown if to_id is null, empty, or contains only whitespace.
-            /// </exception>
+            /// </exception>            
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -1933,22 +1855,25 @@ TwitchNet.Rest.Api
             #region /videos
 
             /// <summary>
-            /// Asynchronously gets information about specific videos, or a single page of videos.
+            /// Asynchronously gets specific videos, or a single page of videos.
             /// </summary>
-            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> containts the queried videos.
+            /// <see cref="IHelixResponse{result_type}.result"/> containts the specific videos, or the single page of videos.
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if both after and before parameters were specified.
-            /// Thrown if no video ID's were specified, and both game ID and user ID were null, empty, or contains only whitespace.
-            /// Thrown if any mutiple combination of video ID's, game ID, or user ID were specified.
-            /// Thrown if more than 100 video ID's were specified.
+            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
+            /// Thrown if after and before are provided.
+            /// Thrown if no video ID's, game ID, or user ID are provided.
+            /// Thrown if any multiple combination of video ID's, game ID, or user ID is provided.
+            /// Thrown if all video ID's are are null, empty, or contains only whitespace, if Provided.
+            /// Thrown if the user ID is null, empty, or contains only whitespace, if Provided.
+            /// Thrown if the game ID is null, empty, or contains only whitespace, if Provided.
             /// </exception>
+            /// <exception cref="ParameterCountException">Thrown if more than 100 total video ID's are provided.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -1956,7 +1881,6 @@ TwitchNet.Rest.Api
             GetVideosPageAsync(HelixInfo info, VideosParameters parameters)
             {
                 HelixResponse<DataPage<Video>> response = new HelixResponse<DataPage<Video>>();
-
                 if (!ValidateAuthorizationParameters(info, response))
                 {
                     return response;
@@ -1969,23 +1893,51 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                if(parameters.after.IsValid() && parameters.before.IsValid())
+                parameters.after = parameters.after.NullIfInvalid();
+                parameters.before = parameters.before.NullIfInvalid();
+                if (parameters.after.IsValid() && parameters.before.IsValid())
                 {
                     response.SetInputError(new ArgumentException("Only one pagination direction can be specified. Only use either 'after' or 'before'."), info.settings);
 
                     return response;
                 }
 
-                parameters.ids.RemoveInvalidAndDuplicateValues();
-
-                if (!parameters.ids.IsValid() && !parameters.user_id.IsValid() && !parameters.game_id.IsValid())
+                if (parameters.ids.IsValid())
                 {
-                    response.SetInputError(new ArgumentException("At least one video ID, one user ID, or one game ID must be provided."), info.settings);
+                    // If video ID's are provided, assume it's intentional and check for these errors up front for better error messages.
+                    parameters.ids = parameters.ids.RemoveInvalidAndDuplicateValues();
 
-                    return response;                         
+                    if(parameters.ids.Count == 0)
+                    {
+                        response.SetInputError(new ArgumentException("All provided video ID's were null, empty, or contained only whitespace.", nameof(parameters.ids)), info.settings);
+
+                        return response;
+                    }
+                    else if (parameters.ids.Count > 100)
+                    {
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total video ID's can be provided at one time.", nameof(parameters.ids), 100, parameters.ids.Count), info.settings);
+
+                        return response;
+                    }
+
+                    parameters.after    = null;
+                    parameters.before   = null;
+                    parameters.first    = null;
+                    parameters.language = null;
+                    parameters.period   = null;
+                    parameters.type     = null;
                 }
 
-                if((parameters.ids.IsValid() && (parameters.user_id.IsValid() ||parameters.game_id.IsValid())) ||
+                parameters.game_id = parameters.game_id.NullIfInvalid();
+                parameters.user_id = parameters.user_id.NullIfInvalid();
+                if (!parameters.ids.IsValid() && !parameters.user_id.IsValid() && !parameters.game_id.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("At least one or more video ID, one user ID, or one game ID must be provided."), info.settings);
+
+                    return response;
+                }
+
+                if ((parameters.ids.IsValid() && (parameters.user_id.IsValid() || parameters.game_id.IsValid())) ||
                    (parameters.user_id.IsValid() && parameters.game_id.IsValid()))
                 {
                     response.SetInputError(new ArgumentException("Only one or more video ID's, one user ID, or one game ID can be provided."), info.settings);
@@ -1993,22 +1945,12 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                if (parameters.ids.IsValid() && parameters.ids.Count > 100)
-                {
-                    response.SetInputError(new ArgumentException("A maximum of 100 video ID's can be specified at one time."), info.settings);
-
-                    return response;
-                }
-
-                parameters.first    = parameters.first.Clamp(1, 100);
-                parameters.after    = parameters.after.NullIfInvalid();
-                parameters.before   = parameters.before.NullIfInvalid();
-                parameters.game_id  = parameters.game_id.NullIfInvalid();
-                parameters.user_id  = parameters.user_id.NullIfInvalid();
+                parameters.first = parameters.first.Clamp(1, 100);
 
                 RestRequest request = GetBaseRequest("videos", Method.GET, info);
                 request.AddParameters(parameters);
 
+                // TODO: /videos - Resort the videos based on sort. Sometimes videos can be out of order.
                 RestResponse<DataPage<Video>> _response = await CLIENT_HELIX.ExecuteAsync<DataPage<Video>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<Video>>(_response);
 
@@ -2016,22 +1958,25 @@ TwitchNet.Rest.Api
             }
 
             /// <summary>
-            /// Asynchronously gets information about specific videos, or a complete list of videos.
+            /// Asynchronously gets specific videos, or a complete list of videos.
             /// </summary>
-            /// <param name="info">The information used to authorize and/or authenticate the request.</param>
-            /// <param name="parameters">A set of rest parameters to add to the request.</param>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> containts the queried videos.
+            /// <see cref="IHelixResponse{result_type}.result"/> containts the specific videos, or the complete list of videos.
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if bearer_token and client_id are null, empty, or contains only whitespace.
-            /// Thrown if both after and before parameters were specified.
-            /// Thrown if no video ID's were specified, and both game ID and user ID were null, empty, or contains only whitespace.
-            /// Thrown if any mutiple combination of video ID's, game ID, or user ID were specified.
-            /// Thrown if more than 100 video ID's were specified.
+            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
+            /// Thrown if no video ID's, game ID, or user ID are provided.
+            /// Thrown if any multiple combination of video ID's, game ID, or user ID is provided.
+            /// Thrown if all video ID's are are null, empty, or contains only whitespace, if Provided.
+            /// Thrown if the user ID is null, empty, or contains only whitespace, if Provided.
+            /// Thrown if the game ID is null, empty, or contains only whitespace, if Provided.
             /// </exception>
+            /// <exception cref="NotSupportedException">Thrown if before is provided.</exception>
+            /// <exception cref="ParameterCountException">Thrown if more than 100 total video ID's are provided.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -2052,18 +1997,45 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                if (parameters.after.IsValid() && parameters.before.IsValid())
+                // Temporary error until 'before' works properly.
+                if (parameters.before.IsValid())
                 {
-                    response.SetInputError(new ArgumentException("Only one pagination direction can be specified. Only use either 'after' or 'before'."), info.settings);
+                    response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
 
                     return response;
                 }
 
-                parameters.ids.RemoveInvalidAndDuplicateValues();
+                if (parameters.ids.IsValid())
+                {
+                    // If video ID's are provided, assume it's intentional and check for these errors up front for better error messages.
+                    parameters.ids = parameters.ids.RemoveInvalidAndDuplicateValues();
 
+                    if (parameters.ids.Count == 0)
+                    {
+                        response.SetInputError(new ArgumentException("All provided video ID's were null, empty, or contained only whitespace.", nameof(parameters.ids)), info.settings);
+
+                        return response;
+                    }
+                    else if (parameters.ids.Count > 100)
+                    {
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total video ID's can be provided at one time.", nameof(parameters.ids), 100, parameters.ids.Count), info.settings);
+
+                        return response;
+                    }
+
+                    parameters.after    = null;
+                    parameters.before   = null;
+                    parameters.first    = null;
+                    parameters.language = null;
+                    parameters.period   = null;
+                    parameters.type     = null;
+                }
+
+                parameters.game_id = parameters.game_id.NullIfInvalid();
+                parameters.user_id = parameters.user_id.NullIfInvalid();
                 if (!parameters.ids.IsValid() && !parameters.user_id.IsValid() && !parameters.game_id.IsValid())
                 {
-                    response.SetInputError(new ArgumentException("At least one video ID, one user ID, or one game ID must be provided."), info.settings);
+                    response.SetInputError(new ArgumentException("At least one or more video ID, one user ID, or one game ID must be provided."), info.settings);
 
                     return response;
                 }
@@ -2076,25 +2048,14 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                if(parameters.ids.IsValid() && parameters.ids.Count > 100)
-                {
-                    response.SetInputError(new ArgumentException("A maximum of 100 video ID's can be specified at one time."), info.settings);
-
-                    return response;
-                }
-
-                parameters.first    = parameters.first.Clamp(1, 100);
-                parameters.after    = parameters.after.NullIfInvalid();
-                parameters.before   = parameters.before.NullIfInvalid();
-                parameters.game_id  = parameters.game_id.NullIfInvalid();
-                parameters.user_id  = parameters.user_id.NullIfInvalid();
-
-                // TODO: Disallow 'before' until it works properly?
-                string direction = parameters.before.IsValid() ? "before" : "after";
+                parameters.first = parameters.first.Clamp(1, 100);
 
                 RestRequest request = GetBaseRequest("videos", Method.GET, info);
                 request.AddParameters(parameters);
 
+                string direction = parameters.before.IsValid() ? "before" : "after";
+
+                // TODO: /videos - Resort the videos based on sort. Sometimes videos can be out of order.
                 RestResponse<DataPage<Video>> _response = await CLIENT_HELIX.TraceExecuteAsync<Video, DataPage<Video>>(request, direction, HandleResponse);
                 response = new HelixResponse<DataPage<Video>>(_response);
 

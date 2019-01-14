@@ -14,15 +14,15 @@ TwitchNet.Rest.Api.Videos
         public virtual string               before      { get; set; }
 
         /// <summary>
-        /// The ID of a user.
-        /// Only one or more video ID, one user ID, or one game ID can be provided with each request.
+        /// <para>The ID of a user.</para>
+        /// <para>Only one or more video ID, one user ID, or one game ID can be provided with each request.</para>
         /// </summary>
         [QueryParameter("user_id")]
         public virtual string               user_id     { get; set; }
 
         /// <summary>
         /// The ID of a game.
-        /// Only one or more video ID, one user ID, or one game ID can be provided with each request.
+        /// <para>Only one or more video ID, one user ID, or one game ID can be provided with each request.</para>
         /// </summary>
         [QueryParameter("game_id")]
         public virtual string               game_id     { get; set; }
@@ -31,11 +31,9 @@ TwitchNet.Rest.Api.Videos
         /// <para>
         /// A list of video ID's, up to 100.
         /// All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.
+        /// All other optional parameters are ignored if video ID's are provited.
         /// </para>
-        /// <para>
-        /// Only one or more video ID, one user ID, or one game ID can be provided with each request.
-        /// No other query parameters may be provided if a video ID's are specified.
-        /// </para>        
+        /// <para>Only one or more video ID, one user ID, or one game ID can be provided with each request.</para>       
         /// </summary>
         [QueryParameter("id", typeof(SeparateQueryConverter))]
         public virtual List<string>         ids         { get; set; }

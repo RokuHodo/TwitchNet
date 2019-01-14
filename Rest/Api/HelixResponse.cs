@@ -76,7 +76,7 @@ TwitchNet.Rest.Api
         }
 
         public void
-        SetInputError(ArgumentException exception, HelixRequestSettings settings)
+        SetInputError(Exception exception, HelixRequestSettings settings)
         {
             this.exception = exception;
 

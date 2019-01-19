@@ -5,7 +5,7 @@ namespace
 TwitchNet.Rest.Api.Streams
 {
     public class
-    Overwatch
+    OverwatchMetadata
     {
         /// <summary>
         /// Overwatch metadata about the broadcaster.

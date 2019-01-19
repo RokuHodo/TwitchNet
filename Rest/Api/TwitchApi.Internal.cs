@@ -924,46 +924,193 @@ TwitchNet.Rest.Api
 
             // TODO: Implement /streams/markers
 
-            // TODO: Reimplement /streams/metadata
             #region /streams/metadata
-            /*
+
             /// <summary>
-            /// Asynchronously gets a single page of metadata about streams playing either Overwatch or Hearthstone.
+            /// Asynchronously gets a single page of streams metadata.
             /// </summary>
-            public static async Task<IHelixResponse<DataPage<Metadata>>>
-            GetStreamsMetadataPageAsync(RestInfo<DataPage<Metadata>> info, StreamsParameters parameters)
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of streams metadata.
+            /// </returns>
+            /// <exception cref="ArgumentException">
+            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
+            /// Thrown if after and before are provided.
+            /// </exception>
+            /// <exception cref="ParameterCountException">
+            /// Thrown if more than 100 total community ID's are provided.
+            /// Thrown if more than 100 total game ID's are provided.
+            /// Thrown if more than 100 total user ID's are provided.
+            /// Thrown if more than 100 total user logins are provided.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
+            GetStreamsMetadataPageAsync(HelixInfo info, StreamsParameters parameters)
             {
-                IHelixResponse<DataPage<Metadata>> response = default;
-                info = RestUtil.CreateHelixRequest("streams/metadata", Method.GET, info);
-                if (info.exception_source != RestErrorSource.None)
+                HelixResponse<DataPage<StreamMetadata>> response = new HelixResponse<DataPage<StreamMetadata>>();
+                if (!ValidateAuthorizationParameters(info, response))
                 {
-                    response = new HelixResponse<DataPage<Metadata>>(info);
                     return response;
                 }
-                info.request = info.request.AddPaging(parameters);
-                info = await RestUtil.ExecuteAsync(info);
-                response = new HelixResponse<DataPage<Metadata>>(info);
+
+                if (!parameters.IsNull())
+                {
+                    parameters.after = parameters.after.NullIfInvalid();
+                    parameters.before = parameters.before.NullIfInvalid();
+                    if (parameters.after.IsValid() && parameters.before.IsValid())
+                    {
+                        response.SetInputError(new ArgumentException("Only one pagination direction can be specified. Provide either 'after' or 'before', not both."), info.settings);
+
+                        return response;
+                    }
+
+                    parameters.community_ids = parameters.community_ids.RemoveInvalidAndDuplicateValues();
+                    if (parameters.community_ids.Count > 100)
+                    {
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total community ID's can be provided at one time.", nameof(parameters.community_ids), 100, parameters.community_ids.Count), info.settings);
+
+                        return response;
+                    }
+
+                    parameters.game_ids = parameters.game_ids.RemoveInvalidAndDuplicateValues();
+                    if (parameters.game_ids.Count > 100)
+                    {
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total game ID's can be provided at one time.", nameof(parameters.game_ids), 100, parameters.game_ids.Count), info.settings);
+
+                        return response;
+                    }
+
+                    parameters.user_ids = parameters.user_ids.RemoveInvalidAndDuplicateValues();
+                    if (parameters.user_ids.Count > 100)
+                    {
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total user ID's can be provided at one time.", nameof(parameters.user_ids), 100, parameters.user_ids.Count), info.settings);
+
+                        return response;
+                    }
+
+                    parameters.user_logins = parameters.user_logins.RemoveInvalidAndDuplicateValues();
+                    if (parameters.user_logins.Count > 100)
+                    {
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total user logins can be provided at one time.", nameof(parameters.user_logins), 100, parameters.user_logins.Count), info.settings);
+
+                        return response;
+                    }
+
+                    parameters.first = parameters.first.Clamp(1, 100);
+                }
+
+                RestRequest request = GetBaseRequest("streams/metadata", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<StreamMetadata>> _response = await CLIENT_HELIX.ExecuteAsync<DataPage<StreamMetadata>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<StreamMetadata>>(_response);
+
                 return response;
             }
+
             /// <summary>
-            /// Asynchronously gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
+            /// Asynchronously gets a complete list of streams metadata.
             /// </summary>
-            public static async Task<IHelixResponse<DataPage<Metadata>>>
-            GetStreamsMetadataAsync(RestInfo<DataPage<Metadata>> info, StreamsParameters parameters)
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of streams metadata.
+            /// </returns>
+            /// <exception cref="ArgumentException">Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.</exception>
+            /// <exception cref="ParameterCountException">
+            /// Thrown if more than 100 total community ID's are provided.
+            /// Thrown if more than 100 total game ID's are provided.
+            /// Thrown if more than 100 total user ID's are provided.
+            /// Thrown if more than 100 total user logins are provided.
+            /// </exception>
+            /// <exception cref="NotSupportedException">Thrown if before is provided.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
+            GetStreamsMetadataAsync(HelixInfo info, StreamsParameters parameters)
             {
-                IHelixResponse<DataPage<Metadata>> response = default;
-                info = RestUtil.CreateHelixRequest("streams/metadata", Method.GET, info);
-                if (info.exception_source != RestErrorSource.None)
+                HelixResponse<DataPage<StreamMetadata>> response = new HelixResponse<DataPage<StreamMetadata>>();
+                if (!ValidateAuthorizationParameters(info, response))
                 {
-                    response = new HelixResponse<DataPage<Metadata>>(info);
                     return response;
                 }
-                info.request = info.request.AddPaging(parameters);
-                info = await RestUtil.TraceExecuteAsync<Metadata, DataPage<Metadata>>(info, parameters);
-                response = new HelixResponse<DataPage<Metadata>>(info);
+
+                string direction = "after";
+                if (!parameters.IsNull())
+                {
+                    // Temporary error until 'before' works properly.
+                    if (parameters.before.IsValid())
+                    {
+                        response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
+
+                        return response;
+                    }
+
+                    // This error will never be triggered, but keep it just for when/if 'before' works properly.
+                    parameters.after = parameters.after.NullIfInvalid();
+                    parameters.before = parameters.before.NullIfInvalid();
+                    if (parameters.after.IsValid() && parameters.before.IsValid())
+                    {
+                        response.SetInputError(new ArgumentException("Only one pagination direction can be specified. Provide either 'after' or 'before', not both."), info.settings);
+
+                        return response;
+                    }
+
+                    parameters.community_ids = parameters.community_ids.RemoveInvalidAndDuplicateValues();
+                    if (parameters.community_ids.Count > 100)
+                    {
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total community ID's can be provided at one time.", nameof(parameters.community_ids), 100, parameters.community_ids.Count), info.settings);
+
+                        return response;
+                    }
+
+                    parameters.game_ids = parameters.game_ids.RemoveInvalidAndDuplicateValues();
+                    if (parameters.game_ids.Count > 100)
+                    {
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total game ID's can be provided at one time.", nameof(parameters.game_ids), 100, parameters.game_ids.Count), info.settings);
+
+                        return response;
+                    }
+
+                    parameters.user_ids = parameters.user_ids.RemoveInvalidAndDuplicateValues();
+                    if (parameters.user_ids.Count > 100)
+                    {
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total user ID's can be provided at one time.", nameof(parameters.user_ids), 100, parameters.user_ids.Count), info.settings);
+
+                        return response;
+                    }
+
+                    parameters.user_logins = parameters.user_logins.RemoveInvalidAndDuplicateValues();
+                    if (parameters.user_logins.Count > 100)
+                    {
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total user logins can be provided at one time.", nameof(parameters.user_logins), 100, parameters.user_logins.Count), info.settings);
+
+                        return response;
+                    }
+
+                    if (parameters.before.IsValid())
+                    {
+                        direction = "before";
+                    }
+
+                    parameters.first = parameters.first.Clamp(1, 100);
+                }
+
+                RestRequest request = GetBaseRequest("streams/metadata", Method.GET, info);
+                request.AddParameters(parameters);
+                
+                RestResponse<DataPage<StreamMetadata>> _response = await CLIENT_HELIX.TraceExecuteAsync<StreamMetadata, DataPage<StreamMetadata>>(request, direction, HandleResponse);
+                response = new HelixResponse<DataPage<StreamMetadata>>(_response);
+
                 return response;
             }
-            */
+
             #endregion
 
             #region /users

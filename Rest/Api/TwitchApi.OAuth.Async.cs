@@ -750,159 +750,101 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            /*
             #region /streams/metadata
 
-            /// <summary>
-            /// Asynchronously gets a single page of metadata about streams playing either Overwatch or Hearthstone.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-            public static async Task<IHelixResponse<DataPage<Metadata>>>
-            GetStreamsMetadataPageAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
+            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
+            GetStreamsMetadataPageAsync(string bearer_token, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
+                HelixInfo request_info = new HelixInfo(settings);
                 request_info.bearer_token   = bearer_token;
 
-                IHelixResponse<DataPage<Metadata>> metadata = await TwitchApiInternal.GetStreamsMetadataPageAsync(request_info, default(StreamsParameters), settings);
+                IHelixResponse<DataPage<StreamMetadata>> response = await Internal.GetStreamsMetadataPageAsync(request_info, default);
 
-                return metadata;
+                return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of metadata about streams playing either Overwatch or Hearthstone.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-            /// <param name="parameters">A set of rest parameters to customize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-            public static async Task<IHelixResponse<DataPage<Metadata>>>
-            GetStreamsMetadataPageAsync(string bearer_token, StreamsParameters parameters, RequestSettings settings = default(RequestSettings))
+            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
+            GetStreamsMetadataPageAsync(string bearer_token, StreamsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
+                HelixInfo request_info = new HelixInfo(settings);
                 request_info.bearer_token   = bearer_token;
 
-                IHelixResponse<DataPage<Metadata>> metadata = await TwitchApiInternal.GetStreamsMetadataPageAsync(request_info, parameters, settings);
+                IHelixResponse<DataPage<StreamMetadata>> response = await Internal.GetStreamsMetadataPageAsync(request_info, parameters);
 
-                return metadata;
+                return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of metadata about streams playing either Overwatch or Hearthstone.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-            /// <param name="client_id">The Client ID to identify the application making the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-            public static async Task<IHelixResponse<DataPage<Metadata>>>
-            GetStreamsMetadataPageAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
+            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
+            GetStreamsMetadataPageAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
+                HelixInfo request_info = new HelixInfo(settings);
                 request_info.bearer_token   = bearer_token;
                 request_info.client_id      = client_id;
 
-                IHelixResponse<DataPage<Metadata>> metadata = await TwitchApiInternal.GetStreamsMetadataPageAsync(request_info, default(StreamsParameters), settings);
+                IHelixResponse<DataPage<StreamMetadata>> response = await Internal.GetStreamsMetadataPageAsync(request_info, default);
 
-                return metadata;
+                return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a single page of metadata about streams playing either Overwatch or Hearthstone.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-            /// <param name="client_id">The Client ID to identify the application making the request.</param>
-            /// <param name="parameters">A set of rest parameters to customize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-            public static async Task<IHelixResponse<DataPage<Metadata>>>
-            GetStreamsMetadataPageAsync(string bearer_token, string client_id, StreamsParameters parameters, RequestSettings settings = default(RequestSettings))
+            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
+            GetStreamsMetadataPageAsync(string bearer_token, string client_id, StreamsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
+                HelixInfo request_info = new HelixInfo(settings);
                 request_info.bearer_token   = bearer_token;
                 request_info.client_id      = client_id;
 
-                IHelixResponse<DataPage<Metadata>> metadata = await TwitchApiInternal.GetStreamsMetadataPageAsync(request_info, parameters, settings);
+                IHelixResponse<DataPage<StreamMetadata>> response = await Internal.GetStreamsMetadataPageAsync(request_info, parameters);
 
-                return metadata;
+                return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-            public static async Task<IHelixResponse<DataPage<Metadata>>>
-            GetStreamsMetadataAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
+            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
+            GetStreamsMetadataAsync(string bearer_token, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
+                HelixInfo request_info = new HelixInfo(settings);
                 request_info.bearer_token   = bearer_token;
 
-                IHelixResponse<DataPage<Metadata>> metadata = await TwitchApiInternal.GetStreamsMetadataAsync(request_info, default(StreamsParameters), settings);
+                IHelixResponse<DataPage<StreamMetadata>> response = await Internal.GetStreamsMetadataAsync(request_info, default);
 
-                return metadata;
+                return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-            /// <param name="parameters">A set of rest parameters to customize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-            public static async Task<IHelixResponse<DataPage<Metadata>>>
-            GetStreamsMetadataAsync(string bearer_token, StreamsParameters parameters, RequestSettings settings = default(RequestSettings))
+            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
+            GetStreamsMetadataAsync(string bearer_token, StreamsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
+                HelixInfo request_info = new HelixInfo(settings);
                 request_info.bearer_token   = bearer_token;
 
-                IHelixResponse<DataPage<Metadata>> metadata = await TwitchApiInternal.GetStreamsMetadataAsync(request_info, parameters, settings);
+                IHelixResponse<DataPage<StreamMetadata>> response = await Internal.GetStreamsMetadataAsync(request_info, parameters);
 
-                return metadata;
+                return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-            /// <param name="client_id">The Client ID to identify the application making the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-            public static async Task<IHelixResponse<DataPage<Metadata>>>
-            GetStreamsMetadataAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
+            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
+            GetStreamsMetadataAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
+                HelixInfo request_info = new HelixInfo(settings);
                 request_info.bearer_token   = bearer_token;
                 request_info.client_id      = client_id;
 
-                IHelixResponse<DataPage<Metadata>> metadata = await TwitchApiInternal.GetStreamsMetadataAsync(request_info, default(StreamsParameters), settings);
+                IHelixResponse<DataPage<StreamMetadata>> response = await Internal.GetStreamsMetadataAsync(request_info, default);
 
-                return metadata;
+                return response;
             }
 
-            /// <summary>
-            /// Asynchronously gets a complete list of metadata about streams playing either Overwatch or Hearthstone.
-            /// </summary>
-            /// <param name="bearer_token">The Bearer token to authorize the request.</param>
-            /// <param name="client_id">The Client ID to identify the application making the request.</param>
-            /// <param name="parameters">A set of rest parameters to customize the request.</param>
-            /// <param name="settings">Settings to customize how the API request is handled.</param>
-            /// <returns>Returns data that adheres to the <see cref="IHelixResponse{type}"/> interface.</returns>
-            public static async Task<IHelixResponse<DataPage<Metadata>>>
-            GetStreamsMetadataAsync(string bearer_token, string client_id, StreamsParameters parameters, RequestSettings settings = default(RequestSettings))
+            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
+            GetStreamsMetadataAsync(string bearer_token, string client_id, StreamsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
+                HelixInfo request_info = new HelixInfo(settings);
                 request_info.bearer_token   = bearer_token;
                 request_info.client_id      = client_id;
 
-                IHelixResponse<DataPage<Metadata>> metadata = await TwitchApiInternal.GetStreamsMetadataAsync(request_info, parameters, settings);
+                IHelixResponse<DataPage<StreamMetadata>> response = await Internal.GetStreamsMetadataAsync(request_info, parameters);
 
-                return metadata;
+                return response;
             }
 
             #endregion
-            */
 
             #region /users
 

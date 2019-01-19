@@ -204,12 +204,12 @@
     <Compile Include="Rest\Api\Data.cs" />
     <Compile Include="Rest\Api\Games\TopGamesParameters.cs" />
     <Compile Include="Rest\StatusCodeSetting.cs" />
-    <Compile Include="Rest\Api\Streams\Hearthstone.cs" />
+    <Compile Include="Rest\Api\Streams\HearthstoneMetadata.cs" />
     <Compile Include="Rest\Api\Streams\HearthstoneHero.cs" />
     <Compile Include="Rest\Api\Streams\Player.cs" />
     <Compile Include="Rest\Api\Streams\OverwatchHero.cs" />
-    <Compile Include="Rest\Api\Streams\Overwatch.cs" />
-    <Compile Include="Rest\Api\Streams\Metadata.cs" />
+    <Compile Include="Rest\Api\Streams\OverwatchMetadata.cs" />
+    <Compile Include="Rest\Api\Streams\StreamMetadata.cs" />
     <Compile Include="Rest\Api\Games\Game.cs" />
     <Compile Include="Rest\Api\Users\FollowsDataPage.cs" />
     <Compile Include="Rest\Api\Users\FollowsData.cs" />

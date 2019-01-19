@@ -5,7 +5,7 @@ namespace
 TwitchNet.Rest.Api.Streams
 {
     public class
-    Hearthstone
+    HearthstoneMetadata
     {
         /// <summary>
         /// Hearthstone metadata about the broadcaster.

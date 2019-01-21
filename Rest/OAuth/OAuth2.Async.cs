@@ -12,7 +12,7 @@ using TwitchNet.Utilities;
 namespace
 TwitchNet.Rest.OAuth
 {
-    public static class
+    public static partial class
     OAuth2
     {
         /*
@@ -191,5 +191,17 @@ TwitchNet.Rest.OAuth
 
         #endregion
         */
+
+        public static async Task<IRestResponse<AppAccessTokenData>>
+        CreateAppAccessToken(string client_id, string client_secret, AppAccessTokenParameters parameters, RequestSettings settings = default)
+        {
+            OAuth2Info info = new OAuth2Info(settings);
+            info.client_id = client_id;
+            info.client_secret = client_secret;
+
+            IRestResponse<AppAccessTokenData> response = await Internal.CreateAppAccessToken(info, parameters);
+
+            return response;
+        }
     }
 }

@@ -96,10 +96,15 @@
     <Compile Include="Rest\Attributes.cs" />
     <Compile Include="Rest\Converters.cs" />
     <Compile Include="Rest\Enums.cs" />
+    <Compile Include="Rest\OAuth\Token\AppAccessTokenParameters.cs" />
+    <Compile Include="Rest\OAuth\Token\AppAccessTokenData.cs" />
+    <Compile Include="Rest\OAuth\GrantType.cs" />
+    <Compile Include="Rest\OAuth\OAuth2Info.cs" />
     <Compile Include="Rest\Parameters.cs" />
     <Compile Include="Rest\RequestSettings.cs" />
     <Compile Include="Rest\RestClient.cs" />
     <Compile Include="Rest\RestRequest.cs" />
+    <Compile Include="Rest\IRestResponse.cs" />
     <Compile Include="Rest\RestResponse.cs" />
     <Compile Include="Rest\Exceptions.cs" />
     <Compile Include="Rest\OAuth\Token\RefreshTokenParameters.cs" />
@@ -187,19 +192,17 @@
     <Compile Include="Helpers\Json\JsonDeserializer.cs" />
     <Compile Include="Helpers\Json\VideoDurationConverter.cs" />
     <Compile Include="Rest\Api\IPagingParameters.cs" />
-    <Compile Include="Rest\OAuth\IOAuthResponse.cs" />
     <Compile Include="Rest\Api\IDataPage.cs" />
     <Compile Include="Rest\Api\IData.cs" />
     <Compile Include="Clients\Irc\ITags.cs" />
     <Compile Include="Clients\Irc\Twitch\ISharedRoomStateTags.cs" />
     <Compile Include="Clients\Irc\Twitch\ISharedUserStateTags.cs" />
     <Compile Include="Clients\Irc\Twitch\ISharedPrivmsgTags.cs" />
-    <Compile Include="Rest\OAuth\OAuthResponse.cs" />
     <Compile Include="Rest\Api\Clips\ClipCreationParameters.cs" />
     <Compile Include="Rest\Api\Clips\CreatedClip.cs" />
     <Compile Include="Rest\Api\Clips\Clip.cs" />
     <Compile Include="Rest\Api\Clips\ClipParameters.cs" />
-    <Compile Include="Rest\Api\Entitlements\Url.cs" />
+    <Compile Include="Rest\Api\Entitlements\EntitlementUploadUrl.cs" />
     <Compile Include="Rest\Api\DataPage.cs" />
     <Compile Include="Rest\Api\Data.cs" />
     <Compile Include="Rest\Api\Games\TopGamesParameters.cs" />
@@ -214,7 +217,7 @@
     <Compile Include="Rest\Api\Users\FollowsDataPage.cs" />
     <Compile Include="Rest\Api\Users\FollowsData.cs" />
     <Compile Include="Rest\Api\Videos\Video.cs" />
-    <Compile Include="Rest\Api\Entitlements\EntitlementParameters.cs" />
+    <Compile Include="Rest\Api\Entitlements\EntitlementsUploadParameters.cs" />
     <Compile Include="Rest\Api\Games\GamesParameters.cs" />
     <Compile Include="Rest\Api\PagingParameters.cs" />
     <Compile Include="Rest\Api\Streams\StreamsParameters.cs" />
@@ -255,7 +258,7 @@
     <Compile Include="UserType.cs" />
     <Compile Include="Utilities\EnumUtil.cs" />
     <Compile Include="Utilities\ExceptionUtil.cs" />
-    <Compile Include="Rest\OAuth\OAuth.cs" />
+    <Compile Include="Rest\OAuth\OAuth2.Async.cs" />
     <Compile Include="Utilities\RegexPatternUtil.cs" />
     <Compile Include="Utilities\TagsUtil.cs" />
     <Compile Include="Utilities\TwitchUtil.cs" />
@@ -263,6 +266,7 @@
   <ItemGroup>
     <Compile Include="Rest\Api\TwitchApi.Internal.cs" />
     <None Include="packages.config" />
+    <Compile Include="Rest\OAuth\OAuth2.Internal.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

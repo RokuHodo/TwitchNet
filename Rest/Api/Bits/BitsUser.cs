@@ -14,6 +14,12 @@ TwitchNet.Rest.Api.Bits
         public string   user_id { get; protected set; }
 
         /// <summary>
+        /// The login of the user.
+        /// </summary>
+        [JsonProperty("user_name")]
+        public string user_name { get; protected set; }
+
+        /// <summary>
         /// The rank of the user in the bits leaderboard.
         /// </summary>
         [JsonProperty("rank")]

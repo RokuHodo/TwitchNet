@@ -5,7 +5,7 @@ namespace
 TwitchNet.Rest.Api.Entitlements
 {
     public class
-    Url
+    EntitlementUploadUrl
     {
         /// <summary>
         /// The URL where you will upload the manifest file.

@@ -8,7 +8,7 @@ using TwitchNet.Extensions;
 namespace TwitchNet.Rest
 {
     public class
-    RestResponse
+    RestResponse : IRestResponse
     {
         public bool                 is_successful       { get; internal set; }
 
@@ -60,7 +60,7 @@ namespace TwitchNet.Rest
     }
 
     public class
-    RestResponse<data_type> : RestResponse
+    RestResponse<data_type> : RestResponse, IRestResponse<data_type>
     {
         public data_type data { get; internal set; }                
 

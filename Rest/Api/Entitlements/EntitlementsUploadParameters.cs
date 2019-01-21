@@ -4,7 +4,7 @@ namespace
 TwitchNet.Rest.Api.Entitlements
 {
     public class
-    EntitlementParameters
+    EntitlementsUploadParameters
     {
         /// <summary>
         /// Unique identifier of the manifest file to be uploaded. Must be 1-64 characters.

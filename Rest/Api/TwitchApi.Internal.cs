@@ -26,7 +26,7 @@ TwitchNet.Rest.Api
         internal static class
         Internal
         {
-            internal static readonly RestClient CLIENT_HELIX = GetHelixClient();
+            internal static readonly RestClient client = GetHelixClient();
 
             #region Helpers
 
@@ -57,24 +57,35 @@ TwitchNet.Rest.Api
             }
 
             internal static bool
-            ValidateAuthorizationParameters(HelixInfo info, HelixResponse response)
+            ValidateAuthorizationParameters(HelixInfo info, HelixResponse response, bool app_access_required = false)
             {
+                bool bearer_valid = info.bearer_token.IsValid();
+                bool client_id_valid = info.bearer_token.IsValid();                
+
+                // An App Access Token is required.
+                if (app_access_required && !bearer_valid)
+                {
+                    response.SetInputError(new ArgumentException("An App Access Token must be provided to authenticate the request."), info.settings);
+
+                    return false;
+                }
+
+                // A set of scopes is required for permission.
                 if (info.required_scopes != 0)
                 {
-                    // Authentication is requirted, a Bearer token must be provided.
-                    if (!info.bearer_token.IsValid())
+                    // Bearer token was not provided.
+                    if (!bearer_valid)
                     {
-                        // Bearer token has not been provided.
                         Scopes[] missing_scopes = EnumUtil.GetFlagValues<Scopes>(info.required_scopes);
                         AvailableScopesException inner_exception = new AvailableScopesException("One or more scopes are required for authentication.", missing_scopes);
 
-                        response.SetInputError(new ArgumentException("A Bearer token was required and either not provided or was null, empty, or contained only whitespace. See the inner exception for the required authentication.", nameof(info.bearer_token), inner_exception), info.settings);
+                        response.SetInputError(new ArgumentException("A Bearer token must be provided to authenticate the request. See the inner exception for the lost of required scopes.", nameof(info.bearer_token), inner_exception), info.settings);
 
                         return false;
                     }
+                    // Available scopes have been specified.
                     else if (info.settings.available_scopes != Scopes.Other)
                     {
-                        // Bearer token has been provided, available scopes have been specified.
                         Scopes[] available_scopes = EnumUtil.GetFlagValues<Scopes>(info.settings.available_scopes);
                         foreach (Scopes scope in available_scopes)
                         {
@@ -87,37 +98,22 @@ TwitchNet.Rest.Api
                         if (info.required_scopes != 0)
                         {
                             Scopes[] missing_scopes = EnumUtil.GetFlagValues<Scopes>(info.required_scopes);
-                            response.SetScopesError(new AvailableScopesException("One or more scopes are missing from the provided Bearer token.", missing_scopes), info.settings);
+                            response.SetScopesError(new AvailableScopesException("One or more scopes are missing from the provided available scopes associated with the Bearer token.", missing_scopes), info.settings);
 
                             return false;
                         }
-                        else
-                        {
-                            // Authentication is requirted, all required scopes are included in available_scopes.
-
-                            // I could just let this fall through, but return just for logical flow.
-                            return true;
-                        }
-                    }
-                    else
-                    {
-                        // Bearer token has been provided, no available scopes have been specified.
-                        // If no available scopes were specified, it's not inherently an error.
-                        // The user might not want to verify the scopes or didn't provide any.
-
-                        // I could just let this fall through, but return just for logical flow.
-                        return true;
                     }
                 }
-                else if (!info.bearer_token.IsValid() && !info.client_id.IsValid())
+
+                // At this point we know that either no authentication is needed, or authentication is required and all checks passed.
+                // Only the client ID really needs to checked here, but just for the sake of completion.
+                if (!bearer_valid && !client_id_valid)
                 {
-                    // Authentication is not requirted, neither a bearer token or client ID was provided.
                     response.SetInputError(new ArgumentException("A Bearer token or Client ID must be provided to authenticate the request."), info.settings);
 
-                    return false;
+                    return info.bearer_token.IsValid() || client_id_valid;
                 }
 
-                // Authentication is not requirted, either a bearer token and/or a client ID was provided.
                 return true;
             }
 
@@ -163,7 +159,7 @@ TwitchNet.Rest.Api
 
                                 // Clone the message to a new instance because the same instance can't be sent twice.
                                 response.request.CloneMessage();
-                                response = await CLIENT_HELIX.ExecuteAsync<data_type>(response.request, HandleResponse);
+                                response = await client.ExecuteAsync<data_type>(response.request, HandleResponse);
                             };
                             break;
 
@@ -302,34 +298,66 @@ TwitchNet.Rest.Api
             */
             #endregion
 
-            // TODO: Reimplement /bits/leaderboard
             #region /bits/leaderboard
-            /*
+
             /// <summary>
-            /// <para>Asynchronously gets a ranked list of bits leaderboard information for an authorized broadcaster.</para>
+            /// <para>
+            /// Asynchronously gets a ranked list of bits leaderboard information for a user.
+            /// The user is implicitly specified by the provided Bearer token.
+            /// </para>
             /// <para>Required Scope: <see cref="Scopes.BitsRead"/>.</para>
             /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains ranked list of bits leaderboard information.
+            /// </returns>
+            /// <exception cref="ArgumentException">Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.</exception>
+            /// <exception cref="ArgumentOutOfRangeException">Thrown if started_at is newer than <see cref="DateTime.Now"/>.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.BitsRead"/> scope.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<BitsLeaderboardData<BitsUser>>>
-            GetBitsLeaderboardAsync(RestInfo<BitsLeaderboardData<BitsUser>> info, BitsLeaderboardParameters parameters)
+            GetBitsLeaderboardAsync(HelixInfo info, BitsLeaderboardParameters parameters)
             {
-                IHelixResponse<BitsLeaderboardData<BitsUser>> response = default;
                 info.required_scopes = Scopes.BitsRead;
-                info = RestUtil.CreateHelixRequest("bits/leaderboard", Method.GET, info);
-                if (info.exception_source != RestErrorSource.None)
+
+                HelixResponse<BitsLeaderboardData<BitsUser>> response = new HelixResponse<BitsLeaderboardData<BitsUser>>();
+                if (!ValidateAuthorizationParameters(info, response))
                 {
-                    response = new HelixResponse<BitsLeaderboardData<BitsUser>>(info);
                     return response;
                 }
-                if (!parameters.IsNull() && parameters.period == BitsLeaderboardPeriod.All)
+
+                if (!parameters.IsNull())
                 {
-                    parameters.started_at = null;
+                    parameters.count = parameters.count.Clamp(1, 100);
+                    parameters.user_id = parameters.user_id.NullIfInvalid();
+
+                    if(parameters.period == BitsLeaderboardPeriod.All)
+                    {
+                        parameters.started_at = null;
+                    }
+
+                    if(parameters.started_at > DateTime.Now)
+                    {
+                        response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.started_at), parameters.started_at, "The started_at date cannot be newer than the current date."), info.settings);
+
+                        return response;
+                    }
                 }
-                info.request = info.request.AddPaging(parameters);
-                info = await RestUtil.ExecuteAsync(info);
-                response = new HelixResponse<BitsLeaderboardData<BitsUser>>(info);
+
+                RestRequest request = GetBaseRequest("bits/leaderboard", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<BitsLeaderboardData<BitsUser>> _response = await client.ExecuteAsync<BitsLeaderboardData<BitsUser>>(request, HandleResponse);
+                response = new HelixResponse<BitsLeaderboardData<BitsUser>>(_response);
+
+
                 return response;
             }
-            */
+
             #endregion
 
             // TODO: Reimplement /clips
@@ -402,55 +430,66 @@ TwitchNet.Rest.Api
 
             // TODO: Implement /entitlements/codes
 
-            // TODO: Reimplement /entitlements/upload
             #region /entitlements/upload
-            /*
+
             /// <summary>
             /// <para>Asynchronously creates a URL where you can upload a manifest file and notify users that they have an entitlement.</para>
             /// <para>Required Authorization: App Access Token.</para>
             /// </summary>
-            public static async Task<IHelixResponse<Data<Url>>>
-            CreateEntitlementGrantsUploadUrlAsync(RestInfo<Data<Url>> info, EntitlementParameters parameters)
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the entitlement upload URL.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if the App Access Token is null, empty, or contains only whitespace.
+            /// Thrown if the manifest ID is null, empty, or contains only whitespace.
+            /// Thrown if the manifest ID is longer than 64 characters.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<Data<EntitlementUploadUrl>>>
+            CreateEntitlementGrantsUploadUrlAsync(HelixInfo info, EntitlementsUploadParameters parameters)
             {
-                IHelixResponse<Data<Url>> response = default;
+                HelixResponse<Data<EntitlementUploadUrl>> response = new HelixResponse<Data<EntitlementUploadUrl>>();
+                if (!ValidateAuthorizationParameters(info, response, true))
+                {
+                    return response;
+                }
+
                 if (parameters.IsNull())
                 {
-                    info.SetInputError(new ArgumentNullException(nameof(parameters)));
-                    response = new HelixResponse<Data<Url>>(info);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
                     return response;
                 }
-                // Check for this separately here in case the user calls the overloaded function that passes the app access token and the client ID
-                // and only the client ID is only valid, for some reason.
-                if (!info.bearer_token.IsValid())
-                {
-                    info.SetInputError(new ArgumentException("An app access token must be specified.", nameof(info.bearer_token)));
-                    response = new HelixResponse<Data<Url>>(info);
-                    return response;
-                }
+
                 if (!parameters.manifest_id.IsValid())
                 {
-                    info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.manifest_id)));
-                    response = new HelixResponse<Data<Url>>(info);
+                    response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.manifest_id)), info.settings);
+
                     return response;
                 }
+
                 if (!parameters.manifest_id.Length.IsInRange(1, 64))
                 {
-                    info.SetInputError(new ArgumentException("The string must be between 1 and 64 characters long.", nameof(parameters.manifest_id)));
-                    response = new HelixResponse<Data<Url>>(info);
+                    response.SetInputError(new ArgumentException("The manifest ID must be between 1 and 64 characters long, inclusive.", nameof(parameters.manifest_id)), info.settings);
+
                     return response;
                 }
-                info = RestUtil.CreateHelixRequest("entitlements/upload", Method.POST, info);
-                if (info.exception_source != RestErrorSource.None)
-                {
-                    response = new HelixResponse<Data<Url>>(info);
-                    return response;
-                }
-                info.request = info.request.AddPaging(parameters);
-                info = await RestUtil.ExecuteAsync(info);
-                response = new HelixResponse<Data<Url>>(info);
+
+                RestRequest request = GetBaseRequest("entitlements/upload", Method.POST, info);
+                request.AddParameters(parameters);
+
+                RestResponse<Data<EntitlementUploadUrl>> _response = await client.ExecuteAsync<Data<EntitlementUploadUrl>>(request, HandleResponse);
+                response = new HelixResponse<Data<EntitlementUploadUrl>>(_response);
+
                 return response;
             }
-            */
+
             #endregion
 
             // TODO: Implement /streams/markers
@@ -522,7 +561,7 @@ TwitchNet.Rest.Api
                 RestRequest request = GetBaseRequest("games", Method.GET, info);
                 request.AddParameters(parameters);
 
-                RestResponse<Data<Game>> _response = await CLIENT_HELIX.ExecuteAsync<Data<Game>>(request, HandleResponse);
+                RestResponse<Data<Game>> _response = await client.ExecuteAsync<Data<Game>>(request, HandleResponse);
                 response = new HelixResponse<Data<Game>>(_response);
 
                 return response;
@@ -575,7 +614,7 @@ TwitchNet.Rest.Api
                 request.AddParameters(parameters);
 
                 // TODO: /games/top - Sanitize the list based on the game ID and return a distinct list.
-                RestResponse<DataPage<Game>> _response = await CLIENT_HELIX.ExecuteAsync<DataPage<Game>>(request, HandleResponse);
+                RestResponse<DataPage<Game>> _response = await client.ExecuteAsync<DataPage<Game>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<Game>>(_response);
 
                 return response;
@@ -637,7 +676,7 @@ TwitchNet.Rest.Api
                 request.AddParameters(parameters);
 
                 // TODO: /games/top - Sanitize the list based on the game ID and return a distinct list.
-                RestResponse<DataPage<Game>> _response = await CLIENT_HELIX.TraceExecuteAsync<Game, DataPage<Game>>(request, direction, HandleResponse);
+                RestResponse<DataPage<Game>> _response = await client.TraceExecuteAsync<Game, DataPage<Game>>(request, direction, HandleResponse);
                 response = new HelixResponse<DataPage<Game>>(_response);
 
                 return response;
@@ -728,7 +767,7 @@ TwitchNet.Rest.Api
                 request.AddParameters(parameters);
 
                 // TODO: /streams - Sanitize the list based on the stream ID and return a distinct list.
-                RestResponse<DataPage<Stream>> _response = await CLIENT_HELIX.ExecuteAsync<DataPage<Stream>>(request, HandleResponse);
+                RestResponse<DataPage<Stream>> _response = await client.ExecuteAsync<DataPage<Stream>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<Stream>>(_response);
 
                 return response;
@@ -828,7 +867,7 @@ TwitchNet.Rest.Api
                 request.AddParameters(parameters);
 
                 // TODO: /streams - Sanitize the list based on the stream ID and return a distinct list.
-                RestResponse<DataPage<Stream>> _response = await CLIENT_HELIX.TraceExecuteAsync<Stream, DataPage<Stream>>(request, direction, HandleResponse);
+                RestResponse<DataPage<Stream>> _response = await client.TraceExecuteAsync<Stream, DataPage<Stream>>(request, direction, HandleResponse);
                 response = new HelixResponse<DataPage<Stream>>(_response);
 
                 return response;
@@ -1006,7 +1045,7 @@ TwitchNet.Rest.Api
                 RestRequest request = GetBaseRequest("streams/metadata", Method.GET, info);
                 request.AddParameters(parameters);
 
-                RestResponse<DataPage<StreamMetadata>> _response = await CLIENT_HELIX.ExecuteAsync<DataPage<StreamMetadata>>(request, HandleResponse);
+                RestResponse<DataPage<StreamMetadata>> _response = await client.ExecuteAsync<DataPage<StreamMetadata>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<StreamMetadata>>(_response);
 
                 return response;
@@ -1105,13 +1144,17 @@ TwitchNet.Rest.Api
                 RestRequest request = GetBaseRequest("streams/metadata", Method.GET, info);
                 request.AddParameters(parameters);
                 
-                RestResponse<DataPage<StreamMetadata>> _response = await CLIENT_HELIX.TraceExecuteAsync<StreamMetadata, DataPage<StreamMetadata>>(request, direction, HandleResponse);
+                RestResponse<DataPage<StreamMetadata>> _response = await client.TraceExecuteAsync<StreamMetadata, DataPage<StreamMetadata>>(request, direction, HandleResponse);
                 response = new HelixResponse<DataPage<StreamMetadata>>(_response);
 
                 return response;
             }
 
             #endregion
+
+            // TODO: Implement /streams/tags
+
+            // TODO: Implement /tags/streams
 
             #region /users
 
@@ -1191,7 +1234,7 @@ TwitchNet.Rest.Api
                 RestRequest request = GetBaseRequest("users", Method.GET, info);
                 request.AddParameters(parameters);
 
-                RestResponse<Data<User>> _response = await CLIENT_HELIX.ExecuteAsync<Data<User>>(request, HandleResponse);
+                RestResponse<Data<User>> _response = await client.ExecuteAsync<Data<User>>(request, HandleResponse);
                 response = new HelixResponse<Data<User>>(_response);
 
                 return response;
@@ -1271,7 +1314,7 @@ TwitchNet.Rest.Api
                 RestRequest request = GetBaseRequest("users", Method.PUT, info);
                 request.AddParameters(parameters);
 
-                RestResponse<Data<User>> _response = await CLIENT_HELIX.ExecuteAsync<Data<User>>(request, HandleResponse);
+                RestResponse<Data<User>> _response = await client.ExecuteAsync<Data<User>>(request, HandleResponse);
                 response = new HelixResponse<Data<User>>(_response);
 
                 return response;
@@ -1334,7 +1377,7 @@ TwitchNet.Rest.Api
                 RestRequest request = GetBaseRequest("users/extensions", Method.GET, info);
                 request.AddParameters(parameters);
 
-                RestResponse<ActiveExtensions> _response = await CLIENT_HELIX.ExecuteAsync<ActiveExtensions>(request, HandleResponse);
+                RestResponse<ActiveExtensions> _response = await client.ExecuteAsync<ActiveExtensions>(request, HandleResponse);
                 response = new HelixResponse<ActiveExtensions>(_response);
 
                 return response;
@@ -1438,7 +1481,7 @@ TwitchNet.Rest.Api
                 RestRequest request = GetBaseRequest("users/extensions", Method.PUT, info);
                 request.AddParameters(parameters);
 
-                RestResponse<ActiveExtensions> _response = await CLIENT_HELIX.ExecuteAsync<ActiveExtensions>(request, HandleResponse);
+                RestResponse<ActiveExtensions> _response = await client.ExecuteAsync<ActiveExtensions>(request, HandleResponse);
                 response = new HelixResponse<ActiveExtensions>(_response);
 
                 return response;
@@ -1636,7 +1679,7 @@ TwitchNet.Rest.Api
 
                 RestRequest request = GetBaseRequest("users/extensions/list", Method.GET, info);
 
-                RestResponse<Data<Extension>> _response = await CLIENT_HELIX.ExecuteAsync<Data<Extension>>(request, HandleResponse);
+                RestResponse<Data<Extension>> _response = await client.ExecuteAsync<Data<Extension>>(request, HandleResponse);
                 response = new HelixResponse<Data<Extension>>(_response);
 
                 return response;
@@ -1937,7 +1980,7 @@ TwitchNet.Rest.Api
                 RestRequest request = GetBaseRequest("users/follows", Method.GET, info);
                 request.AddParameters(parameters);
 
-                RestResponse<FollowsDataPage<Follow>> _response = await CLIENT_HELIX.ExecuteAsync<FollowsDataPage<Follow>>(request, HandleResponse);
+                RestResponse<FollowsDataPage<Follow>> _response = await client.ExecuteAsync<FollowsDataPage<Follow>>(request, HandleResponse);
                 response = new HelixResponse<FollowsDataPage<Follow>>(_response);
 
                 return response;
@@ -1991,7 +2034,7 @@ TwitchNet.Rest.Api
                 RestRequest request = GetBaseRequest("users/follows", Method.GET, info);
                 request.AddParameters(parameters);
 
-                RestResponse<FollowsDataPage<Follow>> _response = await CLIENT_HELIX.TraceExecuteAsync<Follow, FollowsDataPage<Follow>>(request, HandleResponse);
+                RestResponse<FollowsDataPage<Follow>> _response = await client.TraceExecuteAsync<Follow, FollowsDataPage<Follow>>(request, HandleResponse);
                 response = new HelixResponse<FollowsDataPage<Follow>>(_response);
 
                 return response;
@@ -2098,7 +2141,7 @@ TwitchNet.Rest.Api
                 request.AddParameters(parameters);
 
                 // TODO: /videos - Resort the videos based on sort. Sometimes videos can be out of order.
-                RestResponse<DataPage<Video>> _response = await CLIENT_HELIX.ExecuteAsync<DataPage<Video>>(request, HandleResponse);
+                RestResponse<DataPage<Video>> _response = await client.ExecuteAsync<DataPage<Video>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<Video>>(_response);
 
                 return response;
@@ -2203,7 +2246,7 @@ TwitchNet.Rest.Api
                 string direction = parameters.before.IsValid() ? "before" : "after";
 
                 // TODO: /videos - Resort the videos based on sort. Sometimes videos can be out of order.
-                RestResponse<DataPage<Video>> _response = await CLIENT_HELIX.TraceExecuteAsync<Video, DataPage<Video>>(request, direction, HandleResponse);
+                RestResponse<DataPage<Video>> _response = await client.TraceExecuteAsync<Video, DataPage<Video>>(request, direction, HandleResponse);
                 response = new HelixResponse<DataPage<Video>>(_response);
 
                 return response;

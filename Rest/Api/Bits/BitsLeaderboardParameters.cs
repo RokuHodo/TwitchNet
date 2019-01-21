@@ -17,7 +17,7 @@ TwitchNet.Rest.Api.Bits
         /// </para>
         /// </summary>
         [QueryParameter("count")]
-        public virtual uint count { get; set; }
+        public virtual int? count { get; set; }
 
         /// <summary>
         /// <para>The time period over which data is aggregated according to started_at.</para>
@@ -26,8 +26,13 @@ TwitchNet.Rest.Api.Bits
         [QueryParameter("period")]
         public virtual BitsLeaderboardPeriod?   period      { get; set; }
 
+        // TODO: Make an alternate converter that assumes you're supplying PST? Right now this auto-converts time into your local time zone.
+
         /// <summary>
-        /// <para>The start date/time for the returned leaderboard data.</para>
+        /// <para>
+        /// The start date/time for the returned leaderboard data.
+        /// The date/time is converted and passed as local time and is then converted to PST by Twitch.
+        /// </para>
         /// <para>
         /// If specified, the returned data is aggregated over the specified period.
         /// If period is set to <see cref="BitsLeaderboardPeriod.All"/>, started_at is ignored.

@@ -433,6 +433,7 @@ TwitchNet.Rest
         public override void
         AddParameter(RestRequest request, RestParameter parameter)
         {
+            // We don't need to special case encode '+' here since it's taken care of when the requets is built.
             string rfc_3339 = ((DateTime)parameter.value).ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz", DateTimeFormatInfo.InvariantInfo);
 
             request.AddQueryParameter(parameter.name, rfc_3339);

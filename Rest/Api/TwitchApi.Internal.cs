@@ -28,6 +28,8 @@ TwitchNet.Rest.Api
         {
             internal static readonly RestClient client = GetHelixClient();
 
+            internal static readonly DateTime UNIX_EPOCH_MIN = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+
             #region Helpers
 
             internal static RestClient
@@ -342,7 +344,7 @@ TwitchNet.Rest.Api
 
                     if(parameters.started_at > DateTime.Now)
                     {
-                        response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.started_at), parameters.started_at, "The started_at date cannot be newer than the current date."), info.settings);
+                        response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.started_at), parameters.started_at, "The started_at date cannot be later than the current date."), info.settings);
 
                         return response;
                     }
@@ -360,72 +362,267 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            // TODO: Reimplement /clips
+            // TODO: Test /clips
             #region /clips
-            /*
+
             /// <summary>
             /// <para>Asynchronously creates a clip.</para>
             /// <para>Required Scope: <see cref="Scopes.ClipsEdit"/>.</para>
             /// </summary>
             public static async Task<IHelixResponse<Data<CreatedClip>>>
-            CreateClipAsync(RestInfo<Data<CreatedClip>> info, ClipCreationParameters parameters)
+            CreateClipAsync(HelixInfo info, ClipCreationParameters parameters)
             {
-                IHelixResponse<Data<CreatedClip>> response = default;
-                if (parameters.IsNull())
+                info.required_scopes = Scopes.ClipsEdit;
+
+                HelixResponse<Data<CreatedClip>> response = new HelixResponse<Data<CreatedClip>>();
+                if (!ValidateAuthorizationParameters(info, response, true))
                 {
-                    info.SetInputError(new ArgumentNullException(nameof(parameters)));
-                    response = new HelixResponse<Data<CreatedClip>>(info);
                     return response;
                 }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
                 if (!parameters.broadcaster_id.IsValid())
                 {
-                    info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.broadcaster_id)));
-                    response = new HelixResponse<Data<CreatedClip>>(info);
+                    response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.broadcaster_id)), info.settings);
+
                     return response;
                 }
-                info.required_scopes = Scopes.ClipsEdit;
-                info = RestUtil.CreateHelixRequest("clips", Method.POST, info);
-                if (info.exception_source != RestErrorSource.None)
-                {
-                    response = new HelixResponse<Data<CreatedClip>>(info);
-                    return response;
-                }
-                info.request = info.request.AddPaging(parameters);
-                info = await RestUtil.ExecuteAsync(info);
-                response = new HelixResponse<Data<CreatedClip>>(info);
+
+                RestRequest request = GetBaseRequest("clips", Method.POST, info);
+                request.AddParameters(parameters);
+
+                RestResponse<Data<CreatedClip>> _response = await client.ExecuteAsync<Data<CreatedClip>>(request, HandleResponse);
+                response = new HelixResponse<Data<CreatedClip>>(_response);
+
                 return response;
             }
+
             /// <summary>
-            /// Asynchronously gets information about a clip.
+            /// Asynchronously gets specific videos, or a a single page of videos.
             /// </summary>
-            public static async Task<IHelixResponse<Data<Clip>>>
-            GetClipAsync(RestInfo<Data<Clip>> info, ClipParameters parameters)
+            public static async Task<IHelixResponse<DataPage<Clip>>>
+            GetClipsPageAsync(HelixInfo info, ClipParameters parameters)
             {
-                IHelixResponse<Data<Clip>> response = default;
+                HelixResponse<DataPage<Clip>> response = new HelixResponse<DataPage<Clip>>();
+                if (!ValidateAuthorizationParameters(info, response, true))
+                {
+                    return response;
+                }
+
                 if (parameters.IsNull())
                 {
-                    info.SetInputError(new ArgumentNullException(nameof(parameters)));
-                    response = new HelixResponse<Data<Clip>>(info);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
                     return response;
                 }
-                if (!parameters.id.IsValid())
+
+                parameters.after = parameters.after.NullIfInvalid();
+                parameters.before = parameters.before.NullIfInvalid();
+                if (parameters.after.IsValid() && parameters.before.IsValid())
                 {
-                    info.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.id)));
-                    response = new HelixResponse<Data<Clip>>(info);
+                    response.SetInputError(new ArgumentException("Only one pagination direction can be specified. Only use either 'after' or 'before'."), info.settings);
+
                     return response;
                 }
-                info = RestUtil.CreateHelixRequest("clips", Method.GET, info);
-                if (info.exception_source != RestErrorSource.None)
+
+                if (parameters.ids.IsValid())
                 {
-                    response = new HelixResponse<Data<Clip>>(info);
+                    // If clip ID's are provided, assume it's intentional and check for these errors up front for better error messages.
+                    parameters.ids = parameters.ids.RemoveInvalidAndDuplicateValues();
+
+                    if (parameters.ids.Count == 0)
+                    {
+                        response.SetInputError(new ArgumentException("All provided clip ID's were null, empty, or contained only whitespace.", nameof(parameters.ids)), info.settings);
+
+                        return response;
+                    }
+                    else if (parameters.ids.Count > 100)
+                    {
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total clip ID's can be provided at one time.", nameof(parameters.ids), 100, parameters.ids.Count), info.settings);
+
+                        return response;
+                    }
+
+                    parameters.after = null;
+                    parameters.before = null;
+                    parameters.first = null;
+                    parameters.broadcaster_id = null;
+                    parameters.game_id = null;
+                    parameters.ended_at = null;
+                    parameters.started_at = null;
+                }
+
+                // Ignore the period id one date/time isn't provided.
+                if (!parameters.ended_at.HasValue || !parameters.started_at.HasValue)
+                {
+                    parameters.ended_at = null;
+                    parameters.started_at = null;
+                }
+                else if (!parameters.ended_at.Value.IsInRange(UNIX_EPOCH_MIN, DateTime.Now))
+                {
+                    response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.ended_at), parameters.ended_at.Value, "The ended_at date cannot be less than the Unix Epoch minimum or later than the current date."), info.settings);
+
                     return response;
                 }
-                info.request = info.request.AddPaging(parameters);
-                info = await RestUtil.ExecuteAsync(info);
-                response = new HelixResponse<Data<Clip>>(info);
+                else if (!parameters.started_at.Value.IsInRange(UNIX_EPOCH_MIN, DateTime.Now))
+                {
+                    response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.started_at), parameters.started_at.Value, "The started_at date cannot be less than the Unix Epoch minimum or later than the current date."), info.settings);
+
+                    return response;
+                }
+                else if (parameters.started_at.Value < parameters.ended_at.Value)
+                {
+                    response.SetInputError(new ArgumentException("The ended_at date cannot be later than the started_at date."), info.settings);
+
+                    return response;
+                }
+
+                parameters.broadcaster_id = parameters.broadcaster_id.NullIfInvalid();
+                parameters.game_id = parameters.game_id.NullIfInvalid();
+                if (!parameters.ids.IsValid() && !parameters.broadcaster_id.IsValid() && !parameters.game_id.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("At least one or more clip ID, one broadcaster ID, or one game ID must be provided."), info.settings);
+
+                    return response;
+                }
+
+                if ((parameters.ids.IsValid() && (parameters.broadcaster_id.IsValid() || parameters.game_id.IsValid())) ||
+                   (parameters.broadcaster_id.IsValid() && parameters.game_id.IsValid()))
+                {
+                    response.SetInputError(new ArgumentException("Only one or more clip ID's, one broadcaster ID, or one game ID can be provided."), info.settings);
+
+                    return response;
+                }
+
+                parameters.first = parameters.first.Clamp(1, 100);
+
+                RestRequest request = GetBaseRequest("clips", Method.GET, info);
+                request.AddParameters(parameters);
+
+                string direction = parameters.before.IsValid() ? "before" : "after";
+
+                RestResponse<DataPage<Clip>> _response = await client.ExecuteAsync<DataPage<Clip>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<Clip>>(_response);
+
                 return response;
             }
-            */
+
+            /// <summary>
+            /// Asynchronously gets specific clips, or a complete list of clips.
+            /// </summary>
+            public static async Task<IHelixResponse<DataPage<Clip>>>
+            GetClipsAsync(HelixInfo info, ClipParameters parameters)
+            {
+                HelixResponse<DataPage<Clip>> response = new HelixResponse<DataPage<Clip>>();
+                if (!ValidateAuthorizationParameters(info, response, true))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                parameters.after = parameters.after.NullIfInvalid();
+                parameters.before = parameters.before.NullIfInvalid();
+                if (parameters.after.IsValid() && parameters.before.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("Only one pagination direction can be specified. Only use either 'after' or 'before'."), info.settings);
+
+                    return response;
+                }
+
+                if (parameters.ids.IsValid())
+                {
+                    // If clip ID's are provided, assume it's intentional and check for these errors up front for better error messages.
+                    parameters.ids = parameters.ids.RemoveInvalidAndDuplicateValues();
+
+                    if (parameters.ids.Count == 0)
+                    {
+                        response.SetInputError(new ArgumentException("All provided clip ID's were null, empty, or contained only whitespace.", nameof(parameters.ids)), info.settings);
+
+                        return response;
+                    }
+                    else if (parameters.ids.Count > 100)
+                    {
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total clip ID's can be provided at one time.", nameof(parameters.ids), 100, parameters.ids.Count), info.settings);
+
+                        return response;
+                    }
+
+                    parameters.after            = null;
+                    parameters.before           = null;
+                    parameters.first            = null;
+                    parameters.broadcaster_id   = null;
+                    parameters.game_id          = null;
+                    parameters.ended_at         = null;
+                    parameters.started_at       = null;
+                }
+
+                // Ignore the period id one date/time isn't provided.
+                if(!parameters.ended_at.HasValue || !parameters.started_at.HasValue)
+                {
+                    parameters.ended_at     = null;
+                    parameters.started_at   = null;
+                }
+                else if(!parameters.ended_at.Value.IsInRange(UNIX_EPOCH_MIN, DateTime.Now))
+                {
+                    response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.ended_at), parameters.ended_at.Value, "The ended_at date cannot be less than the Unix Epoch minimum or later than the current date."), info.settings);
+
+                    return response;
+                }
+                else if (!parameters.started_at.Value.IsInRange(UNIX_EPOCH_MIN, DateTime.Now))
+                {
+                    response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.started_at), parameters.started_at.Value, "The started_at date cannot be less than the Unix Epoch minimum or later than the current date."), info.settings);
+
+                    return response;
+                }
+                else if (parameters.started_at.Value < parameters.ended_at.Value)
+                {
+                    response.SetInputError(new ArgumentException("The ended_at date cannot be later than the started_at date."), info.settings);
+
+                    return response;
+                }
+
+                parameters.broadcaster_id = parameters.broadcaster_id.NullIfInvalid();
+                parameters.game_id = parameters.game_id.NullIfInvalid();
+                if (!parameters.ids.IsValid() && !parameters.broadcaster_id.IsValid() && !parameters.game_id.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("At least one or more clip ID, one broadcaster ID, or one game ID must be provided."), info.settings);
+
+                    return response;
+                }
+
+                if ((parameters.ids.IsValid() && (parameters.broadcaster_id.IsValid() || parameters.game_id.IsValid())) ||
+                   (parameters.broadcaster_id.IsValid() && parameters.game_id.IsValid()))
+                {
+                    response.SetInputError(new ArgumentException("Only one or more clip ID's, one broadcaster ID, or one game ID can be provided."), info.settings);
+
+                    return response;
+                }
+
+                parameters.first = parameters.first.Clamp(1, 100);
+
+                RestRequest request = GetBaseRequest("clips", Method.GET, info);
+                request.AddParameters(parameters);
+
+                string direction = parameters.before.IsValid() ? "before" : "after";
+
+                RestResponse<DataPage<Clip>> _response = await client.TraceExecuteAsync<Clip, DataPage<Clip>>(request, direction, HandleResponse);
+                response = new HelixResponse<DataPage<Clip>>(_response);
+
+                return response;
+            }
+
             #endregion
 
             // TODO: Implement /entitlements/codes

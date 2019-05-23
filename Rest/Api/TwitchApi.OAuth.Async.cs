@@ -221,57 +221,78 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            /*
             #region /clips
 
             public static async Task<IHelixResponse<Data<CreatedClip>>>
-            CreateClipAsync(string bearer_token, ClipCreationParameters parameters, RequestSettings settings = default(RequestSettings))
+            CreateClipAsync(string bearer_token, ClipCreationParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token = bearer_token;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
 
-                IHelixResponse<Data<CreatedClip>> clip = await TwitchApiInternal.CreateClipAsync(request_info, parameters, settings);
+                IHelixResponse<Data<CreatedClip>> response = await Internal.CreateClipAsync(info, parameters);
 
-                return clip;
+                return response;
             }
 
             public static async Task<IHelixResponse<Data<CreatedClip>>>
-            CreateClipAsync(string bearer_token, string client_id, ClipCreationParameters parameters, RequestSettings settings = default(RequestSettings))
+            CreateClipAsync(string bearer_token, string client_id, ClipCreationParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
-                request_info.client_id      = client_id;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token   = bearer_token;
+                info.client_id      = client_id;
 
-                IHelixResponse<Data<CreatedClip>> clip = await TwitchApiInternal.CreateClipAsync(request_info, parameters, settings);
+                IHelixResponse<Data<CreatedClip>> response = await Internal.CreateClipAsync(info, parameters);
 
-                return clip;
+                return response;
             }
 
-            public static async Task<IHelixResponse<Data<Clip>>>
-            GetClipAsync(string bearer_token, ClipParameters parameters, RequestSettings settings = default(RequestSettings))
+            public static async Task<IHelixResponse<DataPage<Clip>>>
+            GetClipsPageAsync(string bearer_token, ClipParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
 
-                IHelixResponse<Data<Clip>> clip = await TwitchApiInternal.GetClipAsync(request_info, parameters, settings);
+                IHelixResponse<DataPage<Clip>> response = await Internal.GetClipsPageAsync(info, parameters);
 
-                return clip;
+                return response;
             }
 
-            public static async Task<IHelixResponse<Data<Clip>>>
-            GetClipAsync(string bearer_token, string client_id, ClipParameters parameters, RequestSettings settings = default(RequestSettings))
+            public static async Task<IHelixResponse<DataPage<Clip>>>
+            GetClipsPageAsync(string bearer_token, string client_id, ClipParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
-                request_info.client_id      = client_id;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
 
-                IHelixResponse<Data<Clip>> clip = await TwitchApiInternal.GetClipAsync(request_info, parameters, settings);
+                IHelixResponse<DataPage<Clip>> response = await Internal.GetClipsPageAsync(info, parameters);
 
-                return clip;
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<Clip>>>
+            GetClipsAsync(string bearer_token, ClipParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token   = bearer_token;
+
+                IHelixResponse<DataPage<Clip>> response = await Internal.GetClipsAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<Clip>>>
+            GetClipsAsync(string bearer_token, string client_id, ClipParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id  = client_id;
+
+                IHelixResponse<DataPage<Clip>> response = await Internal.GetClipsAsync(info, parameters);
+
+                return response;
             }
 
             #endregion
-            */
 
             #region /entitlements/upload
 

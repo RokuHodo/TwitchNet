@@ -14,6 +14,6 @@ TwitchNet.Rest.Api.Clips
         /// Whether or not a delay is added before the clip is created.
         /// </summary>
         [QueryParameter("has_delay")]
-        public virtual bool     has_delay       { get; set; }
+        public virtual bool?    has_delay       { get; set; }
     }
 }

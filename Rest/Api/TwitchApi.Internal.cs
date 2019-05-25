@@ -369,6 +369,20 @@ TwitchNet.Rest.Api
             /// <para>Asynchronously creates a clip.</para>
             /// <para>Required Scope: <see cref="Scopes.ClipsEdit"/>.</para>
             /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the created clip ID and URL to edit the clip.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
+            /// Thrown if the broadcaster ID is null, empty, or contains only whitespace.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<CreatedClip>>>
             CreateClipAsync(HelixInfo info, ClipCreationParameters parameters)
             {
@@ -407,7 +421,7 @@ TwitchNet.Rest.Api
             /// Asynchronously gets specific videos, or a a single page of videos.
             /// </summary>
             public static async Task<IHelixResponse<DataPage<Clip>>>
-            GetClipsPageAsync(HelixInfo info, ClipParameters parameters)
+            GetClipsPageAsync(HelixInfo info, ClipsParameters parameters)
             {
                 HelixResponse<DataPage<Clip>> response = new HelixResponse<DataPage<Clip>>();
                 if (!ValidateAuthorizationParameters(info, response, true))
@@ -452,33 +466,35 @@ TwitchNet.Rest.Api
                     parameters.after = null;
                     parameters.before = null;
                     parameters.first = null;
-                    parameters.broadcaster_id = null;
-                    parameters.game_id = null;
                     parameters.ended_at = null;
                     parameters.started_at = null;
                 }
 
-                // Ignore the period id one date/time isn't provided.
-                if (!parameters.ended_at.HasValue || !parameters.started_at.HasValue)
+                // S E
+                // 0 0 - Don't care, both null
+                // 1 0 - Allowed
+                // 0 1 - Not allowed
+
+                // ended_at is ignored if no started_at is provided
+                if (parameters.ended_at.HasValue && !parameters.started_at.HasValue)
                 {
                     parameters.ended_at = null;
-                    parameters.started_at = null;
                 }
-                else if (!parameters.ended_at.Value.IsInRange(UNIX_EPOCH_MIN, DateTime.Now))
+                else if (parameters.ended_at.HasValue && !parameters.ended_at.Value.IsInRange(UNIX_EPOCH_MIN, DateTime.Now))
                 {
                     response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.ended_at), parameters.ended_at.Value, "The ended_at date cannot be less than the Unix Epoch minimum or later than the current date."), info.settings);
 
                     return response;
                 }
-                else if (!parameters.started_at.Value.IsInRange(UNIX_EPOCH_MIN, DateTime.Now))
+                else if (parameters.started_at.HasValue && !parameters.started_at.Value.IsInRange(UNIX_EPOCH_MIN, DateTime.Now))
                 {
                     response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.started_at), parameters.started_at.Value, "The started_at date cannot be less than the Unix Epoch minimum or later than the current date."), info.settings);
 
                     return response;
                 }
-                else if (parameters.started_at.Value < parameters.ended_at.Value)
+                else if (parameters.started_at.HasValue && parameters.ended_at.HasValue && parameters.started_at.Value > parameters.ended_at.Value)
                 {
-                    response.SetInputError(new ArgumentException("The ended_at date cannot be later than the started_at date."), info.settings);
+                    response.SetInputError(new ArgumentException("The started_at date cannot be later than the ended_at date."), info.settings);
 
                     return response;
                 }
@@ -517,7 +533,7 @@ TwitchNet.Rest.Api
             /// Asynchronously gets specific clips, or a complete list of clips.
             /// </summary>
             public static async Task<IHelixResponse<DataPage<Clip>>>
-            GetClipsAsync(HelixInfo info, ClipParameters parameters)
+            GetClipsAsync(HelixInfo info, ClipsParameters parameters)
             {
                 HelixResponse<DataPage<Clip>> response = new HelixResponse<DataPage<Clip>>();
                 if (!ValidateAuthorizationParameters(info, response, true))
@@ -562,33 +578,36 @@ TwitchNet.Rest.Api
                     parameters.after            = null;
                     parameters.before           = null;
                     parameters.first            = null;
-                    parameters.broadcaster_id   = null;
-                    parameters.game_id          = null;
                     parameters.ended_at         = null;
                     parameters.started_at       = null;
                 }
 
-                // Ignore the period id one date/time isn't provided.
-                if(!parameters.ended_at.HasValue || !parameters.started_at.HasValue)
+                // S E
+                // 0 0 - Don't care, both null
+                // 1 0 - Allowed
+                // 0 1 - Not allowed
+
+                // TODO: Clamp each value instead of setting an error?
+                // ended_at is ignored if no started_at is provided
+                if (parameters.ended_at.HasValue && !parameters.started_at.HasValue)
                 {
-                    parameters.ended_at     = null;
-                    parameters.started_at   = null;
+                    parameters.ended_at = null;
                 }
-                else if(!parameters.ended_at.Value.IsInRange(UNIX_EPOCH_MIN, DateTime.Now))
+                else if (parameters.ended_at.HasValue && !parameters.ended_at.Value.IsInRange(UNIX_EPOCH_MIN, DateTime.Now))
                 {
                     response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.ended_at), parameters.ended_at.Value, "The ended_at date cannot be less than the Unix Epoch minimum or later than the current date."), info.settings);
 
                     return response;
                 }
-                else if (!parameters.started_at.Value.IsInRange(UNIX_EPOCH_MIN, DateTime.Now))
+                else if (parameters.started_at.HasValue && !parameters.started_at.Value.IsInRange(UNIX_EPOCH_MIN, DateTime.Now))
                 {
                     response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.started_at), parameters.started_at.Value, "The started_at date cannot be less than the Unix Epoch minimum or later than the current date."), info.settings);
 
                     return response;
                 }
-                else if (parameters.started_at.Value < parameters.ended_at.Value)
+                else if (parameters.started_at.HasValue && parameters.ended_at.HasValue && parameters.started_at.Value > parameters.ended_at.Value)
                 {
-                    response.SetInputError(new ArgumentException("The ended_at date cannot be later than the started_at date."), info.settings);
+                    response.SetInputError(new ArgumentException("The started_at date cannot be later than the ended_at date."), info.settings);
 
                     return response;
                 }

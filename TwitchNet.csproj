@@ -201,7 +201,7 @@
     <Compile Include="Rest\Api\Clips\ClipCreationParameters.cs" />
     <Compile Include="Rest\Api\Clips\CreatedClip.cs" />
     <Compile Include="Rest\Api\Clips\Clip.cs" />
-    <Compile Include="Rest\Api\Clips\ClipParameters.cs" />
+    <Compile Include="Rest\Api\Clips\ClipsParameters.cs" />
     <Compile Include="Rest\Api\Entitlements\EntitlementUploadUrl.cs" />
     <Compile Include="Rest\Api\DataPage.cs" />
     <Compile Include="Rest\Api\Data.cs" />

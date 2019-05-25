@@ -247,7 +247,7 @@ namespace TwitchNet.Rest
 
                 //string encoded = last_valid_cursor;
                 //int mod = encoded.Length % 4;
-                //if(mod != 0)
+                //if (mod != 0)
                 //{
                 //    encoded += new string('=', 4 - mod);
                 //}

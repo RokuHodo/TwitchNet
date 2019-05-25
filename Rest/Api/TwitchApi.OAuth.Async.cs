@@ -247,7 +247,7 @@ TwitchNet.Rest.Api
             }
 
             public static async Task<IHelixResponse<DataPage<Clip>>>
-            GetClipsPageAsync(string bearer_token, ClipParameters parameters, HelixRequestSettings settings = default)
+            GetClipsPageAsync(string bearer_token, ClipsParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
@@ -258,7 +258,7 @@ TwitchNet.Rest.Api
             }
 
             public static async Task<IHelixResponse<DataPage<Clip>>>
-            GetClipsPageAsync(string bearer_token, string client_id, ClipParameters parameters, HelixRequestSettings settings = default)
+            GetClipsPageAsync(string bearer_token, string client_id, ClipsParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
@@ -270,7 +270,7 @@ TwitchNet.Rest.Api
             }
 
             public static async Task<IHelixResponse<DataPage<Clip>>>
-            GetClipsAsync(string bearer_token, ClipParameters parameters, HelixRequestSettings settings = default)
+            GetClipsAsync(string bearer_token, ClipsParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token   = bearer_token;
@@ -281,7 +281,7 @@ TwitchNet.Rest.Api
             }
 
             public static async Task<IHelixResponse<DataPage<Clip>>>
-            GetClipsAsync(string bearer_token, string client_id, ClipParameters parameters, HelixRequestSettings settings = default)
+            GetClipsAsync(string bearer_token, string client_id, ClipsParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;

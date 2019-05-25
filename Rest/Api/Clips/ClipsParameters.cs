@@ -5,7 +5,7 @@ namespace
 TwitchNet.Rest.Api.Clips
 {
     public class
-    ClipParameters : PagingParameters, IPagingParameters
+    ClipsParameters : PagingParameters, IPagingParameters
     {
         /// <summary>
         /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
@@ -44,7 +44,7 @@ TwitchNet.Rest.Api.Clips
         /// The resolved seconds are ignored.
         /// </para>
         /// <para>
-        /// If specified, started_at should also be provided.
+        /// If specified, started_at must also be provided.
         /// If no started_at is specified, the time period is ignored.
         /// </para>
         /// </summary>
@@ -58,13 +58,13 @@ TwitchNet.Rest.Api.Clips
         /// </para>
         /// <para>
         /// If specified, ended_at should also be provided.
-        /// If no ended_at is specified, the time period is ignored.
+        /// If no ended_at is specified, the end_at defaults to 1 week after started_at.
         /// </para>
         /// </summary>
         [QueryParameter("started_at", typeof(RFC3339QueryConverter))]
         public virtual DateTime? started_at { get; set; }
 
-        public ClipParameters()
+        public ClipsParameters()
         {
             ids = new List<string>();
         }

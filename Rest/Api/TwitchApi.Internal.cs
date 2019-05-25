@@ -136,40 +136,40 @@ TwitchNet.Rest.Api
                     switch (response.request.settings.status_error[code].handling)
                     {
                         case StatusHandling.Error:
-                            {
-                                throw response.exception;
-                            };
+                        {
+                            throw response.exception;
+                        };
 
                         case StatusHandling.Retry:
+                        {
+                            StatusCodeSetting status_setting = response.request.settings.status_error[code];
+
+                            ++status_setting.retry_count;
+                            if (status_setting.retry_count > status_setting.retry_limit && status_setting.retry_limit != -1)
                             {
-                                StatusCodeSetting status_setting = response.request.settings.status_error[code];
+                                response.exception = new RetryLimitReachedException("The retry limit " + status_setting.retry_limit + " has been reached for status code " + code + ".", status_setting.retry_limit, response.exception);
 
-                                ++status_setting.retry_count;
-                                if (status_setting.retry_count > status_setting.retry_limit && status_setting.retry_limit != -1)
-                                {
-                                    response.exception = new RetryLimitReachedException("The retry limit " + status_setting.retry_limit + " has been reached for status code " + code + ".", status_setting.retry_limit, response.exception);
+                                return await HandleResponse(response);
+                            }
 
-                                    return await HandleResponse(response);
-                                }
+                            RateLimit rate_limit = new RateLimit(response.headers);
+                            TimeSpan difference = rate_limit.reset_time - DateTime.Now;
+                            if (rate_limit.remaining == 0 && difference.TotalMilliseconds > 0)
+                            {
+                                await Task.Delay(difference);
+                            }
 
-                                RateLimit rate_limit = new RateLimit(response.headers);
-                                TimeSpan difference = rate_limit.reset_time - DateTime.Now;
-                                if (rate_limit.remaining == 0 && difference.TotalMilliseconds > 0)
-                                {
-                                    await Task.Delay(difference);
-                                }
-
-                                // Clone the message to a new instance because the same instance can't be sent twice.
-                                response.request.CloneMessage();
-                                response = await client.ExecuteAsync<data_type>(response.request, HandleResponse);
-                            };
-                            break;
+                            // Clone the message to a new instance because the same instance can't be sent twice.
+                            response.request.CloneMessage();
+                            response = await client.ExecuteAsync<data_type>(response.request, HandleResponse);
+                        };
+                        break;
 
                         case StatusHandling.Return:
                         default:
-                            {
-                                return response;
-                            }
+                        {
+                            return response;
+                        }
                     }
                 }
                 else
@@ -193,15 +193,15 @@ TwitchNet.Rest.Api
                     switch (handling)
                     {
                         case ErrorHandling.Error:
-                            {
-                                throw response.exception;
-                            }
+                        {
+                            throw response.exception;
+                        }
 
                         case ErrorHandling.Return:
                         default:
-                            {
-                                return response;
-                            }
+                        {
+                            return response;
+                        }
                     }
                 }
 
@@ -418,8 +418,29 @@ TwitchNet.Rest.Api
             }
 
             /// <summary>
-            /// Asynchronously gets specific videos, or a a single page of videos.
+            /// Asynchronously gets specific clips, or a single page of clips.
             /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> containts the specific clips, or the single page of clips.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
+            /// Thrown if no clip ID's, broadcaster ID, or game ID are provided.
+            /// Thrown if any multiple combination of clip ID's, broadcaster ID, or game ID is provided.
+            /// Thrown if all clip ID's are are null, empty, or contains only whitespace, if Provided.
+            /// Thrown if the broadcaster ID is null, empty, or contains only whitespace, if Provided.
+            /// Thrown if the game ID is null, empty, or contains only whitespace, if Provided.
+            /// Thrown if started_at is later than ended_at, if provided.
+            /// </exception>
+            /// <exception cref="ParameterCountException">Thrown if more than 100 total clip ID's are provided.</exception>
+            /// <exception cref="ArgumentOutOfRangeException">Thrown if started_at or ended_at is earlier than the UNIX Epoch minimum value or later than the current date.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Clip>>>
             GetClipsPageAsync(HelixInfo info, ClipsParameters parameters)
             {
@@ -532,6 +553,28 @@ TwitchNet.Rest.Api
             /// <summary>
             /// Asynchronously gets specific clips, or a complete list of clips.
             /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> containts the specific clips, or the single page of clips.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="ArgumentException">
+            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
+            /// Thrown if no clip ID's, broadcaster ID, or game ID are provided.
+            /// Thrown if any multiple combination of clip ID's, broadcaster ID, or game ID is provided.
+            /// Thrown if all clip ID's are are null, empty, or contains only whitespace, if Provided.
+            /// Thrown if the broadcaster ID is null, empty, or contains only whitespace, if Provided.
+            /// Thrown if the game ID is null, empty, or contains only whitespace, if Provided.
+            /// Thrown if started_at is later than ended_at, if provided.
+            /// </exception>
+            /// <exception cref="ParameterCountException">Thrown if more than 100 total clip ID's are provided.</exception>
+            /// <exception cref="ArgumentOutOfRangeException">Thrown if started_at or ended_at is earlier than the UNIX Epoch minimum value or later than the current date.</exception>
+            /// <exception cref="NotSupportedException">Thrown if before is provided.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Clip>>>
             GetClipsAsync(HelixInfo info, ClipsParameters parameters)
             {
@@ -544,6 +587,15 @@ TwitchNet.Rest.Api
                 if (parameters.IsNull())
                 {
                     response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                // NOTE: /clips - Temporarily disabling using 'before' while requesting all pages until it works properly.
+                // TODO: /clips - Reimplement 'before' when it works propery.
+                if (parameters.before.IsValid())
+                {
+                    response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
 
                     return response;
                 }
@@ -862,7 +914,8 @@ TwitchNet.Rest.Api
                 string direction = "after";
                 if (!parameters.IsNull())
                 {
-                    // Temporary error until 'before' works properly.
+                    // NOTE: /games/top - Temporarily disabling using 'before' while requesting all pages until it works properly.
+                    // TODO: /games.top - Reimplement 'before' when it works propery.
                     if (parameters.before.IsValid())
                     {
                         response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
@@ -1021,7 +1074,8 @@ TwitchNet.Rest.Api
                 string direction = "after";
                 if (!parameters.IsNull())
                 {
-                    // Temporary error until 'before' works properly.
+                    // NOTE: /streams - Temporarily disabling using 'before' while requesting all pages until it works properly.
+                    // TODO: /streams - Reimplement 'before' when it works propery.
                     if (parameters.before.IsValid())
                     {
                         response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
@@ -1299,7 +1353,8 @@ TwitchNet.Rest.Api
                 string direction = "after";
                 if (!parameters.IsNull())
                 {
-                    // Temporary error until 'before' works properly.
+                    // NOTE: /streams/metadata - Temporarily disabling using 'before' while requesting all pages until it works properly.
+                    // TODO: /streams/metadata - Reimplement 'before' when it works propery.
                     if (parameters.before.IsValid())
                     {
                         response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
@@ -2403,7 +2458,8 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                // Temporary error until 'before' works properly.
+                // NOTE: /videos - Temporarily disabling using 'before' while requesting all pages until it works properly.
+                // TODO: /videos - Reimplement 'before' when it works propery.
                 if (parameters.before.IsValid())
                 {
                     response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);

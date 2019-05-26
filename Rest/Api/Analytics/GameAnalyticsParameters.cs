@@ -36,6 +36,6 @@ TwitchNet.Rest.Api.Clips
         /// <para>If this is not specified, all report types are included for the authenticated user's games.</para>
         /// </summary>
         [QueryParameter("type")]
-        public virtual GameAnalyticsType?   type        { get; set; }
+        public virtual AnalyticsType?   type        { get; set; }
     }
 }

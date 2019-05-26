@@ -19,5 +19,17 @@ TwitchNet.Rest.Api.Analytics
         /// </summary>
         [JsonProperty("URL")]
         public string url           { get; protected set; }
+
+        /// <summary>
+        /// The analytic report type.
+        /// </summary>
+        [JsonProperty("type")]
+        public AnalyticsType type { get; protected set; }
+
+        /// <summary>
+        /// The time period that the analytic reports cover.
+        /// </summary>
+        [JsonProperty("date_range")]
+        public DateRange date_range { get; protected set; }
     }
 }

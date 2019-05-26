@@ -23,56 +23,103 @@ TwitchNet.Rest.Api
         public static class
         OAuth
         {
-            /*
             #region /analytics/extensions
 
-            public static async Task<IHelixResponse<Data<ExtensionAnalytics>>>
-            GetExtensionAnalyticsAsync(string bearer_token, RequestSettings settings = default(RequestSettings))
+            public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
+            GetExtensionAnalyticsPageAsync(string bearer_token, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token = bearer_token;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
 
-                IHelixResponse<Data<ExtensionAnalytics>> analytics = await TwitchApiInternal.GetExtensionAnalyticsAsync(request_info, default(ExtensionAnalyticsParameters), settings);
+                IHelixResponse<DataPage<ExtensionAnalytics>> response = await Internal.GetExtensionAnalyticsPageAsync(info, default);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
+            GetExtensionAnalyticsPageAsync(string bearer_token, ExtensionAnalyticsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<DataPage<ExtensionAnalytics>> response = await Internal.GetExtensionAnalyticsPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
+            GetExtensionAnalyticsPageAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<ExtensionAnalytics>> analytics = await Internal.GetExtensionAnalyticsPageAsync(info, default);
 
                 return analytics;
             }
 
-            public static async Task<IHelixResponse<Data<ExtensionAnalytics>>>
-            GetExtensionAnalyticsAsync(string bearer_token, ExtensionAnalyticsParameters parameters, RequestSettings settings = default(RequestSettings))
+            public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
+            GetExtensionAnalyticsPageAsync(string bearer_token, string client_id, ExtensionAnalyticsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token = bearer_token;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
 
-                IHelixResponse<Data<ExtensionAnalytics>> analytics = await TwitchApiInternal.GetExtensionAnalyticsAsync(request_info, parameters, settings);
+                IHelixResponse<DataPage<ExtensionAnalytics>> analytics = await Internal.GetExtensionAnalyticsPageAsync(info, parameters);
 
                 return analytics;
             }
 
-            public static async Task<IHelixResponse<Data<ExtensionAnalytics>>>
-            GetExtensionAnalyticsAsync(string bearer_token, string client_id, RequestSettings settings = default(RequestSettings))
+            public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
+            GetExtensionAnalyticsAsync(string bearer_token, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
-                request_info.client_id      = client_id;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
 
-                IHelixResponse<Data<ExtensionAnalytics>> analytics = await TwitchApiInternal.GetExtensionAnalyticsAsync(request_info, default(ExtensionAnalyticsParameters), settings);
+                IHelixResponse<DataPage<ExtensionAnalytics>> response = await Internal.GetExtensionAnalyticsAsync(info, default);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
+            GetExtensionAnalyticsAsync(string bearer_token, ExtensionAnalyticsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<DataPage<ExtensionAnalytics>> response = await Internal.GetExtensionAnalyticsAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
+            GetExtensionAnalyticsAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<ExtensionAnalytics>> analytics = await Internal.GetExtensionAnalyticsAsync(info, default);
 
                 return analytics;
             }
 
-            public static async Task<IHelixResponse<Data<ExtensionAnalytics>>>
-            GetExtensionAnalyticsAsync(string bearer_token, string client_id, ExtensionAnalyticsParameters parameters, RequestSettings settings = default(RequestSettings))
+            public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
+            GetExtensionAnalyticsAsync(string bearer_token, string client_id, ExtensionAnalyticsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
-                request_info.client_id      = client_id;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
 
-                IHelixResponse<Data<ExtensionAnalytics>> analytics = await TwitchApiInternal.GetExtensionAnalyticsAsync(request_info, parameters, settings);
+                IHelixResponse<DataPage<ExtensionAnalytics>> analytics = await Internal.GetExtensionAnalyticsAsync(info, parameters);
 
                 return analytics;
             }
 
             #endregion
+
+            /*
 
             #region /analytics/games
 

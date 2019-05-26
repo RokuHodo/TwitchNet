@@ -212,28 +212,149 @@ TwitchNet.Rest.Api
 
             // TODO: Reimplement /analytics/extensions
             #region /analytics/extensions
-            /*
+
             /// <summary>
             /// <para>Asynchronously gets analytic urls for one or more devloper extensions.</para>
             /// <para>Required Scope: <see cref="Scopes.AnalyticsReadExtensions"/>.</para>
             /// </summary>
-            public static async Task<IHelixResponse<Data<ExtensionAnalytics>>>
-            GetExtensionAnalyticsAsync(RestInfo<Data<ExtensionAnalytics>> info, ExtensionAnalyticsParameters parameters)
+            public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
+            GetExtensionAnalyticsPageAsync(HelixInfo info, ExtensionAnalyticsParameters parameters)
             {
-                IHelixResponse<Data<ExtensionAnalytics>> response = default;
                 info.required_scopes = Scopes.AnalyticsReadExtensions;
-                info = RestUtil.CreateHelixRequest("analytics/extensions", Method.GET, info);
-                if (info.exception_source != RestErrorSource.None)
+
+                HelixResponse<DataPage<ExtensionAnalytics>> response = new HelixResponse<DataPage<ExtensionAnalytics>>();
+                if (!ValidateAuthorizationParameters(info, response, true))
                 {
-                    response = new HelixResponse<Data<ExtensionAnalytics>>(info);
                     return response;
                 }
-                info.request = info.request.AddPaging(parameters);
-                info = await RestUtil.ExecuteAsync(info);
-                response = new HelixResponse<Data<ExtensionAnalytics>>(info);
+
+                if (!parameters.IsNull())
+                {
+                    if (parameters.started_at.HasValue && !parameters.ended_at.HasValue)
+                    {
+                        response.SetInputError(new ArgumentException("ended_at must be provided if started_at is provided."), info.settings);
+
+                        return response;
+                    }
+                    else if (!parameters.started_at.HasValue && parameters.ended_at.HasValue)
+                    {
+                        response.SetInputError(new ArgumentException("started_at must be provided if ended_at is provided."), info.settings);
+
+                        return response;
+                    }
+                    else if (parameters.started_at.HasValue && parameters.ended_at.HasValue)
+                    {
+                        parameters.started_at = parameters.started_at.Value.ToUniversalTime();
+                        parameters.ended_at = parameters.started_at.Value.ToUniversalTime();
+
+                        if (parameters.started_at > DateTime.UtcNow)
+                        {
+                            response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.started_at), parameters.started_at.Value, "The started_at date cannot be greater than the current date."), info.settings);
+
+                            return response;
+                        }
+
+                        if (parameters.ended_at > DateTime.UtcNow)
+                        {
+                            response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.ended_at), parameters.ended_at.Value, "The ended_at date cannot be greater than the current date."), info.settings);
+
+                            return response;
+                        }
+
+                        if (parameters.started_at.Value > parameters.ended_at.Value)
+                        {
+                            response.SetInputError(new ArgumentException("The started_at date cannot be later than the ended_at date."), info.settings);
+
+                            return response;
+                        }
+                    }
+
+                    if (parameters.extension_id.IsValid())
+                    {
+                        parameters.after = null;
+                    }
+
+                    parameters.first = parameters.first.Clamp(1, 100);
+                }
+
+                RestRequest request = GetBaseRequest("analytics/extensions", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<ExtensionAnalytics>> _response = await client.ExecuteAsync<DataPage<ExtensionAnalytics>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<ExtensionAnalytics>>(_response);
+
                 return response;
             }
-            */
+
+            public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
+            GetExtensionAnalyticsAsync(HelixInfo info, ExtensionAnalyticsParameters parameters)
+            {
+                info.required_scopes = Scopes.AnalyticsReadExtensions;
+
+                HelixResponse<DataPage<ExtensionAnalytics>> response = new HelixResponse<DataPage<ExtensionAnalytics>>();
+                if (!ValidateAuthorizationParameters(info, response, true))
+                {
+                    return response;
+                }
+
+                if (!parameters.IsNull())
+                {
+                    if (parameters.started_at.HasValue && !parameters.ended_at.HasValue)
+                    {
+                        response.SetInputError(new ArgumentException("ended_at must be provided if started_at is provided."), info.settings);
+
+                        return response;
+                    }
+                    else if (!parameters.started_at.HasValue && parameters.ended_at.HasValue)
+                    {
+                        response.SetInputError(new ArgumentException("started_at must be provided if ended_at is provided."), info.settings);
+
+                        return response;
+                    }
+                    else if (parameters.started_at.HasValue && parameters.ended_at.HasValue)
+                    {
+                        parameters.started_at = parameters.started_at.Value.ToUniversalTime();
+                        parameters.ended_at = parameters.started_at.Value.ToUniversalTime();
+
+                        if (parameters.started_at > DateTime.UtcNow)
+                        {
+                            response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.started_at), parameters.started_at.Value, "The started_at date cannot be greater than the current date."), info.settings);
+
+                            return response;
+                        }
+
+                        if (parameters.ended_at > DateTime.UtcNow)
+                        {
+                            response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.ended_at), parameters.ended_at.Value, "The ended_at date cannot be greater than the current date."), info.settings);
+
+                            return response;
+                        }
+
+                        if (parameters.started_at.Value > parameters.ended_at.Value)
+                        {
+                            response.SetInputError(new ArgumentException("The started_at date cannot be later than the ended_at date."), info.settings);
+
+                            return response;
+                        }
+                    }
+
+                    if (parameters.extension_id.IsValid())
+                    {
+                        parameters.after = null;
+                    }
+
+                    parameters.first = parameters.first.Clamp(1, 100);
+                }
+
+                RestRequest request = GetBaseRequest("analytics/extensions", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<ExtensionAnalytics>> _response = await client.TraceExecuteAsync<ExtensionAnalytics, DataPage<ExtensionAnalytics>>(request, "after", HandleResponse);
+                response = new HelixResponse<DataPage<ExtensionAnalytics>>(_response);
+
+                return response;
+            }
+
             #endregion
 
             // TODO: Reimplement /analytics/games
@@ -362,7 +483,6 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            // TODO: Test /clips
             #region /clips
 
             /// <summary>
@@ -1424,6 +1544,8 @@ TwitchNet.Rest.Api
             #endregion
 
             // TODO: Implement /streams/tags
+
+            // TODO: Implement /subscriptions
 
             // TODO: Implement /tags/streams
 

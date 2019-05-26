@@ -28,7 +28,7 @@ TwitchNet.Rest.Api.Analytics
         /// The type of report.
         /// </summary>
         [JsonProperty("type")]
-        public GameAnalyticsType    type        { get; protected set; }
+        public AnalyticsType    type        { get; protected set; }
 
         /// <summary>
         /// The date/time range that the report was taken.

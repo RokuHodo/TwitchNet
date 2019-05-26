@@ -58,6 +58,7 @@
     <Compile Include="Helpers\Json\ISerializer.cs" />
     <Compile Include="Helpers\Json\IDeserializer.cs" />
     <Compile Include="Helpers\Json\JsonSerializer.cs" />
+    <Compile Include="Rest\Api\Analytics\DateRange.cs" />
     <Compile Include="Rest\Api\Bits\BitsLeaderboardData.cs" />
     <Compile Include="Rest\Api\Bits\BitsLeaderboardPeriod.cs" />
     <Compile Include="Rest\Api\Bits\BitsLeaderboardParameters.cs" />
@@ -66,7 +67,7 @@
     <Compile Include="Rest\Api\Analytics\GameAnalytics.cs" />
     <Compile Include="Rest\Api\Analytics\ExtensionAnalyticsParameters.cs" />
     <Compile Include="Rest\Api\Analytics\ExtensionAnalytics.cs" />
-    <Compile Include="Rest\Api\Analytics\GameAnalyticsType.cs" />
+    <Compile Include="Rest\Api\Analytics\AnalyticsType.cs" />
     <Compile Include="Rest\Api\Bits\BitsUser.cs" />
     <Compile Include="Rest\Api\HelixException.cs" />
     <Compile Include="Rest\Api\HelixInfo.cs" />

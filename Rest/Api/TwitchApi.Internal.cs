@@ -230,6 +230,8 @@ TwitchNet.Rest.Api
 
                 if (!parameters.IsNull())
                 {
+                    parameters.after = parameters.after.NullIfInvalid();
+
                     if (parameters.started_at.HasValue && !parameters.ended_at.HasValue)
                     {
                         response.SetInputError(new ArgumentException("ended_at must be provided if started_at is provided."), info.settings);
@@ -245,7 +247,7 @@ TwitchNet.Rest.Api
                     else if (parameters.started_at.HasValue && parameters.ended_at.HasValue)
                     {
                         parameters.started_at = parameters.started_at.Value.ToUniversalTime();
-                        parameters.ended_at = parameters.started_at.Value.ToUniversalTime();
+                        parameters.ended_at = parameters.ended_at.Value.ToUniversalTime();
 
                         if (parameters.started_at > DateTime.UtcNow)
                         {
@@ -271,7 +273,12 @@ TwitchNet.Rest.Api
 
                     if (parameters.extension_id.IsValid())
                     {
+                        // Just to make sure if something was actually set
                         parameters.after = null;
+                    }
+                    else
+                    {
+                        parameters.extension_id = null;
                     }
 
                     parameters.first = parameters.first.Clamp(1, 100);
@@ -299,6 +306,8 @@ TwitchNet.Rest.Api
 
                 if (!parameters.IsNull())
                 {
+                    parameters.after = parameters.after.NullIfInvalid();
+
                     if (parameters.started_at.HasValue && !parameters.ended_at.HasValue)
                     {
                         response.SetInputError(new ArgumentException("ended_at must be provided if started_at is provided."), info.settings);
@@ -314,7 +323,7 @@ TwitchNet.Rest.Api
                     else if (parameters.started_at.HasValue && parameters.ended_at.HasValue)
                     {
                         parameters.started_at = parameters.started_at.Value.ToUniversalTime();
-                        parameters.ended_at = parameters.started_at.Value.ToUniversalTime();
+                        parameters.ended_at = parameters.ended_at.Value.ToUniversalTime();
 
                         if (parameters.started_at > DateTime.UtcNow)
                         {
@@ -340,7 +349,12 @@ TwitchNet.Rest.Api
 
                     if (parameters.extension_id.IsValid())
                     {
+                        // Just to make sure if something was actually set
                         parameters.after = null;
+                    }
+                    else
+                    {
+                        parameters.extension_id = null;
                     }
 
                     parameters.first = parameters.first.Clamp(1, 100);

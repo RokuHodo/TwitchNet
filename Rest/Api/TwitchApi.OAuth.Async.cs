@@ -119,104 +119,101 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            /*
-
             #region /analytics/games
 
-            public static async Task<IHelixResponse<Data<GameAnalytics>>>
-            GetGameAnalyticsPageAsync(string bearer_token, RequestSettings settings = null)
+            public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
+            GetGameAnalyticsPageAsync(string bearer_token, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token = bearer_token;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
 
-                IHelixResponse<Data<GameAnalytics>> response = await TwitchApiInternal.GetGameAnalyticsPageAsync(request_info, default(GameAnalyticsParameters), settings);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<Data<GameAnalytics>>>
-            GetGameAnalyticsPageAsync(string bearer_token, GameAnalyticsParameters parameters, RequestSettings settings = null)
-            {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token = bearer_token;
-
-                IHelixResponse<Data<GameAnalytics>> response = await TwitchApiInternal.GetGameAnalyticsPageAsync(request_info, parameters, settings);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<Data<GameAnalytics>>>
-            GetGameAnalyticsPageAsync(string bearer_token, string client_id, RequestSettings settings = null)
-            {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
-                request_info.client_id      = client_id;
-
-                IHelixResponse<Data<GameAnalytics>> response = await TwitchApiInternal.GetGameAnalyticsPageAsync(request_info, default(GameAnalyticsParameters), settings);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<Data<GameAnalytics>>>
-            GetGameAnalyticsPageAsync(string bearer_token, string client_id, GameAnalyticsParameters parameters, RequestSettings settings = null)
-            {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token   = bearer_token;
-                request_info.client_id      = client_id;
-
-                IHelixResponse<Data<GameAnalytics>> response = await TwitchApiInternal.GetGameAnalyticsPageAsync(request_info, parameters, settings);
+                IHelixResponse<DataPage<GameAnalytics>> response = await Internal.GetGameAnalyticsPageAsync(info, default);
 
                 return response;
             }
 
             public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
-            GetGameAnalyticsAsync(string bearer_token, RequestSettings settings = null)
+            GetGameAnalyticsPageAsync(string bearer_token, GameAnalyticsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token = bearer_token;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
 
-                IHelixResponse<DataPage<GameAnalytics>> response = await TwitchApiInternal.GetGameAnalyticsAsync(request_info, default(GameAnalyticsParameters), settings);
+                IHelixResponse<DataPage<GameAnalytics>> response = await Internal.GetGameAnalyticsPageAsync(info, parameters);
 
                 return response;
             }
 
             public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
-            GetGameAnalyticsAsync(string bearer_token, GameAnalyticsParameters parameters, RequestSettings settings = null)
+            GetGameAnalyticsPageAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token = bearer_token;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
 
-                IHelixResponse<DataPage<GameAnalytics>> response = await TwitchApiInternal.GetGameAnalyticsAsync(request_info, parameters, settings);
+                IHelixResponse<DataPage<GameAnalytics>> analytics = await Internal.GetGameAnalyticsPageAsync(info, default);
+
+                return analytics;
+            }
+
+            public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
+            GetGameAnalyticsPageAsync(string bearer_token, string client_id, GameAnalyticsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<GameAnalytics>> analytics = await Internal.GetGameAnalyticsPageAsync(info, parameters);
+
+                return analytics;
+            }
+
+            public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
+            GetGameAnalyticsAsync(string bearer_token, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<DataPage<GameAnalytics>> response = await Internal.GetGameAnalyticsAsync(info, default);
 
                 return response;
             }
 
             public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
-            GetGameAnalyticsAsync(string bearer_token, string client_id, RequestSettings settings = null)
+            GetGameAnalyticsAsync(string bearer_token, GameAnalyticsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token = bearer_token;
-                request_info.client_id = client_id;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
 
-                IHelixResponse<DataPage<GameAnalytics>> response = await TwitchApiInternal.GetGameAnalyticsAsync(request_info, default(GameAnalyticsParameters), settings);
+                IHelixResponse<DataPage<GameAnalytics>> response = await Internal.GetGameAnalyticsAsync(info, parameters);
 
                 return response;
             }
 
             public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
-            GetGameAnalyticsAsync(string bearer_token, string client_id, GameAnalyticsParameters parameters, RequestSettings settings = null)
+            GetGameAnalyticsAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
             {
-                HelixInfo request_info = new HelixInfo();
-                request_info.bearer_token = bearer_token;
-                request_info.client_id = client_id;
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
 
-                IHelixResponse<DataPage<GameAnalytics>> response = await TwitchApiInternal.GetGameAnalyticsAsync(request_info, parameters, settings);
+                IHelixResponse<DataPage<GameAnalytics>> analytics = await Internal.GetGameAnalyticsAsync(info, default);
 
-                return response;
+                return analytics;
+            }
+
+            public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
+            GetGameAnalyticsAsync(string bearer_token, string client_id, GameAnalyticsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<GameAnalytics>> analytics = await Internal.GetGameAnalyticsAsync(info, parameters);
+
+                return analytics;
             }
 
             #endregion
-            */
 
             #region /bits/leaderboard
 

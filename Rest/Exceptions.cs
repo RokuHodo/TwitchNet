@@ -96,7 +96,6 @@ namespace TwitchNet.Rest
     {
         public int retry_limit { get; protected set; }
 
-
         public RetryLimitReachedException(int retry_limit)
 
         {

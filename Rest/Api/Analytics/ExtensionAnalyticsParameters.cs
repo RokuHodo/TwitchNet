@@ -20,6 +20,7 @@ TwitchNet.Rest.Api.Analytics
         /// <para>
         /// The latest date/time that a report will be returned in UTC.
         /// The resolved hours, minutes, and seconds are zeroed out.
+        /// The returned reports covers up through the entire day of this date.
         /// If the date/time is not in UTC, it will be automatically converted from its current time zone.
         /// </para>
         /// <para>

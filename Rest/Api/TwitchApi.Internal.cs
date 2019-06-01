@@ -210,13 +210,28 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            // TODO: Reimplement /analytics/extensions
             #region /analytics/extensions
 
             /// <summary>
-            /// <para>Asynchronously gets analytic urls for one or more devloper extensions.</para>
+            /// <para>Asynchronously gets a specific extension analytic report, or a single page of extension analytic reports.</para>
             /// <para>Required Scope: <see cref="Scopes.AnalyticsReadExtensions"/>.</para>
             /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific extension analytic report, or the single page of extension analytic reports.
+            /// </returns>
+            /// <exception cref="ArgumentException">
+            /// Thrown if the Bearer token is null, empty, or contains only whitespace.
+            /// Thrown if started_at is not provided when ended_at is, or when ended_at is provided when started_at is.
+            /// Thrown if started_at is later than ended_at.
+            /// </exception>
+            /// <exception cref="ArgumentOutOfRangeException">Thrown if started_at or ended_at is newer than <see cref="DateTime.UtcNow"/>.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.AnalyticsReadExtensions"/> scope.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
             GetExtensionAnalyticsPageAsync(HelixInfo info, ExtensionAnalyticsParameters parameters)
             {
@@ -293,6 +308,26 @@ TwitchNet.Rest.Api
                 return response;
             }
 
+            /// <summary>
+            /// <para>Asynchronously gets a specific extension analytic report, or a complete list of extension analytic reports.</para>
+            /// <para>Required Scope: <see cref="Scopes.AnalyticsReadExtensions"/>.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific extension analytic report, or the complete list of extension analytic reports.
+            /// </returns>
+            /// <exception cref="ArgumentException">
+            /// Thrown if the Bearer token is null, empty, or contains only whitespace.
+            /// Thrown if started_at is not provided when ended_at is, or when ended_at is provided when started_at is.
+            /// Thrown if started_at is later than ended_at.
+            /// </exception>
+            /// <exception cref="ArgumentOutOfRangeException">Thrown if started_at or ended_at is newer than <see cref="DateTime.UtcNow"/>.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.AnalyticsReadExtensions"/> scope.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
             GetExtensionAnalyticsAsync(HelixInfo info, ExtensionAnalyticsParameters parameters)
             {
@@ -371,68 +406,199 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            // TODO: Reimplement /analytics/games
             #region /analytics/games
-            /*
+
             /// <summary>
-            /// <para>Asynchronously gets a single page of analytic urls for one or more devloper games.</para>
+            /// <para>Asynchronously gets a specific game analytic report, or a single page of game analytic reports.</para>
             /// <para>Required Scope: <see cref="Scopes.AnalyticsReadGames"/>.</para>
             /// </summary>
-            public static async Task<IHelixResponse<Data<GameAnalytics>>>
-            GetGameAnalyticsPageAsync(RestInfo<Data<GameAnalytics>> info, GameAnalyticsParameters parameters)
-            {
-                IHelixResponse<Data<GameAnalytics>> response = default;
-                if ((!parameters.started_at.IsNull() && parameters.ended_at.IsNull()) || (!parameters.ended_at.IsNull() && parameters.started_at.IsNull()))
-                {
-                    info.SetInputError(new ArgumentException(nameof(parameters.started_at).WrapQuotes() + " and " + nameof(parameters.ended_at).WrapQuotes() + " must be specified together."));
-                    response = new HelixResponse<Data<GameAnalytics>>(info);
-                    return response;
-                }
-                info.required_scopes = Scopes.AnalyticsReadGames;
-                info = RestUtil.CreateHelixRequest("analytics/games", Method.GET, info);
-                if (info.exception_source != RestErrorSource.None)
-                {
-                    response = new HelixResponse<Data<GameAnalytics>>(info);
-                    return response;
-                }
-                info.request = info.request.AddPaging(parameters);
-                info = await RestUtil.ExecuteAsync(info);
-                response = new HelixResponse<Data<GameAnalytics>>(info);
-                return response;
-            }
-            /// <summary>
-            /// <para>Asynchronously gets a complete list of analytic urls for one or more devloper games.</para>
-            /// <para>Required Scope: <see cref="Scopes.AnalyticsReadGames"/>.</para>
-            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific game analytic report, or the single page of game analytic reports.
+            /// </returns>
+            /// <exception cref="ArgumentException">
+            /// Thrown if the Bearer token is null, empty, or contains only whitespace.
+            /// Thrown if started_at is not provided when ended_at is, or when ended_at is provided when started_at is.
+            /// Thrown if started_at is later than ended_at.
+            /// </exception>
+            /// <exception cref="ArgumentOutOfRangeException">Thrown if started_at or ended_at is newer than <see cref="DateTime.UtcNow"/>.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.AnalyticsReadGames"/> scope.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
-            GetGameAnalyticsAsync(RestInfo<DataPage<GameAnalytics>> info, GameAnalyticsParameters parameters)
+            GetGameAnalyticsPageAsync(HelixInfo info, GameAnalyticsParameters parameters)
             {
-                IHelixResponse<DataPage<GameAnalytics>> response = default;
-                if ((!parameters.started_at.IsNull() && parameters.ended_at.IsNull()) || (!parameters.ended_at.IsNull() && parameters.started_at.IsNull()))
-                {
-                    info.SetInputError(new ArgumentException(nameof(parameters.started_at).WrapQuotes() + " and " + nameof(parameters.ended_at).WrapQuotes() + " must be specified together."));
-                    response = new HelixResponse<DataPage<GameAnalytics>>(info);
-                    return response;
-                }            
                 info.required_scopes = Scopes.AnalyticsReadGames;
-                info = RestUtil.CreateHelixRequest("analytics/games", Method.GET, info);
-                if (info.exception_source != RestErrorSource.None)
+
+                HelixResponse<DataPage<GameAnalytics>> response = new HelixResponse<DataPage<GameAnalytics>>();
+                if (!ValidateAuthorizationParameters(info, response, true))
                 {
-                    response = new HelixResponse<DataPage<GameAnalytics>>(info);
                     return response;
                 }
-                // Make sure the user doesn't accidentally break shit.
-                if (parameters.IsNull())
+
+                if (!parameters.IsNull())
                 {
-                    parameters = new GameAnalyticsParameters();
+                    parameters.after = parameters.after.NullIfInvalid();
+
+                    if (parameters.started_at.HasValue && !parameters.ended_at.HasValue)
+                    {
+                        response.SetInputError(new ArgumentException("ended_at must be provided if started_at is provided."), info.settings);
+
+                        return response;
+                    }
+                    else if (!parameters.started_at.HasValue && parameters.ended_at.HasValue)
+                    {
+                        response.SetInputError(new ArgumentException("started_at must be provided if ended_at is provided."), info.settings);
+
+                        return response;
+                    }
+                    else if (parameters.started_at.HasValue && parameters.ended_at.HasValue)
+                    {
+                        parameters.started_at = parameters.started_at.Value.ToUniversalTime();
+                        parameters.ended_at = parameters.ended_at.Value.ToUniversalTime();
+
+                        if (parameters.started_at > DateTime.UtcNow)
+                        {
+                            response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.started_at), parameters.started_at.Value, "The started_at date cannot be greater than the current date."), info.settings);
+
+                            return response;
+                        }
+
+                        if (parameters.ended_at > DateTime.UtcNow)
+                        {
+                            response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.ended_at), parameters.ended_at.Value, "The ended_at date cannot be greater than the current date."), info.settings);
+
+                            return response;
+                        }
+
+                        if (parameters.started_at.Value > parameters.ended_at.Value)
+                        {
+                            response.SetInputError(new ArgumentException("The started_at date cannot be later than the ended_at date."), info.settings);
+
+                            return response;
+                        }
+                    }
+
+                    if (parameters.game_id.IsValid())
+                    {
+                        // Just to make sure if something was actually set
+                        parameters.after = null;
+                    }
+                    else
+                    {
+                        parameters.game_id = null;
+                    }
+
+                    parameters.first = parameters.first.Clamp(1, 100);
                 }
-                parameters.game_id = string.Empty;
-                info.request = info.request.AddPaging(parameters);
-                info = await RestUtil.TraceExecuteAsync<GameAnalytics, DataPage<GameAnalytics>>(info, parameters);
-                response = new HelixResponse<DataPage<GameAnalytics>>(info);
+
+                RestRequest request = GetBaseRequest("analytics/games", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<GameAnalytics>> _response = await client.ExecuteAsync<DataPage<GameAnalytics>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<GameAnalytics>>(_response);
+
                 return response;
             }
-            */
+            /// <summary>
+            /// <para>Asynchronously gets a specific game analytic report, or a complete list of game analytic reports.</para>
+            /// <para>Required Scope: <see cref="Scopes.AnalyticsReadGames"/>.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific game analytic report, or the complete list of game analytic reports.
+            /// </returns>
+            /// <exception cref="ArgumentException">
+            /// Thrown if the Bearer token is null, empty, or contains only whitespace.
+            /// Thrown if started_at is not provided when ended_at is, or when ended_at is provided when started_at is.
+            /// Thrown if started_at is later than ended_at.
+            /// </exception>
+            /// <exception cref="ArgumentOutOfRangeException">Thrown if started_at or ended_at is newer than <see cref="DateTime.UtcNow"/>.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.AnalyticsReadGames"/> scope.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
+            GetGameAnalyticsAsync(HelixInfo info, GameAnalyticsParameters parameters)
+            {
+                info.required_scopes = Scopes.AnalyticsReadGames;
+
+                HelixResponse<DataPage<GameAnalytics>> response = new HelixResponse<DataPage<GameAnalytics>>();
+                if (!ValidateAuthorizationParameters(info, response, true))
+                {
+                    return response;
+                }
+
+                if (!parameters.IsNull())
+                {
+                    parameters.after = parameters.after.NullIfInvalid();
+
+                    if (parameters.started_at.HasValue && !parameters.ended_at.HasValue)
+                    {
+                        response.SetInputError(new ArgumentException("ended_at must be provided if started_at is provided."), info.settings);
+
+                        return response;
+                    }
+                    else if (!parameters.started_at.HasValue && parameters.ended_at.HasValue)
+                    {
+                        response.SetInputError(new ArgumentException("started_at must be provided if ended_at is provided."), info.settings);
+
+                        return response;
+                    }
+                    else if (parameters.started_at.HasValue && parameters.ended_at.HasValue)
+                    {
+                        parameters.started_at = parameters.started_at.Value.ToUniversalTime();
+                        parameters.ended_at = parameters.ended_at.Value.ToUniversalTime();
+
+                        if (parameters.started_at > DateTime.UtcNow)
+                        {
+                            response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.started_at), parameters.started_at.Value, "The started_at date cannot be greater than the current date."), info.settings);
+
+                            return response;
+                        }
+
+                        if (parameters.ended_at > DateTime.UtcNow)
+                        {
+                            response.SetInputError(new ArgumentOutOfRangeException(nameof(parameters.ended_at), parameters.ended_at.Value, "The ended_at date cannot be greater than the current date."), info.settings);
+
+                            return response;
+                        }
+
+                        if (parameters.started_at.Value > parameters.ended_at.Value)
+                        {
+                            response.SetInputError(new ArgumentException("The started_at date cannot be later than the ended_at date."), info.settings);
+
+                            return response;
+                        }
+                    }
+
+                    if (parameters.game_id.IsValid())
+                    {
+                        // Just to make sure if something was actually set
+                        parameters.after = null;
+                    }
+                    else
+                    {
+                        parameters.game_id = null;
+                    }
+
+                    parameters.first = parameters.first.Clamp(1, 100);
+                }
+
+                RestRequest request = GetBaseRequest("analytics/games", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<GameAnalytics>> _response = await client.TraceExecuteAsync<GameAnalytics, DataPage<GameAnalytics>>(request, "after", HandleResponse);
+                response = new HelixResponse<DataPage<GameAnalytics>>(_response);
+
+                return response;
+            }
+
             #endregion
 
             #region /bits/leaderboard
@@ -450,7 +616,7 @@ TwitchNet.Rest.Api
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains ranked list of bits leaderboard information.
             /// </returns>
-            /// <exception cref="ArgumentException">Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.</exception>
+            /// <exception cref="ArgumentException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
             /// <exception cref="ArgumentOutOfRangeException">Thrown if started_at is newer than <see cref="DateTime.Now"/>.</exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.BitsRead"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -511,9 +677,10 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="ArgumentException">
-            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
+            /// Thrown if the Bearer token is null, empty, or contains only whitespace.
             /// Thrown if the broadcaster ID is null, empty, or contains only whitespace.
             /// </exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ClipsEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>

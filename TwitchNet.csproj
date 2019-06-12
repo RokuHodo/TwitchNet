@@ -71,9 +71,11 @@
     <Compile Include="Rest\Api\Bits\BitsUser.cs" />
     <Compile Include="Rest\Api\HelixException.cs" />
     <Compile Include="Rest\Api\HelixInfo.cs" />
-    <Compile Include="Rest\Api\TwitchApi.Sync.cs" />
+    <Compile Include="Rest\Api\Streams\SetStreamsTagsParameters.cs" />
+    <Compile Include="Rest\Api\Streams\StreamsTagsParameters.cs" />
+    <Compile Include="Rest\Api\Tags\StreamTagsParameters.cs" />
+    <Compile Include="Rest\Api\Tags\StreamTag.cs" />
     <Compile Include="Rest\Api\TwitchApi.Async.cs" />
-    <Compile Include="Rest\Api\TwitchApi.OAuth.Sync.cs" />
     <Compile Include="Rest\Api\TwitchApi.OAuth.Async.cs" />
     <Compile Include="Clients\Irc\IrcClient.Handlers.cs" />
     <Compile Include="Clients\Irc\IrcClient.cs" />
@@ -85,8 +87,8 @@
     <Compile Include="Debugger\ValidateObjectAttribute.cs" />
     <Compile Include="Debugger\ValidateMemberAttribute.cs" />
     <Compile Include="Rest\Api\Entitlements\EntitlementType.cs" />
-    <Compile Include="Rest\Api\Users\ActiveExtensions.cs" />
     <Compile Include="Rest\Api\Users\DuplicateExtensionException.cs" />
+    <Compile Include="Rest\Api\Users\ActiveExtensions.cs" />
     <Compile Include="Rest\Api\Users\UpdateExtensionsParameters.cs" />
     <Compile Include="Rest\Api\Users\ActiveExtensionsData.cs" />
     <Compile Include="Rest\Api\Users\ActiveExtension.cs" />

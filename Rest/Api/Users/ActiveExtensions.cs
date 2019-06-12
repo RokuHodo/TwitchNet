@@ -1,5 +1,4 @@
-﻿// imported .dll's
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace
 TwitchNet.Rest.Api.Users
@@ -8,15 +7,9 @@ TwitchNet.Rest.Api.Users
     ActiveExtensions
     {
         /// <summary>
-        /// Contains the active extension data for each extension type.
+        /// The active extension data to update.
         /// </summary>
         [JsonProperty("data")]
         public ActiveExtensionsData data { get; set; }
-
-        public
-        ActiveExtensions()
-        {
-            data = new ActiveExtensionsData();            
-        }        
     }
 }

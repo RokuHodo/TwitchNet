@@ -26,6 +26,12 @@ namespace TwitchNet.Rest
         public string name;
 
         /// <summary>
+        /// <para>The name of a parent JSON object to wrap the body in.</para>
+        /// <para>This is to avoid having to manually nest the body in another object and reduce verbosity.</para>
+        /// </summary>
+        public string root_name;
+
+        /// <summary>
         /// The value of the rest parameter.
         /// </summary>
         public object value;

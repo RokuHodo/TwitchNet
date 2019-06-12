@@ -26,6 +26,12 @@ namespace TwitchNet.Rest
         {
             this.converter = converter ?? typeof(DefaultBodyConverter);
         }
+
+        public BodyAttribute(string root_name, Type converter = null) : base(HttpParameterType.Body)
+        {
+            this.root_name = root_name;
+            this.converter = converter ?? typeof(DefaultBodyConverter);
+        }
     }
 
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
@@ -33,6 +39,8 @@ namespace TwitchNet.Rest
     RestParameterAttribute : Attribute
     {
         public string name { get; internal set; }
+
+        public string root_name { get; internal set; }
 
         public object value { get; internal set; }
 

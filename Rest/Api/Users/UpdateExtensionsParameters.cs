@@ -5,21 +5,15 @@ TwitchNet.Rest.Api.Users
     UpdateExtensionsParameters
     {
         /// <summary>
-        /// The active extensions to update.
+        /// The active extension data to update.
         /// </summary>
-        [Body]
-        public virtual ActiveExtensions extensions { get; set; }
+        [Body("data")]
+        public ActiveExtensionsData data { get; set; }
 
         public
         UpdateExtensionsParameters()
         {
-            extensions = new ActiveExtensions();
-        }
-
-        public
-        UpdateExtensionsParameters(ActiveExtensions extensions)
-        {
-            this.extensions = extensions;
+            data = new ActiveExtensionsData();
         }
     }
 }

@@ -11,6 +11,8 @@ using TwitchNet.Extensions;
 using TwitchNet.Helpers.Json;
 using TwitchNet.Utilities;
 
+using Newtonsoft.Json.Linq;
+
 namespace TwitchNet.Rest
 {
     public class
@@ -279,6 +281,7 @@ namespace TwitchNet.Rest
 
                 RestParameter parameter = new RestParameter();
                 parameter.name              = attribute.name;
+                parameter.root_name         = attribute.root_name;
                 parameter.value             = attribute.value;
                 parameter.parameter_type    = attribute.parameter_type;
                 parameter.content_type      = attribute.content_type;
@@ -371,7 +374,7 @@ namespace TwitchNet.Rest
         }
 
         public void
-        SetBody(object obj)
+        SetBody(object obj, string root_name = null)
         {
             if (disposed)
             {
@@ -385,6 +388,12 @@ namespace TwitchNet.Rest
             }
 
             string content = json_serialzier.Serialize(obj);
+            if (root_name.IsValid())
+            {
+                // This is what I'll do until proven this is unstable/breaks under certain situations.
+                content = "{" + root_name + ":" + content + "}";
+            }
+
             message.Content = new StringContent(content, Encoding.UTF8, json_serialzier.content_type);
         }
 

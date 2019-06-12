@@ -13,6 +13,7 @@ using TwitchNet.Rest.Api.Clips;
 using TwitchNet.Rest.Api.Entitlements;
 using TwitchNet.Rest.Api.Games;
 using TwitchNet.Rest.Api.Streams;
+using TwitchNet.Rest.Api.Tags;
 using TwitchNet.Rest.Api.Users;
 using TwitchNet.Rest.Api.Videos;
 using TwitchNet.Utilities;
@@ -398,7 +399,7 @@ TwitchNet.Rest.Api
                 RestRequest request = GetBaseRequest("analytics/extensions", Method.GET, info);
                 request.AddParameters(parameters);
 
-                RestResponse<DataPage<ExtensionAnalytics>> _response = await client.TraceExecuteAsync<ExtensionAnalytics, DataPage<ExtensionAnalytics>>(request, "after", HandleResponse);
+                RestResponse<DataPage<ExtensionAnalytics>> _response = await client.TraceExecuteAsync<ExtensionAnalytics, DataPage<ExtensionAnalytics>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<ExtensionAnalytics>>(_response);
 
                 return response;
@@ -503,6 +504,7 @@ TwitchNet.Rest.Api
 
                 return response;
             }
+
             /// <summary>
             /// <para>Asynchronously gets a specific game analytic report, or a complete list of game analytic reports.</para>
             /// <para>Required Scope: <see cref="Scopes.AnalyticsReadGames"/>.</para>
@@ -593,7 +595,7 @@ TwitchNet.Rest.Api
                 RestRequest request = GetBaseRequest("analytics/games", Method.GET, info);
                 request.AddParameters(parameters);
 
-                RestResponse<DataPage<GameAnalytics>> _response = await client.TraceExecuteAsync<GameAnalytics, DataPage<GameAnalytics>>(request, "after", HandleResponse);
+                RestResponse<DataPage<GameAnalytics>> _response = await client.TraceExecuteAsync<GameAnalytics, DataPage<GameAnalytics>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<GameAnalytics>>(_response);
 
                 return response;
@@ -1061,7 +1063,7 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            // TODO: Implement /streams/markers
+            // TODO: Implement /extensions/transactions
 
             #region /games
 
@@ -1724,11 +1726,263 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            // TODO: Implement /streams/tags
+            #region /streams/tags
+
+            public static async Task<IHelixResponse<Data<StreamTag>>>
+            GetStreamsTagsAsync(HelixInfo info, StreamsTagsParameters parameters)
+            {
+                HelixResponse<Data<StreamTag>> response = new HelixResponse<Data<StreamTag>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                if (!parameters.broadcaster_id.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.broadcaster_id)), info.settings);
+
+                    return response;
+                }
+
+                RestRequest request = GetBaseRequest("streams/tags", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<Data<StreamTag>> _response = await client.ExecuteAsync<Data<StreamTag>>(request, HandleResponse);
+                response = new HelixResponse<Data<StreamTag>>(_response);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<Data<StreamTag>>>
+            SetStreamsTagsAsync(HelixInfo info, SetStreamsTagsParameters parameters)
+            {
+                info.required_scopes = Scopes.UserEditBroadcast;
+
+                HelixResponse<Data<StreamTag>> response = new HelixResponse<Data<StreamTag>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                if (!parameters.broadcaster_id.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.broadcaster_id)), info.settings);
+
+                    return response;
+                }
+
+                if (parameters.tag_ids.IsValid())
+                {
+                    // If tag ID's are provided, assume it's intentional and check for these errors up front for better error messages.
+                    parameters.tag_ids = parameters.tag_ids.RemoveInvalidAndDuplicateValues();
+                    if (parameters.tag_ids.Count == 0)
+                    {
+                        response.SetInputError(new ArgumentException("All provided tag ID's were null, empty, or contained only whitespace.", nameof(parameters.tag_ids)), info.settings);
+
+                        return response;
+                    }
+                    else if (parameters.tag_ids.Count > 100)
+                    {
+                        response.SetInputError(new ParameterCountException("A maximum of 100 total tag ID's can be provided at one time.", nameof(parameters.tag_ids), 100, parameters.tag_ids.Count), info.settings);
+
+                        return response;
+                    }
+                }
+
+                RestRequest request = GetBaseRequest("streams/tags", Method.PUT, info);
+                request.AddParameters(parameters);
+
+                RestResponse<Data<StreamTag>> _response = await client.ExecuteAsync<Data<StreamTag>>(request, HandleResponse);
+                response = new HelixResponse<Data<StreamTag>>(_response);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<Data<StreamTag>>>
+            RemoveStreamsTagsAsync(HelixInfo info, SetStreamsTagsParameters parameters)
+            {
+                info.required_scopes = Scopes.UserEditBroadcast;
+
+                HelixResponse<Data<StreamTag>> response = new HelixResponse<Data<StreamTag>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                if (!parameters.broadcaster_id.IsValid())
+                {
+                    response.SetInputError(new ArgumentException("Value cannot be null, empty, or contain only whitespace.", nameof(parameters.broadcaster_id)), info.settings);
+
+                    return response;
+                }
+
+                parameters.tag_ids = null;
+
+                RestRequest request = GetBaseRequest("streams/tags", Method.PUT, info);
+                request.AddParameters(parameters);
+
+                RestResponse<Data<StreamTag>> _response = await client.ExecuteAsync<Data<StreamTag>>(request, HandleResponse);
+                response = new HelixResponse<Data<StreamTag>>(_response);
+
+                return response;
+            }
+
+            // TODO: Add RemoveStreamsTags
+
+            #endregion
 
             // TODO: Implement /subscriptions
 
-            // TODO: Implement /tags/streams
+            #region /tags/streams
+
+            /// <summary>
+            /// Asynchronously gets specific stream tags, or a single page of stream tags.
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> containts the specific stream tags, or the single page of stream tags.
+            /// </returns>
+            /// <exception cref="ArgumentException">
+            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
+            /// Thrown if all tag ID's are are null, empty, or contains only whitespace, if Provided.
+            /// </exception>
+            /// <exception cref="ParameterCountException">Thrown if more than 100 total atg ID's are provided.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<DataPage<StreamTag>>>
+            GetStreamTagsPageAsync(HelixInfo info, StreamTagsParameters parameters)
+            {
+                HelixResponse<DataPage<StreamTag>> response = new HelixResponse<DataPage<StreamTag>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (!parameters.IsNull())
+                {
+                    parameters.after = parameters.after.NullIfInvalid();
+
+                    if (parameters.tag_ids.IsValid())
+                    {
+                        // If tag ID's are provided, assume it's intentional and check for these errors up front for better error messages.
+                        parameters.tag_ids = parameters.tag_ids.RemoveInvalidAndDuplicateValues();
+                        if (parameters.tag_ids.Count == 0)
+                        {
+                            response.SetInputError(new ArgumentException("All provided tag ID's were null, empty, or contained only whitespace.", nameof(parameters.tag_ids)), info.settings);
+
+                            return response;
+                        }
+                        else if (parameters.tag_ids.Count > 100)
+                        {
+                            response.SetInputError(new ParameterCountException("A maximum of 100 total tag ID's can be provided at one time.", nameof(parameters.tag_ids), 100, parameters.tag_ids.Count), info.settings);
+
+                            return response;
+                        }
+
+                        parameters.first = null;
+                        parameters.after = null;
+                    }
+
+                    parameters.first = parameters.first.Clamp(1, 100);
+                }                
+
+                RestRequest request = GetBaseRequest("tags/streams", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<StreamTag>> _response = await client.ExecuteAsync<DataPage<StreamTag>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<StreamTag>>(_response);
+
+                return response;
+            }
+
+            /// <summary>
+            /// Asynchronously gets specific stream tags, or a complete list of stream tags.
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> containts the specific stream tags, or the complete list of stream tags.
+            /// </returns>
+            /// <exception cref="ArgumentException">
+            /// Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.
+            /// Thrown if all tag ID's are are null, empty, or contains only whitespace, if Provided.
+            /// </exception>
+            /// <exception cref="ParameterCountException">Thrown if more than 100 total atg ID's are provided.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<DataPage<StreamTag>>>
+            GetStreamTagsAsync(HelixInfo info, StreamTagsParameters parameters)
+            {
+                HelixResponse<DataPage<StreamTag>> response = new HelixResponse<DataPage<StreamTag>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (!parameters.IsNull())
+                {
+                    parameters.after = parameters.after.NullIfInvalid();
+
+                    if (parameters.tag_ids.IsValid())
+                    {
+                        // If tag ID's are provided, assume it's intentional and check for these errors up front for better error messages.
+                        parameters.tag_ids = parameters.tag_ids.RemoveInvalidAndDuplicateValues();
+                        if (parameters.tag_ids.Count == 0)
+                        {
+                            response.SetInputError(new ArgumentException("All provided tag ID's were null, empty, or contained only whitespace.", nameof(parameters.tag_ids)), info.settings);
+
+                            return response;
+                        }
+                        else if (parameters.tag_ids.Count > 100)
+                        {
+                            response.SetInputError(new ParameterCountException("A maximum of 100 total tag ID's can be provided at one time.", nameof(parameters.tag_ids), 100, parameters.tag_ids.Count), info.settings);
+
+                            return response;
+                        }
+
+                        parameters.first = null;
+                        parameters.after = null;
+                    }
+
+                    parameters.first = parameters.first.Clamp(1, 100);
+                }
+
+                RestRequest request = GetBaseRequest("tags/streams", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<StreamTag>> _response = await client.TraceExecuteAsync<StreamTag, DataPage<StreamTag>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<StreamTag>>(_response);
+
+                return response;
+            }
+
+            #endregion
 
             #region /users
 
@@ -1976,7 +2230,7 @@ TwitchNet.Rest.Api
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the updated active extensions information.
             /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if parameters, parameters.extensions, or parameters.extensions.data are null.</exception>
+            /// <exception cref="ArgumentNullException">Thrown if parameters or parameters.data are null.</exception>
             /// <exception cref="ArgumentException">
             /// Thrown if the Bearer token is null, empty, or contains only whitespace.
             /// Thrown if the extension ID or extension version for any active supported extension slot is null, empty, or contains only whitespace.
@@ -2008,46 +2262,39 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                if (parameters.extensions.IsNull())
+                if (parameters.data.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters.extensions)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters.data)), info.settings);
 
                     return response;
                 }
 
-                if (parameters.extensions.data.IsNull())
-                {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters.extensions.data)), info.settings);
-
-                    return response;
-                }
-
-                parameters.extensions.data.panel = ValidateExtensionSlots(parameters.extensions.data.panel, ExtensionType.Panel, response, info.settings);
+                parameters.data.panel = ValidateExtensionSlots(parameters.data.panel, ExtensionType.Panel, response, info.settings);
                 if (!response.exception.IsNull())
                 {
                     return response;
                 }
 
-                parameters.extensions.data.overlay = ValidateExtensionSlots(parameters.extensions.data.overlay, ExtensionType.Overlay, response, info.settings);
+                parameters.data.overlay = ValidateExtensionSlots(parameters.data.overlay, ExtensionType.Overlay, response, info.settings);
                 if (!response.exception.IsNull())
                 {
                     return response;
                 }
 
-                parameters.extensions.data.component = ValidateExtensionSlots(parameters.extensions.data.component, ExtensionType.Component, response, info.settings);
+                parameters.data.component = ValidateExtensionSlots(parameters.data.component, ExtensionType.Component, response, info.settings);
                 if (!response.exception.IsNull())
                 {
                     return response;
                 }
 
-                if (!parameters.extensions.data.component.IsValid() && !parameters.extensions.data.panel.IsValid() && !parameters.extensions.data.overlay.IsValid())
+                if (!parameters.data.component.IsValid() && !parameters.data.panel.IsValid() && !parameters.data.overlay.IsValid())
                 {
                     response.SetInputError(new ArgumentException("No supported extension slots were provided, or all supported extension slots were null."), info.settings);
 
                     return response;
                 }
 
-                if (!ValidateUniqueExtensionIDs(parameters.extensions.data, response, info.settings))
+                if (!ValidateUniqueExtensionIDs(parameters.data, response, info.settings))
                 {
                     return response;
                 }

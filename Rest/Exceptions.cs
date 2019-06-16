@@ -193,6 +193,35 @@ namespace TwitchNet.Rest
     }
 
     public class
+    HeaderParameterException : RestParameterException
+    {
+        public HeaderParameterException() : base(HttpParameterType.Query)
+        {
+
+        }
+
+        public HeaderParameterException(string message) : base(HttpParameterType.Header, message)
+        {
+
+        }
+
+        public HeaderParameterException(string message, Exception inner_exception) : base(HttpParameterType.Header, message, inner_exception)
+        {
+
+        }
+
+        public HeaderParameterException(string name, string message) : base(name, HttpParameterType.Header, message)
+        {
+
+        }
+
+        public HeaderParameterException(string name, string message, Exception inner_exception) : base(name, HttpParameterType.Header, message, inner_exception)
+        {
+
+        }
+    }
+
+    public class
     BodyParameterException : RestParameterException
     {
         public BodyParameterException() : base(HttpParameterType.Body)

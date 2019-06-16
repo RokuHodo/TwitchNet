@@ -1,16 +1,12 @@
 ﻿// standard namespaces
 using System.Collections.Generic;
 
-using Newtonsoft.Json;
-
 namespace
 TwitchNet.Rest.Api.Tags
 {
     public class
     SetStreamsTagsParameters
     {
-        static string test = "fskjfsdhkjfds";
-
         /// <summary>
         /// A user ID to update the stream tags for.
         /// </summary>
@@ -18,7 +14,8 @@ TwitchNet.Rest.Api.Tags
         public virtual string broadcaster_id { get; set; }
 
         /// <summary>
-        /// A user ID who is live to get the strema tags for.
+        /// <para>A list of tag ID's, up to 100.</para>
+        /// <para>All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.</para>
         /// </summary>
         [Body("tag_ids")]
         public virtual List<string> tag_ids { get; set; }

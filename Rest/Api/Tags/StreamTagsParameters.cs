@@ -8,9 +8,8 @@ TwitchNet.Rest.Api.Tags
     StreamTagsParameters : PagingParameters, IPagingParameters
     {
         /// <summary>
-        /// A list of tag ID's, up to 100.
-        /// All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.
-        /// All other parameters are ignored if tag ID's are provited.
+        /// <para>A list of tag ID's, up to 100. All other parameters are ignored if tag ID's are provited.</para>
+        /// <para>All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.</para>
         /// </summary>
         [QueryParameter("tag_id", typeof(SeparateQueryConverter))]
         public virtual List<string> tag_ids { get; set; }

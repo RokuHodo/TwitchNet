@@ -737,7 +737,7 @@ TwitchNet.Rest.Api
             /// Thrown if the game ID is null, empty, or contains only whitespace, if Provided.            
             /// </exception>
             /// <exception cref="QueryParameterValueException">
-            /// Thrown if started_at or ended_at is earlier than the UNIX Epoch minimum value or later than the current date.
+            /// Thrown if started_at or ended_at is later than the current date.
             /// Thrown if started_at is later than ended_at.
             /// </exception>
             /// <exception cref="QueryParameterCountException">
@@ -807,15 +807,15 @@ TwitchNet.Rest.Api
                 {
                     parameters.ended_at = null;
                 }
-                else if (parameters.ended_at.HasValue && !parameters.ended_at.Value.IsInRange(UNIX_EPOCH_MIN, DateTime.Now))
+                else if (parameters.ended_at.HasValue && parameters.ended_at.Value > DateTime.Now)
                 {
-                    response.SetInputError(new QueryParameterValueException(nameof(parameters.ended_at), parameters.ended_at.Value, "ended_at cannot be less than the Unix Epoch minimum or later than the current date."), info.settings);
+                    response.SetInputError(new QueryParameterValueException(nameof(parameters.ended_at), parameters.ended_at.Value, "ended_at cannot be later than the current date."), info.settings);
 
                     return response;
                 }
-                else if (parameters.started_at.HasValue && !parameters.started_at.Value.IsInRange(UNIX_EPOCH_MIN, DateTime.Now))
+                else if (parameters.started_at.HasValue && parameters.started_at.Value > DateTime.Now)
                 {
-                    response.SetInputError(new QueryParameterValueException(nameof(parameters.started_at), parameters.started_at.Value, "started_at cannot be less than the Unix Epoch minimum or later than the current date."), info.settings);
+                    response.SetInputError(new QueryParameterValueException(nameof(parameters.started_at), parameters.started_at.Value, "started_at cannot be later than the current date."), info.settings);
 
                     return response;
                 }
@@ -875,7 +875,7 @@ TwitchNet.Rest.Api
             /// Thrown if the game ID is null, empty, or contains only whitespace, if Provided.            
             /// </exception>
             /// <exception cref="QueryParameterValueException">
-            /// Thrown if started_at or ended_at is earlier than the UNIX Epoch minimum value or later than the current date.
+            /// Thrown if started_at or ended_at is later than the current date.
             /// Thrown if started_at is later than ended_at.
             /// </exception>
             /// <exception cref="QueryParameterCountException">
@@ -954,15 +954,15 @@ TwitchNet.Rest.Api
                 {
                     parameters.ended_at = null;
                 }
-                else if (parameters.ended_at.HasValue && !parameters.ended_at.Value.IsInRange(UNIX_EPOCH_MIN, DateTime.Now))
+                else if (parameters.ended_at.HasValue && parameters.ended_at.Value > DateTime.Now)
                 {
-                    response.SetInputError(new QueryParameterValueException(nameof(parameters.ended_at), parameters.ended_at.Value, "ended_at cannot be less than the Unix Epoch minimum or later than the current date."), info.settings);
+                    response.SetInputError(new QueryParameterValueException(nameof(parameters.ended_at), parameters.ended_at.Value, "ended_at cannot be later than the current date."), info.settings);
 
                     return response;
                 }
-                else if (parameters.started_at.HasValue && !parameters.started_at.Value.IsInRange(UNIX_EPOCH_MIN, DateTime.Now))
+                else if (parameters.started_at.HasValue && parameters.started_at.Value > DateTime.Now)
                 {
-                    response.SetInputError(new QueryParameterValueException(nameof(parameters.started_at), parameters.started_at.Value, "started_at cannot be less than the Unix Epoch minimum or later than the current date."), info.settings);
+                    response.SetInputError(new QueryParameterValueException(nameof(parameters.started_at), parameters.started_at.Value, "started_at cannot be later than the current date."), info.settings);
 
                     return response;
                 }
@@ -1774,7 +1774,7 @@ TwitchNet.Rest.Api
             /// <para>Asynchronously sets and overwrites a broadcaster's stream tags.</para>
             /// <para>
             /// If no stream tags are specified, all stream tags are removed.
-            /// The automatic tags that Twitch sets are not affected and cannot be overwritten/removed.
+            /// The automatic tags that Twitch sets are not affected and cannot be added/removed.
             /// The set stream tags expire after 72 hours of being applied, or 72 hours after a stream goes offline if the stream was live during the initial 72 hour expriation window.
             /// </para>
             /// <para>Required scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
@@ -1790,13 +1790,13 @@ TwitchNet.Rest.Api
             /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only whitespace.</exception>
             /// <exception cref="BodyParameterCountException">
             /// Thrown if all provided tag ID's are null, empty, or contains only whitespace.
-            /// Thrown if more than 100 total tag ID's are provided.
+            /// Thrown if more than 5 total tag ID's are provided.
             /// </exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserEditBroadcast"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<Data<StreamTag>>>
+            public static async Task<IHelixResponse>
             SetStreamsTagsAsync(HelixInfo info, SetStreamsTagsParameters parameters)
             {
                 info.required_scopes = Scopes.UserEditBroadcast;
@@ -1827,13 +1827,13 @@ TwitchNet.Rest.Api
                     parameters.tag_ids = parameters.tag_ids.RemoveInvalidAndDuplicateValues();
                     if (parameters.tag_ids.Count == 0)
                     {
-                        response.SetInputError(new BodyParameterCountException(nameof(parameters.tag_ids), 100, parameters.tag_ids.Count, "All provided tag ID's were null, empty, or contained only whitespace."), info.settings);
+                        response.SetInputError(new BodyParameterCountException(nameof(parameters.tag_ids), 5, parameters.tag_ids.Count, "All provided tag ID's were null, empty, or contained only whitespace."), info.settings);
 
                         return response;
                     }
-                    else if (parameters.tag_ids.Count > 100)
+                    else if (parameters.tag_ids.Count > 5)
                     {
-                        response.SetInputError(new BodyParameterCountException(nameof(parameters.tag_ids), 100, parameters.tag_ids.Count, "A maximum of 100 total tag ID's can be provided at one time."), info.settings);
+                        response.SetInputError(new BodyParameterCountException(nameof(parameters.tag_ids), 5, parameters.tag_ids.Count, "A maximum of 5 total tag ID's can be provided at one time."), info.settings);
 
                         return response;
                     }
@@ -1871,7 +1871,7 @@ TwitchNet.Rest.Api
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<Data<StreamTag>>>
+            public static async Task<IHelixResponse>
             RemoveStreamsTagsAsync(HelixInfo info, SetStreamsTagsParameters parameters)
             {
                 info.required_scopes = Scopes.UserEditBroadcast;

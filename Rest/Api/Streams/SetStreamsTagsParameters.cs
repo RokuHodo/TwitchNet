@@ -14,8 +14,11 @@ TwitchNet.Rest.Api.Tags
         public virtual string broadcaster_id { get; set; }
 
         /// <summary>
-        /// <para>A list of tag ID's, up to 100.</para>
-        /// <para>All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.</para>
+        /// <para>A list of tag ID's, up to 5.</para>
+        /// <para>
+        /// Automatic tags cannot be added or removed.
+        /// All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.
+        /// </para>
         /// </summary>
         [Body("tag_ids")]
         public virtual List<string> tag_ids { get; set; }

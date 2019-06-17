@@ -390,8 +390,8 @@ namespace TwitchNet.Rest
             string content = json_serialzier.Serialize(obj);
             if (root_name.IsValid())
             {
-                // This is what I'll do until proven this is unstable/breaks under certain situations.
-                content = "{" + root_name + ":" + content + "}";
+                // This is what i'll do until proven this is unstable/breaks under certain situations.
+                content = "{\"" + root_name + "\":" + content + "}";
             }
 
             message.Content = new StringContent(content, Encoding.UTF8, json_serialzier.content_type);

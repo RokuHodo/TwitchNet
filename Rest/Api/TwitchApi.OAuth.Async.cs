@@ -789,41 +789,41 @@ TwitchNet.Rest.Api
                 return response;
             }
 
-            public static async Task<IHelixResponse<Data<StreamTag>>>
+            public static async Task<IHelixResponse>
             SetStreamsTagsAsync(string bearer_token, SetStreamsTagsParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
 
-                IHelixResponse<Data<StreamTag>> response = await Internal.SetStreamsTagsAsync(info, parameters);
+                IHelixResponse response = await Internal.SetStreamsTagsAsync(info, parameters);
 
                 return response;
             }
 
-            public static async Task<IHelixResponse<Data<StreamTag>>>
+            public static async Task<IHelixResponse>
             SetStreamsTagsAsync(string bearer_token, string client_id, SetStreamsTagsParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
                 info.client_id = client_id;
 
-                IHelixResponse<Data<StreamTag>> response = await Internal.SetStreamsTagsAsync(info, parameters);
+                IHelixResponse response = await Internal.SetStreamsTagsAsync(info, parameters);
 
                 return response;
             }
 
-            public static async Task<IHelixResponse<Data<StreamTag>>>
+            public static async Task<IHelixResponse>
             RemoveStreamsTagsAsync(string bearer_token, SetStreamsTagsParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
 
-                IHelixResponse<Data<StreamTag>> response = await Internal.RemoveStreamsTagsAsync(info, parameters);
+                IHelixResponse response = await Internal.RemoveStreamsTagsAsync(info, parameters);
 
                 return response;
             }
 
-            public static async Task<IHelixResponse<Data<StreamTag>>>
+            public static async Task<IHelixResponse>
             RemoveStreamsTagsAsync(string bearer_token, string broadcaster_id, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
@@ -832,12 +832,12 @@ TwitchNet.Rest.Api
                 SetStreamsTagsParameters parameters = new SetStreamsTagsParameters();
                 parameters.broadcaster_id = broadcaster_id;
 
-                IHelixResponse<Data<StreamTag>> response = await Internal.RemoveStreamsTagsAsync(info, parameters);
+                IHelixResponse response = await Internal.RemoveStreamsTagsAsync(info, parameters);
 
                 return response;
             }
 
-            public static async Task<IHelixResponse<Data<StreamTag>>>
+            public static async Task<IHelixResponse>
             RemoveStreamsTagsAsync(string bearer_token, string client_id, string broadcaster_id, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
@@ -847,19 +847,19 @@ TwitchNet.Rest.Api
                 SetStreamsTagsParameters parameters = new SetStreamsTagsParameters();
                 parameters.broadcaster_id = broadcaster_id;
 
-                IHelixResponse<Data<StreamTag>> response = await Internal.RemoveStreamsTagsAsync(info, parameters);
+                IHelixResponse response = await Internal.RemoveStreamsTagsAsync(info, parameters);
 
                 return response;
             }
 
-            public static async Task<IHelixResponse<Data<StreamTag>>>
+            public static async Task<IHelixResponse>
             RemoveStreamsTagsAsync(string bearer_token, string client_id, SetStreamsTagsParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
                 info.client_id = client_id;
 
-                IHelixResponse<Data<StreamTag>> response = await Internal.RemoveStreamsTagsAsync(info, parameters);
+                IHelixResponse response = await Internal.RemoveStreamsTagsAsync(info, parameters);
 
                 return response;
             }            

@@ -70,17 +70,17 @@ TwitchNet.Rest
 
             // This is more than likely a much safer and robust option, but this is *extremely* expensive compared to concatenating strings.
             // Leave this here just in case concatenating breaks at some point, but we're talking 45ms vs 1ms.
-            // if (parameter.root_name.IsValid())
-            // {
+            //if (parameter.root_name.IsValid())
+            //{
             //    JToken body = JToken.FromObject(parameter.value);
 
             //    JObject content = new JObject();
             //    content.Add(parameter.root_name, body);
 
             //    parameter.value = content;
-            // }
+            //}
 
-            request.SetBody(parameter.value);
+            request.SetBody(parameter.value, parameter.root_name);
         }
 
         /// <summary>

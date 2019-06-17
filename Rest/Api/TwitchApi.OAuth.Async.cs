@@ -11,6 +11,7 @@ using TwitchNet.Rest.Api.Clips;
 using TwitchNet.Rest.Api.Entitlements;
 using TwitchNet.Rest.Api.Games;
 using TwitchNet.Rest.Api.Streams;
+using TwitchNet.Rest.Api.Subscriptions;
 using TwitchNet.Rest.Api.Tags;
 using TwitchNet.Rest.Api.Users;
 using TwitchNet.Rest.Api.Videos;
@@ -862,7 +863,63 @@ TwitchNet.Rest.Api
                 IHelixResponse response = await Internal.RemoveStreamsTagsAsync(info, parameters);
 
                 return response;
-            }            
+            }
+
+            #endregion
+
+            #region /subscriptions
+
+            public static async Task<IHelixResponse<DataPage<Subscription>>>
+            GetBroadcasterSubscribersPageAsync(string bearer_token, BroadcasterSubscribersParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<DataPage<Subscription>> response = await Internal.GetBroadcasterSubscribersPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<Subscription>>>
+            GetBroadcasterSubscribersPageAsync(string bearer_token, string broadcaster_id, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                BroadcasterSubscribersParameters parameters = new BroadcasterSubscribersParameters();
+                parameters.broadcaster_id = broadcaster_id;
+
+                IHelixResponse<DataPage<Subscription>> response = await Internal.GetBroadcasterSubscribersPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<Subscription>>>
+            GetBroadcasterSubscribersPageAsync(string bearer_token, string client_id, BroadcasterSubscribersParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<Subscription>> response = await Internal.GetBroadcasterSubscribersPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<Subscription>>>
+            GetBroadcasterSubscribersPageAsync(string bearer_token, string client_id, string broadcaster_id, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                BroadcasterSubscribersParameters parameters = new BroadcasterSubscribersParameters();
+                parameters.broadcaster_id = broadcaster_id;
+
+                IHelixResponse<DataPage<Subscription>> response = await Internal.GetBroadcasterSubscribersPageAsync(info, parameters);
+
+                return response;
+            }
 
             #endregion
 

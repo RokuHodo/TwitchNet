@@ -110,6 +110,13 @@ namespace TwitchNet.Rest
         /// <para>Allows for the user's email address to be obtained.</para>
         /// </summary>
         [EnumMember(Value = "user:read:email")]
-        UserReadEmail = 1 << 7
+        UserReadEmail = 1 << 7,
+
+        /// <summary>
+        /// <para>channel:read:subscriptions</para>
+        /// <para>Grants access to a broadcaster's subscriber list.</para>
+        /// </summary>
+        [EnumMember(Value = "channel:read:subscriptions")]
+        ChannelReadSubscriptions = 1 << 8
     }
 }

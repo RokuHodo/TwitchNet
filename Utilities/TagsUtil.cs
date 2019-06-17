@@ -233,18 +233,18 @@ TwitchNet.Utilities
         }
 
         /// <summary>
-        /// Converts a tag to an equivalent <see cref="SubscriptionPlan"/> value.
+        /// Converts a tag to an equivalent <see cref="SubscriptionTier"/> value.
         /// </summary>
         /// <param name="tags">The IRC message tags.</param>
         /// <param name="key">The tag to convert.</param>
         /// <returns>
-        /// Returns the equivalent <see cref="SubscriptionPlan"/> value if the tag was able to be converted.
-        /// Returns <see cref="SubscriptionPlan.Other"/> otherwise.
+        /// Returns the equivalent <see cref="SubscriptionTier"/> value if the tag was able to be converted.
+        /// Returns <see cref="SubscriptionTier.Other"/> otherwise.
         /// </returns>
-        public static SubscriptionPlan
+        public static SubscriptionTier
         ToSubscriptionPlan(in IrcMessage message, string key)
         {
-            SubscriptionPlan plan = SubscriptionPlan.Other;
+            SubscriptionTier plan = SubscriptionTier.Other;
 
             if (!IsTagValid(message, key))
             {

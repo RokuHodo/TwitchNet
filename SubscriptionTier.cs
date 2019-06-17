@@ -1,11 +1,18 @@
 ﻿// standard namespaces
 using System.Runtime.Serialization;
 
+// project namespaces
+using TwitchNet.Helpers.Json;
+
+// imported .dll's
+using Newtonsoft.Json;
+
 namespace
-TwitchNet.Clients.Irc.Twitch
+TwitchNet
 {
+    [JsonConverter(typeof(EnumConverter))]
     public enum
-    SubscriptionPlan
+    SubscriptionTier
     {
         /// <summary>
         /// Unsupported subscription plan.

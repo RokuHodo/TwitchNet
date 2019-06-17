@@ -13,6 +13,7 @@ using TwitchNet.Rest.Api.Clips;
 using TwitchNet.Rest.Api.Entitlements;
 using TwitchNet.Rest.Api.Games;
 using TwitchNet.Rest.Api.Streams;
+using TwitchNet.Rest.Api.Subscriptions;
 using TwitchNet.Rest.Api.Tags;
 using TwitchNet.Rest.Api.Users;
 using TwitchNet.Rest.Api.Videos;
@@ -1912,6 +1913,44 @@ TwitchNet.Rest.Api
             #endregion
 
             // TODO: Implement /subscriptions
+
+            #region /subscriptions
+
+            public static async Task<IHelixResponse<DataPage<Subscription>>>
+            GetBroadcasterSubscribersPageAsync(HelixInfo info, BroadcasterSubscribersParameters parameters)
+            {
+                info.required_scopes = Scopes.ChannelReadSubscriptions;
+
+                HelixResponse<DataPage<Subscription>> response = new HelixResponse<DataPage<Subscription>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                if (!parameters.broadcaster_id.IsValid())
+                {
+                    response.SetInputError(new QueryParameterException(nameof(parameters.broadcaster_id), "Parameter is required and the value cannot be null, empty, or contain only whitespace."), info.settings);
+
+                    return response;
+                }
+
+                RestRequest request = GetBaseRequest("subscriptions", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<Subscription>> _response = await client.ExecuteAsync<DataPage<Subscription>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<Subscription>>(_response);
+
+                return response;
+            }
+
+            #endregion
 
             #region /tags/streams
 

@@ -73,6 +73,8 @@
     <Compile Include="Rest\Api\HelixInfo.cs" />
     <Compile Include="Rest\Api\Streams\SetStreamsTagsParameters.cs" />
     <Compile Include="Rest\Api\Streams\StreamsTagsParameters.cs" />
+    <Compile Include="Rest\Api\Subscriptions\BroadcasterSubscribersParameters.cs" />
+    <Compile Include="Rest\Api\Subscriptions\Subscription.cs" />
     <Compile Include="Rest\Api\Tags\StreamTagsParameters.cs" />
     <Compile Include="Rest\Api\Tags\StreamTag.cs" />
     <Compile Include="Rest\Api\TwitchApi.Async.cs" />
@@ -116,7 +118,7 @@
     <Compile Include="Clients\Irc\Twitch\ChatCommand.cs" />
     <Compile Include="Clients\Irc\Twitch\RitualType.cs" />
     <Compile Include="Clients\Irc\Twitch\DisplayNameColor.cs" />
-    <Compile Include="Clients\Irc\Twitch\SubscriptionPlan.cs" />
+    <Compile Include="SubscriptionTier.cs" />
     <Compile Include="Clients\Irc\Twitch\HostTargetType.cs" />
     <Compile Include="Clients\Irc\Twitch\NoticeType.cs" />
     <Compile Include="Clients\Irc\Twitch\FollowersDurationPeriod.cs" />

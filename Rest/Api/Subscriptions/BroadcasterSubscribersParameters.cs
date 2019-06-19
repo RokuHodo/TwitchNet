@@ -5,7 +5,7 @@ namespace
 TwitchNet.Rest.Api.Tags
 {
     public class
-    BroadcasterSubscribersParameters
+    BroadcasterSubscribersParameters : PagingParameters, IPagingParameters
     {
         /// <summary>
         /// The user ID of a broadcaster.

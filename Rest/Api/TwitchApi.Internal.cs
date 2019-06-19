@@ -1912,10 +1912,25 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            // TODO: Implement /subscriptions
+            // TODO: Finish implementing /subscriptions
 
             #region /subscriptions
 
+            /// <summary>
+            /// Asynchronously gets a single page of a broadcaster's subscribers list.
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of a broadcaster's subscribers list.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only whitespace.
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Subscription>>>
             GetBroadcasterSubscribersPageAsync(HelixInfo info, BroadcasterSubscribersParameters parameters)
             {
@@ -1941,10 +1956,65 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
+                parameters.after = parameters.after.NullIfInvalid();
+                parameters.first = parameters.first.Clamp(1, 100);
+
                 RestRequest request = GetBaseRequest("subscriptions", Method.GET, info);
                 request.AddParameters(parameters);
 
                 RestResponse<DataPage<Subscription>> _response = await client.ExecuteAsync<DataPage<Subscription>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<Subscription>>(_response);
+
+                return response;
+            }
+
+            /// <summary>
+            /// Asynchronously gets a broadcaster's complete subscriber list.
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the broadcaster's complete subscriber list.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only whitespace.
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<DataPage<Subscription>>>
+            GetBroadcasterSubscribersAsync(HelixInfo info, BroadcasterSubscribersParameters parameters)
+            {
+                info.required_scopes = Scopes.ChannelReadSubscriptions;
+
+                HelixResponse<DataPage<Subscription>> response = new HelixResponse<DataPage<Subscription>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                if (!parameters.broadcaster_id.IsValid())
+                {
+                    response.SetInputError(new QueryParameterException(nameof(parameters.broadcaster_id), "Parameter is required and the value cannot be null, empty, or contain only whitespace."), info.settings);
+
+                    return response;
+                }
+
+                parameters.after = parameters.after.NullIfInvalid();
+                parameters.first = parameters.first.Clamp(1, 100);
+
+                RestRequest request = GetBaseRequest("subscriptions", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<Subscription>> _response = await client.TraceExecuteAsync<Subscription, DataPage<Subscription>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<Subscription>>(_response);
 
                 return response;

@@ -881,20 +881,6 @@ TwitchNet.Rest.Api
             }
 
             public static async Task<IHelixResponse<DataPage<Subscription>>>
-            GetBroadcasterSubscribersPageAsync(string bearer_token, string broadcaster_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                BroadcasterSubscribersParameters parameters = new BroadcasterSubscribersParameters();
-                parameters.broadcaster_id = broadcaster_id;
-
-                IHelixResponse<DataPage<Subscription>> response = await Internal.GetBroadcasterSubscribersPageAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<Subscription>>>
             GetBroadcasterSubscribersPageAsync(string bearer_token, string client_id, BroadcasterSubscribersParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
@@ -907,16 +893,24 @@ TwitchNet.Rest.Api
             }
 
             public static async Task<IHelixResponse<DataPage<Subscription>>>
-            GetBroadcasterSubscribersPageAsync(string bearer_token, string client_id, string broadcaster_id, HelixRequestSettings settings = default)
+            GetBroadcasterSubscribersAsync(string bearer_token, BroadcasterSubscribersParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<DataPage<Subscription>> response = await Internal.GetBroadcasterSubscribersAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<Subscription>>>
+            GetBroadcasterSubscribersAsync(string bearer_token, string client_id, BroadcasterSubscribersParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
                 info.client_id = client_id;
 
-                BroadcasterSubscribersParameters parameters = new BroadcasterSubscribersParameters();
-                parameters.broadcaster_id = broadcaster_id;
-
-                IHelixResponse<DataPage<Subscription>> response = await Internal.GetBroadcasterSubscribersPageAsync(info, parameters);
+                IHelixResponse<DataPage<Subscription>> response = await Internal.GetBroadcasterSubscribersAsync(info, parameters);
 
                 return response;
             }

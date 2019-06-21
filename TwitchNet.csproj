@@ -74,6 +74,7 @@
     <Compile Include="Rest\Api\Streams\SetStreamsTagsParameters.cs" />
     <Compile Include="Rest\Api\Streams\StreamsTagsParameters.cs" />
     <Compile Include="Rest\Api\Subscriptions\BroadcasterSubscribersParameters.cs" />
+    <Compile Include="Rest\Api\Subscriptions\SubscriptionRelationshipParameters.cs" />
     <Compile Include="Rest\Api\Subscriptions\Subscription.cs" />
     <Compile Include="Rest\Api\Tags\StreamTagsParameters.cs" />
     <Compile Include="Rest\Api\Tags\StreamTag.cs" />

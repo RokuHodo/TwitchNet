@@ -915,6 +915,52 @@ TwitchNet.Rest.Api
                 return response;
             }
 
+            public static async Task<IHelixResponse<Data<Subscription>>>
+            GetSubscriptionRelationshipAsync(string bearer_token, SubscriptionRelationshipParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<Data<Subscription>> response = await Internal.GetSubscriptionRelationshipAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<Data<Subscription>>>
+            GetSubscriptionRelationshipAsync(string bearer_token, string client_id, SubscriptionRelationshipParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<Data<Subscription>> response = await Internal.GetSubscriptionRelationshipAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<bool>>
+            IsUserSubscribedAsync(string bearer_token, string broadcaster_id, string user_id, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<bool> response = await Internal.IsUserSubscribedAsync(info, broadcaster_id, user_id);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<bool>>
+            IsUserSubscribedAsync(string bearer_token, string client_id, string broadcaster_id, string user_id, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<bool> response = await Internal.IsUserSubscribedAsync(info, broadcaster_id, user_id);
+
+                return response;
+            }
+
             #endregion
 
             #region /tags/streams
@@ -1443,47 +1489,47 @@ TwitchNet.Rest.Api
             }
 
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserRelationshipPageAsync(string bearer_token, FollowsParameters parameters, HelixRequestSettings settings = default)
+            GetUserFollowsRelationshipPageAsync(string bearer_token, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
 
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserRelationshipPageAsync(info, parameters);
+                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowsRelationshipPageAsync(info, parameters);
 
                 return response;
             }
 
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserRelationshipPageAsync(string bearer_token, string client_id, FollowsParameters parameters, HelixRequestSettings settings = default)
+            GetUserFollowsRelationshipPageAsync(string bearer_token, string client_id, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
                 info.client_id = client_id;
 
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserRelationshipPageAsync(info, parameters);
+                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowsRelationshipPageAsync(info, parameters);
 
                 return response;
             }
 
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserRelationshipAsync(string bearer_token, FollowsParameters parameters, HelixRequestSettings settings = default)
+            GetUserFollowsRelationshipAsync(string bearer_token, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
 
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserRelationshipAsync(info, parameters);
+                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowsRelationshipAsync(info, parameters);
 
                 return response;
             }
 
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserRelationshipAsync(string bearer_token, string client_id, FollowsParameters parameters, HelixRequestSettings settings = default)
+            GetUserFollowsRelationshipAsync(string bearer_token, string client_id, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
                 info.client_id = client_id;
 
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserRelationshipAsync(info, parameters);
+                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowsRelationshipAsync(info, parameters);
 
                 return response;
             }

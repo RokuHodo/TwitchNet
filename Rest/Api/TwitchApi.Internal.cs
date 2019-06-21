@@ -1912,12 +1912,11 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            // TODO: Finish implementing /subscriptions
-
             #region /subscriptions
 
             /// <summary>
-            /// Asynchronously gets a single page of a broadcaster's subscribers list.
+            /// <para>Asynchronously gets a single page of a broadcaster's subscribers list.</para>
+            /// <para>Required Scope: <see cref="Scopes.ChannelReadSubscriptions"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -1969,7 +1968,8 @@ TwitchNet.Rest.Api
             }
 
             /// <summary>
-            /// Asynchronously gets a broadcaster's complete subscriber list.
+            /// <para>Asynchronously gets a broadcaster's complete subscriber list.</para>
+            /// <para>Required Scope: <see cref="Scopes.ChannelReadSubscriptions"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -1979,7 +1979,7 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only whitespace.
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only whitespace.            
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -2016,6 +2016,134 @@ TwitchNet.Rest.Api
 
                 RestResponse<DataPage<Subscription>> _response = await client.TraceExecuteAsync<Subscription, DataPage<Subscription>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<Subscription>>(_response);
+
+                return response;
+            }
+
+            /// <summary>
+            /// <para>Asynchronously gets the subscription relationship between a broadcaster and a list of users.</para>
+            /// <para>
+            /// If a user is subscribed to the broadcater, the subscription information for that user is returned in the response.
+            /// If a user is not subscribed to the broadcater, that user is omitted from the response.
+            /// </para>
+            /// <para>Required Scope: <see cref="Scopes.ChannelReadSubscriptions"/>.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// <para>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the subscription relationship between the broadcaster and the list of users.
+            /// </para>
+            /// <para>
+            /// If a user is subscribed to the broadcater, the subscription information for that user is returned in the response.
+            /// If a user is not subscribed to the broadcater, that user is omitted from the response.
+            /// </para>
+            /// </returns>        
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only whitespace.
+            /// <exception cref="QueryParameterCountException">
+            /// Thrown if no user ID's or game names are provided.
+            /// Thrown if all provided user ID's and game names are null, empty, or contains only whitespace.
+            /// Thrown if more than 100 total user ID's and/or game names are provided.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<Data<Subscription>>>
+            GetSubscriptionRelationshipAsync(HelixInfo info, SubscriptionRelationshipParameters parameters)
+            {
+                info.required_scopes = Scopes.ChannelReadSubscriptions;
+
+                HelixResponse<Data<Subscription>> response = new HelixResponse<Data<Subscription>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                if (!parameters.broadcaster_id.IsValid())
+                {
+                    response.SetInputError(new QueryParameterException(nameof(parameters.broadcaster_id), "Parameter is required and the value cannot be null, empty, or contain only whitespace."), info.settings);
+
+                    return response;
+                }
+
+                if (!parameters.user_id.IsValid())
+                {
+                    response.SetInputError(new QueryParameterCountException(nameof(parameters.user_id), 100, parameters.user_id.Count, "At leats one user ID must be provided."), info.settings);
+
+                    return response;
+                }
+
+                parameters.user_id = parameters.user_id.RemoveInvalidAndDuplicateValues();
+                if (parameters.user_id.Count == 0)
+                {
+                    response.SetInputError(new QueryParameterCountException(nameof(parameters.user_id), 100, parameters.user_id.Count, "All provided user ID's were null, empty, or contained only whitespace."), info.settings);
+
+                    return response;
+                }
+                else if (parameters.user_id.Count > 100)
+                {
+                    response.SetInputError(new QueryParameterCountException(nameof(parameters.user_id), 100, parameters.user_id.Count, "A maximum of 100 total user ID's can be provided at one time."), info.settings);
+
+                    return response;
+                }
+
+                RestRequest request = GetBaseRequest("subscriptions", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<Data<Subscription>> _response = await client.ExecuteAsync<Data<Subscription>>(request, HandleResponse);
+                response = new HelixResponse<Data<Subscription>>(_response);
+
+                return response;
+            }
+
+            /// <summary>
+            /// Asynchronously checks to see if the from_id user is following the to_id user.
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="broadcaster_id">The user ID of the broadcaster.</param>
+            /// <param name="user_id">The ID of the possibly subscribed user.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> is set true if from_id is following to_id, otherwise false.
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID or user ID is null, empty, or contains only whitespace.
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<bool>>
+            IsUserSubscribedAsync(HelixInfo info, string broadcaster_id, string user_id)
+            {
+                HelixResponse<bool> response = new HelixResponse<bool>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (!broadcaster_id.IsValid() || !user_id.IsValid())
+                {
+                    response.SetInputError(new QueryParameterException("Both broadcaster_id and user_id are required and cannot be null, empty, or contain only whitespace."), info.settings);
+
+                    return response;
+                }
+
+                SubscriptionRelationshipParameters parameters = new SubscriptionRelationshipParameters();
+                parameters.broadcaster_id = broadcaster_id;
+                parameters.user_id.Add(user_id);
+
+                IHelixResponse<Data<Subscription>> _response = await GetSubscriptionRelationshipAsync(info, parameters);
+
+                bool result = _response.exception.IsNull() ? _response.result.data.IsValid() : false;
+                response = new HelixResponse<bool>(_response, result);
 
                 return response;
             }
@@ -2722,7 +2850,7 @@ TwitchNet.Rest.Api
 
                 parameters.to_id = null;
 
-                response = await GetUserRelationshipPageAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
+                response = await GetUserFollowsRelationshipPageAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
 
                 return response;
             }
@@ -2770,7 +2898,7 @@ TwitchNet.Rest.Api
 
                 parameters.to_id = null;
 
-                response = await GetUserRelationshipAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
+                response = await GetUserFollowsRelationshipAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
 
                 return response;
             }
@@ -2818,7 +2946,7 @@ TwitchNet.Rest.Api
 
                 parameters.from_id = null;
 
-                response = await GetUserRelationshipPageAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
+                response = await GetUserFollowsRelationshipPageAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
 
                 return response;
             }
@@ -2866,7 +2994,7 @@ TwitchNet.Rest.Api
 
                 parameters.from_id = null;
 
-                response = await GetUserRelationshipAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
+                response = await GetUserFollowsRelationshipAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
 
                 return response;
             }
@@ -2904,7 +3032,7 @@ TwitchNet.Rest.Api
 
                 FollowsParameters parameters = new FollowsParameters(from_id, to_id);
 
-                IHelixResponse<FollowsDataPage<Follow>> _response = await GetUserRelationshipPageAsync(info, parameters);
+                IHelixResponse<FollowsDataPage<Follow>> _response = await GetUserFollowsRelationshipPageAsync(info, parameters);
 
                 bool result = _response.exception.IsNull() ? _response.result.data.IsValid() : false;
                 response = new HelixResponse<bool>(_response, result);
@@ -2913,7 +3041,7 @@ TwitchNet.Rest.Api
             }
 
             /// <summary>
-            /// Asynchronously gets the relationship between two users, or a single page of a user's following/follower list.
+            /// Asynchronously gets the follow relationship between two users, or a single page of a user's following/follower list.
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">
@@ -2931,7 +3059,7 @@ TwitchNet.Rest.Api
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserRelationshipPageAsync(HelixInfo info, FollowsParameters parameters)
+            GetUserFollowsRelationshipPageAsync(HelixInfo info, FollowsParameters parameters)
             {
                 HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
                 if (!ValidateAuthorizationParameters(info, response))
@@ -2965,7 +3093,7 @@ TwitchNet.Rest.Api
             }
 
             /// <summary>
-            /// Asynchronously gets the relationship between two users, or a user's complete following/follower list.
+            /// Asynchronously gets the follow relationship between two users, or a user's complete following/follower list.
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">
@@ -2983,7 +3111,7 @@ TwitchNet.Rest.Api
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserRelationshipAsync(HelixInfo info, FollowsParameters parameters)
+            GetUserFollowsRelationshipAsync(HelixInfo info, FollowsParameters parameters)
             {
                 HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
                 if (!ValidateAuthorizationParameters(info, response))

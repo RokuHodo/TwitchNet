@@ -1,8 +1,8 @@
-﻿using System;
+﻿// standard namespaces
+using System;
 
-using TwitchNet.Extensions;
-
-namespace TwitchNet.Rest
+namespace
+TwitchNet.Rest
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
     public sealed class
@@ -82,5 +82,15 @@ namespace TwitchNet.Rest
 
             this.converter = converter;
         }
+    }
+
+    public enum
+    HttpParameterType
+    {
+        Query,
+
+        Body,
+
+        Header
     }
 }

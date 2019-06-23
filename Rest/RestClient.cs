@@ -1,20 +1,18 @@
-﻿using System;
+﻿// standard namespaces
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 
+// project namespaces
 using TwitchNet.Extensions;
 using TwitchNet.Helpers.Json;
 using TwitchNet.Rest.Api;
 
 namespace TwitchNet.Rest
 {
-    
-
     public class
     RestClient : IDisposable
     {
@@ -49,7 +47,7 @@ namespace TwitchNet.Rest
 
             base_address = base_address.TrimEnd('/');
 
-            // For some reaosn, Twitch compresses select responses using GZip.
+            // Twitch compresses select responses using GZip.
             // Enable automatic decompression for when this shit occurs.
             HttpClientHandler handler = new HttpClientHandler();
             if (handler.SupportsAutomaticDecompression)

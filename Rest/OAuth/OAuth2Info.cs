@@ -1,8 +1,4 @@
-﻿using System;
-
-using TwitchNet.Extensions;
-
-namespace TwitchNet.Rest.OAuth
+﻿namespace TwitchNet.Rest.OAuth
 {
     public class
     OAuth2Info

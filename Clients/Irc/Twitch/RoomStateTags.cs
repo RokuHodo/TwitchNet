@@ -1,6 +1,5 @@
 ﻿// project namespaces
 using TwitchNet.Debugger;
-using TwitchNet.Rest.Api.Videos;
 using TwitchNet.Extensions;
 using TwitchNet.Utilities;
 

@@ -1,13 +1,8 @@
 ﻿// standard namespaces
-using System;
 using System.Threading.Tasks;
-using System.Web;
 
 // project namespaces
-using TwitchNet.Extensions;
 using TwitchNet.Rest.OAuth.Token;
-using TwitchNet.Rest.OAuth.Validate;
-using TwitchNet.Utilities;
 
 namespace
 TwitchNet.Rest.OAuth

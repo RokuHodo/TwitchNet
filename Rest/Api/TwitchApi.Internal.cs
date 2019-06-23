@@ -1,6 +1,5 @@
 // standard namespaces
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -29,8 +28,6 @@ TwitchNet.Rest.Api
         Internal
         {
             internal static readonly RestClient client = GetHelixClient();
-
-            internal static readonly DateTime UNIX_EPOCH_MIN = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
             #region Helpers
 
@@ -686,7 +683,7 @@ TwitchNet.Rest.Api
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<CreatedClip>>>
-            CreateClipAsync(HelixInfo info, ClipCreationParameters parameters)
+            CreateClipAsync(HelixInfo info, CreateClipParameters parameters)
             {
                 info.required_scopes = Scopes.ClipsEdit;
 
@@ -1531,10 +1528,28 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            // TODO: Finish implementing /streams/markers
+            #region /streams/markers            
 
-            #region /streams/markers
-
+            /// <summary>
+            /// <para>
+            /// Asynchronously creates a stream marker (an arbitray time spamp) in a stream specified by the provided user ID.
+            /// Stream markers can be created by the person streaming or any of their editors.
+            /// </para>
+            /// <para>Required Scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the contains stream marker.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the user ID is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserEditBroadcast"/> scope.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<CreatedStreamMarker>>>
             CreateStreamMarkerAsync(HelixInfo info, CreateStreamMarkerParameters parameters)
             {
@@ -1569,6 +1584,26 @@ TwitchNet.Rest.Api
                 return response;
             }
 
+            /// <summary>
+            /// <para>Asynchronously gets a single page of stream markers (arbitray time spamps) for a user or a specific video.</para>
+            /// <para>Required Scope: <see cref="Scopes.UserReadBroadcast"/>.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of stream markers for the user or specified video.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">
+            /// Thrown if a user ID and video ID are provided.
+            /// Thrown if the user ID and video ID are null, empty, or contains only whitespace.
+            /// </exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserReadBroadcast"/> scope.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<StreamMarkers>>>
             GetStreamMarkersPageAsync(HelixInfo info, StreamMarkersParameters parameters)
             {
@@ -1607,6 +1642,69 @@ TwitchNet.Rest.Api
                 request.AddParameters(parameters);
 
                 RestResponse<DataPage<StreamMarkers>> _response = await client.ExecuteAsync<DataPage<StreamMarkers>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<StreamMarkers>>(_response);
+
+                return response;
+            }
+
+            /// <summary>
+            /// <para>Asynchronously gets a complete list of stream markers (arbitray time spamps) for a user or a specific video.</para>
+            /// <para>Required Scope: <see cref="Scopes.UserReadBroadcast"/>.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of stream markers for the user or specified video.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">
+            /// Thrown if a user ID and video ID are provided.
+            /// Thrown if the user ID and video ID are null, empty, or contains only whitespace.
+            /// </exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserReadBroadcast"/> scope.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<DataPage<StreamMarkers>>>
+            GetStreamMarkersAsync(HelixInfo info, StreamMarkersParameters parameters)
+            {
+                info.required_scopes = Scopes.UserReadBroadcast;
+
+                HelixResponse<DataPage<StreamMarkers>> response = new HelixResponse<DataPage<StreamMarkers>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                if (parameters.user_id.IsValid() && parameters.video_id.IsValid())
+                {
+                    response.SetInputError(new QueryParameterException("Only a user ID or a video ID can be provided."), info.settings);
+
+                    return response;
+                }
+                else if (!parameters.user_id.IsValid() && !parameters.video_id.IsValid())
+                {
+                    response.SetInputError(new QueryParameterException("A user ID or video ID must be provided."), info.settings);
+
+                    return response;
+                }
+
+                parameters.after = parameters.after.NullIfInvalid();
+                parameters.first = parameters.first.Clamp(1, 100);
+
+                RestRequest request = GetBaseRequest("streams/markers", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<StreamMarkers>> _response = await client.TraceExecuteAsync<StreamMarkers, DataPage<StreamMarkers>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<StreamMarkers>>(_response);
 
                 return response;
@@ -2007,7 +2105,8 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only whitespace.
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ChannelReadSubscriptions"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -2060,7 +2159,8 @@ TwitchNet.Rest.Api
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only whitespace.            
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ChannelReadSubscriptions"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -2123,12 +2223,13 @@ TwitchNet.Rest.Api
             /// </returns>        
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only whitespace.
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only whitespace.</exception>
             /// <exception cref="QueryParameterCountException">
             /// Thrown if no user ID's or game names are provided.
             /// Thrown if all provided user ID's and game names are null, empty, or contains only whitespace.
             /// Thrown if more than 100 total user ID's and/or game names are provided.
             /// </exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ChannelReadSubscriptions"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -2196,8 +2297,9 @@ TwitchNet.Rest.Api
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> is set true if from_id is following to_id, otherwise false.
+            /// </returns>
             /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
-            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID or user ID is null, empty, or contains only whitespace.
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID or user ID is null, empty, or contains only whitespace.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -3241,11 +3343,12 @@ TwitchNet.Rest.Api
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">Thrown if the Bearer token and Client ID are null, empty, or contains only whitespace.</exception>
             /// <exception cref="QueryParameterException">
-            /// Thrown if after and before are provided.</exception>
+            /// Thrown if after and before are provided.
             /// Thrown if no video ID's, game ID, or user ID are provided.
             /// Thrown if any multiple combination of video ID's, game ID, or user ID is provided.
             /// Thrown if the user ID is null, empty, or contains only whitespace, if Provided.
             /// Thrown if the game ID is null, empty, or contains only whitespace, if Provided.
+            /// </exception>
             /// <exception cref="QueryParameterCountException">            
             /// Thrown if all video ID's are are null, empty, or contains only whitespace, if Provided.
             /// Thrown if more than 100 video ID's are provided.            

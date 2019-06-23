@@ -10,8 +10,6 @@ using TwitchNet.Extensions;
 using TwitchNet.Helpers.Json;
 using TwitchNet.Utilities;
 
-using Newtonsoft.Json.Linq;
-
 namespace
 TwitchNet.Rest
 {
@@ -517,4 +515,3 @@ TwitchNet.Rest
 
     #endregion
 }
-

@@ -1,10 +1,7 @@
 ﻿// standard namespaces
-using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 // project namespaces
-using TwitchNet.Extensions;
 using TwitchNet.Rest.Api.Analytics;
 using TwitchNet.Rest.Api.Bits;
 using TwitchNet.Rest.Api.Clips;
@@ -270,7 +267,7 @@ TwitchNet.Rest.Api
             #region /clips
 
             public static async Task<IHelixResponse<Data<CreatedClip>>>
-            CreateClipAsync(string bearer_token, ClipCreationParameters parameters, HelixRequestSettings settings = default)
+            CreateClipAsync(string bearer_token, CreateClipParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
@@ -281,7 +278,7 @@ TwitchNet.Rest.Api
             }
 
             public static async Task<IHelixResponse<Data<CreatedClip>>>
-            CreateClipAsync(string bearer_token, string client_id, ClipCreationParameters parameters, HelixRequestSettings settings = default)
+            CreateClipAsync(string bearer_token, string client_id, CreateClipParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token   = bearer_token;
@@ -684,6 +681,29 @@ TwitchNet.Rest.Api
                 info.client_id = client_id;
 
                 IHelixResponse<DataPage<StreamMarkers>> response = await Internal.GetStreamMarkersPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<StreamMarkers>>>
+            GetStreamMarkersAsync(string bearer_token, StreamMarkersParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<DataPage<StreamMarkers>> response = await Internal.GetStreamMarkersAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<StreamMarkers>>>
+            GetStreamMarkersAsync(string bearer_token, string client_id, StreamMarkersParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<StreamMarkers>> response = await Internal.GetStreamMarkersAsync(info, parameters);
 
                 return response;
             }

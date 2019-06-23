@@ -5,8 +5,6 @@ using System.Collections.Generic;
 // project namespaces
 using TwitchNet.Events.Clients.Irc;
 using TwitchNet.Extensions;
-using TwitchNet.Rest.Api;
-using TwitchNet.Rest.Api.Users;
 using TwitchNet.Utilities;
 
 namespace

@@ -64,7 +64,7 @@ TwitchNet.Rest.Api
             ValidateAuthorizationParameters(HelixInfo info, HelixResponse response, bool app_access_required = false)
             {
                 bool bearer_valid = info.bearer_token.IsValid();
-                bool client_id_valid = info.bearer_token.IsValid();                
+                bool client_id_valid = info.bearer_token.IsValid();
 
                 // An App Access Token is required.
                 if (app_access_required && !bearer_valid)
@@ -138,40 +138,40 @@ TwitchNet.Rest.Api
                     switch (response.request.settings.status_error[code].handling)
                     {
                         case StatusHandling.Error:
-                        {
-                            throw response.exception;
-                        };
+                            {
+                                throw response.exception;
+                            };
 
                         case StatusHandling.Retry:
-                        {
-                            StatusCodeSetting status_setting = response.request.settings.status_error[code];
-
-                            ++status_setting.retry_count;
-                            if (status_setting.retry_count > status_setting.retry_limit && status_setting.retry_limit != -1)
                             {
-                                response.exception = new RetryLimitReachedException("The retry limit " + status_setting.retry_limit + " has been reached for status code " + code + ".", status_setting.retry_limit, response.exception);
+                                StatusCodeSetting status_setting = response.request.settings.status_error[code];
 
-                                return await HandleResponse(response);
-                            }
+                                ++status_setting.retry_count;
+                                if (status_setting.retry_count > status_setting.retry_limit && status_setting.retry_limit != -1)
+                                {
+                                    response.exception = new RetryLimitReachedException("The retry limit " + status_setting.retry_limit + " has been reached for status code " + code + ".", status_setting.retry_limit, response.exception);
 
-                            RateLimit rate_limit = new RateLimit(response.headers);
-                            TimeSpan difference = rate_limit.reset_time - DateTime.Now;
-                            if (rate_limit.remaining == 0 && difference.TotalMilliseconds > 0)
-                            {
-                                await Task.Delay(difference);
-                            }
+                                    return await HandleResponse(response);
+                                }
 
-                            // Clone the message to a new instance because the same instance can't be sent twice.
-                            response.request.CloneMessage();
-                            response = await client.ExecuteAsync<data_type>(response.request, HandleResponse);
-                        };
-                        break;
+                                RateLimit rate_limit = new RateLimit(response.headers);
+                                TimeSpan difference = rate_limit.reset_time - DateTime.Now;
+                                if (rate_limit.remaining == 0 && difference.TotalMilliseconds > 0)
+                                {
+                                    await Task.Delay(difference);
+                                }
+
+                                // Clone the message to a new instance because the same instance can't be sent twice.
+                                response.request.CloneMessage();
+                                response = await client.ExecuteAsync<data_type>(response.request, HandleResponse);
+                            };
+                            break;
 
                         case StatusHandling.Return:
                         default:
-                        {
-                            return response;
-                        }
+                            {
+                                return response;
+                            }
                     }
                 }
                 else
@@ -195,15 +195,15 @@ TwitchNet.Rest.Api
                     switch (handling)
                     {
                         case ErrorHandling.Error:
-                        {
-                            throw response.exception;
-                        }
+                            {
+                                throw response.exception;
+                            }
 
                         case ErrorHandling.Return:
                         default:
-                        {
-                            return response;
-                        }
+                            {
+                                return response;
+                            }
                     }
                 }
 
@@ -641,12 +641,12 @@ TwitchNet.Rest.Api
                     parameters.count = parameters.count.Clamp(1, 100);
                     parameters.user_id = parameters.user_id.NullIfInvalid();
 
-                    if(parameters.period == BitsLeaderboardPeriod.All)
+                    if (parameters.period == BitsLeaderboardPeriod.All)
                     {
                         parameters.started_at = null;
                     }
 
-                    if(parameters.started_at > DateTime.Now)
+                    if (parameters.started_at > DateTime.Now)
                     {
                         response.SetInputError(new QueryParameterValueException(nameof(parameters.started_at), parameters.started_at.Value, "started_at cannot be later than the current date."), info.settings);
 
@@ -903,8 +903,8 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                // NOTE: /clips - Temporarily disabling using 'before' while requesting all pages until it works properly.
-                // TODO: /clips - Reimplement 'before' when it works propery.
+                // NOTE: /clips - GetClipsAsync(...) - Temporarily disabling using 'before' while requesting all pages until it works properly.
+                // TODO: /clips - GetClipsAsync(...) - Reimplement 'before' when it works propery.
                 if (parameters.before.IsValid())
                 {
                     response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
@@ -938,11 +938,11 @@ TwitchNet.Rest.Api
                         return response;
                     }
 
-                    parameters.after            = null;
-                    parameters.before           = null;
-                    parameters.first            = null;
-                    parameters.ended_at         = null;
-                    parameters.started_at       = null;
+                    parameters.after = null;
+                    parameters.before = null;
+                    parameters.first = null;
+                    parameters.ended_at = null;
+                    parameters.started_at = null;
                 }
 
                 // S E
@@ -1219,8 +1219,8 @@ TwitchNet.Rest.Api
                 string direction = "after";
                 if (!parameters.IsNull())
                 {
-                    // NOTE: /games/top - Temporarily disabling using 'before' while requesting all pages until it works properly.
-                    // TODO: /games.top - Reimplement 'before' when it works propery.
+                    // NOTE: /games/top - GetTopGamesAsync(...) - Temporarily disabling using 'before' while requesting all pages until it works properly.
+                    // TODO: /games/top - GetTopGamesAsync(...) - Reimplement 'before' when it works propery.
                     if (parameters.before.IsValid())
                     {
                         response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
@@ -1378,8 +1378,8 @@ TwitchNet.Rest.Api
                 string direction = "after";
                 if (!parameters.IsNull())
                 {
-                    // NOTE: /streams - Temporarily disabling using 'before' while requesting all pages until it works properly.
-                    // TODO: /streams - Reimplement 'before' when it works propery.
+                    // NOTE: /streams - GetStreamsAsync(...) - Temporarily disabling using 'before' while requesting all pages until it works properly.
+                    // TODO: /streams - GetStreamsAsync(...) - Reimplement 'before' when it works propery.
                     if (parameters.before.IsValid())
                     {
                         response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
@@ -1531,7 +1531,88 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            // TODO: Implement /streams/markers
+            // TODO: Finish implementing /streams/markers
+
+            #region /streams/markers
+
+            public static async Task<IHelixResponse<DataPage<CreatedStreamMarker>>>
+            CreateStreamMarkerAsync(HelixInfo info, CreateStreamMarkerParameters parameters)
+            {
+                info.required_scopes = Scopes.UserEditBroadcast;
+
+                HelixResponse<DataPage<CreatedStreamMarker>> response = new HelixResponse<DataPage<CreatedStreamMarker>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                if (!parameters.user_id.IsValid())
+                {
+                    response.SetInputError(new QueryParameterException(nameof(parameters.user_id), "Parameter is required and the value cannot be null, empty, or contain only whitespace."), info.settings);
+
+                    return response;
+                }                
+
+                RestRequest request = GetBaseRequest("streams/markers", Method.POST, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<CreatedStreamMarker>> _response = await client.ExecuteAsync<DataPage<CreatedStreamMarker>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<CreatedStreamMarker>>(_response);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<StreamMarkers>>>
+            GetStreamMarkersPageAsync(HelixInfo info, StreamMarkersParameters parameters)
+            {
+                info.required_scopes = Scopes.UserReadBroadcast;
+
+                HelixResponse<DataPage<StreamMarkers>> response = new HelixResponse<DataPage<StreamMarkers>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                if (parameters.user_id.IsValid() && parameters.video_id.IsValid())
+                {
+                    response.SetInputError(new QueryParameterException("Only a user ID or a video ID can be provided."), info.settings);
+
+                    return response;
+                }
+                else if (!parameters.user_id.IsValid() && !parameters.video_id.IsValid())
+                {
+                    response.SetInputError(new QueryParameterException("A user ID or video ID must be provided."), info.settings);
+
+                    return response;
+                }
+
+                parameters.after = parameters.after.NullIfInvalid();
+                parameters.first = parameters.first.Clamp(1, 100);
+
+                RestRequest request = GetBaseRequest("streams/markers", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<StreamMarkers>> _response = await client.ExecuteAsync<DataPage<StreamMarkers>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<StreamMarkers>>(_response);
+
+                return response;
+            }
+
+            #endregion
 
             #region /streams/metadata
 
@@ -1652,8 +1733,8 @@ TwitchNet.Rest.Api
                 string direction = "after";
                 if (!parameters.IsNull())
                 {
-                    // NOTE: /streams/metadata - Temporarily disabling using 'before' while requesting all pages until it works properly.
-                    // TODO: /streams/metadata - Reimplement 'before' when it works propery.
+                    // NOTE: /streams/metadata - GetStreamsMetadataAsync(...) - Temporarily disabling using 'before' while requesting all pages until it works properly.
+                    // TODO: /streams/metadata - GetStreamsMetadataAsync(...) - Reimplement 'before' when it works propery.
                     if (parameters.before.IsValid())
                     {
                         response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
@@ -3294,8 +3375,8 @@ TwitchNet.Rest.Api
                     return response;
                 }
 
-                // NOTE: /videos - Temporarily disabling using 'before' while requesting all pages until it works properly.
-                // TODO: /videos - Reimplement 'before' when it works propery.
+                // NOTE: /videos - GetVideosAsync(...) - Temporarily disabling using 'before' while requesting all pages until it works properly.
+                // TODO: /videos - GetVideosAsync(...) - Reimplement 'before' when it works propery.
                 if (parameters.before.IsValid())
                 {
                     response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);

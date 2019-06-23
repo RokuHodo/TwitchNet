@@ -640,6 +640,56 @@ TwitchNet.Rest.Api
 
             #endregion
 
+            #region /streams/markers
+
+            public static async Task<IHelixResponse<DataPage<CreatedStreamMarker>>>
+            CreateStreamMarkerAsync(string bearer_token, CreateStreamMarkerParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<DataPage<CreatedStreamMarker>> response = await Internal.CreateStreamMarkerAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<CreatedStreamMarker>>>
+            CreateStreamMarkerAsync(string bearer_token, string client_id, CreateStreamMarkerParameters parameters,  HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<CreatedStreamMarker>> response = await Internal.CreateStreamMarkerAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<StreamMarkers>>>
+            GetStreamMarkersPageAsync(string bearer_token, StreamMarkersParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<DataPage<StreamMarkers>> response = await Internal.GetStreamMarkersPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<StreamMarkers>>>
+            GetStreamMarkersPageAsync(string bearer_token, string client_id, StreamMarkersParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<StreamMarkers>> response = await Internal.GetStreamMarkersPageAsync(info, parameters);
+
+                return response;
+            }
+
+            #endregion
+
             #region /streams/metadata
 
             public static async Task<IHelixResponse<DataPage<StreamMetadata>>>

@@ -1,9 +1,19 @@
-﻿// standard namespaces
+﻿// standard namspaces
 using System.Collections.Generic;
 
 namespace
-TwitchNet.Rest.Api.Tags
+TwitchNet.Rest.Api.Streams
 {
+    public class
+    StreamsTagsParameters
+    {
+        /// <summary>
+        /// The user ID of a broadcaster.
+        /// </summary>
+        [QueryParameter("broadcaster_id")]
+        public virtual string broadcaster_id { get; set; }
+    }
+
     public class
     SetStreamsTagsParameters
     {

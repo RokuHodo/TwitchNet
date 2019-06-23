@@ -233,6 +233,39 @@ namespace TwitchNet.Rest
                 return;
             }
 
+            BodyAttribute body  = parameters.GetType().GetAttribute<BodyAttribute>();
+            if (!body.IsNull())
+            {
+                body.reflected_type = parameters.GetType().GetTrueType();
+                if (body.reflected_type.IsNull())
+                {
+                    return;
+                }
+
+                RestParameterConverter converter = RestConverterCache.GetOradd(body.converter);
+                if (converter.IsNull())
+                {
+                    return;
+                }
+
+                RestParameter parameter = new RestParameter();
+                parameter.name = body.name;
+                parameter.root_name = body.root_name;
+                parameter.value = parameters;
+                parameter.parameter_type = body.parameter_type;
+                parameter.content_type = body.content_type;
+                parameter.member_type = body.reflected_type;
+
+                if (!converter.CanConvert(parameter))
+                {
+                    return;
+                }
+
+                converter.AddParameter(this, parameter);
+
+                return;
+            }
+
             MemberInfo[] members = parameters.GetType().GetMembers<RestParameterAttribute>();
             if (!members.IsValid())
             {

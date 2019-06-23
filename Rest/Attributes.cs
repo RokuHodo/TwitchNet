@@ -18,7 +18,7 @@ namespace TwitchNet.Rest
         }
     }
 
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Class, AllowMultiple = false)]
     public sealed class
     BodyAttribute : RestParameterAttribute
     {

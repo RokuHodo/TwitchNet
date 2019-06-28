@@ -337,18 +337,36 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            #region /entitlements/upload
 
-            public static async Task<IHelixResponse<Data<EntitlementUploadUrl>>>
-            CreateEntitlementGrantsUploadUrlAsync(string app_access_token, EntitlementsUploadParameters parameters, HelixRequestSettings settings = default)
+            #region /entitlements/codes
+
+            public static async Task<IHelixResponse<Data<CodeStatus>>>
+            GetEntitlementCodeStatusAsync(string app_access_token, string client_id, EntitlementsCodeParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = app_access_token;
+                info.bearer_token = app_access_token;
+                info.client_id = client_id;
 
-                IHelixResponse<Data<EntitlementUploadUrl>> response = await Internal.CreateEntitlementGrantsUploadUrlAsync(info, parameters);
+                IHelixResponse<Data<CodeStatus>> response = await Internal.GetEntitlementCodeStatusAsync(info, parameters);
 
                 return response;
             }
+
+            public static async Task<IHelixResponse<Data<CodeStatus>>>
+            RedeemEntitlementCodeStatusAsync(string app_access_token, string client_id, EntitlementsCodeParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = app_access_token;
+                info.client_id = client_id;
+
+                IHelixResponse<Data<CodeStatus>> response = await Internal.RedeemEntitlementCodeStatusAsync(info, parameters);
+
+                return response;
+            }
+
+            #endregion
+
+            #region /entitlements/upload
 
             public static async Task<IHelixResponse<Data<EntitlementUploadUrl>>>
             CreateEntitlementGrantsUploadUrlAsync(string app_access_token, string client_id, EntitlementsUploadParameters parameters, HelixRequestSettings settings = default)

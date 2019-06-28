@@ -62,6 +62,7 @@
     <Compile Include="Rest\Api\Analytics\AnalyticsExtensions.cs" />
     <Compile Include="Rest\Api\Bits\BitsLeaderboard.cs" />
     <Compile Include="Rest\Api\Clips\Clips.cs" />
+    <Compile Include="Rest\Api\Entitlements\EntitlementsCodes.cs" />
     <Compile Include="Rest\Api\Entitlements\EntitlementsUpload.cs" />
     <Compile Include="Rest\Api\Games\GamesTop.cs" />
     <Compile Include="Rest\Api\Games\Games.cs" />
@@ -72,8 +73,8 @@
     <Compile Include="Rest\Api\Streams\StreamsTags.cs" />
     <Compile Include="Rest\Api\Subscriptions\Subscriptions.cs" />
     <Compile Include="Rest\Api\Tags\Tags.cs" />
-    <Compile Include="Rest\Api\TwitchApi.Async.cs" />
-    <Compile Include="Rest\Api\TwitchApi.OAuth.Async.cs" />
+    <Compile Include="Rest\Api\TwitchApi.cs" />
+    <Compile Include="Rest\Api\TwitchApi.OAuth.cs" />
     <Compile Include="Clients\Irc\IrcClient.Handlers.cs" />
     <Compile Include="Clients\Irc\IrcClient.cs" />
     <Compile Include="Clients\Irc\Twitch\TwitchIrcClient.Handlers.cs" />

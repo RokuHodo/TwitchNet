@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace
 TwitchNet.Extensions
@@ -262,6 +263,30 @@ TwitchNet.Extensions
             }
 
             attribute_type attribute = Attribute.GetCustomAttribute(member, typeof(attribute_type), false) as attribute_type;
+
+            return attribute;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object
+        GetAttribute(this MemberInfo member, Type type)
+        {
+            if (member.IsNull())
+            {
+                return null;
+            }
+
+            if (member.MemberType != MemberTypes.Constructor &&
+                member.MemberType != MemberTypes.Property &&
+                member.MemberType != MemberTypes.Event &&
+                member.MemberType != MemberTypes.TypeInfo &&
+                member.MemberType != MemberTypes.Event &&
+                member.MemberType != MemberTypes.Field)
+            {
+                return null;
+            }
+
+            object attribute = Attribute.GetCustomAttribute(member, type, false);
 
             return attribute;
         }

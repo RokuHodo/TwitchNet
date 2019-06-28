@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 // project namespaces
@@ -64,11 +65,21 @@ TwitchNet.Rest.Api
                 bool client_id_valid = info.bearer_token.IsValid();
 
                 // An App Access Token is required.
-                if (app_access_required && !bearer_valid)
+                if (app_access_required)
                 {
-                    response.SetInputError(new HeaderParameterException("An App Access Token must be provided to authenticate the request."), info.settings);
+                    if (!bearer_valid)
+                    {
+                        response.SetInputError(new HeaderParameterException("An App Access Token must be provided to authenticate the request."), info.settings);
 
-                    return false;
+                        return false;
+                    }
+
+                    if (!client_id_valid)
+                    {
+                        response.SetInputError(new HeaderParameterException("A Client ID must be provided when an App Access Token is required."), info.settings);
+
+                        return false;
+                    }
                 }
 
                 // A set of scopes is required for permission.
@@ -1003,7 +1014,191 @@ TwitchNet.Rest.Api
 
             #endregion
 
-            // TODO: Implement /entitlements/codes
+            #region /entitlements/codes
+
+            /// <summary>
+            /// <para>Asynchronously gets the status of one or more entitlement codes for the authenticated user.</para>
+            /// <para>Required Authorization: App Access Token.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the statuses of the specified codes.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the App Access Token or Client ID is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the user ID is not provided.</exception>
+            /// <exception cref="QueryParameterValueException">Thrown if any code does not match the regex: ^[a-zA-Z0-9]{5}-?[a-zA-Z0-9]{5}-?[a-zA-Z0-9]{5}$</exception>
+            /// <exception cref="QueryParameterCountException">            
+            /// Thrown if all codes are are null, empty, or contains only whitespace.
+            /// Thrown if no codes or more than 20 codes ID's are provided.            
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<Data<CodeStatus>>>
+            GetEntitlementCodeStatusAsync(HelixInfo info, EntitlementsCodeParameters parameters)
+            {
+                HelixResponse<Data<CodeStatus>> response = new HelixResponse<Data<CodeStatus>>();
+                if (!ValidateAuthorizationParameters(info, response, true))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                if (!parameters.user_id.IsValid())
+                {
+                    response.SetInputError(new QueryParameterException(nameof(parameters.user_id), "Parameter is required and the value cannot be null, empty, or contain only whitespace."), info.settings);
+
+                    return response;
+                }
+
+                if (!parameters.codes.IsValid())
+                {
+                    response.SetInputError(new QueryParameterCountException(nameof(parameters.user_id), 20, parameters.codes.Count, "At leats one code must be provided."), info.settings);
+
+                    return response;
+                }                
+
+                parameters.codes = parameters.codes.RemoveInvalidAndDuplicateValues();
+                if (parameters.codes.Count == 0)
+                {
+                    response.SetInputError(new QueryParameterCountException(nameof(parameters.codes), 20, parameters.codes.Count, "All provided codes were null, empty, or contained only whitespace."), info.settings);
+
+                    return response;
+                }
+                else if (parameters.codes.Count > 20)
+                {
+                    response.SetInputError(new QueryParameterCountException(nameof(parameters.codes), 20, parameters.codes.Count, "A maximum of 20 total codes can be provided at one time."), info.settings);
+
+                    return response;
+                }
+
+                Regex regex = new Regex(RegexPatternUtil.ENTITLEMENT_CODE);
+                foreach (string code in parameters.codes)
+                {
+                    if (regex.IsMatch(code))
+                    {
+                        continue;
+                    }
+
+                    FormatException inner_exception = new FormatException("Value must match the regular expression: " + RegexPatternUtil.ENTITLEMENT_CODE);
+
+                    string message = "The status code must be a 15 character alpha-numeric string, with optional dashes after every 5th character." + Environment.NewLine +
+                                     "Example: ABCDE-12345-F6G7H";
+                    response.SetInputError(new QueryParameterValueException(nameof(parameters.codes), code, message, inner_exception), info.settings);
+
+                    return response;
+                }
+
+                RestRequest request = GetBaseRequest("entitlements/codes", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<Data<CodeStatus>> _response = await client.ExecuteAsync<Data<CodeStatus>>(request, HandleResponse);
+                response = new HelixResponse<Data<CodeStatus>>(_response);
+
+                return response;
+            }
+
+            /// <summary>
+            /// <para>Asynchronously redeems one or more entitlement codes to the authenticated user.</para>
+            /// <para>Required Authorization: App Access Token.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the statuses of the specified codes.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the App Access Token or Client ID is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the user ID is not provided.</exception>
+            /// <exception cref="QueryParameterValueException">Thrown if any code does not match the regex: ^[a-zA-Z0-9]{5}-?[a-zA-Z0-9]{5}-?[a-zA-Z0-9]{5}$</exception>
+            /// <exception cref="QueryParameterCountException">            
+            /// Thrown if all codes are are null, empty, or contains only whitespace.
+            /// Thrown if no codes or more than 20 codes ID's are provided.            
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<Data<CodeStatus>>>
+            RedeemEntitlementCodeStatusAsync(HelixInfo info, EntitlementsCodeParameters parameters)
+            {
+                HelixResponse<Data<CodeStatus>> response = new HelixResponse<Data<CodeStatus>>();
+                if (!ValidateAuthorizationParameters(info, response, true))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                if (!parameters.user_id.IsValid())
+                {
+                    response.SetInputError(new QueryParameterException(nameof(parameters.user_id), "Parameter is required and the value cannot be null, empty, or contain only whitespace."), info.settings);
+
+                    return response;
+                }
+
+                if (!parameters.codes.IsValid())
+                {
+                    response.SetInputError(new QueryParameterCountException(nameof(parameters.user_id), 20, parameters.codes.Count, "At leats one code must be provided."), info.settings);
+
+                    return response;
+                }
+
+                parameters.codes = parameters.codes.RemoveInvalidAndDuplicateValues();
+                if (parameters.codes.Count == 0)
+                {
+                    response.SetInputError(new QueryParameterCountException(nameof(parameters.codes), 20, parameters.codes.Count, "All provided codes were null, empty, or contained only whitespace."), info.settings);
+
+                    return response;
+                }
+                else if (parameters.codes.Count > 20)
+                {
+                    response.SetInputError(new QueryParameterCountException(nameof(parameters.codes), 20, parameters.codes.Count, "A maximum of 20 total codes can be provided at one time."), info.settings);
+
+                    return response;
+                }
+
+                Regex regex = new Regex(RegexPatternUtil.ENTITLEMENT_CODE);
+                foreach (string code in parameters.codes)
+                {
+                    if (regex.IsMatch(code))
+                    {
+                        continue;
+                    }
+
+                    FormatException inner_exception = new FormatException("Value must match the regular expression: " + RegexPatternUtil.ENTITLEMENT_CODE);
+
+                    string message = "The status code must be a 15 character alpha-numeric string, with optional dashes after every 5th character." + Environment.NewLine +
+                                     "Example: ABCDE-12345-F6G7H";
+                    response.SetInputError(new QueryParameterValueException(nameof(parameters.codes), code, message, inner_exception), info.settings);
+
+                    return response;
+                }
+
+                RestRequest request = GetBaseRequest("entitlements/codes", Method.POST, info);
+                request.AddParameters(parameters);
+
+                RestResponse<Data<CodeStatus>> _response = await client.ExecuteAsync<Data<CodeStatus>>(request, HandleResponse);
+                response = new HelixResponse<Data<CodeStatus>>(_response);
+
+                return response;
+            }
+
+            #endregion
 
             #region /entitlements/upload
 
@@ -1018,7 +1213,7 @@ TwitchNet.Rest.Api
             /// <see cref="IHelixResponse{result_type}.result"/> contains the entitlement upload URL.
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">Thrown if the App Access Token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the App Access Token or Client ID is null, empty, or contains only whitespace.</exception>
             /// <exception cref="QueryParameterException">Thrown if the manifest ID is not provided.</exception>
             /// <exception cref="QueryParameterValueException">Thrown if the manifest ID is longer than 64 characters.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>

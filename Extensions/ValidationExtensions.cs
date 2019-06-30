@@ -29,9 +29,23 @@ TwitchNet.Extensions
         public static bool
         IsNull(this object obj)
         {
-            bool result = obj == null;
+            return obj == null;
+        }
 
-            return result;
+        /// <summary>
+        /// Checks to see if a value is null.
+        /// </summary>
+        /// <typeparam name="type">The type of the value.</typeparam>
+        /// <param name="value">The vlaue to chekc.</param>
+        /// <returns>
+        /// Returns true if the value is null.
+        /// Returns false otherwise.
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool
+        IsNull<type>(this type value)
+        {
+            return value == null;
         }
 
         /// <summary>
@@ -103,6 +117,42 @@ TwitchNet.Extensions
             bool result = !string.IsNullOrEmpty(str) && !string.IsNullOrWhiteSpace(str);
 
             return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool
+        IsEmpty(this string str)
+        {
+            return str.Length == 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool
+        IsWhiteSpace(this string str)
+        {
+            for (int index = 0; index < str.Length; index++)
+            {
+                if (!char.IsWhiteSpace(str[index]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool
+        IsEmptyOrWhiteSpace(this string str)
+        {
+            return str.IsEmpty() || str.IsWhiteSpace();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool
+        HasContent(this string str)
+        {
+            return !str.IsNull() && !str.IsEmpty() && !str.IsWhiteSpace();
         }
 
         /// <summary>

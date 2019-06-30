@@ -8,7 +8,7 @@ using TwitchNet.Helpers.Json;
 using Newtonsoft.Json;
 
 namespace
-TwitchNet.Rest.Api.Entitlements
+TwitchNet.Rest.Helix
 {
     public class
     EntitlementsUploadParameters

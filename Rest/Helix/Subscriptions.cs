@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace
-TwitchNet.Rest.Api.Subscriptions
+TwitchNet.Rest.Helix
 {
     public class
-    BroadcasterSubscribersParameters : PagingParameters, IPagingParameters
+    SubscriptionParameters : PagingParameters, IPagingParameters
     {
         /// <summary>
         /// The user ID of a broadcaster.
@@ -28,7 +28,7 @@ TwitchNet.Rest.Api.Subscriptions
         public string broadcaster_id { get; protected set; }
 
         /// <summary>
-        /// The display ID of the broadcaster the user is subscribed to.
+        /// The display name of the broadcaster the user is subscribed to.
         /// </summary>
         [JsonProperty("broadcaster_name")]
         public string broadcaster_name { get; protected set; }
@@ -40,7 +40,7 @@ TwitchNet.Rest.Api.Subscriptions
         public bool is_gift { get; protected set; }
 
         /// <summary>
-        /// The type of subscription.
+        /// The subscription tier.
         /// </summary>
         [JsonProperty("tier")]
         public SubscriptionTier tier { get; protected set; }

@@ -10,7 +10,7 @@ using TwitchNet.Helpers.Json;
 using Newtonsoft.Json;
 
 namespace
-TwitchNet.Rest.Api.Streams
+TwitchNet.Rest.Helix
 {
     public class
     StreamsParameters : PagingParameters, IPagingParameters

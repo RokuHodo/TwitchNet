@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace
-TwitchNet.Rest.Api.Streams
+TwitchNet.Rest.Helix
 {
     [Body]
     public class

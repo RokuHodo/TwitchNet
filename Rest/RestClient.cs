@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 // project namespaces
 using TwitchNet.Extensions;
 using TwitchNet.Helpers.Json;
-using TwitchNet.Rest.Api;
+using TwitchNet.Rest.Helix;
 
 namespace TwitchNet.Rest
 {
@@ -238,7 +238,7 @@ namespace TwitchNet.Rest
                     data.AddRange(page.data.data);
                 }
 
-                if (page.data.pagination.cursor.IsValid())
+                if (!page.data.pagination.IsNull() && page.data.pagination.cursor.IsValid())
                 {
                     last_valid_cursor = page.data.pagination.cursor;
                 }
@@ -256,7 +256,7 @@ namespace TwitchNet.Rest
                 // TODO: Change how we detemrine whether or not we are done requesting. This works fine for 'after' but not 'before'. Decode the cursor, and check if b==null?
                 //       Not sure if this is the best practice since cursors are never meant to be decoded by the user and meant to be used as is.
                 //       Hard coding this could break because the cursor structure could change at any time since it is not documented by Twitch.
-                requesting = page.data.data.IsValid() && page.data.pagination.cursor.IsValid();
+                requesting = page.data.data.IsValid() && !page.data.pagination.IsNull() && page.data.pagination.cursor.IsValid();
                 if (requesting)
                 {
                     // For some reason we need a new instance even though the changing the query parameters changes the URI.
@@ -269,7 +269,18 @@ namespace TwitchNet.Rest
                 {
                     response = page;
                     response.data.data = data;
-                    response.data.pagination.cursor = last_valid_cursor;
+
+                    if (response.data.pagination.IsNull())
+                    {
+                        response.data.pagination = new Pagination()
+                        {
+                            cursor = last_valid_cursor
+                        };
+                    }
+                    else
+                    {
+                        response.data.pagination.cursor = last_valid_cursor;
+                    }
                 }
             }
             while (requesting);

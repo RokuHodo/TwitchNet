@@ -1,23 +1,11 @@
 ﻿// standard namespaces
 using System.Threading.Tasks;
 
-// project namespaces
-using TwitchNet.Rest.Api.Analytics;
-using TwitchNet.Rest.Api.Bits;
-using TwitchNet.Rest.Api.Clips;
-using TwitchNet.Rest.Api.Entitlements;
-using TwitchNet.Rest.Api.Games;
-using TwitchNet.Rest.Api.Streams;
-using TwitchNet.Rest.Api.Subscriptions;
-using TwitchNet.Rest.Api.Tags;
-using TwitchNet.Rest.Api.Users;
-using TwitchNet.Rest.Api.Videos;
-
 namespace
-TwitchNet.Rest.Api
+TwitchNet.Rest.Helix
 {
     public static partial class
-    TwitchApi
+    HelixApi
     {
         public static class
         OAuth
@@ -336,7 +324,6 @@ TwitchNet.Rest.Api
             }
 
             #endregion
-
 
             #region /entitlements/codes
 
@@ -958,7 +945,7 @@ TwitchNet.Rest.Api
             #region /subscriptions
 
             public static async Task<IHelixResponse<DataPage<Subscription>>>
-            GetBroadcasterSubscribersPageAsync(string bearer_token, BroadcasterSubscribersParameters parameters, HelixRequestSettings settings = default)
+            GetBroadcasterSubscribersPageAsync(string bearer_token, SubscriptionParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
@@ -969,7 +956,7 @@ TwitchNet.Rest.Api
             }
 
             public static async Task<IHelixResponse<DataPage<Subscription>>>
-            GetBroadcasterSubscribersPageAsync(string bearer_token, string client_id, BroadcasterSubscribersParameters parameters, HelixRequestSettings settings = default)
+            GetBroadcasterSubscribersPageAsync(string bearer_token, string client_id, SubscriptionParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
@@ -981,7 +968,7 @@ TwitchNet.Rest.Api
             }
 
             public static async Task<IHelixResponse<DataPage<Subscription>>>
-            GetBroadcasterSubscribersAsync(string bearer_token, BroadcasterSubscribersParameters parameters, HelixRequestSettings settings = default)
+            GetBroadcasterSubscribersAsync(string bearer_token, SubscriptionParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
@@ -992,7 +979,7 @@ TwitchNet.Rest.Api
             }
 
             public static async Task<IHelixResponse<DataPage<Subscription>>>
-            GetBroadcasterSubscribersAsync(string bearer_token, string client_id, BroadcasterSubscribersParameters parameters, HelixRequestSettings settings = default)
+            GetBroadcasterSubscribersAsync(string bearer_token, string client_id, SubscriptionParameters parameters, HelixRequestSettings settings = default)
             {
                 HelixInfo info = new HelixInfo(settings);
                 info.bearer_token = bearer_token;
@@ -1045,6 +1032,56 @@ TwitchNet.Rest.Api
                 info.client_id = client_id;
 
                 IHelixResponse<bool> response = await Internal.IsUserSubscribedAsync(info, broadcaster_id, user_id);
+
+                return response;
+            }
+
+            #endregion
+
+            #region /subscriptions/events
+
+            public static async Task<IHelixResponse<DataPage<SubscriptionEvent>>>
+            GetSubscriptionEventsPageAsync(string bearer_token, SubscriptionEventsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<DataPage<SubscriptionEvent>> response = await Internal.GetSubscriptionEventsPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<SubscriptionEvent>>>
+            GetSubscriptionEventsPageAsync(string bearer_token, string client_id, SubscriptionEventsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<SubscriptionEvent>> response = await Internal.GetSubscriptionEventsPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<SubscriptionEvent>>>
+            GetSubscriptionEventsAsync(string bearer_token, SubscriptionEventsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<DataPage<SubscriptionEvent>> response = await Internal.GetSubscriptionEventsAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<SubscriptionEvent>>>
+            GetSubscriptionEventsAsync(string bearer_token, string client_id, SubscriptionEventsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<SubscriptionEvent>> response = await Internal.GetSubscriptionEventsAsync(info, parameters);
 
                 return response;
             }

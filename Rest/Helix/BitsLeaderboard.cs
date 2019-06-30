@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace
-TwitchNet.Rest.Api.Bits
+TwitchNet.Rest.Helix
 {
     public class
     BitsLeaderboardParameters

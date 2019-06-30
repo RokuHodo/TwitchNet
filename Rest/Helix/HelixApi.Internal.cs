@@ -7,23 +7,13 @@ using System.Threading.Tasks;
 
 // project namespaces
 using TwitchNet.Extensions;
-using TwitchNet.Rest.Api.Analytics;
-using TwitchNet.Rest.Api.Bits;
-using TwitchNet.Rest.Api.Clips;
-using TwitchNet.Rest.Api.Entitlements;
-using TwitchNet.Rest.Api.Games;
-using TwitchNet.Rest.Api.Streams;
-using TwitchNet.Rest.Api.Subscriptions;
-using TwitchNet.Rest.Api.Tags;
-using TwitchNet.Rest.Api.Users;
-using TwitchNet.Rest.Api.Videos;
 using TwitchNet.Utilities;
 
 namespace
-TwitchNet.Rest.Api
+TwitchNet.Rest.Helix
 {
     public static partial class
-    TwitchApi
+    HelixApi
     {
         internal static class
         Internal
@@ -1450,6 +1440,16 @@ TwitchNet.Rest.Api
 
             #endregion
 
+            // TODO: Implement /moderation/banned
+
+            // TODO: Implement /moderation/banned/events
+
+            // TODO: Implement /moderation/enforcements/status
+
+            // TODO: Implement /moderation/moderators
+            
+            // TODO: Implement /moderation/moderators/events
+
             #region /streams
 
             /// <summary>
@@ -2306,7 +2306,7 @@ TwitchNet.Rest.Api
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Subscription>>>
-            GetBroadcasterSubscribersPageAsync(HelixInfo info, BroadcasterSubscribersParameters parameters)
+            GetBroadcasterSubscribersPageAsync(HelixInfo info, SubscriptionParameters parameters)
             {
                 info.required_scopes = Scopes.ChannelReadSubscriptions;
 
@@ -2360,7 +2360,7 @@ TwitchNet.Rest.Api
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Subscription>>>
-            GetBroadcasterSubscribersAsync(HelixInfo info, BroadcasterSubscribersParameters parameters)
+            GetBroadcasterSubscribersAsync(HelixInfo info, SubscriptionParameters parameters)
             {
                 info.required_scopes = Scopes.ChannelReadSubscriptions;
 
@@ -2522,6 +2522,194 @@ TwitchNet.Rest.Api
 
                 bool result = _response.exception.IsNull() ? _response.result.data.IsValid() : false;
                 response = new HelixResponse<bool>(_response, result);
+
+                return response;
+            }
+
+            #endregion
+
+            #region /subscriptions/events
+
+            /// <summary>
+            /// <para>Asynchronously gets a specific subscription event or a single page subscription events.</para>
+            /// <para>Required Scope: <see cref="Scopes.ChannelReadSubscriptions"/>.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific subscription event or the single page subscription events.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID and event ID are not provided.</exception>
+            /// <exception cref="QueryParameterValueException">
+            /// Thrown if the broadcaster ID is empty or only contains white space, if provided.
+            /// Thrown if the event ID is empty or only contains white space, if provided.
+            /// Thrown if the user ID is empty or only contains white space, if provided.
+            /// Thrown if the after cursor is empty or only contains white space, if provided.
+            /// </exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ChannelReadSubscriptions"/> scope.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<DataPage<SubscriptionEvent>>>
+            GetSubscriptionEventsPageAsync(HelixInfo info, SubscriptionEventsParameters parameters)
+            {
+                info.required_scopes = Scopes.ChannelReadSubscriptions;
+
+                HelixResponse<DataPage<SubscriptionEvent>> response = new HelixResponse<DataPage<SubscriptionEvent>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                // Required parameters checks 
+                if (parameters.broadcaster_id.IsNull() && parameters.id.IsNull())
+                {
+                    response.SetInputError(new QueryParameterException("A boradcaster ID or event ID must be provided."), info.settings);
+
+                    return response;
+                }
+                else if (!parameters.broadcaster_id.IsNull() && !parameters.id.IsNull())
+                {
+                    response.SetInputError(new QueryParameterException("Only a boradcaster ID or event ID can be provided at one time."), info.settings);
+
+                    return response;
+                }
+
+                if (!parameters.broadcaster_id.IsNull() && parameters.broadcaster_id.IsEmptyOrWhiteSpace())
+                {
+                    response.SetInputError(new QueryParameterValueException(nameof(parameters.broadcaster_id), parameters.broadcaster_id, "Value cannot be empty or contain only whitespace."), info.settings);
+
+                    return response;
+                }
+                else if (!parameters.id.IsNull() && parameters.id.IsEmptyOrWhiteSpace())
+                {
+                    response.SetInputError(new QueryParameterValueException(nameof(parameters.id), parameters.id, "Value cannot be empty or contain only whitespace."), info.settings);
+
+                    return response;
+                }
+
+                // Optional parameters checks
+                parameters.first = parameters.first.Clamp(1, 100);
+
+                if (parameters.user_id.HasContent())
+                {
+                    // Pagination is ignored if a user ID was provided.
+                    parameters.after = null;
+                }
+
+                if (!ValidateOptionalQueryString(nameof(parameters.after), parameters.after, response, info.settings) ||
+                    !ValidateOptionalQueryString(nameof(parameters.user_id), parameters.user_id, response, info.settings))
+                {
+                    return response;
+                }
+
+                RestRequest request = GetBaseRequest("subscriptions/events", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<SubscriptionEvent>> _response = await client.ExecuteAsync<DataPage<SubscriptionEvent>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<SubscriptionEvent>>(_response);
+
+                return response;
+            }
+
+            /// <summary>
+            /// <para>Asynchronously gets a specific subscription event or a complete list of subscription events.</para>
+            /// <para>Required Scope: <see cref="Scopes.ChannelReadSubscriptions"/>.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific subscription event or the complete list of subscription events.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID and event ID are not provided.</exception>
+            /// <exception cref="QueryParameterValueException">
+            /// Thrown if the broadcaster ID is empty or only contains white space, if provided.
+            /// Thrown if the event ID is empty or only contains white space, if provided.
+            /// Thrown if the user ID is empty or only contains white space, if provided.
+            /// Thrown if the after cursor is empty or only contains white space, if provided.
+            /// </exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ChannelReadSubscriptions"/> scope.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<DataPage<SubscriptionEvent>>>
+            GetSubscriptionEventsAsync(HelixInfo info, SubscriptionEventsParameters parameters)
+            {
+                info.required_scopes = Scopes.ChannelReadSubscriptions;
+
+                HelixResponse<DataPage<SubscriptionEvent>> response = new HelixResponse<DataPage<SubscriptionEvent>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                // Required parameters checks 
+                if (parameters.broadcaster_id.IsNull() && parameters.id.IsNull())
+                {
+                    response.SetInputError(new QueryParameterException("A boradcaster ID or event ID must be provided."), info.settings);
+
+                    return response;
+                }
+                else if (!parameters.broadcaster_id.IsNull() && !parameters.id.IsNull())
+                {
+                    response.SetInputError(new QueryParameterException("Only a boradcaster ID or event ID can be provided at one time."), info.settings);
+
+                    return response;
+                }
+
+                if (!parameters.broadcaster_id.IsNull() && parameters.broadcaster_id.IsEmptyOrWhiteSpace())
+                {
+                    response.SetInputError(new QueryParameterValueException(nameof(parameters.broadcaster_id), parameters.broadcaster_id, "Value cannot be empty or contain only whitespace."), info.settings);
+
+                    return response;
+                }
+                else if (!parameters.id.IsNull() && parameters.id.IsEmptyOrWhiteSpace())
+                {
+                    response.SetInputError(new QueryParameterValueException(nameof(parameters.id), parameters.id, "Value cannot be empty or contain only whitespace."), info.settings);
+
+                    return response;
+                }
+
+                // Optional parameters checks
+                parameters.first = parameters.first.Clamp(1, 100);
+
+                if (parameters.user_id.HasContent())
+                {
+                    // Pagination is ignored if a user ID was provided.
+                    parameters.after = null;
+                }
+
+                if (!ValidateOptionalQueryString(nameof(parameters.after), parameters.after, response, info.settings) ||
+                    !ValidateOptionalQueryString(nameof(parameters.user_id), parameters.user_id, response, info.settings))
+                {
+                    return response;
+                }
+
+                RestRequest request = GetBaseRequest("subscriptions/events", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<SubscriptionEvent>> _response = await client.TraceExecuteAsync<SubscriptionEvent, DataPage<SubscriptionEvent>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<SubscriptionEvent>>(_response);
 
                 return response;
             }
@@ -3743,6 +3931,91 @@ TwitchNet.Rest.Api
             // TODO: Implement /webhook/hub
 
             // TODO: Implement /webhook/subscriptions
+        }
+
+        private static bool
+        ValidateRequiredQueryString<data_type>(string name, string value, HelixResponse<data_type> response, HelixRequestSettings settings)
+        {
+            if (value.IsNull())
+            {
+                response.SetInputError(new QueryParameterException(name, "A required query parameter is missing: " + name.WrapQuotes()), settings);
+
+                return false;
+            }
+
+            if (value.IsEmptyOrWhiteSpace())
+            {
+                response.SetInputError(new QueryParameterValueException(name, value, "Value cannot be empty or contain only whitespace."), settings);
+
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool
+        ValidateRequiredQueryString(string name, List<string> values, int maximum_count, HelixResponse response, HelixRequestSettings settings)
+        {
+            if (values == null)
+            {
+                response.SetInputError(new QueryParameterException(name, "A required query parameter is missing: " + name.WrapQuotes()), settings);
+
+                return false;
+            }
+
+            if(values.Count == 0)
+            {
+                response.SetInputError(new QueryParameterCountException(name, maximum_count, values.Count, "At least one query string must be provided for the parameter: " + name.WrapQuotes()), settings);
+
+                return false;
+            }
+
+            if (values.Count > maximum_count)
+            {
+                response.SetInputError(new QueryParameterCountException(name, maximum_count, values.Count, "A maximum of " + maximum_count + " query strings cant be provided at one time for the parameter: " + name.WrapQuotes()), settings);
+
+                return false;
+            }
+
+            List<int> indicies = values.GetNoContentIndicies();
+            if (indicies.Count > 0)
+            {
+                string message = "One or more query strings were null, empty, or contained only white space for the parameter: " + name.WrapQuotes() + Environment.NewLine + Environment.NewLine +
+                                 "Indicies: " + string.Join(", ", indicies);
+                response.SetInputError(new QueryParameterValueException(name, message), settings);
+
+                return false;
+            }
+
+            List<string> duplicates = values.GetDuplicateElements();
+            if (duplicates.Count > 0)
+            {
+                string message = "One or more duplicate query string values were found for the parameter: " + name.WrapQuotes() + Environment.NewLine + Environment.NewLine +
+                                 "Values : " + string.Join(", ", duplicates);
+                response.SetInputError(new QueryParameterValueException(name, message), settings);
+
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool
+        ValidateOptionalQueryString(string name, string value, HelixResponse response, HelixRequestSettings settings)
+        {
+            if (value.IsNull())
+            {
+                return true;
+            }
+
+            if (value.IsEmptyOrWhiteSpace())
+            {
+                response.SetInputError(new QueryParameterValueException(name, value, "Value cannot be empty or contain only whitespace."), settings);
+
+                return false;
+            }
+
+            return true;
         }
     }
 }

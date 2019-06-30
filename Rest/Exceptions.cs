@@ -121,6 +121,21 @@ namespace TwitchNet.Rest
 
         }
 
+        public RestParameterValueException(HttpParameterType type, string message) : base(type, message)
+        {
+
+        }
+
+        public RestParameterValueException(HttpParameterType type, object value, string message) : base(type, message)
+        {
+            parameter_value = value;
+        }
+
+        public RestParameterValueException(string name, HttpParameterType type, string message) : base(name, type, message)
+        {
+
+        }
+
         public RestParameterValueException(string name, HttpParameterType type, object value) : base(name, type)
         {
             parameter_value = value;
@@ -254,6 +269,11 @@ namespace TwitchNet.Rest
     QueryParameterValueException : RestParameterValueException
     {
         public QueryParameterValueException() : base()
+        {
+
+        }
+
+        public QueryParameterValueException(string name, string message) : base(name, HttpParameterType.Query, message)
         {
 
         }

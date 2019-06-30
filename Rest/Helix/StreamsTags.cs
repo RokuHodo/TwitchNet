@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace
-TwitchNet.Rest.Api.Streams
+TwitchNet.Rest.Helix
 {
     public class
     StreamsTagsParameters

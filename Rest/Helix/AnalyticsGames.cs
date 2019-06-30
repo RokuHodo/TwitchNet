@@ -1,28 +1,24 @@
 ﻿// standard namespaces
 using System;
-using System.Runtime.Serialization;
-
-// project namespaces
-using TwitchNet.Helpers.Json;
 
 // imported .dll's
 using Newtonsoft.Json;
 
 namespace
-TwitchNet.Rest.Api.Analytics
+TwitchNet.Rest.Helix
 {
     public class
-    ExtensionAnalyticsParameters : PagingParameters, IPagingParameters
+    GameAnalyticsParameters : PagingParameters, IPagingParameters
     {
         /// <summary>
-        /// <para>The ID of an extension.</para>
+        /// <para>The ID of an game.</para>
         /// <para>
-        /// If specified, the only CSV URL returned will be for that extension ID and the after cursor if provided will be ignored.
-        /// Otherwise, CSV URL's will be returned for all extensions associated with the authenticated user.
+        /// If specified, the only CSV URL returned will be for that game ID and the after cursor if provided will be ignored.
+        /// Otherwise, CSV URL's will be returned for all games associated with the authenticated user.
         /// </para>
         /// </summary>
-        [QueryParameter("extension_id")]
-        public virtual string extension_id { get; set; }
+        [QueryParameter("game_id")]
+        public virtual string game_id { get; set; }
 
         /// <summary>
         /// <para>
@@ -51,7 +47,7 @@ TwitchNet.Rest.Api.Analytics
         /// If the start date/time is earlier than the default start date, the default start date is used.
         /// The default date differs depending on the report type requested.
         /// </para>
-        /// <para>Default: 90 days before the report was issued (OverviewV1), January 31, 2018 (OverviewV2).</para>
+        /// <para>Default: 90 days before the report was issued (OverviewV1), 365 days before the report was issued (OverviewV2).</para>
         /// </summary>
         [QueryParameter("started_at", typeof(RFC3339QueryConverter))]
         public virtual DateTime? started_at { get; set; }
@@ -68,13 +64,13 @@ TwitchNet.Rest.Api.Analytics
     }
 
     public class
-    ExtensionAnalytics
+    GameAnalytics
     {
         /// <summary>
-        /// The ID of the extension.
+        /// The ID of the game.
         /// </summary>
-        [JsonProperty("extension_id")]
-        public string extension_id { get; protected set; }
+        [JsonProperty("game_id")]
+        public string game_id { get; protected set; }
 
         /// <summary>
         /// The URL to the downloadable CSV file containing the analytic data.
@@ -94,22 +90,5 @@ TwitchNet.Rest.Api.Analytics
         /// </summary>
         [JsonProperty("date_range")]
         public DateRange date_range { get; protected set; }
-    }
-
-    [JsonConverter(typeof(EnumConverter))]
-    public enum
-    AnalyticsType
-    {
-        /// <summary>
-        /// The 1st analytic report type.
-        /// </summary>
-        [EnumMember(Value = "overview_v1")]
-        OverviewV1 = 0,
-
-        /// <summary>
-        /// The 2nd analytic report type.
-        /// </summary>
-        [EnumMember(Value = "overview_v2")]
-        OverviewV2
     }
 }

@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 
 namespace
-TwitchNet.Rest.Api.Streams
+TwitchNet.Rest.Helix
 {
     public class
     StreamMetadata

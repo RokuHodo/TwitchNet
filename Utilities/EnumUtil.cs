@@ -9,7 +9,7 @@ using System.Text;
 // project namespaces
 using TwitchNet.Debugger;
 using TwitchNet.Extensions;
-using TwitchNet.Rest.Api.Streams;
+using TwitchNet.Rest.Helix;
 
 namespace
 TwitchNet.Utilities

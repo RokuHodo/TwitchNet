@@ -12,7 +12,7 @@ using TwitchNet.Extensions;
 using Newtonsoft.Json;
 
 namespace
-TwitchNet.Rest.Api
+TwitchNet.Rest.Helix
 {
     #region Shared Public Data Structures      
 

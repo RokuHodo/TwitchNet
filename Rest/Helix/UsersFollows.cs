@@ -5,7 +5,7 @@ using System;
 using Newtonsoft.Json;
 
 namespace
-TwitchNet.Rest.Api.Users
+TwitchNet.Rest.Helix
 {
     public class
     FollowsParameters : PagingParameters, IPagingParameters

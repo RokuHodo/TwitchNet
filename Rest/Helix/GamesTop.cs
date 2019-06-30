@@ -1,5 +1,5 @@
 ﻿namespace
-TwitchNet.Rest.Api.Games
+TwitchNet.Rest.Helix
 {
     public class
     TopGamesParameters : PagingParameters, IPagingParameters

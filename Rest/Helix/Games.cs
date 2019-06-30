@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace
-TwitchNet.Rest.Api.Games
+TwitchNet.Rest.Helix
 {
     public class
     GamesParameters

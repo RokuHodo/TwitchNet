@@ -58,23 +58,24 @@
     <Compile Include="Helpers\Json\ISerializer.cs" />
     <Compile Include="Helpers\Json\IDeserializer.cs" />
     <Compile Include="Helpers\Json\JsonSerializer.cs" />
-    <Compile Include="Rest\Api\Analytics\AnalyticsGames.cs" />
-    <Compile Include="Rest\Api\Analytics\AnalyticsExtensions.cs" />
-    <Compile Include="Rest\Api\Bits\BitsLeaderboard.cs" />
-    <Compile Include="Rest\Api\Clips\Clips.cs" />
-    <Compile Include="Rest\Api\Entitlements\EntitlementsCodes.cs" />
-    <Compile Include="Rest\Api\Entitlements\EntitlementsUpload.cs" />
-    <Compile Include="Rest\Api\Games\GamesTop.cs" />
-    <Compile Include="Rest\Api\Games\Games.cs" />
-    <Compile Include="Rest\Api\HelixHelpers.cs" />
-    <Compile Include="Rest\Api\Streams\Streams.cs" />
-    <Compile Include="Rest\Api\Streams\StreamsMarkers.cs" />
-    <Compile Include="Rest\Api\Streams\StreamsMetadata.cs" />
-    <Compile Include="Rest\Api\Streams\StreamsTags.cs" />
-    <Compile Include="Rest\Api\Subscriptions\Subscriptions.cs" />
-    <Compile Include="Rest\Api\Tags\Tags.cs" />
-    <Compile Include="Rest\Api\TwitchApi.cs" />
-    <Compile Include="Rest\Api\TwitchApi.OAuth.cs" />
+    <Compile Include="Rest\Helix\AnalyticsGames.cs" />
+    <Compile Include="Rest\Helix\AnalyticsExtensions.cs" />
+    <Compile Include="Rest\Helix\BitsLeaderboard.cs" />
+    <Compile Include="Rest\Helix\Clips.cs" />
+    <Compile Include="Rest\Helix\EntitlementsCodes.cs" />
+    <Compile Include="Rest\Helix\EntitlementsUpload.cs" />
+    <Compile Include="Rest\Helix\GamesTop.cs" />
+    <Compile Include="Rest\Helix\Games.cs" />
+    <Compile Include="Rest\Helix\HelixHelpers.cs" />
+    <Compile Include="Rest\Helix\Streams.cs" />
+    <Compile Include="Rest\Helix\StreamsMarkers.cs" />
+    <Compile Include="Rest\Helix\StreamsMetadata.cs" />
+    <Compile Include="Rest\Helix\StreamsTags.cs" />
+    <Compile Include="Rest\Helix\SubscriptionsEvents.cs" />
+    <Compile Include="Rest\Helix\Subscriptions.cs" />
+    <Compile Include="Rest\Helix\Tags.cs" />
+    <Compile Include="Rest\Helix\HelixApi.cs" />
+    <Compile Include="Rest\Helix\HelixApi.OAuth.cs" />
     <Compile Include="Clients\Irc\IrcClient.Handlers.cs" />
     <Compile Include="Clients\Irc\IrcClient.cs" />
     <Compile Include="Clients\Irc\Twitch\TwitchIrcClient.Handlers.cs" />
@@ -84,8 +85,8 @@
     <Compile Include="Debugger\Debug.Validation.cs" />
     <Compile Include="Debugger\ValidateObjectAttribute.cs" />
     <Compile Include="Debugger\ValidateMemberAttribute.cs" />
-    <Compile Include="Rest\Api\Users\UsersExtensionsList.cs" />
-    <Compile Include="Rest\Api\Users\UsersExtensions.cs" />
+    <Compile Include="Rest\Helix\UsersExtensionsList.cs" />
+    <Compile Include="Rest\Helix\UsersExtensions.cs" />
     <Compile Include="Rest\Attributes.cs" />
     <Compile Include="Rest\Converters.cs" />
     <Compile Include="Rest\Scopes.cs" />
@@ -180,9 +181,9 @@
     <Compile Include="Clients\Irc\Twitch\ISharedRoomStateTags.cs" />
     <Compile Include="Clients\Irc\Twitch\ISharedUserStateTags.cs" />
     <Compile Include="Clients\Irc\Twitch\ISharedPrivmsgTags.cs" />
-    <Compile Include="Rest\Api\Users\UsersFollows.cs" />
-    <Compile Include="Rest\Api\Users\Users.cs" />
-    <Compile Include="Rest\Api\Videos\Videos.cs" />
+    <Compile Include="Rest\Helix\UsersFollows.cs" />
+    <Compile Include="Rest\Helix\Users.cs" />
+    <Compile Include="Rest\Helix\Videos.cs" />
     <Compile Include="Clients\Irc\IrcMessage.cs" />
     <Compile Include="Clients\Irc\IrcUser.cs" />
     <Compile Include="Debugger\ValidateTagAttribute.cs" />
@@ -214,7 +215,7 @@
     <Compile Include="Utilities\TwitchUtil.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Rest\Api\TwitchApi.Internal.cs" />
+    <Compile Include="Rest\Helix\HelixApi.Internal.cs" />
     <None Include="packages.config" />
     <Compile Include="Rest\OAuth\OAuth2.Internal.cs" />
   </ItemGroup>

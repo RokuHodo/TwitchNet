@@ -9,7 +9,7 @@ using TwitchNet.Helpers.Json;
 using Newtonsoft.Json;
 
 namespace
-TwitchNet.Rest.Api.Users
+TwitchNet.Rest.Helix
 {
     public class
     UsersParameters

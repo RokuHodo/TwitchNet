@@ -5,8 +5,6 @@ using System.Net.Http;
 using System.Reflection;
 using System.Text;
 
-using System.Diagnostics;
-
 // project namespaces
 using TwitchNet.Extensions;
 using TwitchNet.Helpers.Json;

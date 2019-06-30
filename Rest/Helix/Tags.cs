@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace
-TwitchNet.Rest.Api.Tags
+TwitchNet.Rest.Helix
 {
     public class
     StreamTagsParameters : PagingParameters, IPagingParameters

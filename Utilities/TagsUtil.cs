@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 
 //project namespaces
-//using TwitchNet.Rest.Api.Videos;
+//using TwitchNet.Rest.Helix.Videos;
 using TwitchNet.Clients.Irc;
 using TwitchNet.Clients.Irc.Twitch;
 using TwitchNet.Extensions;

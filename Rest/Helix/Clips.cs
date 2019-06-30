@@ -3,13 +3,12 @@ using System;
 using System.Collections.Generic;
 
 // project namespaces
-using TwitchNet.Rest.Api.Streams;
 
 // imported .dll's
 using Newtonsoft.Json;
 
 namespace
-TwitchNet.Rest.Api.Clips
+TwitchNet.Rest.Helix
 {
     public class
     CreateClipParameters

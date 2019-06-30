@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 // project namespaces
 using TwitchNet.Extensions;
-using TwitchNet.Rest.Api.Users;
+using TwitchNet.Rest.Helix;
 using TwitchNet.Utilities;
 
 namespace

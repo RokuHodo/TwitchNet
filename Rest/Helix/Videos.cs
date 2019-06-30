@@ -10,7 +10,7 @@ using TwitchNet.Helpers.Json;
 using Newtonsoft.Json;
 
 namespace
-TwitchNet.Rest.Api.Videos
+TwitchNet.Rest.Helix
 {
     public class
     VideosParameters : PagingParameters, IPagingParameters

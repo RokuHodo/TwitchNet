@@ -20,10 +20,71 @@ namespace TwitchNet.Extensions
                 return list;
             }
 
-            list.RemoveAll(str => !str.IsValid());
-            list = list.Distinct().ToList();
+            //list.RemoveAll(str => !str.IsValid());
+            //list = list.Distinct().ToList();
 
-            return list;
+            HashSet<string> hash = new HashSet<string>();
+            foreach(string element in list)
+            {
+                if (!element.HasContent())
+                {
+                    continue;
+                }
+
+                hash.Add(element);
+            }
+
+            return hash.ToList();
+        }
+
+        public static List<int>
+        GetNoContentIndicies(this List<string> list)
+        {
+            if (!list.IsValid())
+            {
+                return new List<int>();
+            }
+
+            List<int> indicies = new List<int>(list.Count);
+            for (int index = 0; index < list.Count; ++index)
+            {
+                if (list[index].HasContent())
+                {
+                    continue;
+                }
+
+                indicies.Add(index);
+            }
+
+            indicies.TrimExcess();
+
+            return indicies;
+        }
+
+        public static List<string>
+        GetDuplicateElements(this List<string> list)
+        {
+            if (!list.IsValid())
+            {
+                return new List<string>();
+            }
+
+            HashSet<string> hash = new HashSet<string>();
+            HashSet<string> duplicates = new HashSet<string>();
+
+            for (int index = 0; index < list.Count; ++index)
+            {
+                if (hash.Add(list[index]))
+                {
+                    continue;
+                }
+
+                duplicates.Add(list[index]);
+            }
+
+            duplicates.TrimExcess();
+
+            return duplicates.ToList();
         }
 
         /// <summary>

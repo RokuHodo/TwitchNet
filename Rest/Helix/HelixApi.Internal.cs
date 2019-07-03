@@ -1447,8 +1447,54 @@ TwitchNet.Rest.Helix
             // TODO: Implement /moderation/enforcements/status
 
             // TODO: Implement /moderation/moderators
-            
+
             // TODO: Implement /moderation/moderators/events
+
+            #region /moderation/moderators/events
+
+            public static async Task<IHelixResponse<DataPage<ModeratorEvent>>>
+            GetModeratorEventsPageAsync(HelixInfo info, ModeratorEventsParameters parameters)
+            {
+                info.required_scopes = Scopes.ModerationRead;
+
+                HelixResponse<DataPage<ModeratorEvent>> response = new HelixResponse<DataPage<ModeratorEvent>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                // Required parameters checks
+                if(!ValidateRequiredQueryString(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
+                {
+                    return response;
+                }
+
+                // Optional parameters checks
+                parameters.first = parameters.first.Clamp(1, 100);
+
+                if (!ValidateOptionalQueryString(nameof(parameters.after), parameters.after, response, info.settings) ||
+                    !ValidateOptionalQueryString(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings))
+                {
+                    return response;
+                }
+
+                RestRequest request = GetBaseRequest("moderation/moderators/events", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<ModeratorEvent>> _response = await client.ExecuteAsync<DataPage<ModeratorEvent>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<ModeratorEvent>>(_response);
+
+                return response;
+            }
+
+            #endregion
 
             #region /streams
 
@@ -2528,7 +2574,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /subscriptions/events
+            #region /subscriptions/events - New error handling
 
             /// <summary>
             /// <para>Asynchronously gets a specific subscription event or a single page subscription events.</para>
@@ -4011,6 +4057,45 @@ TwitchNet.Rest.Helix
             if (value.IsEmptyOrWhiteSpace())
             {
                 response.SetInputError(new QueryParameterValueException(name, value, "Value cannot be empty or contain only whitespace."), settings);
+
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool
+        ValidateOptionalQueryString(string name, List<string> values, int maximum_count, HelixResponse response, HelixRequestSettings settings)
+        {
+            // An empty list isn't inherently an error, especially since every list is instantiated for each parameter type for the user's convenience.
+            if (values == null || values.Count == 0)
+            {
+                return true;
+            }
+
+            if (values.Count > maximum_count)
+            {
+                response.SetInputError(new QueryParameterCountException(name, maximum_count, values.Count, "A maximum of " + maximum_count + " query strings cant be provided at one time for the parameter: " + name.WrapQuotes()), settings);
+
+                return false;
+            }
+
+            List<int> indicies = values.GetNoContentIndicies();
+            if (indicies.Count > 0)
+            {
+                string message = "One or more query strings were null, empty, or contained only white space for the parameter: " + name.WrapQuotes() + Environment.NewLine + Environment.NewLine +
+                                 "Indicies: " + string.Join(", ", indicies);
+                response.SetInputError(new QueryParameterValueException(name, message), settings);
+
+                return false;
+            }
+
+            List<string> duplicates = values.GetDuplicateElements();
+            if (duplicates.Count > 0)
+            {
+                string message = "One or more duplicate query string values were found for the parameter: " + name.WrapQuotes() + Environment.NewLine + Environment.NewLine +
+                                 "Values : " + string.Join(", ", duplicates);
+                response.SetInputError(new QueryParameterValueException(name, message), settings);
 
                 return false;
             }

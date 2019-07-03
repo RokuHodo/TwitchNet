@@ -71,6 +71,7 @@
     <Compile Include="Rest\Helix\StreamsMarkers.cs" />
     <Compile Include="Rest\Helix\StreamsMetadata.cs" />
     <Compile Include="Rest\Helix\StreamsTags.cs" />
+    <Compile Include="Rest\Helix\ModerationModeratorsEvents.cs" />
     <Compile Include="Rest\Helix\SubscriptionsEvents.cs" />
     <Compile Include="Rest\Helix\Subscriptions.cs" />
     <Compile Include="Rest\Helix\Tags.cs" />

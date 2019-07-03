@@ -500,6 +500,33 @@ TwitchNet.Rest.Helix
 
             #endregion
 
+            #region /moderation/moderators/events
+
+            public static async Task<IHelixResponse<DataPage<ModeratorEvent>>>
+            GetModeratorEventsPageAsync(string bearer_token, ModeratorEventsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<DataPage<ModeratorEvent>> response = await Internal.GetModeratorEventsPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<ModeratorEvent>>>
+            GetModeratorEventsPageAsync(string bearer_token, string client_id, ModeratorEventsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<ModeratorEvent>> response = await Internal.GetModeratorEventsPageAsync(info, parameters);
+
+                return response;
+            }
+
+            #endregion
+
             #region /streams
 
             public static async Task<IHelixResponse<DataPage<Stream>>>

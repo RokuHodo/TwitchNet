@@ -12,6 +12,8 @@ using Newtonsoft.Json;
 namespace
 TwitchNet.Rest.Helix
 {
+    #region /videos
+
     public class
     VideosParameters : PagingParameters, IPagingParameters
     {
@@ -248,4 +250,6 @@ TwitchNet.Rest.Helix
         [EnumMember(Value = "all")]
         All
     }
+
+    #endregion
 }

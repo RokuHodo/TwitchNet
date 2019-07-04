@@ -7,6 +7,8 @@ using Newtonsoft.Json;
 namespace
 TwitchNet.Rest.Helix
 {
+    #region /tags
+
     public class
     StreamTagsParameters : PagingParameters, IPagingParameters
     {
@@ -52,4 +54,6 @@ TwitchNet.Rest.Helix
         [JsonProperty("localization_descriptions")]
         public Dictionary<string, string> localization_descriptions { get; protected set; }
     }
+
+    #endregion
 }

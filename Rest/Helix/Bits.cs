@@ -8,6 +8,8 @@ using Newtonsoft.Json;
 namespace
 TwitchNet.Rest.Helix
 {
+    #region /bits/leaderboard
+
     public class
     BitsLeaderboardParameters
     {
@@ -136,4 +138,6 @@ TwitchNet.Rest.Helix
         [JsonProperty("score")]
         public uint score { get; protected set; }
     }
+
+    #endregion
 }

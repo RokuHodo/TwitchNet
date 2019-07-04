@@ -10,6 +10,8 @@ using Newtonsoft.Json;
 namespace
 TwitchNet.Rest.Helix
 {
+    #region /clips
+
     public class
     CreateClipParameters
     {
@@ -196,4 +198,6 @@ TwitchNet.Rest.Helix
         [JsonProperty("thumbnail_url")]
         public string thumbnail_url { get; protected set; }
     }
+
+    #endregion
 }

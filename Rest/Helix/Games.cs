@@ -7,6 +7,8 @@ using Newtonsoft.Json;
 namespace
 TwitchNet.Rest.Helix
 {
+    #region /games
+
     public class
     GamesParameters
     {
@@ -60,4 +62,20 @@ TwitchNet.Rest.Helix
         [JsonProperty("box_art_url")]
         public string box_art_url { get; protected set; }
     }
+
+    #endregion
+
+    #region /games/top
+
+    public class
+    TopGamesParameters : PagingParameters, IPagingParameters
+    {
+        /// <summary>
+        /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
+        /// </summary>
+        [QueryParameter("before")]
+        public virtual string before { get; set; }
+    }
+
+    #endregion
 }

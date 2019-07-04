@@ -12,6 +12,8 @@ using Newtonsoft.Json;
 namespace
 TwitchNet.Rest.Helix
 {
+    #region /streams
+
     public class
     StreamsParameters : PagingParameters, IPagingParameters
     {
@@ -380,4 +382,304 @@ TwitchNet.Rest.Helix
         [EnumMember(Value = "ro")]
         Ro = 1 << 29
     }
+
+    #endregion
+
+    #region /streams/markers
+
+    [Body]
+    public class
+    CreateStreamMarkerParameters
+    {
+        /// <summary>
+        /// The ID of the user who is stremaing.
+        /// </summary>
+        [JsonProperty("user_id")]
+        public virtual string user_id { get; set; }
+
+        /// <summary>
+        /// The marker description.
+        /// </summary>
+        [JsonProperty("description")]
+        public virtual string description { get; set; }
+    }
+
+    public class
+    CreatedStreamMarker
+    {
+        /// <summary>
+        /// The ID of stream marker.
+        /// </summary>
+        [JsonProperty("id")]
+        public string id { get; protected set; }
+
+        /// <summary>
+        /// The date when the marker was created.
+        /// </summary>
+        [JsonProperty("created_at")]
+        public DateTime created_at { get; protected set; }
+
+        /// <summary>
+        /// The description of the stream marker if one was provided when it was created.
+        /// </summary>
+        [JsonProperty("description")]
+        public string description { get; protected set; }
+
+        /// <summary>
+        /// How far into the stream the marker was created.
+        /// </summary>
+        [JsonProperty("position_seconds")]
+        public uint position_seconds { get; protected set; }
+    }
+
+    public class
+    StreamMarkersParameters : PagingParameters, IPagingParameters
+    {
+        /// <summary>
+        /// <para>The ID of the user who is stremaing/owns the video to get the markers for.</para>
+        /// <para>Only one user ID or video ID can be provided at one time.</para>
+        /// </summary>
+        [QueryParameter("user_id")]
+        public virtual string user_id { get; set; }
+
+        /// <summary>
+        /// <para>The ID of the video to get the markers from.</para>
+        /// <para>Only one user ID or video ID can be provided at one time.</para>
+        /// </summary>
+        [QueryParameter("video_id")]
+        public virtual string video_id { get; set; }
+
+        // NOTE: /streams/markers - StreamMarkersParameters - 'before' is not included because Twitch returns an eror that it is not supported.
+        /// <summary>
+        /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
+        /// </summary>
+        // [QueryParameter("before")]
+        // public string before { get; set; }
+    }
+
+    public class
+    StreamMarkers
+    {
+        /// <summary>
+        /// The ID of the user who is streaming/owns the video.
+        /// </summary>
+        [JsonProperty("user_id")]
+        public string user_id { get; protected set; }
+
+        /// <summary>
+        /// The display of the user who is streaming/owns the video.
+        /// </summary>
+        [JsonProperty("user_name")]
+        public string user_name { get; protected set; }
+
+        [JsonProperty("videos")]
+        public List<MarkedVideos> videos { get; protected set; }
+    }
+
+    public class
+    MarkedVideos
+    {
+        /// <summary>
+        /// The ID of the video that contians the marker.
+        /// </summary>
+        [JsonProperty("video_id")]
+        public string video_id { get; protected set; }
+
+
+        [JsonProperty("markers")]
+        public List<StreamMarker> markers { get; protected set; }
+    }
+
+    public class
+    StreamMarker
+    {
+        /// <summary>
+        /// The ID of stream marker.
+        /// </summary>
+        [JsonProperty("id")]
+        public string id { get; protected set; }
+
+        /// <summary>
+        /// The date when the marker was created.
+        /// </summary>
+        [JsonProperty("created_at")]
+        public DateTime created_at { get; protected set; }
+
+        /// <summary>
+        /// The description of the stream marker if one was provided when it was created.
+        /// </summary>
+        [JsonProperty("description")]
+        public string description { get; protected set; }
+
+        /// <summary>
+        /// How far into the stream the marker was created.
+        /// </summary>
+        [JsonProperty("position_seconds")]
+        public uint position_seconds { get; protected set; }
+
+        /// <summary>
+        /// The URL to the video with the included marker time stamp query parameter.
+        /// </summary>
+        [JsonProperty("URL")]
+        public string URL { get; protected set; }
+    }
+
+    #endregion
+
+    #region /streams/metadata
+
+    public class
+    StreamMetadata
+    {
+        /// <summary>
+        /// The id of the user who is streaming.
+        /// </summary>
+        [JsonProperty("user_id")]
+        public string user_id { get; protected set; }
+
+        /// <summary>
+        /// The login of the user who is streaming.
+        /// </summary>
+        [JsonProperty("user_name")]
+        public string user_name { get; protected set; }
+
+        /// <summary>
+        /// The id of the game being played.
+        /// </summary>
+        [JsonProperty("game_id")]
+        public string game_id { get; protected set; }
+
+        /// <summary>
+        /// The Overwatch metadata of the current stream, if that is the game being played.
+        /// </summary>
+        [JsonProperty("overwatch")]
+        public OverwatchMetadata overwatch { get; protected set; }
+
+        /// <summary>
+        /// The Hearthstone metadata of the current stream, if that is the game being played.
+        /// </summary>
+        [JsonProperty("hearthstone")]
+        public HearthstoneMetadata hearthstone { get; protected set; }
+    }
+
+    public class
+    OverwatchMetadata
+    {
+        /// <summary>
+        /// Overwatch metadata about the broadcaster.
+        /// </summary>
+        [JsonProperty("broadcaster")]
+        public Player<OverwatchHero> broadcaster { get; protected set; }
+    }
+
+    public class
+    OverwatchHero
+    {
+        /// <summary>
+        /// The role of the Overwatch hero.
+        /// </summary>
+        [JsonProperty("role")]
+        public string role { get; protected set; }
+
+        /// <summary>
+        /// The name of the Overwatch hero.
+        /// </summary>
+        [JsonProperty("name")]
+        public string name { get; protected set; }
+
+        /// <summary>
+        /// The ability being used by the broadcaster.
+        /// </summary>
+        [JsonProperty("ability")]
+        public string ability { get; protected set; }
+    }
+
+    public class
+    HearthstoneMetadata
+    {
+        /// <summary>
+        /// Hearthstone metadata about the broadcaster.
+        /// </summary>
+        [JsonProperty("broadcaster")]
+        public Player<HearthstoneHero> broadcaster { get; protected set; }
+
+        /// <summary>
+        /// Hearthstone metadata about the opponent.
+        /// </summary>
+        [JsonProperty("opponent")]
+        public Player<HearthstoneHero> opponent { get; protected set; }
+    }
+
+    public class
+    HearthstoneHero
+    {
+        /// <summary>
+        /// The type of the Hearthstone hero.
+        /// </summary>
+        [JsonProperty("type")]
+        public string type { get; protected set; }
+
+        /// <summary>
+        /// The name of the Hearthstone hero.
+        /// </summary>
+        [JsonProperty("name")]
+        public string name { get; protected set; }
+
+        /// <summary>
+        /// The class of the Hearthstone hero.
+        /// </summary>
+        [JsonProperty("class")]
+        public string @class { get; protected set; }
+    }
+
+    public class
+    Player<hero_type>
+    {
+        /// <summary>
+        /// The metadata about the hero selected by the player.
+        /// </summary>
+        [JsonProperty("hero")]
+        public hero_type hero { get; protected set; }
+    }
+
+    #endregion
+
+    #region /streams/tags
+
+    public class
+    StreamsTagsParameters
+    {
+        /// <summary>
+        /// The user ID of a broadcaster.
+        /// </summary>
+        [QueryParameter("broadcaster_id")]
+        public virtual string broadcaster_id { get; set; }
+    }
+
+    public class
+    SetStreamsTagsParameters
+    {
+        /// <summary>
+        /// A user ID to update the stream tags for.
+        /// </summary>
+        [QueryParameter("broadcaster_id")]
+        public virtual string broadcaster_id { get; set; }
+
+        /// <summary>
+        /// <para>A list of tag ID's, up to 5.</para>
+        /// <para>
+        /// Automatic tags cannot be added or removed.
+        /// All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.
+        /// </para>
+        /// </summary>
+        [Body("tag_ids")]
+        public virtual List<string> tag_ids { get; set; }
+
+        public SetStreamsTagsParameters()
+        {
+            tag_ids = new List<string>();
+        }
+    }
+
+    #endregion
 }

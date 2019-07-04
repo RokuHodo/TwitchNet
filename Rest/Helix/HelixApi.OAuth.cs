@@ -500,6 +500,56 @@ TwitchNet.Rest.Helix
 
             #endregion
 
+            #region /moderation/banned/events
+
+            public static async Task<IHelixResponse<DataPage<BannedEvent>>>
+            GetBannedEventsPageAsync(string bearer_token, BannedEventsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<DataPage<BannedEvent>> response = await Internal.GetBannedEventsPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<BannedEvent>>>
+            GetBannedEventsPageAsync(string bearer_token, string client_id, BannedEventsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<BannedEvent>> response = await Internal.GetBannedEventsPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<BannedEvent>>>
+            GetBannedEventsAsync(string bearer_token, BannedEventsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<DataPage<BannedEvent>> response = await Internal.GetBannedEventsAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<BannedEvent>>>
+            GetBannedEventsAsync(string bearer_token, string client_id, BannedEventsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<BannedEvent>> response = await Internal.GetBannedEventsPageAsync(info, parameters);
+
+                return response;
+            }
+
+            #endregion
+
             #region /moderation/moderators/events
 
             public static async Task<IHelixResponse<DataPage<ModeratorEvent>>>
@@ -521,6 +571,29 @@ TwitchNet.Rest.Helix
                 info.client_id = client_id;
 
                 IHelixResponse<DataPage<ModeratorEvent>> response = await Internal.GetModeratorEventsPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<ModeratorEvent>>>
+            GetModeratorEventsAsync(string bearer_token, ModeratorEventsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<DataPage<ModeratorEvent>> response = await Internal.GetModeratorEventsAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<ModeratorEvent>>>
+            GetModeratorEventsAsync(string bearer_token, string client_id, ModeratorEventsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<ModeratorEvent>> response = await Internal.GetModeratorEventsAsync(info, parameters);
 
                 return response;
             }

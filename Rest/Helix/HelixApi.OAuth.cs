@@ -500,6 +500,79 @@ TwitchNet.Rest.Helix
 
             #endregion
 
+            #region /moderation/banned
+
+            #endregion
+
+            public static async Task<IHelixResponse<DataPage<BannedUser>>>
+            GetBannedUsersPageAsync(string bearer_token, BannedUsersParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<DataPage<BannedUser>> response = await Internal.GetBannedUsersPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<BannedUser>>>
+            GetBannedUsersPageAsync(string bearer_token, string client_id, BannedUsersParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<BannedUser>> response = await Internal.GetBannedUsersPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<BannedUser>>>
+            GetBannedUsersAsync(string bearer_token, BannedUsersParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<DataPage<BannedUser>> response = await Internal.GetBannedUsersAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<BannedUser>>>
+            GetBannedUsersAsync(string bearer_token, string client_id, BannedUsersParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<BannedUser>> response = await Internal.GetBannedUsersAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<bool>>
+            IsUserBannedAsync(string bearer_token, string broadcaster_id, string user_id, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<bool> response = await Internal.IsUserBannedAsync(info, broadcaster_id, user_id);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<bool>>
+            IsUserBannedAsync(string bearer_token, string client_id, string broadcaster_id, string user_id, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<bool> response = await Internal.IsUserBannedAsync(info, broadcaster_id, user_id);
+
+                return response;
+            }
+
             #region /moderation/banned/events
 
             public static async Task<IHelixResponse<DataPage<BannedEvent>>>

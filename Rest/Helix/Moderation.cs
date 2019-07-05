@@ -12,7 +12,64 @@ using Newtonsoft.Json;
 namespace
 TwitchNet.Rest.Helix
 {
-    #region #region /moderation/banned/events
+    #region /moderation/banned
+
+    public class
+    BannedUsersParameters : PagingParameters, IPagingParameters
+    {
+        /// <summary>
+        /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
+        /// </summary>
+        [QueryParameter("before")]
+        public string before { get; set; }
+
+        /// <summary>
+        /// The user ID of a broadcaster.
+        /// The user ID must match the user ID in the provided Bearer token.
+        /// </summary>
+        [QueryParameter("broadcaster_id")]
+        public virtual string broadcaster_id { get; set; }
+
+        /// <summary>
+        /// A list of user ID's who were banned, up to 100.
+        /// </summary>
+        [QueryParameter("user_id", typeof(SeparateQueryConverter))]
+        public virtual List<string> user_ids { get; set; }
+
+        public BannedUsersParameters()
+        {
+            user_ids = new List<string>();
+        }
+    }
+
+    public class
+    BannedUser
+    {
+        /// <summary>
+        /// The ID of the banned user.
+        /// </summary>
+        [JsonProperty("user_id")]
+        public string user_id { get; protected set; }
+
+        /// <summary>
+        /// The user display name.
+        /// </summary>
+        [JsonProperty("user_name")]
+        public string user_name { get; protected set; }
+
+        // NOTE: This seems like the date they were banned in some cases, since sometimes this returnes dates that are not in the future?
+
+        /// <summary>
+        /// The date and time when the ban ends.
+        /// Set to <see cref="DateTime.MinValue"/> if the ban is permanent.
+        /// </summary>
+        [JsonProperty("expires_at")]
+        public DateTime expires_at { get; protected set; }
+    }
+
+    #endregion
+
+    #region /moderation/banned/events
 
     public class
     BannedEventsParameters : PagingParameters, IPagingParameters

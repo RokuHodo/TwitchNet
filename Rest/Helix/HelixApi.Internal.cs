@@ -1250,7 +1250,198 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            // TODO: Implement /moderation/banned
+            #region /moderation/banned - New Error Handling
+
+            /// <summary>
+            /// <para>Asynchronously gets specific banned users or a single page of banned users.</para>
+            /// <para>Required Scope: <see cref="Scopes.ModerationRead"/>.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific banned users or the single page of banned users.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if both after and before cursors are provided.</exception>
+            /// <exception cref="QueryParameterValueException">
+            /// Thrown if the broadcaster ID is empty or only contains white space.
+            /// Thrown if any user ID is empty or only contains white space, if provided.
+            /// Thrown if the after or before cursor is empty or only contains white space, if provided.
+            /// </exception>
+            /// <exception cref="QueryParameterCountException">Thrown if more than 100 user ID's are provided.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ModerationRead"/> scope.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<DataPage<BannedUser>>>
+            GetBannedUsersPageAsync(HelixInfo info, BannedUsersParameters parameters)
+            {
+                info.required_scopes = Scopes.ModerationRead;
+
+                HelixResponse<DataPage<BannedUser>> response = new HelixResponse<DataPage<BannedUser>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                // Required parameters checks
+                if (!ValidateRequiredQueryString(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
+                {
+                    return response;
+                }
+
+                // Optional parameters checks
+                parameters.first = parameters.first.Clamp(1, 100);
+
+                if (!ValidateOptionalQueryString(nameof(parameters.after), parameters.after, response, info.settings) ||
+                    !ValidateOptionalQueryString(nameof(parameters.before), parameters.before, response, info.settings) ||
+                    !ValidateOptionalQueryString(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings) ||
+                    !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out string direction))
+                {
+                    return response;
+                }
+
+                RestRequest request = GetBaseRequest("moderation/banned", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<BannedUser>> _response = await client.ExecuteAsync<DataPage<BannedUser>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<BannedUser>>(_response);
+
+                return response;
+            }
+
+            /// <summary>
+            /// <para>Asynchronously gets specific banned users or a complete list of banned users.</para>
+            /// <para>Required Scope: <see cref="Scopes.ModerationRead"/>.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific banned users or the complete list of banned users.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if both after and before cursors are provided.</exception>
+            /// <exception cref="QueryParameterValueException">
+            /// Thrown if the broadcaster ID is empty or only contains white space.
+            /// Thrown if any user ID is empty or only contains white space, if provided.
+            /// Thrown if the after or before cursor is empty or only contains white space, if provided.
+            /// </exception>
+            /// <exception cref="QueryParameterCountException">Thrown if more than 100 user ID's are provided.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ModerationRead"/> scope.</exception>
+            /// <exception cref="NotSupportedException">
+            /// Thrown if a before cursor is provided.
+            /// This is a temporary error and will be removed once Twitch fixes reverse pagination.
+            /// </exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<DataPage<BannedUser>>>
+            GetBannedUsersAsync(HelixInfo info, BannedUsersParameters parameters)
+            {
+                info.required_scopes = Scopes.ModerationRead;
+
+                HelixResponse<DataPage<BannedUser>> response = new HelixResponse<DataPage<BannedUser>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                // Required parameters checks
+                if (!ValidateRequiredQueryString(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
+                {
+                    return response;
+                }
+
+                // Optional parameters checks
+                parameters.first = parameters.first.Clamp(1, 100);                
+
+                if (!ValidateOptionalQueryString(nameof(parameters.after), parameters.after, response, info.settings) ||
+                    !ValidateOptionalQueryString(nameof(parameters.before), parameters.before, response, info.settings) ||
+                    !ValidateOptionalQueryString(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings) ||
+                    !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out string direction))
+                {
+                    return response;
+                }
+
+                // TODO: GetBannedUsersAsync(...) - Temporarily disabling using 'before' while requesting all pages until it works properly. Reimplement 'before' when it works propery.
+                if (parameters.before.IsValid())
+                {
+                    response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
+
+                    return response;
+                }
+
+                RestRequest request = GetBaseRequest("moderation/banned", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<BannedUser>> _response = await client.TraceExecuteAsync<BannedUser, DataPage<BannedUser>>(request, direction, HandleResponse);
+                response = new HelixResponse<DataPage<BannedUser>>(_response);
+
+                return response;
+            }
+
+            /// <summary>
+            /// Asynchronously checks to see if the a user is banned by a broadcaster.
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="broadcaster_id">The ID of the broadcaster.</param>
+            /// <param name="user_id">The ID of the user to check.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> is set true if the user is banned by the broadcaster, otherwise false.
+            /// </returns>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID or user ID are not provided.</exception>
+            /// <exception cref="QueryParameterValueException">Thrown if the broadcaster ID or user ID are empty or only contains white space.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<bool>>
+            IsUserBannedAsync(HelixInfo info, string broadcaster_id, string user_id)
+            {
+                HelixResponse<bool> response = new HelixResponse<bool>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                // Explicity check for this out here since it's optional in the underlying wrapper.
+                if (!ValidateRequiredQueryString(nameof(user_id), user_id, response, info.settings))
+                {
+                    return response;
+                }
+
+                BannedUsersParameters parameters = new BannedUsersParameters();
+                parameters.broadcaster_id = broadcaster_id;
+                parameters.user_ids.Add(user_id);
+
+                IHelixResponse<DataPage<BannedUser>> _response = await GetBannedUsersPageAsync(info, parameters);
+
+                bool result = _response.exception.IsNull() ? _response.result.data.IsValid() : false;
+                response = new HelixResponse<bool>(_response, result);
+
+                return response;
+            }
+
+            #endregion
 
             #region /moderation/moderators/events - New Error Handling
 
@@ -4112,7 +4303,7 @@ TwitchNet.Rest.Helix
 
             // TODO: Implement /webhook/subscriptions
 
-            #region Helpers
+            #region Request Helpers
 
             internal static RestClient
             GetHelixClient()
@@ -4131,6 +4322,95 @@ TwitchNet.Rest.Helix
                 request.settings = info.settings;
 
                 return request;
+            }
+
+            public static async Task<RestResponse<data_type>>
+            HandleResponse<data_type>(RestResponse<data_type> response)
+            {
+                if (response.exception.IsNull())
+                {
+                    return response;
+                }
+
+                if (response.exception is StatusException)
+                {
+                    // Yep, this is the only difference between the native handler and this one.
+                    response.exception = new HelixException("An error was returned by Twitch after executing the requets.", response.content, response.exception);
+
+                    int code = (int)response.status_code;
+                    switch (response.request.settings.status_error[code].handling)
+                    {
+                        case StatusHandling.Error:
+                            {
+                                throw response.exception;
+                            };
+
+                        case StatusHandling.Retry:
+                            {
+                                StatusCodeSetting status_setting = response.request.settings.status_error[code];
+
+                                ++status_setting.retry_count;
+                                if (status_setting.retry_count > status_setting.retry_limit && status_setting.retry_limit != -1)
+                                {
+                                    response.exception = new RetryLimitReachedException("The retry limit " + status_setting.retry_limit + " has been reached for status code " + code + ".", status_setting.retry_limit, response.exception);
+
+                                    return await HandleResponse(response);
+                                }
+
+                                RateLimit rate_limit = new RateLimit(response.headers);
+                                TimeSpan difference = rate_limit.reset_time - DateTime.Now;
+                                if (rate_limit.remaining == 0 && difference.TotalMilliseconds > 0)
+                                {
+                                    await Task.Delay(difference);
+                                }
+
+                                // Clone the message to a new instance because the same instance can't be sent twice.
+                                response.request.CloneMessage();
+                                response = await client.ExecuteAsync<data_type>(response.request, HandleResponse);
+                            };
+                            break;
+
+                        case StatusHandling.Return:
+                        default:
+                            {
+                                return response;
+                            }
+                    }
+                }
+                else
+                {
+                    ErrorHandling handling;
+                    if (response.exception is InvalidOperationException)
+                    {
+                        handling = response.request.settings.invalid_operation_handling;
+
+                    }
+                    else if (response.exception is HttpRequestException)
+                    {
+                        handling = response.request.settings.request_handling;
+                    }
+                    else
+                    {
+                        int code = (int)response.status_code;
+                        handling = response.request.settings.status_error[code].handling_rety_limit_reached;
+                    }
+
+                    switch (handling)
+                    {
+                        case ErrorHandling.Error:
+                            {
+                                throw response.exception;
+                            }
+
+                        case ErrorHandling.Return:
+                        default:
+                            {
+                                return response;
+                            }
+                    }
+                }
+
+                return response;
             }
 
             internal static bool
@@ -4202,96 +4482,7 @@ TwitchNet.Rest.Helix
                 }
 
                 return true;
-            }
-
-            public static async Task<RestResponse<data_type>>
-            HandleResponse<data_type>(RestResponse<data_type> response)
-            {
-                if (response.exception.IsNull())
-                {
-                    return response;
-                }
-
-                if (response.exception is StatusException)
-                {
-                    // Yep, this is the only difference between the native handler and this one.
-                    response.exception = new HelixException("An error was returned by Twitch after executing the requets.", response.content, response.exception);
-
-                    int code = (int)response.status_code;
-                    switch (response.request.settings.status_error[code].handling)
-                    {
-                        case StatusHandling.Error:
-                        {
-                            throw response.exception;
-                        };
-
-                        case StatusHandling.Retry:
-                        {
-                            StatusCodeSetting status_setting = response.request.settings.status_error[code];
-
-                            ++status_setting.retry_count;
-                            if (status_setting.retry_count > status_setting.retry_limit && status_setting.retry_limit != -1)
-                            {
-                                response.exception = new RetryLimitReachedException("The retry limit " + status_setting.retry_limit + " has been reached for status code " + code + ".", status_setting.retry_limit, response.exception);
-
-                                return await HandleResponse(response);
-                            }
-
-                            RateLimit rate_limit = new RateLimit(response.headers);
-                            TimeSpan difference = rate_limit.reset_time - DateTime.Now;
-                            if (rate_limit.remaining == 0 && difference.TotalMilliseconds > 0)
-                            {
-                                await Task.Delay(difference);
-                            }
-
-                            // Clone the message to a new instance because the same instance can't be sent twice.
-                            response.request.CloneMessage();
-                            response = await client.ExecuteAsync<data_type>(response.request, HandleResponse);
-                        };
-                        break;
-
-                        case StatusHandling.Return:
-                        default:
-                        {
-                            return response;
-                        }
-                    }
-                }
-                else
-                {
-                    ErrorHandling handling;
-                    if (response.exception is InvalidOperationException)
-                    {
-                        handling = response.request.settings.invalid_operation_handling;
-
-                    }
-                    else if (response.exception is HttpRequestException)
-                    {
-                        handling = response.request.settings.request_handling;
-                    }
-                    else
-                    {
-                        int code = (int)response.status_code;
-                        handling = response.request.settings.status_error[code].handling_rety_limit_reached;
-                    }
-
-                    switch (handling)
-                    {
-                        case ErrorHandling.Error:
-                        {
-                            throw response.exception;
-                        }
-
-                        case ErrorHandling.Return:
-                        default:
-                        {
-                            return response;
-                        }
-                    }
-                }
-
-                return response;
-            }
+            }            
 
             private static bool
             ValidateRequiredQueryString<data_type>(string name, string value, HelixResponse<data_type> response, HelixRequestSettings settings)
@@ -4412,6 +4603,27 @@ TwitchNet.Rest.Helix
                     response.SetInputError(new QueryParameterValueException(name, message), settings);
 
                     return false;
+                }
+
+                return true;
+            }
+
+            private static bool
+            ValidateCursorDiection(string after, string before, HelixResponse response, HelixRequestSettings settings, out string direction)
+            {
+                direction = "after";
+                if (!after.IsNull() && !before.IsNull())
+                {
+                    direction = null;
+
+                    response.SetInputError(new QueryParameterException("Only one pagination direction can be specified. Only use either 'after' or 'before'."), settings);
+
+                    return false;
+                }
+
+                if (!before.IsNull())
+                {
+                    direction = "before";
                 }
 
                 return true;

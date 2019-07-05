@@ -192,6 +192,48 @@ TwitchNet.Rest.Helix
 
     #endregion
 
+    #region /moderation/moderators
+
+    public class
+    ModeratorsParameters : PagingParameters, IPagingParameters
+    {
+        /// <summary>
+        /// The user ID of a broadcaster.
+        /// The user ID must match the user ID in the provided Bearer token.
+        /// </summary>
+        [QueryParameter("broadcaster_id")]
+        public virtual string broadcaster_id { get; set; }
+
+        /// <summary>
+        /// A list of user ID's who were banned, up to 100.
+        /// </summary>
+        [QueryParameter("user_id", typeof(SeparateQueryConverter))]
+        public virtual List<string> user_ids { get; set; }
+
+        public ModeratorsParameters()
+        {
+            user_ids = new List<string>();
+        }
+    }
+
+    public class
+    Moderator
+    {
+        /// <summary>
+        /// The ID of the banned user.
+        /// </summary>
+        [JsonProperty("user_id")]
+        public string user_id { get; protected set; }
+
+        /// <summary>
+        /// The user display name.
+        /// </summary>
+        [JsonProperty("user_name")]
+        public string user_name { get; protected set; }
+    }
+
+    #endregion
+
     #region /moderation/moderators/events
 
     public class

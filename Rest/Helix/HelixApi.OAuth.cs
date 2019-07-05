@@ -502,8 +502,6 @@ TwitchNet.Rest.Helix
 
             #region /moderation/banned
 
-            #endregion
-
             public static async Task<IHelixResponse<DataPage<BannedUser>>>
             GetBannedUsersPageAsync(string bearer_token, BannedUsersParameters parameters, HelixRequestSettings settings = default)
             {
@@ -573,6 +571,8 @@ TwitchNet.Rest.Helix
                 return response;
             }
 
+            #endregion
+
             #region /moderation/banned/events
 
             public static async Task<IHelixResponse<DataPage<BannedEvent>>>
@@ -617,6 +617,79 @@ TwitchNet.Rest.Helix
                 info.client_id = client_id;
 
                 IHelixResponse<DataPage<BannedEvent>> response = await Internal.GetBannedEventsPageAsync(info, parameters);
+
+                return response;
+            }
+
+            #endregion
+
+            #region /moderation/moderators
+
+            public static async Task<IHelixResponse<DataPage<Moderator>>>
+            GetModeratorsPageAsync(string bearer_token, ModeratorsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<DataPage<Moderator>> response = await Internal.GetModeratorsPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<Moderator>>>
+            GetModeratorsPageAsync(string bearer_token, string client_id, ModeratorsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<Moderator>> response = await Internal.GetModeratorsPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<Moderator>>>
+            GetModeratorsAsync(string bearer_token, ModeratorsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<DataPage<Moderator>> response = await Internal.GetModeratorsAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<Moderator>>>
+            GetModeratorsAsync(string bearer_token, string client_id, ModeratorsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<Moderator>> response = await Internal.GetModeratorsAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<bool>>
+            IsUserModeratorAsync(string bearer_token, string broadcaster_id, string user_id, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<bool> response = await Internal.IsUserModeratorAsync(info, broadcaster_id, user_id);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<bool>>
+            IsUserModeratorAsync(string bearer_token, string client_id, string broadcaster_id, string user_id, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<bool> response = await Internal.IsUserModeratorAsync(info, broadcaster_id, user_id);
 
                 return response;
             }

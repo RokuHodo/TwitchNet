@@ -1253,14 +1253,14 @@ TwitchNet.Rest.Helix
             #region /moderation/banned - New Error Handling
 
             /// <summary>
-            /// <para>Asynchronously gets specific banned users or a single page of banned users.</para>
+            /// <para>Asynchronously gets specific banned users or a single page of banned users for a given broadcaster.</para>
             /// <para>Required Scope: <see cref="Scopes.ModerationRead"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific banned users or the single page of banned users.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific banned users or the single page of banned users for the given broadcaster.
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
@@ -1320,14 +1320,14 @@ TwitchNet.Rest.Helix
             }
 
             /// <summary>
-            /// <para>Asynchronously gets specific banned users or a complete list of banned users.</para>
+            /// <para>Asynchronously gets specific banned users or a complete list of banned users for a given broadcaster.</para>
             /// <para>Required Scope: <see cref="Scopes.ModerationRead"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific banned users or the complete list of banned users.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific banned users or the complete list of banned users for the given broadcaster.
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
@@ -1399,7 +1399,7 @@ TwitchNet.Rest.Helix
             }
 
             /// <summary>
-            /// Asynchronously checks to see if the a user is banned by a broadcaster.
+            /// Asynchronously checks to see if a user is banned by a broadcaster.
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="broadcaster_id">The ID of the broadcaster.</param>
@@ -1629,7 +1629,182 @@ TwitchNet.Rest.Helix
 
             // TODO: Implement /moderation/enforcements/status
 
-            // TODO: Implement /moderation/moderators
+            #region /moderation/moderators - New Error Handling
+
+            /// <summary>
+            /// <para>Asynchronously gets specific moderators or a single page of moderators users for a given broadcaster.</para>
+            /// <para>Required Scope: <see cref="Scopes.ModerationRead"/>.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific moderators or the single page of moderators for the given broadcaster.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if both after and before cursors are provided.</exception>
+            /// <exception cref="QueryParameterValueException">
+            /// Thrown if the broadcaster ID is empty or only contains white space.
+            /// Thrown if any user ID is empty or only contains white space, if provided.
+            /// Thrown if the after or before cursor is empty or only contains white space, if provided.
+            /// </exception>
+            /// <exception cref="QueryParameterCountException">Thrown if more than 100 user ID's are provided.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ModerationRead"/> scope.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<DataPage<Moderator>>>
+            GetModeratorsPageAsync(HelixInfo info, ModeratorsParameters parameters)
+            {
+                info.required_scopes = Scopes.ModerationRead;
+
+                HelixResponse<DataPage<Moderator>> response = new HelixResponse<DataPage<Moderator>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                // Required parameters checks
+                if (!ValidateRequiredQueryString(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
+                {
+                    return response;
+                }
+
+                // Optional parameters checks
+                parameters.first = parameters.first.Clamp(1, 100);
+
+                if (!ValidateOptionalQueryString(nameof(parameters.after), parameters.after, response, info.settings) ||
+                    !ValidateOptionalQueryString(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings))
+                {
+                    return response;
+                }
+
+                RestRequest request = GetBaseRequest("moderation/moderators", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<Moderator>> _response = await client.ExecuteAsync<DataPage<Moderator>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<Moderator>>(_response);
+
+                return response;
+            }
+
+            /// <summary>
+            /// <para>Asynchronously gets specific moderators or a complete list of moderators for a given broadcaster.</para>
+            /// <para>Required Scope: <see cref="Scopes.ModerationRead"/>.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific moderators or the complete list of moderators for the given broadcaster.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if both after and before cursors are provided.</exception>
+            /// <exception cref="QueryParameterValueException">
+            /// Thrown if the broadcaster ID is empty or only contains white space.
+            /// Thrown if any user ID is empty or only contains white space, if provided.
+            /// Thrown if the after or before cursor is empty or only contains white space, if provided.
+            /// </exception>
+            /// <exception cref="QueryParameterCountException">Thrown if more than 100 user ID's are provided.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ModerationRead"/> scope.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<DataPage<Moderator>>>
+            GetModeratorsAsync(HelixInfo info, ModeratorsParameters parameters)
+            {
+                info.required_scopes = Scopes.ModerationRead;
+
+                HelixResponse<DataPage<Moderator>> response = new HelixResponse<DataPage<Moderator>>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                // Required parameters checks
+                if (!ValidateRequiredQueryString(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
+                {
+                    return response;
+                }
+
+                // Optional parameters checks
+                parameters.first = parameters.first.Clamp(1, 100);
+
+                if (!ValidateOptionalQueryString(nameof(parameters.after), parameters.after, response, info.settings) ||
+                    !ValidateOptionalQueryString(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings))
+                {
+                    return response;
+                }
+
+                RestRequest request = GetBaseRequest("moderation/moderators", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<Moderator>> _response = await client.TraceExecuteAsync<Moderator, DataPage<Moderator>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<Moderator>>(_response);
+
+                return response;
+            }
+
+            /// <summary>
+            /// Asynchronously checks to see if a user is a moderator for a given broadcaster.
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="broadcaster_id">The ID of the broadcaster.</param>
+            /// <param name="user_id">The ID of the user to check.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> is set true if the user is a moderator for the given broadcaster, otherwise false.
+            /// </returns>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID or user ID are not provided.</exception>
+            /// <exception cref="QueryParameterValueException">Thrown if the broadcaster ID or user ID are empty or only contains white space.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<bool>>
+            IsUserModeratorAsync(HelixInfo info, string broadcaster_id, string user_id)
+            {
+                HelixResponse<bool> response = new HelixResponse<bool>();
+                if (!ValidateAuthorizationParameters(info, response))
+                {
+                    return response;
+                }
+
+                // Explicity check for this out here since it's optional in the underlying wrapper.
+                if (!ValidateRequiredQueryString(nameof(user_id), user_id, response, info.settings))
+                {
+                    return response;
+                }
+
+                ModeratorsParameters parameters = new ModeratorsParameters();
+                parameters.broadcaster_id = broadcaster_id;
+                parameters.user_ids.Add(user_id);
+
+                IHelixResponse<DataPage<Moderator>> _response = await GetModeratorsPageAsync(info, parameters);
+
+                bool result = _response.exception.IsNull() ? _response.result.data.IsValid() : false;
+                response = new HelixResponse<bool>(_response, result);
+
+                return response;
+            }
+
+            #endregion
 
             #region /moderation/moderators/events - New Error Handling
 

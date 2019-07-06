@@ -192,6 +192,55 @@ TwitchNet.Rest.Helix
 
     #endregion
 
+    #region /moderation/enforcements/status
+
+    public class
+    AutoModMessageStatusParameters
+    {
+        /// <summary>
+        /// The user ID of a broadcaster.
+        /// The user ID must match the user ID in the provided Bearer token.
+        /// </summary>
+        [QueryParameter("broadcaster_id")]
+        public virtual string broadcaster_id { get; set; }
+
+        /// <summary>
+        /// A list of messages to check if they meet the AutoMod requirements, up to 100.
+        /// </summary>
+        [Body("data")]
+        public virtual List<AutoModMessage> data { get; set; }
+
+        public AutoModMessageStatusParameters()
+        {
+            data = new List<AutoModMessage>();
+        }
+    }
+
+    public class
+    AutoModMessage
+    {
+        [JsonProperty("msg_id")]
+        public string msg_id { get; set; }
+
+        [JsonProperty("msg_text")]
+        public string msg_text { get; set; }
+
+        [JsonProperty("user_id")]
+        public string user_id { get; set; }
+    }
+
+    public class
+    AutoModMessageStatus
+    {
+        [JsonProperty("msg_id")]
+        public string msg_id { get; protected set; }
+
+        [JsonProperty("is_permitted")]
+        public bool is_permitted { get; protected set; }
+    }
+
+    #endregion
+
     #region /moderation/moderators
 
     public class

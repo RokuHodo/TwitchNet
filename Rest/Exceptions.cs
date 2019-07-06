@@ -302,6 +302,11 @@ namespace TwitchNet.Rest
 
         }
 
+        public BodyParameterValueException(string name, string message) : base(name, HttpParameterType.Body, message)
+        {
+
+        }
+
         public BodyParameterValueException(string name, object value) : base(name, HttpParameterType.Body, value)
         {
 

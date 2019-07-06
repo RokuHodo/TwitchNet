@@ -623,6 +623,33 @@ TwitchNet.Rest.Helix
 
             #endregion
 
+            #region /moderation/enforcements/status
+
+            public static async Task<IHelixResponse<Data<AutoModMessageStatus>>>
+            CheckAutoModMessageStatus(string bearer_token, AutoModMessageStatusParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+
+                IHelixResponse<Data<AutoModMessageStatus>> response = await Internal.CheckAutoModMessageStatus(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<Data<AutoModMessageStatus>>>
+            CheckAutoModMessageStatus(string bearer_token, string client_id, AutoModMessageStatusParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<Data<AutoModMessageStatus>> response = await Internal.CheckAutoModMessageStatus(info, parameters);
+
+                return response;
+            }
+
+            #endregion
+
             #region /moderation/moderators
 
             public static async Task<IHelixResponse<DataPage<Moderator>>>

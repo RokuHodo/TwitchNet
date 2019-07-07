@@ -432,13 +432,6 @@ TwitchNet.Rest.Helix
         /// </summary>
         [QueryParameter("video_id")]
         public virtual string video_id { get; set; }
-
-        // NOTE: /streams/markers - StreamMarkersParameters - 'before' is not included because Twitch returns an eror that it is not supported.
-        /// <summary>
-        /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
-        /// </summary>
-        // [QueryParameter("before")]
-        // public string before { get; set; }
     }
 
     public class

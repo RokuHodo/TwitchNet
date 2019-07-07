@@ -20,7 +20,7 @@ TwitchNet.Rest.Helix
         {
             internal static readonly RestClient client = GetHelixClient();
 
-            #region /analytics/extensions           - New Error Checking
+            #region /analytics/extensions
 
             /// <summary>
             /// <para>Asynchronously gets a specific extension analytic report, or a single page of extension analytic reports.</para>
@@ -52,7 +52,7 @@ TwitchNet.Rest.Helix
                 info.required_scopes = Scopes.AnalyticsReadExtensions;
 
                 HelixResponse<DataPage<ExtensionAnalytics>> response = new HelixResponse<DataPage<ExtensionAnalytics>>();
-                if (!ValidateAuthorizatioHeaders(info, response, true))
+                if (!ValidateAuthorizatioHeaders(info, response))
                 {
                     return response;
                 }
@@ -86,7 +86,18 @@ TwitchNet.Rest.Helix
                         return response;
                     }
 
-                    parameters.started_at = parameters.started_at?.ToUniversalTime();
+                    if (parameters.started_at.HasValue)
+                    {
+                        parameters.started_at = parameters.started_at.Value.ToUniversalTime();
+                        parameters.started_at = new DateTime(parameters.started_at.Value.Year, parameters.started_at.Value.Month, parameters.started_at.Value.Day);
+                    }
+
+                    if (parameters.ended_at.HasValue)
+                    {
+                        parameters.ended_at = parameters.ended_at.Value.ToUniversalTime();
+                        parameters.ended_at = new DateTime(parameters.ended_at.Value.Year, parameters.ended_at.Value.Month, parameters.ended_at.Value.Day);
+                    }
+
                     parameters.ended_at = parameters.ended_at?.ToUniversalTime();
 
                     if (!ValidateOptionalQueryParameter(nameof(parameters.ended_at), parameters.ended_at, DateTime.UtcNow, response, info.settings) ||
@@ -136,7 +147,7 @@ TwitchNet.Rest.Helix
                 info.required_scopes = Scopes.AnalyticsReadExtensions;
 
                 HelixResponse<DataPage<ExtensionAnalytics>> response = new HelixResponse<DataPage<ExtensionAnalytics>>();
-                if (!ValidateAuthorizatioHeaders(info, response, true))
+                if (!ValidateAuthorizatioHeaders(info, response))
                 {
                     return response;
                 }
@@ -170,8 +181,17 @@ TwitchNet.Rest.Helix
                         return response;
                     }
 
-                    parameters.started_at = parameters.started_at?.ToUniversalTime();
-                    parameters.ended_at = parameters.ended_at?.ToUniversalTime();
+                    if (parameters.started_at.HasValue)
+                    {
+                        parameters.started_at = parameters.started_at.Value.ToUniversalTime();
+                        parameters.started_at = new DateTime(parameters.started_at.Value.Year, parameters.started_at.Value.Month, parameters.started_at.Value.Day);
+                    }
+
+                    if (parameters.ended_at.HasValue)
+                    {
+                        parameters.ended_at = parameters.ended_at.Value.ToUniversalTime();
+                        parameters.ended_at = new DateTime(parameters.ended_at.Value.Year, parameters.ended_at.Value.Month, parameters.ended_at.Value.Day);
+                    }
 
                     if (!ValidateOptionalQueryParameter(nameof(parameters.ended_at), parameters.ended_at, DateTime.UtcNow, response, info.settings) ||
                         !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, DateTime.UtcNow, response, info.settings) ||
@@ -192,7 +212,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /analytics/games                - New Error Checking
+            #region /analytics/games
 
             /// <summary>
             /// <para>Asynchronously gets a specific game analytic report, or a single page of game analytic reports.</para>
@@ -224,7 +244,7 @@ TwitchNet.Rest.Helix
                 info.required_scopes = Scopes.AnalyticsReadGames;
 
                 HelixResponse<DataPage<GameAnalytics>> response = new HelixResponse<DataPage<GameAnalytics>>();
-                if (!ValidateAuthorizatioHeaders(info, response, true))
+                if (!ValidateAuthorizatioHeaders(info, response))
                 {
                     return response;
                 }
@@ -258,8 +278,17 @@ TwitchNet.Rest.Helix
                         return response;
                     }
 
-                    parameters.started_at = parameters.started_at?.ToUniversalTime();
-                    parameters.ended_at = parameters.ended_at?.ToUniversalTime();
+                    if (parameters.started_at.HasValue)
+                    {
+                        parameters.started_at = parameters.started_at.Value.ToUniversalTime();
+                        parameters.started_at = new DateTime(parameters.started_at.Value.Year, parameters.started_at.Value.Month, parameters.started_at.Value.Day);
+                    }
+
+                    if (parameters.ended_at.HasValue)
+                    {
+                        parameters.ended_at = parameters.ended_at.Value.ToUniversalTime();
+                        parameters.ended_at = new DateTime(parameters.ended_at.Value.Year, parameters.ended_at.Value.Month, parameters.ended_at.Value.Day);
+                    }
 
                     if (!ValidateOptionalQueryParameter(nameof(parameters.ended_at), parameters.ended_at, DateTime.UtcNow, response, info.settings) ||
                         !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, DateTime.UtcNow, response, info.settings) ||
@@ -308,7 +337,7 @@ TwitchNet.Rest.Helix
                 info.required_scopes = Scopes.AnalyticsReadGames;
 
                 HelixResponse<DataPage<GameAnalytics>> response = new HelixResponse<DataPage<GameAnalytics>>();
-                if (!ValidateAuthorizatioHeaders(info, response, true))
+                if (!ValidateAuthorizatioHeaders(info, response))
                 {
                     return response;
                 }
@@ -342,8 +371,17 @@ TwitchNet.Rest.Helix
                         return response;
                     }
 
-                    parameters.started_at = parameters.started_at?.ToUniversalTime();
-                    parameters.ended_at = parameters.ended_at?.ToUniversalTime();
+                    if (parameters.started_at.HasValue)
+                    {
+                        parameters.started_at = parameters.started_at.Value.ToUniversalTime();
+                        parameters.started_at = new DateTime(parameters.started_at.Value.Year, parameters.started_at.Value.Month, parameters.started_at.Value.Day);
+                    }
+
+                    if (parameters.ended_at.HasValue)
+                    {
+                        parameters.ended_at = parameters.ended_at.Value.ToUniversalTime();
+                        parameters.ended_at = new DateTime(parameters.ended_at.Value.Year, parameters.ended_at.Value.Month, parameters.ended_at.Value.Day);
+                    }
 
                     if (!ValidateOptionalQueryParameter(nameof(parameters.ended_at), parameters.ended_at, DateTime.UtcNow, response, info.settings) ||
                         !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, DateTime.UtcNow, response, info.settings) ||
@@ -2163,7 +2201,7 @@ TwitchNet.Rest.Helix
                         return response;
                     }
 
-                    // NOTE: /streams - GetStreamsAsync(...) - Temporarily disabling using 'before' while requesting all pages until it works properly. Reimplement 'before' when it works propery.
+                    // TODO: /streams - GetStreamsAsync(...) - Temporarily disabling using 'before' while requesting all pages until it works properly. Reimplement 'before' when it works propery.
                     if (parameters.before.IsValid())
                     {
                         response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);

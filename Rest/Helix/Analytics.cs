@@ -19,7 +19,7 @@ TwitchNet.Rest.Helix
         /// <summary>
         /// <para>The ID of an extension.</para>
         /// <para>
-        /// If specified, the only CSV URL returned will be for that extension ID and the after cursor if provided will be ignored.
+        /// If provided, the only CSV URL returned will be for that extension ID and the after cursor will be ignored.
         /// Otherwise, CSV URL's will be returned for all extensions associated with the authenticated user.
         /// </para>
         /// </summary>
@@ -28,14 +28,13 @@ TwitchNet.Rest.Helix
 
         /// <summary>
         /// <para>
-        /// The latest date/time that a report will be returned in UTC.
-        /// The resolved hours, minutes, and seconds are zeroed out.
+        /// The latest date that a report will be returned, in UTC.
         /// The returned reports covers up through the entire day of this date.
-        /// If the date/time is not in UTC, it will be automatically converted from its current time zone.
+        /// The value is automatically converted from its current time zone and the hours, minutes, and seconds are zeroed out.
         /// </para>
         /// <para>
-        /// If specified, started_at must also be provided.
-        /// If the end date/time is later than the default end date, the default end date is used.
+        /// If provided, started_at must also be provided.
+        /// If the end date is later than the default end date, the default end date is used.
         /// </para>
         /// <para>Default: 1-2 days before the request was issued depending on the report availability.</para>
         /// </summary>
@@ -44,14 +43,12 @@ TwitchNet.Rest.Helix
 
         /// <summary>
         /// <para>
-        /// The earliest date/time that a report will be returned in UTC.
-        /// The resolved hours, minutes, and seconds are zeroed out.
-        /// If the date/time is not in UTC, it will be automatically converted from its current time zone.
+        /// The earliest date that a report will be returned, in UTC.
+        /// The value is automatically converted from its current time zone and the hours, minutes, and seconds are zeroed out.
         /// </para>
         /// <para>
-        /// If specified, ended_at should also be provided.
-        /// If the start date/time is earlier than the default start date, the default start date is used.
-        /// The default date differs depending on the report type requested.
+        /// If provided, ended_at should also be provided.
+        /// If the date is earlier than the default start date, the default start date is used which differs depending on the report type requested.
         /// </para>
         /// <para>Default: 90 days before the report was issued (OverviewV1), January 31, 2018 (OverviewV2).</para>
         /// </summary>
@@ -59,9 +56,9 @@ TwitchNet.Rest.Helix
         public virtual DateTime? started_at { get; set; }
 
         /// <summary>
-        /// <para>The type of report to be issued.</para>
+        /// <para>The type of report to request.</para>
         /// <para>
-        /// If specified, each report will only contain one CSV URL for the corresponding type.
+        /// If provided, each report will only contain one CSV URL for the corresponding type.
         /// Otherwise, a paginated report for each avialable type will be returned for each extension.
         /// </para>
         /// </summary>
@@ -80,7 +77,7 @@ TwitchNet.Rest.Helix
 
         /// <summary>
         /// The URL to the downloadable CSV file containing the analytic data.
-        /// Valid for 1 minute.
+        /// The URL is valid for 1 minute.
         /// </summary>
         [JsonProperty("URL")]
         public string url { get; protected set; }
@@ -92,7 +89,7 @@ TwitchNet.Rest.Helix
         public AnalyticsType type { get; protected set; }
 
         /// <summary>
-        /// The time period that the analytic reports cover.
+        /// The time period that the report covers.
         /// </summary>
         [JsonProperty("date_range")]
         public DateRange date_range { get; protected set; }
@@ -125,7 +122,7 @@ TwitchNet.Rest.Helix
         /// <summary>
         /// <para>The ID of an game.</para>
         /// <para>
-        /// If specified, the only CSV URL returned will be for that game ID and the after cursor if provided will be ignored.
+        /// If provided, the only CSV URL returned will be for that game ID and the after cursor will be ignored.
         /// Otherwise, CSV URL's will be returned for all games associated with the authenticated user.
         /// </para>
         /// </summary>
@@ -134,14 +131,13 @@ TwitchNet.Rest.Helix
 
         /// <summary>
         /// <para>
-        /// The latest date/time that a report will be returned in UTC.
-        /// The resolved hours, minutes, and seconds are zeroed out.
+        /// The latest date that a report will be returned, in UTC.
         /// The returned reports covers up through the entire day of this date.
-        /// If the date/time is not in UTC, it will be automatically converted from its current time zone.
+        /// The value is automatically converted from its current time zone and the hours, minutes, and seconds are zeroed out.
         /// </para>
         /// <para>
-        /// If specified, started_at must also be provided.
-        /// If the end date/time is later than the default end date, the default end date is used.
+        /// If provided, started_at must also be provided.
+        /// If the end date is later than the default end date, the default end date is used.
         /// </para>
         /// <para>Default: 1-2 days before the request was issued depending on the report availability.</para>
         /// </summary>
@@ -150,14 +146,12 @@ TwitchNet.Rest.Helix
 
         /// <summary>
         /// <para>
-        /// The earliest date/time that a report will be returned in UTC.
-        /// The resolved hours, minutes, and seconds are zeroed out.
-        /// If the date/time is not in UTC, it will be automatically converted from its current time zone.
+        /// The earliest date that a report will be returned, in UTC.
+        /// The value is automatically converted from its current time zone and the hours, minutes, and seconds are zeroed out.
         /// </para>
         /// <para>
-        /// If specified, ended_at should also be provided.
-        /// If the start date/time is earlier than the default start date, the default start date is used.
-        /// The default date differs depending on the report type requested.
+        /// If provided, ended_at should also be provided.
+        /// If the start date is earlier than the default start date, the default start date is used which differs depending on the report type requested.
         /// </para>
         /// <para>Default: 90 days before the report was issued (OverviewV1), 365 days before the report was issued (OverviewV2).</para>
         /// </summary>
@@ -165,10 +159,10 @@ TwitchNet.Rest.Helix
         public virtual DateTime? started_at { get; set; }
 
         /// <summary>
-        /// <para>The type of report to be issued.</para>
+        /// <para>The type of report to request.</para>
         /// <para>
-        /// If specified, each report will only contain one CSV URL for the corresponding type.
-        /// Otherwise, a paginated report for each avialable type will be returned for each extension.
+        /// If provided, each report will only contain one CSV URL for the corresponding type.
+        /// Otherwise, a paginated report for each avialable type will be returned for each game.
         /// </para>
         /// </summary>
         [QueryParameter("type")]
@@ -186,7 +180,7 @@ TwitchNet.Rest.Helix
 
         /// <summary>
         /// The URL to the downloadable CSV file containing the analytic data.
-        /// Valid for 1 minute.
+        /// the URL is valid for 1 minute.
         /// </summary>
         [JsonProperty("URL")]
         public string url { get; protected set; }
@@ -198,7 +192,7 @@ TwitchNet.Rest.Helix
         public AnalyticsType type { get; protected set; }
 
         /// <summary>
-        /// The time period that the analytic reports cover.
+        /// The time period that the report covers.
         /// </summary>
         [JsonProperty("date_range")]
         public DateRange date_range { get; protected set; }

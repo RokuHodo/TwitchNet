@@ -18,21 +18,13 @@ TwitchNet.Rest.Helix
     StreamsParameters : PagingParameters, IPagingParameters
     {
         /// <summary>
-        /// <para>A list of communities to query.</para>
-        /// <para>
-        /// A maximum of 100 total elements can be specified.
-        /// All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.
-        /// </para>
+        /// A list of communities to querym up to 100.
         /// </summary>
         [QueryParameter("community_id", typeof(SeparateQueryConverter))]
         public virtual List<string> community_ids { get; set; }
 
         /// <summary>
-        /// <para>A list of game ID's to query.</para>
-        /// <para>
-        /// A maximum of 100 total elements can be specified.
-        /// All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.
-        /// </para>
+        /// A list of game ID's to query, up to 100.
         /// </summary>
         [QueryParameter("game_id", typeof(SeparateQueryConverter))]
         public virtual List<string> game_ids { get; set; }
@@ -46,21 +38,13 @@ TwitchNet.Rest.Helix
         public virtual StreamLanguage? language { get; set; }
 
         /// <summary>
-        /// <para>A list of user ID's to query.</para>
-        /// <para>
-        /// A maximum of 100 total elements can be specified.
-        /// All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.
-        /// </para>
+        /// A list of user ID's to query, up to 100.
         /// </summary>
         [QueryParameter("user_id", typeof(SeparateQueryConverter))]
         public virtual List<string> user_ids { get; set; }
 
         /// <summary>
-        /// <para>A list of user login names to query.</para>
-        /// <para>
-        /// A maximum of 100 total elements can be specified.
-        /// All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.
-        /// </para>
+        /// A list of user login names to query, up to 100.
         /// </summary>
         [QueryParameter("user_login", typeof(SeparateQueryConverter))]
         public virtual List<string> user_logins { get; set; }
@@ -667,10 +651,7 @@ TwitchNet.Rest.Helix
 
         /// <summary>
         /// <para>A list of tag ID's, up to 5.</para>
-        /// <para>
-        /// Automatic tags cannot be added or removed.
-        /// All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.
-        /// </para>
+        /// <para>Automatic tags cannot be added or removed.</para>
         /// </summary>
         [Body("tag_ids")]
         public virtual List<string> tag_ids { get; set; }

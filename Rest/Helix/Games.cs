@@ -16,7 +16,6 @@ TwitchNet.Rest.Helix
         /// <para>A list of game ID's to query.</para>
         /// <para>
         /// A maximum of 100 total elements can be specified between ids and names.
-        /// All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.
         /// </para>
         /// </summary>
         [QueryParameter("id", typeof(SeparateQueryConverter))]
@@ -26,7 +25,6 @@ TwitchNet.Rest.Helix
         /// <para>A list of game names to query.</para>
         /// <para>
         /// A maximum of 100 total elements can be specified between ids and names.
-        /// All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.
         /// </para>
         /// </summary>
         [QueryParameter("name", typeof(SeparateQueryConverter))]

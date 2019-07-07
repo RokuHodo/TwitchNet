@@ -40,7 +40,6 @@ TwitchNet.Rest.Helix
         /// <summary>
         /// <para>
         /// A list of video ID's, up to 100.
-        /// All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.
         /// All other optional parameters are ignored if video ID's are provited.
         /// </para>
         /// <para>Only one or more video ID, one user ID, or one game ID can be provided with each request.</para>       

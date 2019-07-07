@@ -81,12 +81,15 @@ TwitchNet.Rest.Helix
         [QueryParameter("broadcaster_id")]
         public virtual string broadcaster_id { get; set; }
 
+        /// <summary>
+        /// A list of user ID's to check if they are subscribed to the broadcaster, up to 100.
+        /// </summary>
         [QueryParameter("user_id", typeof(SeparateQueryConverter))]
-        public virtual List<string> user_id { get; set; }
+        public virtual List<string> user_ids { get; set; }
 
         public SubscriptionRelationshipParameters()
         {
-            user_id = new List<string>();
+            user_ids = new List<string>();
         }
     }
 

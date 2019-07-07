@@ -23,8 +23,7 @@ TwitchNet.Rest.Helix
         public virtual string user_id { get; set; }
 
         /// <summary>
-        /// <para>A list of codes, up to 20.</para>
-        /// <para>All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.</para>
+        /// A list of codes, up to 20.
         /// </summary>
         [QueryParameter("code", typeof(SeparateQueryConverter))]
         public virtual List<string> codes { get; set; }
@@ -45,8 +44,7 @@ TwitchNet.Rest.Helix
         public virtual string user_id { get; set; }
 
         /// <summary>
-        /// <para>A list of codes, up to 20.</para>
-        /// <para>All elements that are null, empty, or contain only whitespace are filtered out and all duplicate elements are removed before calculating the final count.</para>
+        /// the status of the code.
         /// </summary>
         [QueryParameter("status")]
         public virtual EntitlementCodeStatus status { get; set; }

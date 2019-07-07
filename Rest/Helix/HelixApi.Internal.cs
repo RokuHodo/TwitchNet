@@ -20,7 +20,7 @@ TwitchNet.Rest.Helix
         {
             internal static readonly RestClient client = GetHelixClient();
 
-            #region /analytics/extensions
+            #region /analytics/extensions           - New Error Checking
 
             /// <summary>
             /// <para>Asynchronously gets a specific extension analytic report, or a single page of extension analytic reports.</para>
@@ -33,13 +33,15 @@ TwitchNet.Rest.Helix
             /// <see cref="IHelixResponse{result_type}.result"/> contains the specific extension analytic report, or the single page of extension analytic reports.
             /// </returns>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">
-            /// Thrown if started_at or ended at is provided without the other.
-            /// Thrown if started_at or ended_at is later than <see cref="DateTime.UtcNow"/>.
-            /// Thrown if started_at is later than ended_at.
+            /// Thrown if the extension ID is empty or contains only white space, if provided.
+            /// Thrown if the after cursor is empty or contains only white space, if provided.
+            /// Thrown if started_at or ended at are provided without the other.
+            /// Thrown if started_at or ended_at is later than <see cref="DateTime.UtcNow"/>, if provided.
+            /// Thrown if started_at is later than ended_at, if provided.
             /// </exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.AnalyticsReadExtensions"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -56,9 +58,21 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
+                // Optional parameter checks
                 if (!parameters.IsNull())
                 {
-                    parameters.after = parameters.after.NullIfInvalid();
+                    parameters.first = parameters.first.Clamp(1, 100);
+
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.extension_id), parameters.extension_id, response, info.settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                    {
+                        return response;
+                    }
+
+                    if (!parameters.extension_id.IsNull())
+                    {
+                        parameters.after = null;
+                    }
 
                     if (parameters.started_at.HasValue && !parameters.ended_at.HasValue)
                     {
@@ -68,48 +82,20 @@ TwitchNet.Rest.Helix
                     }
                     else if (!parameters.started_at.HasValue && parameters.ended_at.HasValue)
                     {
-                        response.SetInputError(new QueryParameterException("started_at must be provided if started_at is provided.", nameof(parameters.started_at)), info.settings);
+                        response.SetInputError(new QueryParameterException("started_at must be provided if ended_at is provided.", nameof(parameters.started_at)), info.settings);
 
                         return response;
                     }
-                    else if (parameters.started_at.HasValue && parameters.ended_at.HasValue)
+
+                    parameters.started_at = parameters.started_at?.ToUniversalTime();
+                    parameters.ended_at = parameters.ended_at?.ToUniversalTime();
+
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.ended_at), parameters.ended_at, DateTime.UtcNow, response, info.settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, DateTime.UtcNow, response, info.settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, parameters.ended_at, response, info.settings))
                     {
-                        parameters.started_at = parameters.started_at.Value.ToUniversalTime();
-                        parameters.ended_at = parameters.ended_at.Value.ToUniversalTime();
-
-                        if (parameters.started_at > DateTime.UtcNow)
-                        {
-                            response.SetInputError(new QueryParameterException("The started_at date cannot be greater than the current date.", nameof(parameters.started_at), parameters.started_at.Value), info.settings);
-
-                            return response;
-                        }
-
-                        if (parameters.ended_at > DateTime.UtcNow)
-                        {
-                            response.SetInputError(new QueryParameterException("The ended_at date cannot be greater than the current date.", nameof(parameters.ended_at), parameters.ended_at.Value), info.settings);
-
-                            return response;
-                        }
-
-                        if (parameters.started_at.Value > parameters.ended_at.Value)
-                        {
-                            response.SetInputError(new QueryParameterException("started_at cannot be later than the ended_at.", nameof(parameters.started_at), parameters.started_at.Value), info.settings);
-
-                            return response;
-                        }
+                        return response;
                     }
-
-                    if (parameters.extension_id.IsValid())
-                    {
-                        // Just to make sure if something was actually set
-                        parameters.after = null;
-                    }
-                    else
-                    {
-                        parameters.extension_id = null;
-                    }
-
-                    parameters.first = parameters.first.Clamp(1, 100);
                 }
 
                 RestRequest request = GetBaseRequest("analytics/extensions", Method.GET, info);
@@ -132,12 +118,15 @@ TwitchNet.Rest.Helix
             /// <see cref="IHelixResponse{result_type}.result"/> contains the specific extension analytic report, or the complete list of extension analytic reports.
             /// </returns>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">
-            /// Thrown if started_at or ended_at is later than <see cref="DateTime.UtcNow"/>.
-            /// Thrown if started_at is later than ended_at.
+            /// Thrown if the extension ID is empty or contains only white space, if provided.
+            /// Thrown if the after cursor is empty or contains only white space, if provided.
+            /// Thrown if started_at or ended at are provided without the other.
+            /// Thrown if started_at or ended_at is later than <see cref="DateTime.UtcNow"/>, if provided.
+            /// Thrown if started_at is later than ended_at, if provided.
             /// </exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.AnalyticsReadExtensions"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -154,9 +143,21 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
+                // Optional parameter checks
                 if (!parameters.IsNull())
                 {
-                    parameters.after = parameters.after.NullIfInvalid();
+                    parameters.first = parameters.first.Clamp(1, 100);
+
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.extension_id), parameters.extension_id, response, info.settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                    {
+                        return response;
+                    }
+
+                    if (!parameters.extension_id.IsNull())
+                    {
+                        parameters.after = null;
+                    }
 
                     if (parameters.started_at.HasValue && !parameters.ended_at.HasValue)
                     {
@@ -166,48 +167,20 @@ TwitchNet.Rest.Helix
                     }
                     else if (!parameters.started_at.HasValue && parameters.ended_at.HasValue)
                     {
-                        response.SetInputError(new QueryParameterException("started_at must be provided if started_at is provided.", nameof(parameters.started_at)), info.settings);
+                        response.SetInputError(new QueryParameterException("started_at must be provided if ended_at is provided.", nameof(parameters.started_at)), info.settings);
 
                         return response;
                     }
-                    else if (parameters.started_at.HasValue && parameters.ended_at.HasValue)
+
+                    parameters.started_at = parameters.started_at?.ToUniversalTime();
+                    parameters.ended_at = parameters.ended_at?.ToUniversalTime();
+
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.ended_at), parameters.ended_at, DateTime.UtcNow, response, info.settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, DateTime.UtcNow, response, info.settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, parameters.ended_at, response, info.settings))
                     {
-                        parameters.started_at = parameters.started_at.Value.ToUniversalTime();
-                        parameters.ended_at = parameters.ended_at.Value.ToUniversalTime();
-
-                        if (parameters.started_at > DateTime.UtcNow)
-                        {
-                            response.SetInputError(new QueryParameterException("The started_at date cannot be greater than the current date.", nameof(parameters.started_at), parameters.started_at.Value), info.settings);
-
-                            return response;
-                        }
-
-                        if (parameters.ended_at > DateTime.UtcNow)
-                        {
-                            response.SetInputError(new QueryParameterException("The ended_at date cannot be greater than the current date.", nameof(parameters.ended_at), parameters.ended_at.Value), info.settings);
-
-                            return response;
-                        }
-
-                        if (parameters.started_at.Value > parameters.ended_at.Value)
-                        {
-                            response.SetInputError(new QueryParameterException("started_at cannot be later than the ended_at.", nameof(parameters.started_at), parameters.started_at.Value), info.settings);
-
-                            return response;
-                        }
+                        return response;
                     }
-
-                    if (parameters.extension_id.IsValid())
-                    {
-                        // Just to make sure if something was actually set
-                        parameters.after = null;
-                    }
-                    else
-                    {
-                        parameters.extension_id = null;
-                    }
-
-                    parameters.first = parameters.first.Clamp(1, 100);
                 }
 
                 RestRequest request = GetBaseRequest("analytics/extensions", Method.GET, info);
@@ -234,8 +207,8 @@ TwitchNet.Rest.Helix
             /// <see cref="IHelixResponse{result_type}.result"/> contains the specific game analytic report, or the single page of game analytic reports.
             /// </returns>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if started_at or ended at is provided without the other.
@@ -333,8 +306,8 @@ TwitchNet.Rest.Helix
             /// <see cref="IHelixResponse{result_type}.result"/> contains the specific game analytic report, or the complete list of game analytic reports.
             /// </returns>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if started_at or ended at is provided without the other.
@@ -439,8 +412,8 @@ TwitchNet.Rest.Helix
             /// <see cref="IHelixResponse{result_type}.result"/> contains ranked list of bits leaderboard information.
             /// </returns>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">Thrown if started_at is later than <see cref="DateTime.Now"/>.</exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.BitsRead"/> scope.</exception>
@@ -488,7 +461,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /clips
+            #region /clips                          - New Error Chekcing
 
             /// <summary>
             /// <para>Asynchronously creates a clip.</para>
@@ -502,10 +475,10 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is not provided.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ClipsEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -521,6 +494,7 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
+                // Required parameter checks
                 if (parameters.IsNull())
                 {
                     response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
@@ -528,10 +502,8 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                if (!parameters.broadcaster_id.IsValid())
+                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
                 {
-                    response.SetInputError(new QueryParameterException("Parameter is required and the value cannot be null, empty, or contain only whitespace.", nameof(parameters.broadcaster_id)), info.settings);
-
                     return response;
                 }
 
@@ -556,21 +528,19 @@ TwitchNet.Rest.Helix
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">
+            /// Thrown if no clip ID's, broadcaster ID, or game ID is provided.
+            /// Thrown if any combination of clip ID's, broadcaster ID, or game ID is provided.            
+            /// Thrown if the broadcaster ID or game ID is empty or contains only white space, if Provided.
+            /// Thrown if any clip ID is empty or contains only white space or any duplicate clip ID's are found, if provided.
+            /// Thrown if the after or before cursors are empty or contain only white space, if provided.
             /// Thrown if both after and before cursors are provided.
-            /// Thrown if no clip ID's, broadcaster ID, or game ID are provided.
-            /// Thrown if any multiple combination of clip ID's, broadcaster ID, or game ID is provided.            
-            /// Thrown if the broadcaster ID is null, empty, or contains only whitespace, if Provided.
-            /// Thrown if the game ID is null, empty, or contains only whitespace, if Provided.            
-            /// Thrown if started_at or ended_at is later than the current date.
-            /// Thrown if started_at is later than ended_at.
+            /// Thrown if started_at or ended_at is later than the current date, if provided.
+            /// Thrown if started_at is later than ended_at, if provided.
             /// </exception>
-            /// <exception cref="QueryParameterCountException">
-            /// Thrown if all clip ID's are are null, empty, or contains only whitespace.
-            /// Thrown if more than 100 total clip ID's are provided.
-            /// </exception>
+            /// <exception cref="QueryParameterCountException">Thrown if more than 100 total clip ID's are provided.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -583,6 +553,7 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
+                // Required parameter checks
                 if (parameters.IsNull())
                 {
                     response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
@@ -590,92 +561,58 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                parameters.after = parameters.after.NullIfInvalid();
-                parameters.before = parameters.before.NullIfInvalid();
-                if (parameters.after.IsValid() && parameters.before.IsValid())
-                {
-                    response.SetInputError(new QueryParameterException("Only one pagination direction can be specified. Only use either 'after' or 'before'."), info.settings);
-
-                    return response;
-                }
-
-                if (parameters.ids.IsValid())
-                {
-                    // If clip ID's are provided, assume it's intentional and check for these errors up front for better error messages.
-                    parameters.ids = parameters.ids.RemoveInvalidAndDuplicateValues();
-
-                    if (parameters.ids.Count == 0)
-                    {
-                        response.SetInputError(new QueryParameterCountException("All provided clip ID's were null, empty, or contained only whitespace.", nameof(parameters.ids), 100, parameters.ids.Count), info.settings);
-
-                        return response;
-                    }
-                    else if (parameters.ids.Count > 100)
-                    {
-                        response.SetInputError(new QueryParameterCountException("A maximum of 100 total clip ID's can be provided at one time.", nameof(parameters.ids), 100, parameters.ids.Count), info.settings);
-
-                        return response;
-                    }
-
-                    parameters.after = null;
-                    parameters.before = null;
-                    parameters.first = null;
-                    parameters.ended_at = null;
-                    parameters.started_at = null;
-                }
-
-                // S E
-                // 0 0 - Don't care, both null
-                // 1 0 - Allowed
-                // 0 1 - Not allowed
-
-                // ended_at is ignored if no started_at is provided
-                if (parameters.ended_at.HasValue && !parameters.started_at.HasValue)
-                {
-                    parameters.ended_at = null;
-                }
-                else if (parameters.ended_at.HasValue && parameters.ended_at.Value > DateTime.Now)
-                {
-                    response.SetInputError(new QueryParameterException("ended_at cannot be later than the current date.", nameof(parameters.ended_at), parameters.ended_at.Value), info.settings);
-
-                    return response;
-                }
-                else if (parameters.started_at.HasValue && parameters.started_at.Value > DateTime.Now)
-                {
-                    response.SetInputError(new QueryParameterException("started_at cannot be later than the current date.", nameof(parameters.started_at), parameters.started_at.Value), info.settings);
-
-                    return response;
-                }
-                else if (parameters.started_at.HasValue && parameters.ended_at.HasValue && parameters.started_at.Value > parameters.ended_at.Value)
-                {
-                    response.SetInputError(new QueryParameterException("started_at cannot be later than ended_at.", nameof(parameters.started_at), parameters.started_at.Value), info.settings);
-
-                    return response;
-                }
-
-                parameters.broadcaster_id = parameters.broadcaster_id.NullIfInvalid();
-                parameters.game_id = parameters.game_id.NullIfInvalid();
-                if (!parameters.ids.IsValid() && !parameters.broadcaster_id.IsValid() && !parameters.game_id.IsValid())
+                if (!parameters.ids.IsValid() && parameters.broadcaster_id.IsNull() && parameters.game_id.IsNull())
                 {
                     response.SetInputError(new QueryParameterException("At least one or more clip ID, one broadcaster ID, or one game ID must be provided."), info.settings);
 
                     return response;
                 }
 
-                if ((parameters.ids.IsValid() && (parameters.broadcaster_id.IsValid() || parameters.game_id.IsValid())) ||
-                   (parameters.broadcaster_id.IsValid() && parameters.game_id.IsValid()))
+                if ((parameters.ids.IsValid() && (!parameters.broadcaster_id.IsNull() || !parameters.game_id.IsNull())) ||
+                   (!parameters.broadcaster_id.IsNull() && !parameters.game_id.IsNull()))
                 {
                     response.SetInputError(new QueryParameterException("Only one or more clip ID's, one broadcaster ID, or one game ID can be provided."), info.settings);
 
                     return response;
                 }
 
+                // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
+
+                if (!ValidateOptionalQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.game_id), parameters.game_id, response, info.settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, info.settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, info.settings) ||
+                    !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out string direction))
+                {
+                    return response;
+                }
+
+                if (parameters.ids.IsValid())
+                {
+                    parameters.after = null;
+                    parameters.before = null;
+                    parameters.first = null;
+                    parameters.ended_at = null;
+                    parameters.started_at = null;
+                }                
+
+                if (!ValidateOptionalQueryParameter(nameof(parameters.ended_at), parameters.ended_at, DateTime.Now, response, info.settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, DateTime.Now, response, info.settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, parameters.ended_at, response, info.settings))
+                {
+                    return response;
+                }
+
+                // ended_at is ignored if no started_at is provided
+                if (!parameters.started_at.HasValue)
+                {
+                    parameters.ended_at = null;
+                }
 
                 RestRequest request = GetBaseRequest("clips", Method.GET, info);
                 request.AddParameters(parameters);
-
-                string direction = parameters.before.IsValid() ? "before" : "after";
 
                 RestResponse<DataPage<Clip>> _response = await client.ExecuteAsync<DataPage<Clip>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<Clip>>(_response);
@@ -695,22 +632,23 @@ TwitchNet.Rest.Helix
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">
+            /// Thrown if no clip ID's, broadcaster ID, or game ID is provided.
+            /// Thrown if any combination of clip ID's, broadcaster ID, or game ID is provided.            
+            /// Thrown if the broadcaster ID or game ID is empty or contains only white space, if Provided.
+            /// Thrown if any clip ID is empty or contains only white space or any duplicate clip ID's are found, if provided.
+            /// Thrown if the after or before cursors are empty or contain only white space, if provided.
             /// Thrown if both after and before cursors are provided.
-            /// Thrown if no clip ID's, broadcaster ID, or game ID are provided.
-            /// Thrown if any multiple combination of clip ID's, broadcaster ID, or game ID is provided.            
-            /// Thrown if the broadcaster ID is null, empty, or contains only whitespace, if Provided.
-            /// Thrown if the game ID is null, empty, or contains only whitespace, if Provided.            
-            /// Thrown if started_at or ended_at is later than the current date.
-            /// Thrown if started_at is later than ended_at.
+            /// Thrown if started_at or ended_at is later than the current date, if provided.
+            /// Thrown if started_at is later than ended_at, if provided.
             /// </exception>
-            /// <exception cref="QueryParameterCountException">
-            /// Thrown if all clip ID's are are null, empty, or contains only whitespace.
-            /// Thrown if more than 100 total clip ID's are provided.
-            /// </exception>            
-            /// <exception cref="NotSupportedException">Thrown if before is provided.</exception>
+            /// <exception cref="QueryParameterCountException">Thrown if more than 100 total clip ID's are provided.</exception>
+            /// <exception cref="NotSupportedException">
+            /// Thrown if a before cursor is provided.
+            /// This is a temporary error and will be removed once Twitch fixes reverse pagination.
+            /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -723,6 +661,7 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
+                // Required parameter checks
                 if (parameters.IsNull())
                 {
                     response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
@@ -730,8 +669,35 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                // NOTE: /clips - GetClipsAsync(...) - Temporarily disabling using 'before' while requesting all pages until it works properly.
-                // TODO: /clips - GetClipsAsync(...) - Reimplement 'before' when it works propery.
+                if (!parameters.ids.IsValid() && parameters.broadcaster_id.IsNull() && parameters.game_id.IsNull())
+                {
+                    response.SetInputError(new QueryParameterException("At least one or more clip ID, one broadcaster ID, or one game ID must be provided."), info.settings);
+
+                    return response;
+                }
+
+                if ((parameters.ids.IsValid() && (!parameters.broadcaster_id.IsNull() || !parameters.game_id.IsNull())) ||
+                   (!parameters.broadcaster_id.IsNull() && !parameters.game_id.IsNull()))
+                {
+                    response.SetInputError(new QueryParameterException("Only one or more clip ID's, one broadcaster ID, or one game ID can be provided."), info.settings);
+
+                    return response;
+                }
+
+                // Optional parameter checks
+                parameters.first = parameters.first.Clamp(1, 100);
+
+                if (!ValidateOptionalQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.game_id), parameters.game_id, response, info.settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, info.settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, info.settings) ||
+                    !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out string direction))
+                {
+                    return response;
+                }
+
+                // TODO: /clips - GetClipsAsync(...) - Temporarily disabling using 'before' while requesting all pages until it works properly. Reimplement 'before' when it works propery.
                 if (parameters.before.IsValid())
                 {
                     response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
@@ -739,32 +705,8 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                parameters.after = parameters.after.NullIfInvalid();
-                parameters.before = parameters.before.NullIfInvalid();
-                if (parameters.after.IsValid() && parameters.before.IsValid())
-                {
-                    response.SetInputError(new QueryParameterException("Only one pagination direction can be specified. Only use either 'after' or 'before'."), info.settings);
-
-                    return response;
-                }
-
                 if (parameters.ids.IsValid())
                 {
-                    // If clip ID's are provided, assume it's intentional and check for these errors up front for better error messages.
-                    parameters.ids = parameters.ids.RemoveInvalidAndDuplicateValues();
-                    if (parameters.ids.Count == 0)
-                    {
-                        response.SetInputError(new QueryParameterCountException("All provided clip ID's were null, empty, or contained only whitespace.", nameof(parameters.ids), 100, parameters.ids.Count), info.settings);
-
-                        return response;
-                    }
-                    else if (parameters.ids.Count > 100)
-                    {
-                        response.SetInputError(new QueryParameterCountException("A maximum of 100 total clip ID's can be provided at one time.", nameof(parameters.ids), 100, parameters.ids.Count), info.settings);
-
-                        return response;
-                    }
-
                     parameters.after = null;
                     parameters.before = null;
                     parameters.first = null;
@@ -772,58 +714,21 @@ TwitchNet.Rest.Helix
                     parameters.started_at = null;
                 }
 
-                // S E
-                // 0 0 - Don't care, both null
-                // 1 0 - Allowed
-                // 0 1 - Not allowed
+                if (!ValidateOptionalQueryParameter(nameof(parameters.ended_at), parameters.ended_at, DateTime.Now, response, info.settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, DateTime.Now, response, info.settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, parameters.ended_at, response, info.settings))
+                {
+                    return response;
+                }
 
                 // ended_at is ignored if no started_at is provided
-                if (parameters.ended_at.HasValue && !parameters.started_at.HasValue)
+                if (!parameters.started_at.HasValue)
                 {
                     parameters.ended_at = null;
                 }
-                else if (parameters.ended_at.HasValue && parameters.ended_at.Value > DateTime.Now)
-                {
-                    response.SetInputError(new QueryParameterException("ended_at cannot be later than the current date.", nameof(parameters.ended_at), parameters.ended_at.Value), info.settings);
-
-                    return response;
-                }
-                else if (parameters.started_at.HasValue && parameters.started_at.Value > DateTime.Now)
-                {
-                    response.SetInputError(new QueryParameterException("started_at cannot be later than the current date.", nameof(parameters.started_at), parameters.started_at.Value), info.settings);
-
-                    return response;
-                }
-                else if (parameters.started_at.HasValue && parameters.ended_at.HasValue && parameters.started_at.Value > parameters.ended_at.Value)
-                {
-                    response.SetInputError(new QueryParameterException("started_at cannot be later than ended_at.", nameof(parameters.started_at), parameters.started_at.Value), info.settings);
-
-                    return response;
-                }
-
-                parameters.broadcaster_id = parameters.broadcaster_id.NullIfInvalid();
-                parameters.game_id = parameters.game_id.NullIfInvalid();
-                if (!parameters.ids.IsValid() && !parameters.broadcaster_id.IsValid() && !parameters.game_id.IsValid())
-                {
-                    response.SetInputError(new QueryParameterException("At least one or more clip ID, one broadcaster ID, or one game ID must be provided."), info.settings);
-
-                    return response;
-                }
-
-                if ((parameters.ids.IsValid() && (parameters.broadcaster_id.IsValid() || parameters.game_id.IsValid())) ||
-                   (parameters.broadcaster_id.IsValid() && parameters.game_id.IsValid()))
-                {
-                    response.SetInputError(new QueryParameterException("Only one or more clip ID's, one broadcaster ID, or one game ID can be provided."), info.settings);
-
-                    return response;
-                }
-
-                parameters.first = parameters.first.Clamp(1, 100);
 
                 RestRequest request = GetBaseRequest("clips", Method.GET, info);
                 request.AddParameters(parameters);
-
-                string direction = parameters.before.IsValid() ? "before" : "after";
 
                 RestResponse<DataPage<Clip>> _response = await client.TraceExecuteAsync<Clip, DataPage<Clip>>(request, direction, HandleResponse);
                 response = new HelixResponse<DataPage<Clip>>(_response);
@@ -846,13 +751,13 @@ TwitchNet.Rest.Helix
             /// <see cref="IHelixResponse{result_type}.result"/> contains the statuses of the specified codes.
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">Thrown if the App Access token or Client ID is not provided, empty or contains only whitespace.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the App Access token or Client ID is not provided, empty or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if the user ID is not provided.
             /// Thrown if any code does not match the regex: ^[a-zA-Z0-9]{5}-?[a-zA-Z0-9]{5}-?[a-zA-Z0-9]{5}$
             /// </exception>
             /// <exception cref="QueryParameterCountException">            
-            /// Thrown if all codes are are null, empty, or contains only whitespace.
+            /// Thrown if all codes are are null, empty, or contains only white space.
             /// Thrown if no codes or more than 20 codes ID's are provided.            
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -939,13 +844,13 @@ TwitchNet.Rest.Helix
             /// <see cref="IHelixResponse{result_type}.result"/> contains the statuses of the specified codes.
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">Thrown if the App Access token or Client ID is not provided, empty or contains only whitespace.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the App Access token or Client ID is not provided, empty or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if the user ID is not provided.
             /// Thrown if any code does not match the regex: ^[a-zA-Z0-9]{5}-?[a-zA-Z0-9]{5}-?[a-zA-Z0-9]{5}$
             /// </exception>
             /// <exception cref="QueryParameterCountException">            
-            /// Thrown if all codes are are null, empty, or contains only whitespace.
+            /// Thrown if all codes are are null, empty, or contains only white space.
             /// Thrown if no codes or more than 20 codes ID's are provided.            
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1036,7 +941,7 @@ TwitchNet.Rest.Helix
             /// <see cref="IHelixResponse{result_type}.result"/> contains the entitlement upload URL.
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">Thrown if the App Access token or Client ID is not provided, empty or contains only whitespace.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the App Access token or Client ID is not provided, empty or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if the manifest ID is not provided.
             /// Thrown if the manifest ID is longer than 64 characters.
@@ -1101,11 +1006,11 @@ TwitchNet.Rest.Helix
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterCountException">
             /// Thrown if no game ID's or game names are provided.
-            /// Thrown if all provided game ID's and game names are null, empty, or contains only whitespace.
+            /// Thrown if all provided game ID's and game names are null, empty, or contains only white space.
             /// Thrown if more than 100 total game ID's and/or game names are provided.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1176,7 +1081,7 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">Thrown if both after and before cursors are provided.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1226,7 +1131,7 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">Thrown if both after and before cursors are provided.</exception>
             /// <exception cref="NotSupportedException">Thrown if before is provided.</exception>
@@ -1298,8 +1203,8 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if both after and before cursors are provided.
@@ -1330,13 +1235,13 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                // Required parameters checks
+                // Required parameter checks
                 if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
                 {
                     return response;
                 }
 
-                // Optional parameters checks
+                // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
 
                 if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
@@ -1368,8 +1273,8 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if both after and before cursors are provided.
@@ -1404,13 +1309,13 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                // Required parameters checks
+                // Required parameter checks
                 if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
                 {
                     return response;
                 }
 
-                // Optional parameters checks
+                // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);                
 
                 if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
@@ -1450,8 +1355,8 @@ TwitchNet.Rest.Helix
             /// <see cref="IHelixResponse{result_type}.result"/> is set true if the user is banned by the broadcaster, otherwise false.
             /// </returns>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">Thrown if the broadcaster ID or user ID are not provided, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -1503,8 +1408,8 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if neither broadcaster ID or event ID are provided or are provided at the same time.
@@ -1536,7 +1441,7 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                // Required parameters checks
+                // Required parameter checks
                 if (parameters.broadcaster_id.IsNull() && parameters.id.IsNull())
                 {
                     response.SetInputError(new QueryParameterException("A boradcaster ID or event ID must be provided."), info.settings);
@@ -1550,7 +1455,7 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                // Optional parameters checks
+                // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
 
                 if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
@@ -1585,8 +1490,8 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if neither broadcaster ID or event ID are provided or are provided at the same time.
@@ -1618,7 +1523,7 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                // Required parameters checks
+                // Required parameter checks
                 if (parameters.broadcaster_id.IsNull() && parameters.id.IsNull())
                 {
                     response.SetInputError(new QueryParameterException("A boradcaster ID or event ID must be provided."), info.settings);
@@ -1632,7 +1537,7 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                // Optional parameters checks
+                // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
 
                 if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
@@ -1668,8 +1573,8 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is not provided, empty, or contains only white space.</exception>            
             /// <exception cref="BodyParameterException">
@@ -1702,7 +1607,7 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                // Required parameters checks
+                // Required parameter checks
                 if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
                 {
                     return response;
@@ -1855,8 +1760,8 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if the broadcaster ID is not ptovided, empty, or contains only white space.
@@ -1886,13 +1791,13 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                // Required parameters checks
+                // Required parameter checks
                 if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
                 {
                     return response;
                 }
 
-                // Optional parameters checks
+                // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
 
                 if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
@@ -1922,8 +1827,8 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if the broadcaster ID is not provided, empty, or contains only white space.
@@ -1953,13 +1858,13 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                // Required parameters checks
+                // Required parameter checks
                 if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
                 {
                     return response;
                 }
 
-                // Optional parameters checks
+                // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
 
                 if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
@@ -1988,8 +1893,8 @@ TwitchNet.Rest.Helix
             /// <see cref="IHelixResponse{result_type}.result"/> is set true if the user is a moderator for the given broadcaster, otherwise false.
             /// </returns>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">Thrown if the broadcaster ID or user ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -2041,8 +1946,8 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if neither broadcaster ID or event ID are provided or are provided at the same time.
@@ -2074,7 +1979,7 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                // Required parameters checks
+                // Required parameter checks
                 if (parameters.broadcaster_id.IsNull() && parameters.id.IsNull())
                 {
                     response.SetInputError(new QueryParameterException("A boradcaster ID or event ID must be provided."), info.settings);
@@ -2088,7 +1993,7 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                // Optional parameters checks
+                // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
 
                 if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
@@ -2123,8 +2028,8 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if neither broadcaster ID or event ID are provided or are provided at the same time.
@@ -2156,7 +2061,7 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                // Required parameters checks
+                // Required parameter checks
                 if (parameters.broadcaster_id.IsNull() && parameters.id.IsNull())
                 {
                     response.SetInputError(new QueryParameterException("A boradcaster ID or event ID must be provided."), info.settings);
@@ -2170,7 +2075,7 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                // Optional parameters checks
+                // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
 
                 if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
@@ -2205,7 +2110,7 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">Thrown if both after and before cursors are provided.</exception>
             /// <exception cref="QueryParameterCountException">
@@ -2293,7 +2198,7 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">Thrown if both after and before cursors are provided.</exception>
             /// <exception cref="QueryParameterCountException">
@@ -2398,7 +2303,7 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">Thrown if the user ID is not provided.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -2442,9 +2347,9 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="QueryParameterException">Thrown if the user login is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the user login is null, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -2494,10 +2399,10 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="QueryParameterException">Thrown if the user ID is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the user ID is null, empty, or contains only white space.</exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserEditBroadcast"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -2547,10 +2452,10 @@ TwitchNet.Rest.Helix
             /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of stream markers for the user or specified video.
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if a user ID and video ID are provided.
-            /// Thrown if the user ID and video ID are null, empty, or contains only whitespace.
+            /// Thrown if the user ID and video ID are null, empty, or contains only white space.
             /// </exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserReadBroadcast"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -2611,12 +2516,12 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if a user ID and video ID are provided.
-            /// Thrown if the user ID and video ID are null, empty, or contains only whitespace.
+            /// Thrown if the user ID and video ID are null, empty, or contains only white space.
             /// </exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserReadBroadcast"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -2680,7 +2585,7 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">Thrown if both after and before cursors are provided.</exception>
             /// <exception cref="QueryParameterCountException">
@@ -2767,7 +2672,7 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">Thrown if both after and before cursors are provided.</exception>
             /// <exception cref="QueryParameterCountException">
@@ -2875,10 +2780,10 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -2930,13 +2835,13 @@ TwitchNet.Rest.Helix
             /// <see cref="IHelixResponse{result_type}.result"/> contains the broadcaster's set stream tags.
             /// </returns>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only white space.</exception>
             /// <exception cref="BodyParameterCountException">
-            /// Thrown if all provided tag ID's are null, empty, or contains only whitespace.
+            /// Thrown if all provided tag ID's are null, empty, or contains only white space.
             /// Thrown if more than 5 total tag ID's are provided.
             /// </exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserEditBroadcast"/> scope.</exception>
@@ -3012,11 +2917,11 @@ TwitchNet.Rest.Helix
             /// <see cref="IHelixResponse{result_type}.result"/> contains the broadcaster's set stream tags.
             /// </returns>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only white space.</exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserEditBroadcast"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -3075,10 +2980,10 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only white space.</exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ChannelReadSubscriptions"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -3132,10 +3037,10 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only white space.</exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ChannelReadSubscriptions"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -3199,13 +3104,13 @@ TwitchNet.Rest.Helix
             /// </returns>        
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is null, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterCountException">
             /// Thrown if no user ID's or game names are provided.
-            /// Thrown if all provided user ID's and game names are null, empty, or contains only whitespace.
+            /// Thrown if all provided user ID's and game names are null, empty, or contains only white space.
             /// Thrown if more than 100 total user ID's and/or game names are provided.
             /// </exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ChannelReadSubscriptions"/> scope.</exception>
@@ -3279,10 +3184,10 @@ TwitchNet.Rest.Helix
             /// <see cref="IHelixResponse{result_type}.result"/> is set true if from_id is following to_id, otherwise false.
             /// </returns>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID or user ID is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the broadcaster ID or user ID is null, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -3333,8 +3238,8 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if neither broadcaster ID or event ID are provided or are provided at the same time.
@@ -3365,7 +3270,7 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                // Required parameters checks 
+                // Required parameter checks 
                 if (parameters.broadcaster_id.IsNull() && parameters.id.IsNull())
                 {
                     response.SetInputError(new QueryParameterException("A boradcaster ID or event ID must be provided."), info.settings);
@@ -3379,7 +3284,7 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                // Optional parameters checks
+                // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
 
                 if (parameters.user_id.HasContent())
@@ -3419,7 +3324,7 @@ TwitchNet.Rest.Helix
             /// <see cref="IHelixResponse{result_type}.result"/> contains the specific subscription event or the complete list of subscription events.
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if neither broadcaster ID or event ID are provided or are provided at the same time.
             /// Thrown if the broadcaster ID is empty or contains only white space, if provided.
@@ -3449,7 +3354,7 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                // Required parameters checks 
+                // Required parameter checks 
                 if (parameters.broadcaster_id.IsNull() && parameters.id.IsNull())
                 {
                     response.SetInputError(new QueryParameterException("A boradcaster ID or event ID must be provided."), info.settings);
@@ -3463,7 +3368,7 @@ TwitchNet.Rest.Helix
                     return response;
                 }
 
-                // Optional parameters checks
+                // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
 
                 if (parameters.user_id.HasContent())
@@ -3504,11 +3409,11 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterCountException">
             /// Thrown if more than 100 total atg ID's are provided.
-            /// Thrown if all tag ID's are are null, empty, or contains only whitespace, if Provided.
+            /// Thrown if all tag ID's are are null, empty, or contains only white space, if Provided.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -3570,11 +3475,11 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterCountException">
             /// Thrown if more than 100 total atg ID's are provided.
-            /// Thrown if all tag ID's are are null, empty, or contains only whitespace, if Provided.
+            /// Thrown if all tag ID's are are null, empty, or contains only white space, if Provided.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -3647,11 +3552,11 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null and no Bearer token is provided.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterCountException">
-            /// Thrown if no user ID's and user logins are provided, or all elements are null, empty, or contains only whitespace when parameters are provided.
+            /// Thrown if no user ID's and user logins are provided, or all elements are null, empty, or contains only white space when parameters are provided.
             /// Thrown if no user ID's or user logins are provided.            
             /// Thrown if more than 100 total user ID's and/or user logins are provided.
             /// </exception>
@@ -3726,8 +3631,8 @@ TwitchNet.Rest.Helix
             /// <see cref="IHelixResponse{result_type}.result"/> contains updated user information.
             /// </returns>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -3759,8 +3664,8 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -3820,10 +3725,10 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null and no Bearer token is provided.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="QueryParameterException">Thrown if the user ID is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the user ID is null, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -3883,13 +3788,13 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="BodyParameterException">
             /// Thrown if no supported extension slots are found across all extension types.
             /// Thrown if thwe parameters data is null.
-            /// Thrown if the extension ID or extension version for any active supported extension slot is null, empty, or contains only whitespace.            
+            /// Thrown if the extension ID or extension version for any active supported extension slot is null, empty, or contains only white space.            
             /// Thrown if either (x, y) coordinate for an active supported component extension slot exceeds the range (0, 0) to (8000, 5000).
             /// </exception>
             /// <exception cref="DuplicateExtensionException">Thrown if an extension ID is found in more then one active supported slot across all extension types.</exception>
@@ -3972,7 +3877,7 @@ TwitchNet.Rest.Helix
             /// <param name="settings">The request settings to determine how errors are handled.</param>
             /// <returns>Returns the supported and validated extensions.</returns>
             /// <exception cref="BodyParameterException">
-            /// Thrown if the extension ID or extension version for any active supported extension slot is null, empty, or contains only whitespace.
+            /// Thrown if the extension ID or extension version for any active supported extension slot is null, empty, or contains only white space.
             /// Thrown if either (x, y) coordinate for an active supported component extension slot exceeds the range (0, 0) to (8000, 5000).
             /// </exception>
             private static Dictionary<string, ActiveExtension>
@@ -4140,8 +4045,8 @@ TwitchNet.Rest.Helix
             /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of extensions the user has instlled, activated or deactivated..
             /// </returns>
             /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only whitespace.
-            /// Thrown if the Client ID is empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
+            /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserReadBroadcast"/> scope</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
@@ -4185,9 +4090,9 @@ TwitchNet.Rest.Helix
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="QueryParameterException">Thrown if from_id is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if from_id is null, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -4236,9 +4141,9 @@ TwitchNet.Rest.Helix
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="QueryParameterException">Thrown if from_id is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if from_id is null, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -4287,9 +4192,9 @@ TwitchNet.Rest.Helix
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="QueryParameterException">Thrown if to_id is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if to_id is null, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -4338,9 +4243,9 @@ TwitchNet.Rest.Helix
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="QueryParameterException">Thrown if to_id is null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if to_id is null, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -4386,9 +4291,9 @@ TwitchNet.Rest.Helix
             /// </returns>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="QueryParameterException">Thrown if either from_id and to_id are null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if either from_id and to_id are null, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -4433,9 +4338,9 @@ TwitchNet.Rest.Helix
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="QueryParameterException">Thrown if both from_id and to_id are null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if both from_id and to_id are null, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -4488,9 +4393,9 @@ TwitchNet.Rest.Helix
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="QueryParameterException">Thrown if both from_id and to_id are null, empty, or contains only whitespace.</exception>
+            /// <exception cref="QueryParameterException">Thrown if both from_id and to_id are null, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -4544,17 +4449,17 @@ TwitchNet.Rest.Helix
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if after and before are provided.
             /// Thrown if no video ID's, game ID, or user ID are provided.
             /// Thrown if any multiple combination of video ID's, game ID, or user ID is provided.
-            /// Thrown if the user ID is null, empty, or contains only whitespace, if Provided.
-            /// Thrown if the game ID is null, empty, or contains only whitespace, if Provided.
+            /// Thrown if the user ID is null, empty, or contains only white space, if Provided.
+            /// Thrown if the game ID is null, empty, or contains only white space, if Provided.
             /// </exception>
             /// <exception cref="QueryParameterCountException">            
-            /// Thrown if all video ID's are are null, empty, or contains only whitespace, if Provided.
+            /// Thrown if all video ID's are are null, empty, or contains only white space, if Provided.
             /// Thrown if more than 100 video ID's are provided.            
             /// </exception>
             /// <exception cref="RestParameterCountException">Thrown if more than 100 total video ID's are provided.</exception>
@@ -4652,16 +4557,16 @@ TwitchNet.Rest.Helix
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">
             /// Thrown if neither Bearer token or Client ID are not provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only whitespace, if provided.
+            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if after and before are provided.</exception>
             /// Thrown if no video ID's, game ID, or user ID are provided.
             /// Thrown if any multiple combination of video ID's, game ID, or user ID is provided.
-            /// Thrown if the user ID is null, empty, or contains only whitespace, if Provided.
-            /// Thrown if the game ID is null, empty, or contains only whitespace, if Provided.
+            /// Thrown if the user ID is null, empty, or contains only white space, if Provided.
+            /// Thrown if the game ID is null, empty, or contains only white space, if Provided.
             /// <exception cref="QueryParameterCountException">            
-            /// Thrown if all video ID's are are null, empty, or contains only whitespace, if Provided.
+            /// Thrown if all video ID's are are null, empty, or contains only white space, if Provided.
             /// Thrown if more than 100 video ID's are provided.            
             /// </exception>
             /// <exception cref="RestParameterCountException">Thrown if more than 100 total video ID's are provided.</exception>
@@ -4897,6 +4802,60 @@ TwitchNet.Rest.Helix
                 if (value.IsEmptyOrWhiteSpace())
                 {
                     response.SetInputError(new QueryParameterException("The parameter " + name.WrapQuotes() + " cannot be empty or contain only whitespace.", name, value), settings);
+
+                    return false;
+                }
+
+                return true;
+            }
+
+            private static bool
+            ValidateRequiredQueryParameter(string name, in DateTime? value, in DateTime? maximum, HelixResponse response, HelixRequestSettings settings)
+            {
+                return ValidateQueryParameter(true, name, in value, in maximum, response, settings);
+            }
+
+            private static bool
+            ValidateOptionalQueryParameter(string name, in DateTime? value, in DateTime? maximum, HelixResponse response, HelixRequestSettings settings)
+            {
+                return ValidateQueryParameter(false, name, in value, in maximum, response, settings);
+            }
+
+            private static bool
+            ValidateQueryParameter(bool required, string name, in DateTime? value, in DateTime? maximum, HelixResponse response, HelixRequestSettings settings)
+            {
+                DateTime? minimum = null;
+
+                return ValidateQueryParameter(required, name, in value, in minimum, in maximum, response, settings);
+            }
+
+            private static bool
+            ValidateQueryParameter(bool required, string name, in DateTime? value, in DateTime? minimum, in DateTime? maximum, HelixResponse response, HelixRequestSettings settings)
+            {
+                if (!value.HasValue)
+                {
+                    if (required)
+                    {
+                        response.SetInputError(new QueryParameterException("A required parameter is missing: " + name.WrapQuotes(), name), settings);
+
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+
+                if(maximum.HasValue && value.Value > maximum.Value)
+                {
+                    response.SetInputError(new QueryParameterException("The parameter " + name.WrapQuotes() + " cannot be later than " + maximum.Value.ToLongDateString(), name, value.Value), settings);
+
+                    return false;
+                }
+
+                if (minimum.HasValue && value.Value < maximum.Value)
+                {
+                    response.SetInputError(new QueryParameterException("The parameter " + name.WrapQuotes() + " cannot be earlier than " + maximum.Value.ToLongDateString(), name, value.Value), settings);
 
                     return false;
                 }

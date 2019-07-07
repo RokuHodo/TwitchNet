@@ -72,6 +72,8 @@ namespace TwitchNet.Rest
 
         public HttpParameterType parameter_type { get; protected set; }
 
+        public object parameter_value { get; protected set; }
+
         public RestParameterException() : base()
         {
 
@@ -82,101 +84,42 @@ namespace TwitchNet.Rest
             parameter_type = type;
         }
 
-        public RestParameterException(HttpParameterType type, string message) : base(message)
+        public RestParameterException(string message, HttpParameterType type) : base(message)
         {
             parameter_type = type;
         }
 
-        public RestParameterException(HttpParameterType type, string message, Exception inner_exception) : base(message, inner_exception)
+        public RestParameterException(string message, HttpParameterType type, Exception inner_exception) : base(message, inner_exception)
         {
             parameter_type = type;
         }
 
-        public RestParameterException(string name, HttpParameterType type) : base()
+        public RestParameterException(string message, string name, HttpParameterType type) : base(message)
         {
             parameter_name = name;
             parameter_type = type;
         }
 
-        public RestParameterException(string name, HttpParameterType type, string message) : base(message)
+        public RestParameterException(string message, string name, HttpParameterType type, Exception inner_exception) : base(message, inner_exception)
         {
             parameter_name = name;
             parameter_type = type;
         }
 
-        public RestParameterException(string name, HttpParameterType type, string message, Exception inner_exception) : base(message, inner_exception)
+        public RestParameterException(string message, string name, object value, HttpParameterType type) : base(message)
         {
             parameter_name = name;
             parameter_type = type;
-        }
-    }
-
-    public class
-    RestParameterValueException : RestParameterException
-    {
-        public object parameter_value { get; protected set; }
-
-        public RestParameterValueException() : base()
-        {
-
-        }
-
-        public RestParameterValueException(HttpParameterType type, string message) : base(type, message)
-        {
-
-        }
-
-        public RestParameterValueException(HttpParameterType type, object value, string message) : base(type, message)
-        {
             parameter_value = value;
         }
 
-        public RestParameterValueException(string name, HttpParameterType type, string message) : base(name, type, message)
+        public RestParameterException(string message, string name, object value, HttpParameterType type, Exception inner_exception) : base(message, inner_exception)
         {
-
-        }
-
-        public RestParameterValueException(string name, HttpParameterType type, object value) : base(name, type)
-        {
+            parameter_name = name;
+            parameter_type = type;
             parameter_value = value;
         }
-
-        public RestParameterValueException(string name, HttpParameterType type, object value, string message) : base(name, type, message)
-        {
-            parameter_value = value;
-        }
-
-        public RestParameterValueException(string name, HttpParameterType type, object value, string message, Exception inner_exception) : base(name, type, message, inner_exception)
-        {
-            parameter_value = value;
-        }
-    }
-
-    public class
-    RestParameterCountException : RestParameterException
-    {
-        public int maximum { get; protected set; }
-
-        public int count { get; protected set; }
-
-        public RestParameterCountException(HttpParameterType type, int maximum, int count, string message) : base(type, message)
-        {
-            this.maximum = maximum;
-            this.count = count;
-        }
-
-        public RestParameterCountException(string name, HttpParameterType type, int maximum, int count) : base(name, type)
-        {
-            this.maximum = maximum;
-            this.count = count;
-        }
-
-        public RestParameterCountException(string name, HttpParameterType type, int maximum, int count, string message) : base(name, type, message)
-        {
-            this.maximum = maximum;
-            this.count = count;
-        }
-    }
+    }    
 
     public class
     QueryParameterException : RestParameterException
@@ -186,51 +129,32 @@ namespace TwitchNet.Rest
 
         }
 
-        public QueryParameterException(string message) : base(HttpParameterType.Query, message)
+        public QueryParameterException(string message) : base(message, HttpParameterType.Query)
         {
 
         }
 
-        public QueryParameterException(string message, Exception inner_exception) : base(HttpParameterType.Query, message, inner_exception)
+        public QueryParameterException(string message, Exception inner_exception) : base(message, HttpParameterType.Query, inner_exception)
         {
 
         }
 
-        public QueryParameterException(string name, string message) : base(name, HttpParameterType.Query, message)
+        public QueryParameterException(string message, string name) : base(message, name, HttpParameterType.Query)
         {
 
         }
 
-        public QueryParameterException(string name, string message, Exception inner_exception) : base(name, HttpParameterType.Query, message, inner_exception)
-        {
-
-        }
-    }
-
-    public class
-    HeaderParameterException : RestParameterException
-    {
-        public HeaderParameterException() : base(HttpParameterType.Query)
+        public QueryParameterException(string message, string name, Exception inner_exception) : base(message, name, HttpParameterType.Query, inner_exception)
         {
 
         }
 
-        public HeaderParameterException(string message) : base(HttpParameterType.Header, message)
+        public QueryParameterException(string message, string name, object value) : base(message, name, value, HttpParameterType.Query)
         {
 
         }
 
-        public HeaderParameterException(string message, Exception inner_exception) : base(HttpParameterType.Header, message, inner_exception)
-        {
-
-        }
-
-        public HeaderParameterException(string name, string message) : base(name, HttpParameterType.Header, message)
-        {
-
-        }
-
-        public HeaderParameterException(string name, string message, Exception inner_exception) : base(name, HttpParameterType.Header, message, inner_exception)
+        public QueryParameterException(string message, string name, object value, Exception inner_exception) : base(message, name, value, HttpParameterType.Query, inner_exception)
         {
 
         }
@@ -244,99 +168,141 @@ namespace TwitchNet.Rest
 
         }
 
-        public BodyParameterException(string message) : base(HttpParameterType.Body, message)
+        public BodyParameterException(string message) : base(message, HttpParameterType.Body)
         {
 
         }
 
-        public BodyParameterException(string message, Exception inner_exception) : base(HttpParameterType.Body, message, inner_exception)
+        public BodyParameterException(string message, Exception inner_exception) : base(message, HttpParameterType.Body, inner_exception)
         {
 
         }
 
-        public BodyParameterException(string name, string message) : base(name, HttpParameterType.Body, message)
+        public BodyParameterException(string message, string name) : base(message, name, HttpParameterType.Body)
         {
 
         }
 
-        public BodyParameterException(string name, string message, Exception inner_exception) : base(name, HttpParameterType.Body, message, inner_exception)
-        {
-
-        }
-    }
-
-    public class
-    QueryParameterValueException : RestParameterValueException
-    {
-        public QueryParameterValueException() : base()
+        public BodyParameterException(string message, string name, Exception inner_exception) : base(message, name, HttpParameterType.Body, inner_exception)
         {
 
         }
 
-        public QueryParameterValueException(string name, string message) : base(name, HttpParameterType.Query, message)
+        public BodyParameterException(string message, string name, object value) : base(message, name, value, HttpParameterType.Body)
         {
 
         }
 
-        public QueryParameterValueException(string name, object value) : base(name, HttpParameterType.Query, value)
-        {
-
-        }
-
-        public QueryParameterValueException(string name, object value, string message) : base(name, HttpParameterType.Query, value, message)
-        {
-
-        }
-
-        public QueryParameterValueException(string name, object value, string message, Exception inner_exception) : base(name, HttpParameterType.Query, value, message, inner_exception)
+        public BodyParameterException(string message, string name, object value, Exception inner_exception) : base(message, name, value, HttpParameterType.Body, inner_exception)
         {
 
         }
     }
 
     public class
-    BodyParameterValueException : RestParameterValueException
+    HeaderParameterException : RestParameterException
     {
-        public BodyParameterValueException() : base()
+        public HeaderParameterException() : base(HttpParameterType.Header)
         {
 
         }
 
-        public BodyParameterValueException(string name, string message) : base(name, HttpParameterType.Body, message)
+        public HeaderParameterException(string message) : base(message, HttpParameterType.Header)
         {
 
         }
 
-        public BodyParameterValueException(string name, object value) : base(name, HttpParameterType.Body, value)
+        public HeaderParameterException(string message, Exception inner_exception) : base(message, HttpParameterType.Header, inner_exception)
         {
 
         }
 
-        public BodyParameterValueException(string name, object value, string message) : base(name, HttpParameterType.Body, value, message)
+        public HeaderParameterException(string message, string name) : base(message, name, HttpParameterType.Header)
         {
 
         }
 
-        public BodyParameterValueException(string name, object value, string message, Exception inner_exception) : base(name, HttpParameterType.Body, value, message, inner_exception)
+        public HeaderParameterException(string message, string name, Exception inner_exception) : base(message, name, HttpParameterType.Header, inner_exception)
         {
 
+        }
+
+        public HeaderParameterException(string message, string name, object value) : base(message, name, value, HttpParameterType.Header)
+        {
+
+        }
+
+        public HeaderParameterException(string message, string name, object value, Exception inner_exception) : base(message, name, value, HttpParameterType.Header, inner_exception)
+        {
+
+        }
+    }
+
+    public class
+    RestParameterCountException : Exception
+    {
+        public string parameter_name { get; protected set; }
+
+        public HttpParameterType parameter_type { get; protected set; }
+
+        public int maximum_count { get; protected set; }
+
+        public int count { get; protected set; }
+
+        public RestParameterCountException(string message, int maximum, int count, HttpParameterType type) : base(message)
+        {
+            maximum_count = maximum;
+            this.count = count;
+
+            parameter_type = type;
+        }
+
+        public RestParameterCountException(string message, int maximum, int count, HttpParameterType type, Exception inner_exception) : base(message, inner_exception)
+        {
+            maximum_count = maximum;
+            this.count = count;
+
+            parameter_type = type;
+        }
+
+        public RestParameterCountException(string message, string name, int maximum, int count, HttpParameterType type) : base(message)
+        {
+            maximum_count = maximum;
+            this.count = count;
+
+            parameter_name = name;
+            parameter_type = type;
+        }
+
+        public RestParameterCountException(string message, string name, int maximum, int count, HttpParameterType type, Exception inner_exception) : base(message, inner_exception)
+        {
+            maximum_count = maximum;
+            this.count = count;
+
+            parameter_name = name;
+            parameter_type = type;
         }
     }
 
     public class
     QueryParameterCountException : RestParameterCountException
     {
-        public QueryParameterCountException(int maximum, int count, string message) : base(HttpParameterType.Query, maximum, count, message)
+        public QueryParameterCountException(string message, int maximum, int count) : base(message, maximum, count, HttpParameterType.Query)
         {
 
         }
 
-        public QueryParameterCountException(string name, int maximum, int count) : base(name, HttpParameterType.Query, maximum, count)
+        public QueryParameterCountException(string message, int maximum, int count, Exception inner_exception) : base(message, maximum, count, HttpParameterType.Query, inner_exception)
         {
 
         }
 
-        public QueryParameterCountException(string name, int maximum, int count, string message) : base(name, HttpParameterType.Query, maximum, count, message)
+        public QueryParameterCountException(string message, string name, int maximum, int count) : base(message, name, maximum, count, HttpParameterType.Query)
+        {
+
+        }
+
+        public QueryParameterCountException(string message, string name, int maximum, int count, Exception inner_exception) : base(message, name, maximum, count, HttpParameterType.Query, inner_exception)
         {
 
         }
@@ -345,17 +311,22 @@ namespace TwitchNet.Rest
     public class
     BodyParameterCountException : RestParameterCountException
     {
-        public BodyParameterCountException(int maximum, int count, string message) : base(HttpParameterType.Body, maximum, count, message)
+        public BodyParameterCountException(string message, int maximum, int count) : base(message, maximum, count, HttpParameterType.Body)
         {
 
         }
 
-        public BodyParameterCountException(string name, int maximum, int count) : base(name, HttpParameterType.Body, maximum, count)
+        public BodyParameterCountException(string message, int maximum, int count, Exception inner_exception) : base(message, maximum, count, HttpParameterType.Body, inner_exception)
         {
 
         }
 
-        public BodyParameterCountException(string name, int maximum, int count, string message) : base(name, HttpParameterType.Body, maximum, count, message)
+        public BodyParameterCountException(string message, string name, int maximum, int count) : base(message, name, maximum, count, HttpParameterType.Body)
+        {
+
+        }
+
+        public BodyParameterCountException(string message, string name, int maximum, int count, Exception inner_exception) : base(message, name, maximum, count, HttpParameterType.Body, inner_exception)
         {
 
         }

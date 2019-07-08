@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 
-// project namespaces
-
 // imported .dll's
 using Newtonsoft.Json;
 
@@ -16,13 +14,13 @@ TwitchNet.Rest.Helix
     CreateClipParameters
     {
         /// <summary>
-        /// The user ID from which the clip will be made.
+        /// The user ID of the broadcaster to clip.
         /// </summary>
         [QueryParameter("broadcaster_id")]
         public virtual string broadcaster_id { get; set; }
 
         /// <summary>
-        /// Whether or not a delay is added before the clip is created.
+        /// Whether or not a delay is added before the clip is created to better accouint for stream latency.
         /// </summary>
         [QueryParameter("has_delay")]
         public virtual bool? has_delay { get; set; }
@@ -32,13 +30,13 @@ TwitchNet.Rest.Helix
     CreatedClip
     {
         /// <summary>
-        /// The ID of the clip that was created.
+        /// The ID of the created clip.
         /// </summary>
         [JsonProperty("id")]
         public string id { get; protected set; }
 
         /// <summary>
-        /// The URL of the edit page for the clip.
+        /// The URL of the page to edit clip.
         /// </summary>
         [JsonProperty("edit_url")]
         public string edit_url { get; protected set; }
@@ -47,12 +45,6 @@ TwitchNet.Rest.Helix
     public class
     ClipsParameters : PagingParameters, IPagingParameters
     {
-        /// <summary>
-        /// The cursor that tells the server where to start fetching the next set of results, in a multi-page response.
-        /// </summary>
-        [QueryParameter("before")]
-        public virtual string before { get; set; }
-
         /// <summary>
         /// <para>The user ID of a broadcaster.</para>
         /// <para>Only one or more clip ID, one broadcaster ID, or one game ID can be provided with each request.</para>
@@ -79,12 +71,12 @@ TwitchNet.Rest.Helix
 
         /// <summary>
         /// <para>
-        /// The latest date/time that a clip will be returned.
+        /// The latest date that the returned clips will cover.
         /// The resolved seconds are ignored.
         /// </para>
         /// <para>
-        /// If specified, started_at must also be provided.
-        /// If no started_at is specified, the time period is ignored.
+        /// If provided, started_at must also be provided.
+        /// If no started_at is provided, the time period is ignored.
         /// </para>
         /// </summary>
         [QueryParameter("ended_at", typeof(RFC3339QueryConverter))]
@@ -92,12 +84,12 @@ TwitchNet.Rest.Helix
 
         /// <summary>
         /// <para>
-        /// The earliest date/time that a clip will be returned.
+        /// The earliest date that the returned clips will cover.
         /// The resolved seconds are ignored.
         /// </para>
         /// <para>
-        /// If specified, ended_at should also be provided.
-        /// If no ended_at is specified, the end_at defaults to 1 week after started_at.
+        /// If provided, ended_at should also be provided.
+        /// If no ended_at is provided, ended_at defaults to 1 week after started_at.
         /// </para>
         /// </summary>
         [QueryParameter("started_at", typeof(RFC3339QueryConverter))]
@@ -113,7 +105,7 @@ TwitchNet.Rest.Helix
     Clip
     {
         /// <summary>
-        /// The ID of the clip being queried.
+        /// The ID of the clip.
         /// </summary>
         [JsonProperty("id")]
         public string id { get; protected set; }
@@ -131,13 +123,13 @@ TwitchNet.Rest.Helix
         public string embed_url { get; protected set; }
 
         /// <summary>
-        /// The user ID of the stream from which the clip was created.
+        /// The user ID of the nroadcaster who was clipped.
         /// </summary>
         [JsonProperty("broadcaster_id")]
         public string broadcaster_id { get; protected set; }
 
         /// <summary>
-        /// The display name of the stream from which the clip was created.
+        /// The display name of the broadcaster who was clipped.
         /// </summary>
         [JsonProperty("broadcaster_name")]
         public string broadcaster_name { get; protected set; }
@@ -155,20 +147,19 @@ TwitchNet.Rest.Helix
         public string creator_name { get; protected set; }
 
         /// <summary>
-        /// The ID of the video from which the clip was created.
+        /// The ID of the video that the clip was created from.
         /// </summary>
         [JsonProperty("video_id")]
         public string video_id { get; protected set; }
 
         /// <summary>
-        /// The ID of the game assigned being played when the clip was created.
+        /// The ID of the game that was being played when the clip was created.
         /// </summary>
         [JsonProperty("game_id")]
         public string game_id { get; protected set; }
 
         /// <summary>
         /// The language of the stream when clip was created.
-        /// This is the language selected at the home page, not the language found in the Twitch dashboard.
         /// </summary>
         [JsonProperty("language")]
         public StreamLanguage language { get; protected set; }

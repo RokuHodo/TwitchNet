@@ -402,7 +402,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /bits/leaderboard               - New Error Checking
+            #region /bits/leaderboard
 
             /// <summary>
             /// <para>
@@ -469,7 +469,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /clips                          - New Error Chekcing
+            #region /clips
 
             /// <summary>
             /// <para>Asynchronously creates a clip.</para>
@@ -497,7 +497,7 @@ TwitchNet.Rest.Helix
                 info.required_scopes = Scopes.ClipsEdit;
 
                 HelixResponse<Data<CreatedClip>> response = new HelixResponse<Data<CreatedClip>>();
-                if (!ValidateAuthorizatioHeaders(info, response, true))
+                if (!ValidateAuthorizatioHeaders(info, response))
                 {
                     return response;
                 }
@@ -555,7 +555,7 @@ TwitchNet.Rest.Helix
             GetClipsPageAsync(HelixInfo info, ClipsParameters parameters)
             {
                 HelixResponse<DataPage<Clip>> response = new HelixResponse<DataPage<Clip>>();
-                if (!ValidateAuthorizatioHeaders(info, response, true))
+                if (!ValidateAuthorizatioHeaders(info, response))
                 {
                     return response;
                 }
@@ -589,9 +589,7 @@ TwitchNet.Rest.Helix
                 if (!ValidateOptionalQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings) ||
                     !ValidateOptionalQueryParameter(nameof(parameters.game_id), parameters.game_id, response, info.settings) ||
                     !ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, info.settings) ||
-                    !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out string direction))
+                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
                 {
                     return response;
                 }
@@ -599,7 +597,6 @@ TwitchNet.Rest.Helix
                 if (parameters.ids.IsValid())
                 {
                     parameters.after = null;
-                    parameters.before = null;
                     parameters.first = null;
                     parameters.ended_at = null;
                     parameters.started_at = null;
@@ -651,10 +648,6 @@ TwitchNet.Rest.Helix
             /// Thrown if started_at or ended_at is later than <see cref="DateTime.Now"/>, or started_at is later than ended_at, if provided.
             /// </exception>
             /// <exception cref="QueryParameterCountException">Thrown if more than 100 total clip ID's are provided.</exception>
-            /// <exception cref="NotSupportedException">
-            /// Thrown if a before cursor is provided.
-            /// This is a temporary error and will be removed once Twitch fixes reverse pagination.
-            /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -662,7 +655,7 @@ TwitchNet.Rest.Helix
             GetClipsAsync(HelixInfo info, ClipsParameters parameters)
             {
                 HelixResponse<DataPage<Clip>> response = new HelixResponse<DataPage<Clip>>();
-                if (!ValidateAuthorizatioHeaders(info, response, true))
+                if (!ValidateAuthorizatioHeaders(info, response))
                 {
                     return response;
                 }
@@ -696,25 +689,14 @@ TwitchNet.Rest.Helix
                 if (!ValidateOptionalQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings) ||
                     !ValidateOptionalQueryParameter(nameof(parameters.game_id), parameters.game_id, response, info.settings) ||
                     !ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, info.settings) ||
-                    !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out string direction))
+                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
                 {
-                    return response;
-                }
-
-                // TODO: GetClipsAsync(...) - Temporarily disabling using 'before' while requesting all pages until it works properly. Reimplement 'before' when it works propery.
-                if (parameters.before.IsValid())
-                {
-                    response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
-
                     return response;
                 }
 
                 if (parameters.ids.IsValid())
                 {
                     parameters.after = null;
-                    parameters.before = null;
                     parameters.first = null;
                     parameters.ended_at = null;
                     parameters.started_at = null;
@@ -736,7 +718,7 @@ TwitchNet.Rest.Helix
                 RestRequest request = GetBaseRequest("clips", Method.GET, info);
                 request.AddParameters(parameters);
 
-                RestResponse<DataPage<Clip>> _response = await client.TraceExecuteAsync<Clip, DataPage<Clip>>(request, direction, HandleResponse);
+                RestResponse<DataPage<Clip>> _response = await client.TraceExecuteAsync<Clip, DataPage<Clip>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<Clip>>(_response);
 
                 return response;

@@ -726,7 +726,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /entitlements/codes             - New Error Checking
+            #region /entitlements/codes
 
             /// <summary>
             /// <para>Asynchronously gets the status of one or more entitlement codes for the authenticated user.</para>
@@ -886,7 +886,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /entitlements/upload            - New Error Checking
+            #region /entitlements/upload
 
             /// <summary>
             /// <para>Asynchronously creates a URL where you can upload a manifest file and notify users that they have an entitlement.</para>

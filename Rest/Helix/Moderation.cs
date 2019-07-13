@@ -57,10 +57,8 @@ TwitchNet.Rest.Helix
         [JsonProperty("user_name")]
         public string user_name { get; protected set; }
 
-        // NOTE: This seems like the date they were banned in some cases, since sometimes this returnes dates that are not in the future?
-
         /// <summary>
-        /// The date and time when the ban ends.
+        /// When the ban ends.
         /// Set to <see cref="DateTime.MinValue"/> if the ban is permanent.
         /// </summary>
         [JsonProperty("expires_at")]

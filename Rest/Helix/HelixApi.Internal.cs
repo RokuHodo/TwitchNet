@@ -949,7 +949,7 @@ TwitchNet.Rest.Helix
 
             // TODO: Implement /extensions/transactions
 
-            #region /games                          - New Error Checking
+            #region /games
 
             /// <summary>
             /// Asynchronously gets a list of games.
@@ -1024,7 +1024,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /games/top                      - New Error Checking
+            #region /games/top
 
             /// <summary>
             /// Asynchronously gets a single page of top games, most popular first.
@@ -1146,7 +1146,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /moderation/banned              - New Error Checking
+            #region /moderation/banned
 
             /// <summary>
             /// <para>Asynchronously gets specific banned users or a single page of banned users for a given broadcaster.</para>
@@ -1348,7 +1348,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /moderation/banned/events       - New Error Checking
+            #region /moderation/banned/events
 
             /// <summary>
             /// <para>
@@ -1516,7 +1516,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /moderation/enforcements/status - New Error Checking
+            #region /moderation/enforcements/status
 
             /// <summary>
             /// <para>Asynchronously checks to see of a chat message meets the AutoMod requirements to be posted in chat.</para>
@@ -1703,7 +1703,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /moderation/moderators          - New Error Checking
+            #region /moderation/moderators
 
             /// <summary>
             /// <para>Asynchronously gets specific moderators or a single page of moderators users for a given broadcaster.</para>
@@ -1886,7 +1886,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /moderation/moderators/events   - New Error Checking
+            #region /moderation/moderators/events
 
             /// <summary>
             /// <para>
@@ -3084,11 +3084,11 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /subscriptions/events           - New Error Checking
+            #region /subscriptions/events
 
             /// <summary>
             /// <para>
-            /// Asynchronously gets a specific subscription event or a single page of subscription events.
+            /// Asynchronously gets a specific subscription event or a single page of subscription events over the last 5 days.
             /// A subscription event occurs when a user subscribed, unsubscribes, or send a notification message in chat.
             /// </para>
             /// <para>Required Scope: <see cref="Scopes.ChannelReadSubscriptions"/>.</para>

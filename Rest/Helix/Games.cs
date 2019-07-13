@@ -54,7 +54,7 @@ TwitchNet.Rest.Helix
         public string name { get; protected set; }
 
         /// <summary>
-        /// The template URL for the game’s box art.
+        /// The URL templatefor the game’s box art.
         /// The {width} amd {height} parameters should be replaced with the desired values before navigating to the url.
         /// </summary>
         [JsonProperty("box_art_url")]

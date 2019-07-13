@@ -18,12 +18,6 @@ TwitchNet.Rest.Helix
     StreamsParameters : PagingParameters, IPagingParameters
     {
         /// <summary>
-        /// A list of communities to querym up to 100.
-        /// </summary>
-        [QueryParameter("community_id", typeof(SeparateQueryConverter))]
-        public virtual List<string> community_ids { get; set; }
-
-        /// <summary>
         /// A list of game ID's to query, up to 100.
         /// </summary>
         [QueryParameter("game_id", typeof(SeparateQueryConverter))]
@@ -57,7 +51,6 @@ TwitchNet.Rest.Helix
 
         public StreamsParameters()
         {
-            community_ids = new List<string>();
             game_ids = new List<string>();
             user_ids = new List<string>();
             user_logins = new List<string>();
@@ -90,12 +83,6 @@ TwitchNet.Rest.Helix
         /// </summary>
         [JsonProperty("game_id")]
         public string game_id { get; protected set; }
-
-        /// <summary>
-        /// The community id's the user is part of.
-        /// </summary>
-        [JsonProperty("community_ids")]
-        public List<string> community_ids { get; protected set; }
 
         /// <summary>
         /// The type of the stream, i.e., "live", "playlist", etc.

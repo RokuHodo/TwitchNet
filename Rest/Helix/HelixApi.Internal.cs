@@ -2073,7 +2073,6 @@ TwitchNet.Rest.Helix
             /// Thrown if any game ID is null, empty, or contains only white space or any duplicate game ID's are found, if provided.
             /// Thrown if any user ID is null, empty, or contains only white space or any duplicate user ID's are found, if provided.
             /// Thrown if any user login is null, empty, or contains only white space or any duplicate user logins are found, if provided.
-            /// Thrown if any community ID is null, empty, or contains only white space or any duplicate community ID's are found, if provided.
             /// Thrown if the after or before cursors are empty or contain only white space, if provided.
             /// Thrown if both after and before cursors are provided.
             /// </exception>
@@ -2081,7 +2080,6 @@ TwitchNet.Rest.Helix
             /// Thrown if more than 100 total game ID's are provided.
             /// Thrown if more than 100 total user ID's are provided.
             /// Thrown if more than 100 total user logins are provided.
-            /// Thrown if more than 100 total community ID's are provided.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -2103,7 +2101,6 @@ TwitchNet.Rest.Helix
                     if (!ValidateOptionalQueryParameter(nameof(parameters.game_ids), parameters.game_ids, 100, response, info.settings) ||
                         !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings) ||
                         !ValidateOptionalQueryParameter(nameof(parameters.user_logins), parameters.user_logins, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.community_ids), parameters.community_ids, 100, response, info.settings) || 
                         !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
                         !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, info.settings) ||
                         !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out string direction))
@@ -2139,7 +2136,6 @@ TwitchNet.Rest.Helix
             /// Thrown if any game ID is null, empty, or contains only white space or any duplicate game ID's are found, if provided.
             /// Thrown if any user ID is null, empty, or contains only white space or any duplicate user ID's are found, if provided.
             /// Thrown if any user login is null, empty, or contains only white space or any duplicate user logins are found, if provided.
-            /// Thrown if any community ID is null, empty, or contains only white space or any duplicate community ID's are found, if provided.
             /// Thrown if the after or before cursors are empty or contain only white space, if provided.
             /// Thrown if both after and before cursors are provided.
             /// </exception>
@@ -2147,7 +2143,6 @@ TwitchNet.Rest.Helix
             /// Thrown if more than 100 total game ID's are provided.
             /// Thrown if more than 100 total user ID's are provided.
             /// Thrown if more than 100 total user logins are provided.
-            /// Thrown if more than 100 total community ID's are provided.
             /// </exception>
             /// <exception cref="NotSupportedException">
             /// Thrown if a before cursor is provided.
@@ -2175,7 +2170,6 @@ TwitchNet.Rest.Helix
                     if (!ValidateOptionalQueryParameter(nameof(parameters.game_ids), parameters.game_ids, 100, response, info.settings) ||
                         !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings) ||
                         !ValidateOptionalQueryParameter(nameof(parameters.user_logins), parameters.user_logins, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.community_ids), parameters.community_ids, 100, response, info.settings) ||
                         !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
                         !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, info.settings) ||
                         !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out direction))
@@ -2526,7 +2520,6 @@ TwitchNet.Rest.Helix
             /// Thrown if any game ID is null, empty, or contains only white space or any duplicate game ID's are found, if provided.
             /// Thrown if any user ID is null, empty, or contains only white space or any duplicate user ID's are found, if provided.
             /// Thrown if any user login is null, empty, or contains only white space or any duplicate user logins are found, if provided.
-            /// Thrown if any community ID is null, empty, or contains only white space or any duplicate community ID's are found, if provided.
             /// Thrown if the after or before cursors are empty or contain only white space, if provided.
             /// Thrown if both after and before cursors are provided.
             /// </exception>
@@ -2534,7 +2527,6 @@ TwitchNet.Rest.Helix
             /// Thrown if more than 100 total game ID's are provided.
             /// Thrown if more than 100 total user ID's are provided.
             /// Thrown if more than 100 total user logins are provided.
-            /// Thrown if more than 100 total community ID's are provided.
             /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
@@ -2556,7 +2548,6 @@ TwitchNet.Rest.Helix
                     if (!ValidateOptionalQueryParameter(nameof(parameters.game_ids), parameters.game_ids, 100, response, info.settings) ||
                         !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings) ||
                         !ValidateOptionalQueryParameter(nameof(parameters.user_logins), parameters.user_logins, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.community_ids), parameters.community_ids, 100, response, info.settings) ||
                         !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
                         !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, info.settings) ||
                         !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out string direction))
@@ -2591,7 +2582,6 @@ TwitchNet.Rest.Helix
             /// Thrown if any game ID is null, empty, or contains only white space or any duplicate game ID's are found, if provided.
             /// Thrown if any user ID is null, empty, or contains only white space or any duplicate user ID's are found, if provided.
             /// Thrown if any user login is null, empty, or contains only white space or any duplicate user logins are found, if provided.
-            /// Thrown if any community ID is null, empty, or contains only white space or any duplicate community ID's are found, if provided.
             /// Thrown if the after or before cursors are empty or contain only white space, if provided.
             /// Thrown if both after and before cursors are provided.
             /// </exception>
@@ -2599,7 +2589,6 @@ TwitchNet.Rest.Helix
             /// Thrown if more than 100 total game ID's are provided.
             /// Thrown if more than 100 total user ID's are provided.
             /// Thrown if more than 100 total user logins are provided.
-            /// Thrown if more than 100 total community ID's are provided.
             /// </exception>
             /// <exception cref="NotSupportedException">
             /// Thrown if a before cursor is provided.
@@ -2627,7 +2616,6 @@ TwitchNet.Rest.Helix
                     if (!ValidateOptionalQueryParameter(nameof(parameters.game_ids), parameters.game_ids, 100, response, info.settings) ||
                         !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings) ||
                         !ValidateOptionalQueryParameter(nameof(parameters.user_logins), parameters.user_logins, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.community_ids), parameters.community_ids, 100, response, info.settings) ||
                         !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
                         !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, info.settings) ||
                         !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out direction))

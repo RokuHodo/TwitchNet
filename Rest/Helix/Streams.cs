@@ -25,7 +25,6 @@ TwitchNet.Rest.Helix
 
         /// <summary>
         /// The language of the stream.
-        /// This is the language selected at the home page, not the language found in the Twitch dashboard.
         /// Bitfield enum.
         /// </summary>
         [QueryParameter("language", typeof(SeparateQueryConverter))]

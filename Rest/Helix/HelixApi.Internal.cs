@@ -2054,7 +2054,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /streams                        - New Error Checking
+            #region /streams
 
             /// <summary>
             /// Asynchronously gets a single page of streams.
@@ -2501,7 +2501,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /streams/metadata               - New Error Checking
+            #region /streams/metadata
 
             /// <summary>
             /// Asynchronously gets a single page of streams metadata.

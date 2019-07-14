@@ -2643,7 +2643,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /streams/tags                   - New Error Checking
+            #region /streams/tags
 
             /// <summary>
             /// Asynchronously gets the stream tags a broadcaster has set.
@@ -2824,7 +2824,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /subscriptions                  - New Error Checking
+            #region /subscriptions
 
             /// <summary>
             /// <para>Asynchronously gets a single page of a broadcaster's subscribers list.</para>

@@ -2282,7 +2282,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /streams/markers                - New Error Checking  
+            #region /streams/markers
 
             /// <summary>
             /// <para>
@@ -2335,7 +2335,7 @@ TwitchNet.Rest.Helix
                 }
 
                 // Optional parameter checks
-                if (!ValidateRequiredBodyParameter(nameof(parameters.description), parameters.description, response, info.settings))
+                if (!ValidateOptionalBodyParameter(nameof(parameters.description), parameters.description, response, info.settings))
                 {
                     return response;
                 }

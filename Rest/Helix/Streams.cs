@@ -362,7 +362,7 @@ TwitchNet.Rest.Helix
     CreateStreamMarkerParameters
     {
         /// <summary>
-        /// The ID of the user who is stremaing.
+        /// The ID of the user who is streaming.
         /// </summary>
         [JsonProperty("user_id")]
         public virtual string user_id { get; set; }

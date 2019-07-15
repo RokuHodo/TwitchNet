@@ -13,7 +13,8 @@ TwitchNet.Rest.Helix
     StreamTagsParameters : PagingParameters, IPagingParameters
     {
         /// <summary>
-        /// A list of tag ID's, up to 100. All other parameters are ignored if tag ID's are provited.
+        /// A list of stream tag ID's, up to 100.
+        /// All other parameters are ignored if tag ID's are provited.
         /// </summary>
         [QueryParameter("tag_id", typeof(SeparateQueryConverter))]
         public virtual List<string> tag_ids { get; set; }
@@ -28,27 +29,27 @@ TwitchNet.Rest.Helix
     StreamTag
     {
         /// <summary>
-        /// The tag ID.
+        /// The stream tag ID.
         /// </summary>
         [JsonProperty("tag_id")]
         public string tag_id { get; protected set; }
 
         /// <summary>
-        /// Whether or not this is a tag automatically added by Twitch.
-        /// If set to true, this tag cannot be manually added or removed.
+        /// Whether or not this is a stream tag automatically added by Twitch.
+        /// If set to true, this stream tag cannot be manually added or removed.
         /// </summary>
         [JsonProperty("is_auto")]
         public bool is_auto { get; protected set; }
 
         // TODO: /tags/streams - Generate a list of each language and swap out the string key for an enum.
         /// <summary>
-        /// Localized tag names.
+        /// Localized stream tag names.
         /// </summary>
         [JsonProperty("localization_names")]
         public Dictionary<string, string> localization_names { get; protected set; }
 
         /// <summary>
-        /// Localized tag descriptions.
+        /// Localized stream tag descriptions.
         /// </summary>
         [JsonProperty("localization_descriptions")]
         public Dictionary<string, string> localization_descriptions { get; protected set; }

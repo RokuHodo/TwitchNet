@@ -3247,7 +3247,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /tags/streams                   - New Error Checking
+            #region /tags/streams
 
             /// <summary>
             /// Asynchronously gets specific stream tags, or a single page of stream tags.
@@ -3371,7 +3371,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /users                          - New Error Checking
+            #region /users
 
             /// <summary>
             /// <para>Asynchronously gets a list of users.</para>
@@ -3439,8 +3439,8 @@ TwitchNet.Rest.Helix
 
                     // This will perform count checks again, but they will never be triggered if we get this far.
                     // This is really for checking for duplicates and no content indicies.
-                    if (!ValidateOptionalBodyParameter(nameof(parameters.ids), parameters.ids, 100, response, info.settings) ||
-                        !ValidateOptionalBodyParameter(nameof(parameters.logins), parameters.logins, 100, response, info.settings))
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, info.settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.logins), parameters.logins, 100, response, info.settings))
                     {
                         return response;
                     }
@@ -3545,7 +3545,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /users/extensions               - New Error Checking
+            #region /users/extensions
 
             /// <summary>
             /// <para>

@@ -223,7 +223,7 @@ TwitchNet.Rest.Helix
         public string user_id { get; protected set; }
 
         /// <summary>
-        /// The user display name.
+        /// The display name of the user who triggered the event.
         /// </summary>
         [JsonProperty("user_name")]
         public string user_name { get; protected set; }

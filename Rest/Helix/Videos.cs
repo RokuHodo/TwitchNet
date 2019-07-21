@@ -94,7 +94,7 @@ TwitchNet.Rest.Helix
         public string user_id { get; protected set; }
 
         /// <summary>
-        /// The login name of the user who owns the video.
+        /// The display name of the user who owns the video.
         /// </summary>
         [JsonProperty("user_name")]
         public string user_name { get; protected set; }

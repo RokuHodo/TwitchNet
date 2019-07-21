@@ -52,7 +52,7 @@ TwitchNet.Rest.Helix
         public string user_id { get; protected set; }
 
         /// <summary>
-        /// The user display name.
+        /// The display name of the banned user.
         /// </summary>
         [JsonProperty("user_name")]
         public string user_name { get; protected set; }
@@ -175,7 +175,7 @@ TwitchNet.Rest.Helix
         public string user_id { get; protected set; }
 
         /// <summary>
-        /// The user display name.
+        /// The display name of the user who was banned or unbanned.
         /// </summary>
         [JsonProperty("user_name")]
         public string user_name { get; protected set; }
@@ -267,13 +267,13 @@ TwitchNet.Rest.Helix
     Moderator
     {
         /// <summary>
-        /// The ID of the banned user.
+        /// The user ID of the moderator.
         /// </summary>
         [JsonProperty("user_id")]
         public string user_id { get; protected set; }
 
         /// <summary>
-        /// The user display name.
+        /// The display name of the moderator.
         /// </summary>
         [JsonProperty("user_name")]
         public string user_name { get; protected set; }
@@ -389,7 +389,7 @@ TwitchNet.Rest.Helix
         public string user_id { get; protected set; }
 
         /// <summary>
-        /// The user display name.
+        /// The display name of the user who gained or lost moderator (OP) status.
         /// </summary>
         [JsonProperty("user_name")]
         public string user_name { get; protected set; }

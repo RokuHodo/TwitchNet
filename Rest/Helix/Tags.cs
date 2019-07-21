@@ -41,7 +41,7 @@ TwitchNet.Rest.Helix
         [JsonProperty("is_auto")]
         public bool is_auto { get; protected set; }
 
-        // TODO: /tags/streams - Generate a list of each language and swap out the string key for an enum.
+        // TODO: StreamTag - Generate a list of each language and swap out the string key for an enum.
         /// <summary>
         /// Localized stream tag names.
         /// </summary>

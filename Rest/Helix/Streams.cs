@@ -72,7 +72,7 @@ TwitchNet.Rest.Helix
         public string user_id { get; protected set; }
 
         /// <summary>
-        /// The name of the user who is streaming.
+        /// The display name of the user who is streaming.
         /// </summary>
         [JsonProperty("user_name")]
         public string user_name { get; protected set; }
@@ -430,11 +430,14 @@ TwitchNet.Rest.Helix
         public string user_id { get; protected set; }
 
         /// <summary>
-        /// The display of the user who is streaming/owns the video.
+        /// The display name of the user who is streaming/owns the video.
         /// </summary>
         [JsonProperty("user_name")]
         public string user_name { get; protected set; }
 
+        /// <summary>
+        /// The user's list of videos with stream markers.
+        /// </summary>
         [JsonProperty("videos")]
         public List<MarkedVideos> videos { get; protected set; }
     }
@@ -449,6 +452,9 @@ TwitchNet.Rest.Helix
         public string video_id { get; protected set; }
 
 
+        /// <summary>
+        /// A list of stream markers.
+        /// </summary>
         [JsonProperty("markers")]
         public List<StreamMarker> markers { get; protected set; }
     }
@@ -501,7 +507,7 @@ TwitchNet.Rest.Helix
         public string user_id { get; protected set; }
 
         /// <summary>
-        /// The login of the user who is streaming.
+        /// The display name of the user who is streaming.
         /// </summary>
         [JsonProperty("user_name")]
         public string user_name { get; protected set; }

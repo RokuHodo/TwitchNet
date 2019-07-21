@@ -3870,7 +3870,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /users/extensions/list          - New Error Checking
+            #region /users/extensions/list
 
             /// <summary>
             /// <para>
@@ -3913,7 +3913,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /users/follows                  - New Error Checking
+            #region /users/follows
 
             /// <summary>
             /// Asynchronously gets a single page of a user's following list.
@@ -4309,7 +4309,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /videos                         - New Error Checking
+            #region /videos
 
             /// <summary>
             /// Asynchronously gets specific videos, or a single page of videos.

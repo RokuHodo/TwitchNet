@@ -119,7 +119,7 @@ TwitchNet.Rest.Helix
         public string user_id { get; protected set; }
 
         /// <summary>
-        /// The display name of the user.
+        /// The display name of the user who cheered.
         /// </summary>
         [JsonProperty("user_name")]
         public string user_name { get; protected set; }

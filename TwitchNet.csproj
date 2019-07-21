@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TwitchNet</RootNamespace>
     <AssemblyName>TwitchNet</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,21 +30,16 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="RestSharp, Version=106.1.0.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
-      <HintPath>..\packages\RestSharp.106.1.0\lib\net452\RestSharp.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
-    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -53,185 +49,166 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Api\TwitchApi.Sync.cs" />
-    <Compile Include="Api\TwitchApi.Async.cs" />
-    <Compile Include="Api\TwitchApiBearer.Sync.cs" />
-    <Compile Include="Api\TwitchApiBearer.Async.cs" />
+    <Compile Include="Debugger\Check.cs" />
+    <Compile Include="Debugger\DebugLevel.cs" />
+    <Compile Include="Debugger\ErrorLevel.cs" />
+    <Compile Include="Debugger\TimeStamp.cs" />
+    <Compile Include="Extensions\CollectionExtensions.cs" />
+    <Compile Include="Helpers\Json\EnumConverter.cs" />
+    <Compile Include="Helpers\Json\ISerializer.cs" />
+    <Compile Include="Helpers\Json\IDeserializer.cs" />
+    <Compile Include="Helpers\Json\JsonSerializer.cs" />
+    <Compile Include="Rest\Helix\Analytics.cs" />
+    <Compile Include="Rest\Helix\Bits.cs" />
+    <Compile Include="Rest\Helix\Clips.cs" />
+    <Compile Include="Rest\Helix\Entitlements.cs" />
+    <Compile Include="Rest\Helix\Games.cs" />
+    <Compile Include="Rest\Helix\HelixHelpers.cs" />
+    <Compile Include="Rest\Helix\Streams.cs" />
+    <Compile Include="Rest\Helix\Moderation.cs" />
+    <Compile Include="Rest\Helix\Subscriptions.cs" />
+    <Compile Include="Rest\Helix\Tags.cs" />
+    <Compile Include="Rest\Helix\HelixApi.cs" />
+    <Compile Include="Rest\Helix\HelixApi.OAuth.cs" />
     <Compile Include="Clients\Irc\IrcClient.Handlers.cs" />
     <Compile Include="Clients\Irc\IrcClient.cs" />
-    <Compile Include="Clients\Irc\TwitchIrcClient.Handlers.cs" />
-    <Compile Include="Clients\Irc\TwitchIrcClient.cs" />
-    <Compile Include="Debug\Error.cs" />
-    <Compile Include="Debug\Log.cs" />
-    <Compile Include="Enums\Api\Entitlements\EntitlementType.cs" />
-    <Compile Include="Enums\Clients\ClientState.cs" />
-    <Compile Include="Enums\Clients\Irc\Twitch\CommercialLength.cs" />
-    <Compile Include="Enums\Clients\Irc\Twitch\ChatCommand.cs" />
-    <Compile Include="Enums\Clients\Irc\Twitch\RitualType.cs" />
-    <Compile Include="Enums\Clients\Irc\Twitch\DisplayNameColor.cs" />
-    <Compile Include="Enums\Clients\Irc\Twitch\SubscriptionPlan.cs" />
-    <Compile Include="Enums\Clients\Irc\Twitch\HostTargetType.cs" />
-    <Compile Include="Enums\Clients\Irc\Twitch\NoticeType.cs" />
-    <Compile Include="Enums\Clients\Irc\Twitch\FollowersDurationPeriod.cs" />
-    <Compile Include="Enums\Clients\Irc\Twitch\UserNoticeType.cs" />
-    <Compile Include="Enums\Clients\Irc\Twitch\RoomStateType.cs" />
-    <Compile Include="Enums\Clients\Irc\Twitch\BadgeType.cs" />
-    <Compile Include="Enums\InputHandling.cs" />
-    <Compile Include="Enums\ErrorHandling.cs" />
-    <Compile Include="Enums\Api\StatusHandling.cs" />
-    <Compile Include="Enums\Api\Videos\BroadcasterLanguage.cs" />
-    <Compile Include="Enums\Api\Streams\StreamLanguage.cs" />
-    <Compile Include="Enums\Api\Streams\StreamType.cs" />
-    <Compile Include="Enums\Api\Users\BroadcasterType.cs" />
-    <Compile Include="Enums\UserType.cs" />
-    <Compile Include="Enums\Debug\LogLevel.cs" />
-    <Compile Include="Enums\Debug\TimeStamp.cs" />
-    <Compile Include="Enums\Api\Videos\VideoType.cs" />
-    <Compile Include="Enums\Api\Videos\VideoSort.cs" />
-    <Compile Include="Enums\Api\Videos\VideoPeriod.cs" />
-    <Compile Include="Events\Clients\Irc\ChannelOperatorEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\DataEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\ChatRoomBadUnmodModEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\BadUnmodModEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\ChatRoomBadModModEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\BadModModEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\ChatRoomRoomModsEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\RoomModsEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\ChatRoomInvalidUserEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\InvalidUserEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\ChatRoomCmdsAvailableEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\CmdsAvailableEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\ChatRoomUnbanSuccessEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\UnbanSuccessEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\ChatRoomBadUnbanNoBanEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\BadUnbanNoBanEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\UnsupportedChatRoomCmdEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\HostsRemainingEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\BadHostRateExceededEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\BadHostHostingEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\ChatRoomAlreadyBannedEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\ChatRoomPartEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\ChatRoomJoinEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\ChatRoomNamReplyEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\ChatRoonEndOfNamesEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\ChatRoomNoticeEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\ChatRoomClearChatEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\NoticeEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\HostTargetEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\GiftedSubscriberEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\ChatRoomPrivmsgEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\ChatRoomUserStateEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\ChatRoomRoomStateEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\AlreadyBannedEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\WhisperEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\UserStateEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\RitualEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\RaidEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\SubscriberEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\UserNoticeEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\RoomStateEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\GlobalUserStateEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\ClearChatEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\Twitch\StreamChatPrivmsgEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\UserModeEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\EndOfNamesEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\ChannelModeEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\PrivmsgEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\PartEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\JoinEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\MotdEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\UnknownCommandEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\NumericReplyEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\NamReplyEventArgs.cs" />
-    <Compile Include="Events\Clients\Irc\IrcMessageEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\TwitchIrcClient.Handlers.cs" />
+    <Compile Include="Clients\Irc\Twitch\TwitchIrcClient.cs" />
+    <Compile Include="Debugger\Benchmark.cs" />
+    <Compile Include="Debugger\Debug.Writing.cs" />
+    <Compile Include="Debugger\Debug.Validation.cs" />
+    <Compile Include="Debugger\ValidateObjectAttribute.cs" />
+    <Compile Include="Debugger\ValidateMemberAttribute.cs" />
+    <Compile Include="Rest\Attributes.cs" />
+    <Compile Include="Rest\Converters.cs" />
+    <Compile Include="Rest\Scopes.cs" />
+    <Compile Include="Rest\OAuth\Token\AppAccessTokenParameters.cs" />
+    <Compile Include="Rest\OAuth\Token\AppAccessTokenData.cs" />
+    <Compile Include="Rest\OAuth\GrantType.cs" />
+    <Compile Include="Rest\OAuth\OAuth2Info.cs" />
+    <Compile Include="Rest\RequestSettings.cs" />
+    <Compile Include="Rest\RestClient.cs" />
+    <Compile Include="Rest\RestRequest.cs" />
+    <Compile Include="Rest\RestResponse.cs" />
+    <Compile Include="Rest\Exceptions.cs" />
+    <Compile Include="Rest\OAuth\Token\RefreshTokenParameters.cs" />
+    <Compile Include="Clients\ClientState.cs" />
+    <Compile Include="Clients\Irc\Twitch\CommercialLength.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatCommand.cs" />
+    <Compile Include="Clients\Irc\Twitch\RitualType.cs" />
+    <Compile Include="Clients\Irc\Twitch\DisplayNameColor.cs" />
+    <Compile Include="SubscriptionTier.cs" />
+    <Compile Include="Clients\Irc\Twitch\HostTargetType.cs" />
+    <Compile Include="Clients\Irc\Twitch\NoticeType.cs" />
+    <Compile Include="Clients\Irc\Twitch\FollowersDurationPeriod.cs" />
+    <Compile Include="Clients\Irc\Twitch\UserNoticeType.cs" />
+    <Compile Include="Clients\Irc\Twitch\RoomStateType.cs" />
+    <Compile Include="Clients\Irc\Twitch\BadgeType.cs" />
+    <Compile Include="BroadcasterLanguage.cs" />
+    <Compile Include="Clients\Irc\ChannelOperatorEventArgs.cs" />
+    <Compile Include="Clients\Irc\DataEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomBadUnmodModEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\BadUnmodModEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomBadModModEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\BadModModEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomRoomModsEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\RoomModsEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomInvalidUserEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\InvalidUserEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomCmdsAvailableEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\CmdsAvailableEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomUnbanSuccessEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\UnbanSuccessEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomBadUnbanNoBanEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\BadUnbanNoBanEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\UnsupportedChatRoomCmdEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\HostsRemainingEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\BadHostRateExceededEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\BadHostHostingEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomAlreadyBannedEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomPartEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomJoinEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomNamReplyEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoonEndOfNamesEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomNoticeEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomClearChatEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\NoticeEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\HostTargetEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\GiftedSubscriberEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomPrivmsgEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomUserStateEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomRoomStateEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\AlreadyBannedEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\WhisperEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\UserStateEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\RitualEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\RaidEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\SubscriberEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\UserNoticeEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\RoomStateEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\GlobalUserStateEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\ClearChatEventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\StreamChatPrivmsgEventArgs.cs" />
+    <Compile Include="Clients\Irc\UserModeEventArgs.cs" />
+    <Compile Include="Clients\Irc\EndOfNamesEventArgs.cs" />
+    <Compile Include="Clients\Irc\ChannelModeEventArgs.cs" />
+    <Compile Include="Clients\Irc\PrivmsgEventArgs.cs" />
+    <Compile Include="Clients\Irc\PartEventArgs.cs" />
+    <Compile Include="Clients\Irc\JoinEventArgs.cs" />
+    <Compile Include="Clients\Irc\MotdEventArgs.cs" />
+    <Compile Include="Clients\Irc\UnknownCommandEventArgs.cs" />
+    <Compile Include="Clients\Irc\NumericReplyEventArgs.cs" />
+    <Compile Include="Clients\Irc\NamReplyEventArgs.cs" />
+    <Compile Include="Clients\Irc\IrcMessageEventArgs.cs" />
     <Compile Include="Extensions\EventExtensions.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\MathExtensions .cs" />
-    <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\ReflectionExtensions.cs" />
     <Compile Include="Extensions\ValidationExtensions.cs" />
     <Compile Include="Helpers\Json\JsonDeserializer.cs" />
-    <Compile Include="Helpers\Json\TimeSpanConverter.cs" />
-    <Compile Include="Interfaces\Api\IDataPage.cs" />
-    <Compile Include="Interfaces\Api\IData.cs" />
-    <Compile Include="Interfaces\Clients\Irc\ITags.cs" />
-    <Compile Include="Interfaces\Clients\Irc\Twitch\ISharedRoomStateTags.cs" />
-    <Compile Include="Interfaces\Clients\Irc\Twitch\ISharedUserStateTags.cs" />
-    <Compile Include="Interfaces\Clients\Irc\Twitch\ISharedPrivmsgTags.cs" />
-    <Compile Include="Models\Api\ApiResponseBundle.cs" />
-    <Compile Include="Models\Api\Clips\ClipCreationQueryParameters.cs" />
-    <Compile Include="Models\Api\Clips\CreatedClip.cs" />
-    <Compile Include="Models\Api\Clips\Clip.cs" />
-    <Compile Include="Models\Api\Clips\ClipQueryParameters.cs" />
-    <Compile Include="Models\Api\Entitlements\Url.cs" />
-    <Compile Include="Models\Api\DataPage.cs" />
-    <Compile Include="Models\Api\Data.cs" />
-    <Compile Include="Models\Api\Games\TopGamesQueryParameters.cs" />
-    <Compile Include="Models\Api\Headers.cs" />
-    <Compile Include="Models\Api\StatusHandlingSettings.cs" />
-    <Compile Include="Models\Api\Streams\Hearthstone.cs" />
-    <Compile Include="Models\Api\Streams\HearthstoneHero.cs" />
-    <Compile Include="Models\Api\Streams\Player.cs" />
-    <Compile Include="Models\Api\Streams\OverwatchHero.cs" />
-    <Compile Include="Models\Api\Streams\Overwatch.cs" />
-    <Compile Include="Models\Api\Streams\Metadata.cs" />
-    <Compile Include="Models\Api\Games\Game.cs" />
-    <Compile Include="Models\Api\Users\FollowsDataPage.cs" />
-    <Compile Include="Models\Api\Users\FollowsData.cs" />
-    <Compile Include="Models\Api\Videos\Video.cs" />
-    <Compile Include="Models\Api\Entitlements\EntitlementQueryParameters.cs" />
-    <Compile Include="Helpers\ClampedNumber.cs" />
-    <Compile Include="Models\Api\Games\GamesQueryParameters.cs" />
-    <Compile Include="Models\Api\QueryParametersPage.cs" />
-    <Compile Include="Models\Api\QueryParameter.cs" />
-    <Compile Include="Helpers\ClampedList.cs" />
-    <Compile Include="Models\Api\QueryParameterAttribute.cs" />
-    <Compile Include="Models\Api\Streams\StreamsQueryParameters.cs" />
-    <Compile Include="Models\Api\Users\FollowsQueryParameters.cs" />
-    <Compile Include="Interfaces\Api\IApiResponse.cs" />
-    <Compile Include="Interfaces\Api\IQueryParametersPage.cs" />
-    <Compile Include="Models\Api\Pagination.cs" />
-    <Compile Include="Models\Api\ApiError.cs" />
-    <Compile Include="Models\Api\ApiResponse.cs" />
-    <Compile Include="Models\Api\Streams\Stream.cs" />
-    <Compile Include="Models\Api\Users\Follow.cs" />
-    <Compile Include="Models\Api\Users\User.cs" />
-    <Compile Include="Models\Api\RateLimit.cs" />
-    <Compile Include="Models\Api\ApiRequestSettings.cs" />
-    <Compile Include="Models\Api\Users\UsersQueryParameters.cs" />
-    <Compile Include="Models\Api\Videos\VideosQueryParameters.cs" />
-    <Compile Include="Models\Clients\Irc\IrcMessage.cs" />
-    <Compile Include="Models\Clients\Irc\IrcUser.cs" />
-    <Compile Include="Models\Clients\Irc\Twitch\GiftedSubscriberTags.cs" />
-    <Compile Include="Models\Clients\Irc\Twitch\ChatRoomPrivmsgTags.cs" />
-    <Compile Include="Models\Clients\Irc\Twitch\ChatRoomUserStateTags.cs" />
-    <Compile Include="Models\Clients\Irc\Twitch\ChatRoomRoomStateTags.cs" />
-    <Compile Include="Models\Clients\Irc\Twitch\WhisperTags.cs" />
-    <Compile Include="Models\Clients\Irc\Twitch\UserStateTags.cs" />
-    <Compile Include="Models\Clients\Irc\Twitch\RoomStateTags.cs" />
-    <Compile Include="Models\Clients\Irc\Twitch\SubscriberTags.cs" />
-    <Compile Include="Models\Clients\Irc\Twitch\RitualTags.cs" />
-    <Compile Include="Models\Clients\Irc\Twitch\RaidTags.cs" />
-    <Compile Include="Models\Clients\Irc\Twitch\UserNoticeTags.cs" />
-    <Compile Include="Models\Clients\Irc\Twitch\NoticeTags.cs" />
-    <Compile Include="Models\Clients\Irc\Twitch\GlobalUserStateTags.cs" />
-    <Compile Include="Models\Clients\Irc\Twitch\Emote.cs" />
-    <Compile Include="Models\Clients\Irc\Twitch\Badge.cs" />
-    <Compile Include="Models\Clients\Irc\Twitch\ClearChatTags.cs" />
-    <Compile Include="Models\Clients\Irc\Twitch\StreamChatPrivmsgTags.cs" />
+    <Compile Include="Helpers\Json\VideoDurationConverter.cs" />
+    <Compile Include="Clients\Irc\ITags.cs" />
+    <Compile Include="Clients\Irc\Twitch\ISharedRoomStateTags.cs" />
+    <Compile Include="Clients\Irc\Twitch\ISharedUserStateTags.cs" />
+    <Compile Include="Clients\Irc\Twitch\ISharedPrivmsgTags.cs" />
+    <Compile Include="Rest\Helix\Users.cs" />
+    <Compile Include="Rest\Helix\Videos.cs" />
+    <Compile Include="Clients\Irc\IrcMessage.cs" />
+    <Compile Include="Clients\Irc\IrcUser.cs" />
+    <Compile Include="Debugger\ValidateTagAttribute.cs" />
+    <Compile Include="Clients\Irc\Twitch\GiftedSubscriberTags.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomPrivmsgTags.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomUserStateTags.cs" />
+    <Compile Include="Clients\Irc\Twitch\ChatRoomRoomStateTags.cs" />
+    <Compile Include="Clients\Irc\Twitch\WhisperTags.cs" />
+    <Compile Include="Clients\Irc\Twitch\UserStateTags.cs" />
+    <Compile Include="Clients\Irc\Twitch\RoomStateTags.cs" />
+    <Compile Include="Clients\Irc\Twitch\SubscriberTags.cs" />
+    <Compile Include="Clients\Irc\Twitch\RitualTags.cs" />
+    <Compile Include="Clients\Irc\Twitch\RaidTags.cs" />
+    <Compile Include="Clients\Irc\Twitch\UserNoticeTags.cs" />
+    <Compile Include="Clients\Irc\Twitch\NoticeTags.cs" />
+    <Compile Include="Clients\Irc\Twitch\GlobalUserStateTags.cs" />
+    <Compile Include="Clients\Irc\Twitch\Emote.cs" />
+    <Compile Include="Clients\Irc\Twitch\Badge.cs" />
+    <Compile Include="Clients\Irc\Twitch\ClearChatTags.cs" />
+    <Compile Include="Clients\Irc\Twitch\StreamChatPrivmsgTags.cs" />
+    <Compile Include="Rest\OAuth\Validate\OAuthTokenInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utilities\EnumCacheUtil.cs" />
+    <Compile Include="UserType.cs" />
+    <Compile Include="Utilities\EnumUtil.cs" />
     <Compile Include="Utilities\ExceptionUtil.cs" />
-    <Compile Include="Utilities\PagingUtil.cs" />
-    <Compile Include="Utilities\RestRequestUtil.cs" />
+    <Compile Include="Rest\OAuth\OAuth2.Async.cs" />
+    <Compile Include="Utilities\RegexPatternUtil.cs" />
     <Compile Include="Utilities\TagsUtil.cs" />
     <Compile Include="Utilities\TwitchUtil.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Api\TwitchApiInternal.cs" />
+    <Compile Include="Rest\Helix\HelixApi.Internal.cs" />
     <None Include="packages.config" />
+    <Compile Include="Rest\OAuth\OAuth2.Internal.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -3,12 +3,12 @@ using System;
 using System.Text.RegularExpressions;
 
 // project namespaces
-using TwitchNet.Enums.Clients.Irc.Twitch;
+using TwitchNet.Clients.Irc.Twitch;
 using TwitchNet.Extensions;
 
 namespace TwitchNet.Utilities
-{    
-    public static class
+{
+    internal static class
     TwitchUtil
     {
         private static readonly uint FOLLOWERS_DURATION_MAX_MONTHS  = 3;
@@ -18,19 +18,70 @@ namespace TwitchNet.Utilities
         private static readonly uint FOLLOWERS_DURATION_MAX_MINUTES = 129_600;
         private static readonly uint FOLLOWERS_DURATION_MAX_SECONDS = 7_776_000;
 
-        private static Regex user_nick_regex                        = new Regex("^[a-z][a-z0-9_]{2,24}$");
-        private static Regex html_hex_color_regex                   = new Regex("^#([A-Fa-f0-9]{6})$");
+        private static Regex user_nick_regex                        = new Regex("^[a-z][a-z0-9_]{2,24}$");        
         private static Regex video_length_regex                     = new Regex("^(?:(?:(?<hours>\\d{1,2})h)?(?<minutes>\\d{1,2})m)?(?<seconds>\\d{1,2})s$");
         private static Regex followers_duration_regex               = new Regex("^(?:(?<duration>\\d+)\\s*(?<period>mo|months?|w|weeks?|d|days?|h|hours?|m|mninutes?|s|seconds?)\\s*)+$");
 
+        /// <summary>
+        /// Checks to see if the followers duration length is between 0 seconds and 90 days (3 months).
+        /// </summary>
+        /// <param name="duration">The duration to check.</param>
+        /// <returns>
+        /// Returns true if the duration is between 0 seconds and 90 days (3months), inclusive.
+        /// Returns false otherwise.
+        /// </returns>
         public static bool
-        IsValidFollowersDurationFormat(string duration)
+        IsValidFollowersDurationLength(string duration)
         {
-            bool result = followers_duration_regex.IsMatch(duration);
+            bool result = TryConvertToFollowerDuratrion(duration, out TimeSpan _duration);
 
             return result;
         }
 
+        /// <summary>
+        /// Checks to see if the followers duration length is between 0 seconds and 90 days (3 months).
+        /// </summary>
+        /// <param name="duration">The duration to check.</param>
+        /// <returns>
+        /// Returns true if the duration is between 0 seconds and 90 days (3months), inclusive.
+        /// Returns false otherwise.
+        /// </returns>
+        public static bool
+        IsValidFollowersDurationLength(TimeSpan duration)
+        {
+            bool result = duration.TotalSeconds.IsInRange(0, FOLLOWERS_DURATION_MAX_SECONDS);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Checks to see if the string matches the followers duration format.
+        /// </summary>
+        /// <param name="duration">The string to check.</param>
+        /// <returns>
+        /// Returns true if the string matches the followers duration format.
+        /// Returns false otherwise.
+        /// </returns>
+        public static bool
+        IsValidFollowersDurationFormat(string duration)
+        {
+            bool result = duration.IsValid() && followers_duration_regex.IsMatch(duration);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Tries to match the string to the followers duration format.
+        /// </summary>
+        /// <param name="duration">The string to check.</param>
+        /// <param name="match">
+        /// <para>The regex match if the string matched the followers duration format.</para>
+        /// <para>Set to <see cref="Match.Empty"/> if no match was found.</para>
+        /// </param>
+        /// <returns>
+        /// Returns true if the string matched the allowed followers duration format.
+        /// Returns false otherwise.
+        /// </returns>
         public static bool
         TryGetFollowersDurationMatch(string duration, out Match match)
         {
@@ -39,6 +90,18 @@ namespace TwitchNet.Utilities
             return match.Success;
         }
 
+        /// <summary>
+        /// Tries to convert a string to a valid followers duration.
+        /// </summary>
+        /// <param name="str">The string to convert./</param>
+        /// <param name="duration">
+        /// <para>The equivalent <see cref="TimeSpan"/> duration if the conversion was sucessful.</para>
+        /// <para>Set to <see cref="TimeSpan.Zero"/> otherwise.</para>
+        /// </param>
+        /// <returns>
+        /// Returns true if the string was able to converted to an equivalent <see cref="TimeSpan"/> duration.
+        /// Returns false otherwise.
+        /// </returns>
         public static bool
         TryConvertToFollowerDuratrion(string str, out TimeSpan duration)
         {
@@ -67,7 +130,7 @@ namespace TwitchNet.Utilities
                     return result;
                 }
 
-                switch (EnumCacheUtil.ToFollowersDurationPeriod(caputure_periods[index].Value))
+                switch (GetFollowersDurationPeriod(caputure_periods[index].Value))
                 {
                     case FollowersDurationPeriod.Months:
                     {
@@ -137,11 +200,11 @@ namespace TwitchNet.Utilities
                 }                
             }
 
-            // 1 minute ................................................... = 60 seconds
-            // 1 hour   ............................... = 60 minutes     .. = 3,600 seconds
-            // 1 day    ............... = 24 hours  ... = 1,440 minutes  .. = 86,400 seconds
-            // 1 week   ... = 7 days  . = 168 hours ... = 10,080 minutes .. = 604,800 seconds
-            // 1 month  ... = 30 days . = 720 hours ... = 43,200 minutes .. = 2,592,000 seconds
+            // 1 minute .................................................. = 60        seconds
+            // 1 hour   .............................. = 60     minutes .. = 3,600     seconds
+            // 1 day    ............... = 24  hours .. = 1,440  minutes .. = 86,400    seconds
+            // 1 week   .. = 7  days .. = 168 hours .. = 10,080 minutes .. = 604,800   seconds
+            // 1 month  .. = 30 days .. = 720 hours .. = 43,200 minutes .. = 2,592,000 seconds
             int total_seconds = seconds + (minutes * 60) + (hours * 3_600) + (days * 86_400) + (weeks * 604_800) + (months * 2_592_000);
             if (total_seconds > FOLLOWERS_DURATION_MAX_SECONDS)
             {
@@ -152,8 +215,72 @@ namespace TwitchNet.Utilities
             duration = new TimeSpan((months * 30) + (weeks * 7) + days, hours, minutes, seconds);
 
             return result;
+
+            FollowersDurationPeriod
+            GetFollowersDurationPeriod(string period)
+            {
+                switch (period)
+                {
+                    case "mo":
+                    case "month":
+                    case "months":
+                    {
+                        return FollowersDurationPeriod.Months;
+                    }
+
+                    case "w":
+                    case "week":
+                    case "weeks":
+                    {
+                        return FollowersDurationPeriod.Weeks;
+                    }
+
+                    case "d":
+                    case "day":
+                    case "days":
+                    {
+                        return FollowersDurationPeriod.Days;
+                    }
+
+                    case "h":
+                    case "hour":
+                    case "hours":
+                    {
+                        return FollowersDurationPeriod.Hours;
+                    }
+
+                    case "m":
+                    case "minute":
+                    case "minutes":
+                    {
+                        return FollowersDurationPeriod.Minutes;
+                    }
+
+                    case "s":
+                    case "second":
+                    case "seconds":
+                    {
+                        return FollowersDurationPeriod.Seconds;
+                    }
+                }
+
+                // This will never be reached.
+                // This is just to make sure it compiles.
+                return FollowersDurationPeriod.Seconds;
+            }
         }
 
+        /// <summary>
+        /// Checks to see if a user's Twitch nick is valid.
+        /// </summary>
+        /// <param name="nick">
+        /// <para>The nick to check.</para>
+        /// <para>The length must be between 2 and 24 and only contain alpha-numeric characters.</para>
+        /// </param>
+        /// <returns>
+        /// Returns true if the nick length is between 2 and 24 and only contains alpha-numeric characers.
+        /// Returns false otherwise.
+        /// </returns>
         public static bool
         IsValidNick(string nick)
         {
@@ -162,16 +289,14 @@ namespace TwitchNet.Utilities
             return result;
         }
 
-        public static bool
-        IsValidHtmlColor(string html_color)
-        {
-            bool result = html_hex_color_regex.IsMatch(html_color);
-
-            return result;
-        }
-
-        // 7_776_000 seconds = 3 months
-
+        /// <summary>
+        /// Checks to see if the video length is in the proper format, HHH:MM:SS.
+        /// </summary>
+        /// <param name="length">The video length to check.</param>
+        /// <returns>
+        /// Returns true is the video length matches the format HH:MM:SS.
+        /// Returns false otherwise.
+        /// </returns>
         public static bool
         IsValidVideoLength(string length)
         {
@@ -180,8 +305,20 @@ namespace TwitchNet.Utilities
             return result;
         }
 
+        /// <summary>
+        /// Tries to convert a video length to equivalent <see cref="TimeSpan"/> vlaue.
+        /// </summary>
+        /// <param name="value">the string to convert.</param>
+        /// <param name="length">
+        /// <para>The equivalent <see cref="TimeSpan"/> length of the conversion was successful.</para>
+        /// <para>Set to <see cref="TimeSpan.Zero"/> otherwise.</para>
+        /// </param>
+        /// <returns>
+        /// Returns true if the string was able to converted to an equivalent <see cref="TimeSpan"/> length.
+        /// Returns false otherwise.
+        /// </returns>
         public static bool
-        TryGetVideoLength(string value, out TimeSpan length)
+        TryConvertToVideoLength(string value, out TimeSpan length)
         {
             bool success = false;
 

@@ -1,6 +1,9 @@
 ﻿// project namespaces
 using System;
 
+// project namespaces
+using TwitchNet.Debugger;
+
 namespace
 TwitchNet.Extensions
 {
@@ -18,6 +21,8 @@ TwitchNet.Extensions
         Raise<event_args_type>(this EventHandler<event_args_type> handler, object sender, event_args_type args)
         where event_args_type : EventArgs
         {
+            Debug.ValidateMembers(args);
+
             if (handler.IsNull())
             {
                 return;

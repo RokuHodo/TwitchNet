@@ -2,7 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
+
+// project namespaces
+using TwitchNet.Utilities;
 
 namespace
 TwitchNet.Extensions
@@ -10,6 +15,8 @@ TwitchNet.Extensions
     internal static class
     ValidationExtensions
     {
+        #region Value checks
+
         /// <summary>
         /// Verifies that an <see cref="object"/> is null.
         /// </summary>  
@@ -22,9 +29,23 @@ TwitchNet.Extensions
         public static bool
         IsNull(this object obj)
         {
-            bool result = obj == null;
+            return obj == null;
+        }
 
-            return result;
+        /// <summary>
+        /// Checks to see if a value is null.
+        /// </summary>
+        /// <typeparam name="type">The type of the value.</typeparam>
+        /// <param name="value">The vlaue to chekc.</param>
+        /// <returns>
+        /// Returns true if the value is null.
+        /// Returns false otherwise.
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool
+        IsNull<type>(this type value)
+        {
+            return value == null;
         }
 
         /// <summary>
@@ -40,7 +61,7 @@ TwitchNet.Extensions
         public static bool
         IsDefault<type>(this type value)
         {
-            bool result = EqualityComparer<type>.Default.Equals(value, default(type));
+            bool result = EqualityComparer<type>.Default.Equals(value, default);
 
             return result;
         }
@@ -79,7 +100,7 @@ TwitchNet.Extensions
             bool result = !list.IsNull() && list.Count > 0;
 
             return result;
-        }
+        }        
 
         /// <summary>
         /// Verifies that a <see cref="string"/> is not null, empty, or contains only whitespace.
@@ -96,6 +117,42 @@ TwitchNet.Extensions
             bool result = !string.IsNullOrEmpty(str) && !string.IsNullOrWhiteSpace(str);
 
             return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool
+        IsEmpty(this string str)
+        {
+            return str.Length == 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool
+        IsWhiteSpace(this string str)
+        {
+            for (int index = 0; index < str.Length; index++)
+            {
+                if (!char.IsWhiteSpace(str[index]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool
+        IsEmptyOrWhiteSpace(this string str)
+        {
+            return str.IsEmpty() || str.IsWhiteSpace();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool
+        HasContent(this string str)
+        {
+            return !str.IsNull() && !str.IsEmpty() && !str.IsWhiteSpace();
         }
 
         /// <summary>
@@ -117,6 +174,10 @@ TwitchNet.Extensions
             return result;
         }
 
+        #endregion
+
+        #region Type checks
+
         /// <summary>
         /// Checks to see if an <see cref="object"/> can be convereted to certain type.
         /// </summary>
@@ -126,13 +187,63 @@ TwitchNet.Extensions
         /// Returns true if the <see cref="object"/> can be converted to the specified type.
         /// Returns false otherwise.
         /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if the obj is null.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool
         CanCovertTo(this object obj, Type type)
         {
+            ExceptionUtil.ThrowIfNull(obj, nameof(obj));
+
             bool result = TypeDescriptor.GetConverter(type).IsValid(obj);
 
             return result;
-        }  
+        }
+
+        #endregion
+
+        #region Regex checks
+
+        /// <summary>
+        /// Check to see if the string matches the HTML (hex) color format #FFFFFF.
+        /// </summary>
+        /// <param name="html_color">The color to check.</param>
+        /// <returns>
+        /// Returns true if the string matches the HTML (hex) color format.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if the html color string is null.</exception>
+        public static bool
+        IsValidHtmlColor(this string html_color)
+        {
+            Regex regex = new Regex("^#([A-Fa-f0-9]{6})$");
+
+            bool result = html_color.IsValid() && regex.IsMatch(html_color);
+
+            return result;
+        }
+
+        #endregion
+
+        #region Search checks
+
+        /// <summary>
+        /// Checks to see if an <see cref="IList{T}"/> contains a specified value.
+        /// </summary>
+        /// <typeparam name="type">The generic type of the <see cref="IList{T}"/>.</typeparam>
+        /// <param name="list">The list to search in.</param>
+        /// <param name="value">The value to search for.</param>
+        /// <returns>
+        /// Returns true of the list contains the value.
+        /// Returns false otherwise.
+        /// </returns>
+        public static bool
+        Contains<type>(this IList<type> list, type value)
+        {
+            bool result = list.Any(temp => EqualityComparer<type>.Default.Equals(temp, value));
+
+            return result;
+        }
+
+        #endregion
     }
 }

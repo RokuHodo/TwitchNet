@@ -1,45 +1,32 @@
 ﻿// imported .dll's
 using Newtonsoft.Json;
 
-using RestSharp;
-using RestSharp.Deserializers;
-
 namespace
 TwitchNet.Helpers.Json
 {
     internal class
     JsonDeserializer : IDeserializer
     {
-        public string RootElement   { get; set; }
-        public string Namespace     { get; set; }
-        public string DateFormat    { get; set; }
-
         /// <summary>
         /// Custom deserializer that utilizies Newtonsoft to handle Json responses with RestSharp
         /// </summary>
         /// <typeparam name="return_type">The <see cref="Type"/> of the object to deserialize.</typeparam>
-        /// <param name="response">The rest response to deserialzie.</param>
+        /// <param name="str">The rest response to deserialzie.</param>
         /// <returns>Returns a deserialized <typeparamref name="return_type"/> object.</returns>
         public return_type
-        Deserialize<return_type>(IRestResponse response)
+        Deserialize<return_type>(string str)
         {
             JsonSerializerSettings settings = new JsonSerializerSettings();
-            // TODO: Add converters for each custm enum type to not use reflection sicne it's very slow.
-            settings.Converters.Add(new TimeSpanConverter());
-
             settings.NullValueHandling      = NullValueHandling.Ignore;
             settings.DateParseHandling      = DateParseHandling.DateTime;
             settings.DateTimeZoneHandling   = DateTimeZoneHandling.Local;
             settings.FloatParseHandling     = FloatParseHandling.Double;
 
-#if DEBUG
+            #if DEBUG
+            settings.MissingMemberHandling  = MissingMemberHandling.Error;
+            #endif
 
-            // NOTE: Deserialize - For debugging purposes only, change MissingMemberHandling to 'ignrore' on release build
-            // settings.MissingMemberHandling  = MissingMemberHandling.Error;
-
-#endif
-
-            return_type result = JsonConvert.DeserializeObject<return_type>(response.Content, settings);
+            return_type result = JsonConvert.DeserializeObject<return_type>(str, settings);
 
             return result;
         }

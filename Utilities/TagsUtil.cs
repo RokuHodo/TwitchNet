@@ -3,93 +3,154 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 
 //project namespaces
-using TwitchNet.Enums;
-using TwitchNet.Enums.Api.Videos;
-using TwitchNet.Enums.Clients.Irc.Twitch;
+//using TwitchNet.Rest.Helix.Videos;
+using TwitchNet.Clients.Irc;
+using TwitchNet.Clients.Irc.Twitch;
 using TwitchNet.Extensions;
-using TwitchNet.Models.Clients.Irc.Twitch;
-using TwitchNet.Utilities;
 
 namespace
 TwitchNet.Utilities
 {
-    public class
+    internal class
     TagsUtil
     {
+        /// <summary>
+        /// Converts a tag to an equivalent <see cref="String"/> value.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to convert.</param>
+        /// <returns>
+        /// Returns the equivalent <see cref="string"/> value if the tag was able to be converted.
+        /// Returns <see cref="string.Empty"/> otherwise.
+        /// </returns>
         public static string
-        ToString(Dictionary<string, string> tags, string key)
+        ToString(in IrcMessage message, string key)
         {
             string value = string.Empty;
 
-            if(!IsTagValid(tags, key))
+            if(!IsTagValid(message, key))
             {
                 return value;
             }
 
-            value = tags[key];
+            value = message.tags[key];
 
             return value;
         }
 
-        public static uint
-        ToUInt32(Dictionary<string, string> tags, string key)
-        {
-            uint value = 0;
-
-            if (!IsTagValid(tags, key))
-            {
-                return value;
-            }
-
-            UInt32.TryParse(tags[key], out value);
-
-            return value;
-        }
-
+        /// <summary>
+        /// Converts a tag to an equivalent <see cref="UInt16"/> value.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to convert.</param>
+        /// <returns>
+        /// Returns the equivalent <see cref="UInt16"/> value if the tag was able to be converted.
+        /// Returns 0 otherwise.
+        /// </returns>
         public static ushort
-        ToUInt16(Dictionary<string, string> tags, string key)
+        ToUInt16(in IrcMessage message, string key)
         {
             ushort value = 0;
 
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return value;
             }
 
-            UInt16.TryParse(tags[key], out value);
+            UInt16.TryParse(message.tags[key], out value);
 
             return value;
         }
 
+        /// <summary>
+        /// Converts a tag to an equivalent <see cref="UInt32"/> value.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to convert.</param>
+        /// <returns>
+        /// Returns the equivalent <see cref="UInt32"/> value if the tag was able to be converted.
+        /// Returns 0 otherwise.
+        /// </returns>
+        public static uint
+        ToUInt32(in IrcMessage message, string key)
+        {
+            uint value = 0;
+
+            if (!IsTagValid(message, key))
+            {
+                return value;
+            }
+
+            UInt32.TryParse(message.tags[key], out value);
+
+            return value;
+        }
+
+        /// <summary>
+        /// Converts a tag to an equivalent <see cref="TimeSpan"/> value.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to convert.</param>
+        /// <returns>
+        /// Returns the equivalent <see cref="TimeSpan"/> value if the tag was able to be converted.
+        /// Returns <see cref="TimeSpan.Zero"/> otherwise.
+        /// </returns>
+        public static TimeSpan
+        ToTimeSpanFromSeconds(in IrcMessage message, string key)
+        {
+            int seconds = ToInt32(message, key);
+
+            TimeSpan time = seconds == 0 ? TimeSpan.Zero : new TimeSpan(0, 0, seconds);
+
+            return time;
+        }
+
+        /// <summary>
+        /// Converts a tag to an equivalent <see cref="Int32"/> value.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to convert.</param>
+        /// <returns>
+        /// Returns the equivalent <see cref="Int32"/> value if the tag was able to be converted.
+        /// Returns -1 otherwise.
+        /// </returns>
         public static int
-        ToInt32(Dictionary<string, string> tags, string key)
+        ToInt32(in IrcMessage message, string key)
         {
-            int value = 0;
+            int value = -1;
 
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return value;
             }
 
-            Int32.TryParse(tags[key], out value);
+            Int32.TryParse(message.tags[key], out value);
 
             return value;
         }
 
+        /// <summary>
+        /// Converts a tag to an equivalent <see cref="Boolean"/> value.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to convert.</param>
+        /// <returns>
+        /// Returns the equivalent <see cref="Boolean"/> value if the tag was able to be converted.
+        /// Returns false otherwise.
+        /// </returns>
         public static bool
-        ToBool(Dictionary<string, string> tags, string key)
+        ToBool(in IrcMessage message, string key)
         {
-            bool value = default(bool);
+            bool value = default;
 
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return value;
             }
 
-            if(!Byte.TryParse(tags[key], out byte _value))
+            if(!Byte.TryParse(message.tags[key], out byte _value))
             {
                 return value;
             }
@@ -97,112 +158,228 @@ TwitchNet.Utilities
             value = Convert.ToBoolean(_value);
 
             return value;
-        }
+        }        
 
-        public static Color
-        FromtHtml(Dictionary<string, string> tags, string key)
-        {
-            Color color = Color.Empty;
-
-            if (!IsTagValid(tags, key))
-            {
-                return color;
-            }
-
-            if (!TwitchUtil.IsValidHtmlColor(tags[key]))
-            {
-                return color;
-            }
-
-            color = ColorTranslator.FromHtml(tags[key]);
-
-            return color;
-        }
-
+        /// <summary>
+        /// Converts a tag to an equivalent <see cref="UserType"/> value.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to convert.</param>
+        /// <returns>
+        /// Returns the equivalent <see cref="UserType"/> value if the tag was able to be converted.
+        /// Returns <see cref="UserType.None"/> otherwise.
+        /// </returns>
         public static UserType
-        ToUserType(Dictionary<string, string> tags, string key)
+        ToUserType(in IrcMessage message, string key)
         {
             UserType user_type = UserType.None;
 
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return user_type;
             }
 
-            user_type = EnumCacheUtil.ToUserType(tags[key]);
+            user_type = EnumUtil.Parse<UserType>(message.tags[key]);
 
             return user_type;
         }
 
+        /// <summary>
+        /// Converts a tag to an equivalent <see cref="NoticeType"/> value.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to convert.</param>
+        /// <returns>
+        /// Returns the equivalent <see cref="NoticeType"/> value if the tag was able to be converted.
+        /// Returns <see cref="NoticeType.Other"/> otherwise.
+        /// </returns>
         public static NoticeType
-        ToNoticeType(Dictionary<string, string> tags, string key)
+        ToNoticeType(in IrcMessage message, string key)
         {
             NoticeType notice = NoticeType.Other;
 
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return notice;
             }
 
-            notice = EnumCacheUtil.ToNoticeType(tags[key]);
+            EnumUtil.TryParse(message.tags[key], out notice);
 
             return notice;
         }
 
+        /// <summary>
+        /// Converts a tag to an equivalent <see cref="UserNoticeType"/> value.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to convert.</param>
+        /// <returns>
+        /// Returns the equivalent <see cref="UserNoticeType"/> value if the tag was able to be converted.
+        /// Returns <see cref="UserNoticeType.Other"/> otherwise.
+        /// </returns>
         public static UserNoticeType
-        ToUserNoticeType(Dictionary<string, string> tags, string key)
+        ToUserNoticeType(in IrcMessage message, string key)
         {
-            UserNoticeType user_notice = UserNoticeType.None;
+            UserNoticeType user_notice = UserNoticeType.Other;
 
-            if(!IsTagValid(tags, key))
+            if(!IsTagValid(message, key))
             {
                 return user_notice;
             }
 
-            user_notice = EnumCacheUtil.ToUserNoticeType(tags[key]);
+            EnumUtil.TryParse(message.tags[key], out user_notice);
 
             return user_notice;
         }
 
-        public static SubscriptionPlan
-        ToSubscriptionPlan(Dictionary<string, string> tags, string key)
+        /// <summary>
+        /// Converts a tag to an equivalent <see cref="SubscriptionTier"/> value.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to convert.</param>
+        /// <returns>
+        /// Returns the equivalent <see cref="SubscriptionTier"/> value if the tag was able to be converted.
+        /// Returns <see cref="SubscriptionTier.Other"/> otherwise.
+        /// </returns>
+        public static SubscriptionTier
+        ToSubscriptionPlan(in IrcMessage message, string key)
         {
-            SubscriptionPlan plan = SubscriptionPlan.None;
+            SubscriptionTier plan = SubscriptionTier.Other;
 
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return plan;
             }
 
-            plan = EnumCacheUtil.ToSubscriptionPlan(tags[key]);
+            EnumUtil.TryParse(message.tags[key], out plan);
 
             return plan;
         }
 
+        /// <summary>
+        /// Converts a tag to an equivalent <see cref="RitualType"/> value.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to convert.</param>
+        /// <returns>
+        /// Returns the equivalent <see cref="RitualType"/> value if the tag was able to be converted.
+        /// Returns <see cref="RitualType.Other"/> otherwise.
+        /// </returns>
         public static RitualType
-        ToRitualType(Dictionary<string, string> tags, string key)
+        ToRitualType(in IrcMessage message, string key)
         {
-            RitualType type = RitualType.None;
+            RitualType type = RitualType.Other;
 
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return type;
             }
 
-            type = EnumCacheUtil.ToRitualType(tags[key]);
+            EnumUtil.TryParse(message.tags[key], out type);
 
             return type;
-        }        
+        }
 
-        public static Badge[]
-        ToBadges(Dictionary<string, string> tags, string key)
+        /// <summary>
+        /// Converts a tag to an equivalent <see cref="BroadcasterLanguage"/> value.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to convert.</param>
+        /// <returns>
+        /// Returns the equivalent <see cref="BroadcasterLanguage"/> value if the tag was able to be converted.
+        /// Returns <see cref="BroadcasterLanguage.None"/> otherwise.
+        /// </returns>
+        public static BroadcasterLanguage
+        ToBroadcasterLanguage(in IrcMessage message, string key)
         {
-            if(!IsTagValid(tags, key))
+            BroadcasterLanguage language = BroadcasterLanguage.None;
+
+            if (!IsTagValid(message, key))
+            {
+                return language;
+            }
+
+            EnumUtil.TryParse(message.tags[key], out language);
+
+            return language;
+        }
+
+        /// <summary>
+        /// Converts a tag to an equivalent <see cref="Color"/> value.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to convert.</param>
+        /// <returns>
+        /// Returns the equivalent <see cref="Color"/> value if the tag was able to be converted.
+        /// Returns <see cref="Color.Empty"/> otherwise.
+        /// </returns>
+        public static Color
+        FromtHtml(in IrcMessage message, string key)
+        {
+            Color color = Color.Empty;
+
+            if (!IsTagValid(message, key))
+            {
+                return color;
+            }
+
+            if (!message.tags[key].IsValidHtmlColor())
+            {
+                return color;
+            }
+
+            color = ColorTranslator.FromHtml(message.tags[key]);
+
+            return color;
+        }
+
+        /// <summary>
+        /// Converts a tag Unix Epoch time to an equivalent <see cref="DateTime"/> value.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to convert.</param>
+        /// <returns>
+        /// Returns the equivalent <see cref="Color"/> value if the tag was able to be converted.
+        /// Returns <see cref="Color.Empty"/> otherwise.
+        /// </returns>
+        public static DateTime
+        FromUnixEpochMilliseconds(in IrcMessage message, string key)
+        {
+            DateTime time = DateTime.MinValue;
+
+            if (!IsTagValid(message, key))
+            {
+                return time;
+            }
+
+            if (!Int64.TryParse(message.tags[key], out long time_epoch))
+            {
+                return time;
+            }
+
+            time = time_epoch.FromUnixEpochMilliseconds();
+
+            return time;
+        }
+
+        /// <summary>
+        /// Converts a tag to an equivalent array of <see cref="Badge"/> values.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to convert.</param>
+        /// <returns>
+        /// Returns the equivalent array of <see cref="Badge"/> values if the tag was able to be converted.
+        /// Returns an empty <see cref="Badge"/> array otherwise.
+        /// </returns>
+        public static Badge[]
+        ToBadges(in IrcMessage message, string key)
+        {
+            if(!IsTagValid(message, key))
             {
                 return new Badge[0];
             }
 
-            string[] badge_pairs = tags[key].StringToArray<string>(',');
+            string[] badge_pairs = message.tags[key].Split(',');
             if (!badge_pairs.IsValid())
             {
                 return new Badge[0];
@@ -218,95 +395,92 @@ TwitchNet.Utilities
             return badges.ToArray();
         }
 
+        /// <summary>
+        /// Converts a tag to an equivalent array of <see cref="Emote"/> values.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to convert.</param>
+        /// <returns>
+        /// Returns the equivalent array of <see cref="Emote"/> values if the tag was able to be converted.
+        /// Returns an empty <see cref="Emote"/> array otherwise.
+        /// </returns>
         public static Emote[]
-        ToEmotes(Dictionary<string, string> tags, string key)
+        ToEmotes(in IrcMessage message, string key)
         {
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
                 return new Emote[0];
             }
 
-            string[] emote_pairs = tags[key].StringToArray<string>('/');
-            if (!emote_pairs.IsValid())
+            string[] pairs = message.tags[key].Split('/');
+            if (!pairs.IsValid())
             {
                 return new Emote[0];
             }
 
             List<Emote> emotes = new List<Emote>();
-            foreach (string pair in emote_pairs)
+            foreach (string pair in pairs)
             {
                 Emote emote = new Emote(pair);
                 emotes.Add(emote);
             }
 
             return emotes.ToArray();
-        }        
-
-        public static BroadcasterLanguage
-        ToBroadcasterLanguage(Dictionary<string, string> tags, string key)
-        {
-            BroadcasterLanguage language = BroadcasterLanguage.None;
-
-            if (!IsTagValid(tags, key))
-            {
-                return language;
-            }
-
-            language = EnumCacheUtil.ToBroadcasterLanguage(tags[key]);
-
-            return language;
         }
 
-        public static DateTime
-        FromUnixEpoch(Dictionary<string, string> tags, string key)
+        /// <summary>
+        /// Converts a tag to an equivalent array of <see cref="String"/> values.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to convert.</param>
+        /// <returns>
+        /// Returns the equivalent array of <see cref="String"/> values if the tag was able to be converted.
+        /// Returns an empty <see cref="String"/> array otherwise.
+        /// </returns>
+        public static string[]
+        ToStringArray(in IrcMessage message, string key, char separator)
         {
-            DateTime time = DateTime.MinValue;
-
-            if (!IsTagValid(tags, key))
+            if (!IsTagValid(message, key))
             {
-                return time;
+                return new string[0];
             }
 
-            if (!Int64.TryParse(tags[key], out long time_epoch))
-            {
-                return time;
-            }
-
-            time = time_epoch.FromUnixEpochMilliseconds();
-
-            return time;
-        }
-
-        public static type[]
-        ToArray<type>(Dictionary<string, string> tags, string key, char separator)
-        {
-            if (!IsTagValid(tags, key))
-            {
-                return new type[0];
-            }
-
-            type[] array = tags[key].StringToArray<type>(separator, StringSplitOptions.RemoveEmptyEntries);
+            string[] array = message.tags[key].Split(separator);
 
             return array;
         }
 
+        /// <summary>
+        /// Checks to see if the specified tag was included in the attached tags.
+        /// </summary>
+        /// <param name="tags">The IRC message tags.</param>
+        /// <param name="key">The tag to check.</param>
+        /// <returns>
+        /// Returns true if tags were attached in the IRC message and if the specified tag was included in the attached tags.
+        /// Returns false otherwise.
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool
-        IsTagValid(Dictionary<string, string> tags, string key)
+        IsTagValid(in IrcMessage message, string key)
         {
             bool valid = true;
 
-            if(!key.IsValid() || !tags.IsValid())
+            if (message.IsNullOrDefault())
             {
                 return false;
             }
 
-            if (!tags.ContainsKey(key) || !tags[key].IsValid())
+            if(!key.IsValid() || !message.tags.IsValid())
+            {
+                return false;
+            }
+
+            if (!message.tags.ContainsKey(key) || !message.tags[key].IsValid())
             {
                 return false;
             }
 
             return valid;
-        }
+        }        
     }
 }

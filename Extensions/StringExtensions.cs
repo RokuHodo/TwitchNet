@@ -1,6 +1,5 @@
 ﻿// project namespaces
 using System;
-using System.Collections.Generic;
 
 namespace
 TwitchNet.Extensions
@@ -8,7 +7,7 @@ TwitchNet.Extensions
     internal static class
     StringExtensions
     {
-        #region String parsing
+        #region Parsing
 
         /// <summary>
         /// Gets the text after a sub <see cref="char"/> in a <see cref="string"/>.
@@ -292,53 +291,55 @@ TwitchNet.Extensions
         }
 
         /// <summary>
-        /// Converts a <see cref="string"/> into an <see cref="Array"/> of a specified type.
+        /// Wraps a string in quote.
         /// </summary>
-        /// <typeparam name="type">The type of the returned <see cref="Array"/>.</typeparam>
-        /// <param name="str">The <see cref="string"/> to be parsed.</param>
-        /// <param name="separator">An <see cref="char"/> that represents a point to separate the string into elemnts.</param>
-        /// <returns>
-        /// Returns a default <see cref="Array"/> of the specified type is no <see cref="string"/> elements could be converted.
-        /// Returns an <see cref="Array"/> of a specified type with the successfully converted <see cref="string"/> elements otherwise.
-        /// </returns>
-        public static type[]
-        StringToArray<type>(this string str, char separator, StringSplitOptions options = StringSplitOptions.None)
+        /// <param name="str">The string to wrap.</param>
+        /// <returns>Returns a string wrapped in quotes.</returns>
+        public static string
+        WrapQuotes(this string str)
         {
-            return str.StringToArray<type>(new char[] { separator }, options);
+            if (str.IsNull())
+            {
+                return "\"\"";
+            }
+
+            return "\"" + str + "\"";
+
+        }
+
+        #endregion
+
+        #region Formatting
+
+        /// <summary>
+        /// Wraps a string in quote.
+        /// </summary>
+        /// <param name="character">The string to wrap.</param>
+        /// <returns>Returns a string wrapped in quotes.</returns>
+        public static string
+        WrapQuotes(this char character)
+        {
+            if (character.IsNull())
+            {
+                return "\"\"";
+            }
+
+            return "\"" + character + "\"";
+
         }
 
         /// <summary>
-        /// Converts a <see cref="string"/> into an <see cref="Array"/> of a specified type.
+        /// Nulls the string if it is invalid.
         /// </summary>
-        /// <typeparam name="type">The type of the returned <see cref="Array"/>.</typeparam>
-        /// <param name="str">The <see cref="string"/> to be parsed.</param>
-        /// <param name="separator">An <see cref="Array"/> of <see cref="char"/>s that represent points to separate the string into elemnts.</param>
+        /// <param name="str">The string to potentially null.</param>
         /// <returns>
-        /// Returns a default <see cref="Array"/> of the specified type is no <see cref="string"/> elements could be converted.
-        /// Returns an <see cref="Array"/> of a specified type with the successfully converted <see cref="string"/> elements otherwise.
+        /// Returns the string if it is valid.
+        /// Returns null otherwise.
         /// </returns>
-        public static type[]
-        StringToArray<type>(this string str, char[] separators, StringSplitOptions options = StringSplitOptions.None)
+        public static string
+        NullIfInvalid(this string str)
         {
-            if (!str.IsValid())
-            {
-                return default(type[]);
-            }
-
-            List<type> result = new List<type>();
-
-            string[] array = str.Split(separators, options);
-            foreach (string element in array)
-            {
-                if (!element.CanCovertTo(typeof(type)))
-                {
-                    continue;
-                }
-
-                result.Add((type)Convert.ChangeType(element, typeof(type)));
-            }
-
-            return result.IsValid() ? result.ToArray() : default(type[]);
+            return str.IsValid() ? str : null;
         }
 
         #endregion

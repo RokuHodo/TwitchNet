@@ -947,7 +947,131 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            // TODO: Implement /extensions/transactions
+            #region /extensions/transactions
+
+            /// <summary>
+            /// <para>Asynchronously gets specific extension transactions or a single page of extension transactions.</para>
+            /// <para>Required Authorization: App Access Token.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific extension transactions or the single page of extension transactions.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the App Access token or Client ID is not provided, empty, or contains only white space.</exception>
+            /// <exception cref="QueryParameterException">
+            /// Thrown if the extension ID is not provided, empty, or contains only white space.
+            /// Thrown if any transaction ID is null, empty, or contains only white space, any duplicate codes are found, if provided.
+            /// Thrown if the after cursor is empty or contains only white space, if provided.
+            /// </exception>
+            /// <exception cref="QueryParameterCountException">Thrown if more than 100 transaction ID's are provided.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<DataPage<ExtensionTransaction>>>
+            GetExtensionTransactionsPageAsync(HelixInfo info, ExtensionTransactionsParameters parameters)
+            {
+                HelixResponse<DataPage<ExtensionTransaction>> response = new HelixResponse<DataPage<ExtensionTransaction>>();
+                if (!ValidateAuthorizatioHeaders(info, response, true))
+                {
+                    return response;
+                }
+
+                // Required parameter checks
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                if(!ValidateRequiredQueryParameter(nameof(parameters.extension_id), parameters.extension_id, response, info.settings))
+                {
+                    return response;
+                }
+
+                // Optional parameter checks
+                parameters.first = parameters.first.Clamp(1, 100);
+
+                if (!ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, info.settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                {
+                    return response;
+                }
+
+                RestRequest request = GetBaseRequest("extensions/transactions", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<ExtensionTransaction>> _response = await client.ExecuteAsync<DataPage<ExtensionTransaction>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<ExtensionTransaction>>(_response);
+
+                return response;
+            }
+
+            /// <summary>
+            /// <para>Asynchronously gets specific extension transactions or a complete list of extension transactions.</para>
+            /// <para>Required Authorization: App Access Token.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific extension transactions or the complete list of extension transactions.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the App Access token or Client ID is not provided, empty, or contains only white space.</exception>
+            /// <exception cref="QueryParameterException">
+            /// Thrown if the extension ID is not provided, empty, or contains only white space.
+            /// Thrown if any transaction ID is null, empty, or contains only white space, any duplicate codes are found, if provided.
+            /// Thrown if the after cursor is empty or contains only white space, if provided.
+            /// </exception>
+            /// <exception cref="QueryParameterCountException">Thrown if more than 100 transaction ID's are provided.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<DataPage<ExtensionTransaction>>>
+            GetExtensionTransactionsAsync(HelixInfo info, ExtensionTransactionsParameters parameters)
+            {
+                HelixResponse<DataPage<ExtensionTransaction>> response = new HelixResponse<DataPage<ExtensionTransaction>>();
+                if (!ValidateAuthorizatioHeaders(info, response, true))
+                {
+                    return response;
+                }
+
+                // Required parameter checks
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                if (!ValidateRequiredQueryParameter(nameof(parameters.extension_id), parameters.extension_id, response, info.settings))
+                {
+                    return response;
+                }
+
+                // Optional parameter checks
+                parameters.first = parameters.first.Clamp(1, 100);
+
+                if (!ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, info.settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                {
+                    return response;
+                }
+
+                RestRequest request = GetBaseRequest("extensions/transactions", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<ExtensionTransaction>> _response = await client.TraceExecuteAsync<ExtensionTransaction, DataPage<ExtensionTransaction>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<ExtensionTransaction>>(_response);
+
+                return response;
+            }
+
+            #endregion
 
             #region /games
 
@@ -1011,7 +1135,7 @@ TwitchNet.Rest.Helix
                     !ValidateOptionalQueryParameter(nameof(parameters.names), parameters.names, 100, response, info.settings))
                 {
                     return response;
-                }                
+                }         
 
                 RestRequest request = GetBaseRequest("games", Method.GET, info);
                 request.AddParameters(parameters);

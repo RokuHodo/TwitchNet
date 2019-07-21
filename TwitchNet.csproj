@@ -62,6 +62,7 @@
     <Compile Include="Rest\Helix\Bits.cs" />
     <Compile Include="Rest\Helix\Clips.cs" />
     <Compile Include="Rest\Helix\Entitlements.cs" />
+    <Compile Include="Rest\Helix\Extensions.cs" />
     <Compile Include="Rest\Helix\Games.cs" />
     <Compile Include="Rest\Helix\HelixHelpers.cs" />
     <Compile Include="Rest\Helix\Streams.cs" />

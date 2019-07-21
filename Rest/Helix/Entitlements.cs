@@ -40,13 +40,13 @@ TwitchNet.Rest.Helix
         /// <summary>
         /// The ID of the user that will recieve the entitlement associated with the code.
         /// </summary>
-        [QueryParameter("user_id")]
+        [JsonProperty("user_id")]
         public virtual string user_id { get; set; }
 
         /// <summary>
         /// the status of the code.
         /// </summary>
-        [QueryParameter("status")]
+        [JsonProperty("status")]
         public virtual EntitlementCodeStatus status { get; set; }
     }
 

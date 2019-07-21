@@ -369,6 +369,34 @@ TwitchNet.Rest.Helix
 
             #endregion
 
+            #region /extensions/transactions
+
+            public static async Task<IHelixResponse<DataPage<ExtensionTransaction>>>
+            GetExtensionTransactionsPageAsync(string bearer_token, string client_id, ExtensionTransactionsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<ExtensionTransaction>> response = await Internal.GetExtensionTransactionsPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<ExtensionTransaction>>>
+            GetExtensionTransactionsAsync(string bearer_token, string client_id, ExtensionTransactionsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = bearer_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<ExtensionTransaction>> response = await Internal.GetExtensionTransactionsAsync(info, parameters);
+
+                return response;
+            }
+
+            #endregion
+
             #region /games
 
             public static async Task<IHelixResponse<Data<Game>>>

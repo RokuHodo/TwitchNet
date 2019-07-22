@@ -82,6 +82,7 @@
     <Compile Include="Debugger\ValidateMemberAttribute.cs" />
     <Compile Include="Rest\Attributes.cs" />
     <Compile Include="Rest\Converters.cs" />
+    <Compile Include="Rest\Helix\Webhooks.cs" />
     <Compile Include="Rest\Scopes.cs" />
     <Compile Include="Rest\OAuth\Token\AppAccessTokenParameters.cs" />
     <Compile Include="Rest\OAuth\Token\AppAccessTokenData.cs" />

@@ -4632,9 +4632,100 @@ TwitchNet.Rest.Helix
 
             #endregion
 
+            // Move to Rest.Helix.WebHooks or keep it on the same level?
             // TODO: Implement /webhook/hub
 
-            // TODO: Implement /webhook/subscriptions
+            #region /webhooks/subscriptions
+
+            /// <summary>
+            /// <para>Asynchronously gets a single page of webhook subscriptions.</para>
+            /// <para>Required Authorization: App Access Token.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of webhook subscriptions.
+            /// </returns>
+            /// <exception cref="HeaderParameterException">Thrown if the App Access token or Client ID is not provided, empty, or contains only white space.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the after cursor is empty or contains only white space, if provided.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<WebhookDataPage<WebhookSubscription>>>
+            GetWebhookSubscriptionsPageAsync(HelixInfo info, PagingParameters parameters)
+            {
+                HelixResponse<WebhookDataPage<WebhookSubscription>> response = new HelixResponse<WebhookDataPage<WebhookSubscription>>();
+                if (!ValidateAuthorizatioHeaders(info, response, true))
+                {
+                    return response;
+                }
+
+                // Optional parameter checks
+                if (!parameters.IsNull())
+                {
+                    parameters.first = parameters.first.Clamp(1, 100);
+
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                    {
+                        return response;
+                    }
+                }
+
+                RestRequest request = GetBaseRequest("webhooks/subscriptions", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<WebhookDataPage<WebhookSubscription>> _response = await client.ExecuteAsync<WebhookDataPage<WebhookSubscription>>(request, HandleResponse);
+                response = new HelixResponse<WebhookDataPage<WebhookSubscription>>(_response);
+
+                return response;
+            }
+
+            /// <summary>
+            /// <para>Asynchronously gets a complete list of webhook subscriptions.</para>
+            /// <para>Required Authorization: App Access Token.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of webhook subscriptions.
+            /// </returns>
+            /// <exception cref="HeaderParameterException">Thrown if the App Access token or Client ID is not provided, empty, or contains only white space.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the after cursor is empty or contains only white space, if provided.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<WebhookDataPage<WebhookSubscription>>>
+            GetWebhookSubscriptionsAsync(HelixInfo info, PagingParameters parameters)
+            {
+                HelixResponse<WebhookDataPage<WebhookSubscription>> response = new HelixResponse<WebhookDataPage<WebhookSubscription>>();
+                if (!ValidateAuthorizatioHeaders(info, response, true))
+                {
+                    return response;
+                }
+
+                // Optional parameter checks
+                if (!parameters.IsNull())
+                {
+                    parameters.first = parameters.first.Clamp(1, 100);
+
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                    {
+                        return response;
+                    }
+                }
+
+                RestRequest request = GetBaseRequest("webhooks/subscriptions", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<WebhookDataPage<WebhookSubscription>> _response = await client.TraceExecuteAsync<WebhookSubscription, WebhookDataPage<WebhookSubscription>>(request, HandleResponse);
+                response = new HelixResponse<WebhookDataPage<WebhookSubscription>>(_response);
+
+                return response;
+            }
+
+            #endregion
 
             #region Helpers - Request Building
 

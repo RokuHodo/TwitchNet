@@ -344,6 +344,11 @@ TwitchNet.Debugger
         private static void
         ValidationHandler_IsValid(object obj, string name, Type type, object value, ValidateMemberAttribute attribute)
         {
+            if (type.IsNull() || value.IsNull())
+            {
+                return;
+            }
+
             if (type == typeof(string))
             {
                 string temp = value.ToString();
@@ -583,13 +588,14 @@ TwitchNet.Debugger
         public static void
         ValidateTags(object obj, IrcMessage message, bool validate_normal_members = false, [CallerMemberName] string caller = "", [CallerFilePath] string source = "", [CallerLineNumber] int line = -1)
         {
-            string obj_name = obj.GetType().Name.WrapQuotes();
             if (obj.IsNull())
             {
-                WriteError(ErrorLevel.Major, "Failed to validate the IRC tags for " + obj_name + ". The object is null.");
+                WriteError(ErrorLevel.Major, "Failed to validate the IRC tags for " + obj.ToString() + ". The object is null.");
 
                 return;
             }
+
+            string obj_name = obj.GetType().Name.WrapQuotes();
 
             if (validate_normal_members)
             {

@@ -91,21 +91,14 @@ TwitchNet.Clients.Irc.Twitch
         public event EventHandler<ChannelOperatorEventArgs>         OnChannelOperator;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command PRIVMSG in a stream chat.</para>
-        /// <para>Signifies that a message was sent in a channel's stream chat.</para>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command PRIVMSG in a stream chat or chat room.</para>
         /// <para>
-        /// Requires /commands.
+        /// Requires /commands for stream chat messages.
         /// Supplementary tags can be added to the message by requesting /tags.
+        /// The /tags command must be requested for chat room messages.
         /// </para>
         /// </summary>
-        public event EventHandler<StreamChatPrivmsgEventArgs>       OnStreamChatPrivmsg;
-
-        /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command PRIVMSG in a chat room.</para>
-        /// <para>Signifies that a message was sent in a channel's chat room.</para>
-        /// <para>Requires /commands and /tags.</para>
-        /// </summary>
-        public event EventHandler<ChatRoomPrivmsgEventArgs>         OnChatRoomPrivmsg;
+        public event EventHandler<ChatPrivmsgEventArgs>             OnChatPrivmsg;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command WHISPER.</para>
@@ -504,14 +497,7 @@ TwitchNet.Clients.Irc.Twitch
         private void
         Callback_OnPrivmsg(object sender, PrivmsgEventArgs args)
         {
-            if (IsChatRoom(args.channel))
-            {
-                OnChatRoomPrivmsg.Raise(this, new ChatRoomPrivmsgEventArgs(args));
-            }
-            else
-            {
-                OnStreamChatPrivmsg.Raise(this, new StreamChatPrivmsgEventArgs(args));
-            }
+            OnChatPrivmsg.Raise(this, new ChatPrivmsgEventArgs(args));
         }
 
         #endregion
@@ -934,10 +920,10 @@ TwitchNet.Clients.Irc.Twitch
         /// Returns false if channel is null, empty, or whitepsace, or if the channel does not start with #chatrooms.
         /// Returns true if the parameter element starts with #chatrooms.
         /// </returns>
-        private bool
+        internal static bool
         IsChatRoom(string channel)
         {
-            bool result = channel.IsValid() && channel.TextBefore(':') == "#chatrooms";
+            bool result = !channel.IsNull() && channel.TextBefore(':') == "#chatrooms";
 
             return result;
         }

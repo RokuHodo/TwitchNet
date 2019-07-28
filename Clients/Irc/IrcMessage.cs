@@ -23,6 +23,11 @@ TwitchNet.Clients.Irc
         public readonly string                      raw;
 
         /// <summary>
+        /// Whether or not tags were sent with the message.
+        /// </summary>
+        public readonly bool                        tags_exist;
+
+        /// <summary>
         /// The optional tags prefixed to the message.
         /// </summary>
         public readonly Dictionary<string, string>  tags;
@@ -40,19 +45,19 @@ TwitchNet.Clients.Irc
         public readonly string                      server_or_nick;
 
         /// <summary>
-        /// The irc user.
+        /// The IRC user.
         /// Contained within the prefix.
         /// </summary>
         public readonly string                      user;
 
         /// <summary>
-        /// The host of the irc.
+        /// The host of the IRC.
         /// Contained within the prefix.
         /// </summary>
         public readonly string                      host;
 
         /// <summary>
-        /// The irc command.
+        /// The IRC command.
         /// </summary>
         public readonly string                      command;
 
@@ -87,6 +92,7 @@ TwitchNet.Clients.Irc
             this.data                   = data;
             this.raw                    = raw;
 
+            tags_exist                  = false;
             tags                        = new Dictionary<string, string>();
 
             prefix                      = string.Empty;

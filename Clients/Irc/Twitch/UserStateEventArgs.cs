@@ -18,7 +18,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>The tags attached to the message, if any.</para>
         /// <para>Check the <code>exist</code> property to determine if tags were attached to the message.</para>
         /// </summary>
-        [ValidateMember(Check.Tags)]
+        [ValidateMember(Check.TagsMissing)]
         public UserStateTags    tags    { get; protected set; }
 
         /// <summary>

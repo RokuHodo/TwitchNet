@@ -20,6 +20,8 @@ TwitchNet.Rest.Helix
         {
             internal static readonly RestClient client = GetHelixClient();
 
+            private static readonly string REGEX_PATTERN_ENTITLEMENT_CODE = "^[a-zA-Z0-9]{5}-?[a-zA-Z0-9]{5}-?[a-zA-Z0-9]{5}$";
+
             #region /analytics/extensions
 
             /// <summary>
@@ -773,7 +775,7 @@ TwitchNet.Rest.Helix
 
                 List<string> malformed_codes = new List<string>(parameters.codes.Count);
 
-                Regex regex = new Regex(RegexPatternUtil.ENTITLEMENT_CODE);
+                Regex regex = new Regex(REGEX_PATTERN_ENTITLEMENT_CODE);
                 foreach (string code in parameters.codes)
                 {
                     if (regex.IsMatch(code))
@@ -786,7 +788,7 @@ TwitchNet.Rest.Helix
 
                 if (malformed_codes.Count > 0)
                 {
-                    FormatException inner_exception = new FormatException("Values must match the regular expression: " + RegexPatternUtil.ENTITLEMENT_CODE);
+                    FormatException inner_exception = new FormatException("Values must match the regular expression: " + REGEX_PATTERN_ENTITLEMENT_CODE);
 
                     string _codes = string.Join(", ", malformed_codes);
 
@@ -851,7 +853,7 @@ TwitchNet.Rest.Helix
 
                 List<string> malformed_codes = new List<string>(parameters.codes.Count);
 
-                Regex regex = new Regex(RegexPatternUtil.ENTITLEMENT_CODE);
+                Regex regex = new Regex(REGEX_PATTERN_ENTITLEMENT_CODE);
                 foreach (string code in parameters.codes)
                 {
                     if (regex.IsMatch(code))
@@ -864,7 +866,7 @@ TwitchNet.Rest.Helix
 
                 if (malformed_codes.Count > 0)
                 {
-                    FormatException inner_exception = new FormatException("Values must match the regular expression: " + RegexPatternUtil.ENTITLEMENT_CODE);
+                    FormatException inner_exception = new FormatException("Values must match the regular expression: " + REGEX_PATTERN_ENTITLEMENT_CODE);
 
                     string _codes = string.Join(", ", malformed_codes);
 

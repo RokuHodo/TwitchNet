@@ -10,76 +10,71 @@ namespace
 TwitchNet.Clients.Irc.Twitch
 {
     public class
-    WhisperTags : ITags
+    WhisperTags
     {
-        /// <summary>
-        /// Whether or not tags are atached to the message.
-        /// </summary>
-        public bool     exist        { get; protected set; }
-
         /// <summary>
         /// Whether or not the sender has Twitch turbo.
         /// </summary>
-        [ValidateTag("turbo")]
+        [IrcTag("turbo")]
         public bool     turbo           { get; protected set; }
 
         /// <summary>
         /// <para>The display name of the sender.</para>
         /// <para>This is empty if it was never set by the sender.</para>
         /// </summary>
-        [ValidateTag("display-name")]
+        [IrcTag("display-name")]
         public string   display_name    { get; protected set; }
 
         /// <summary>
         /// The user id of the sender.
         /// </summary>
-        [ValidateTag("user-id")]
+        [IrcTag("user-id")]
         public string   user_id         { get; protected set; }
 
         /// <summary>
         /// The id of the message.
         /// </summary>
-        [ValidateTag("message-id")]
+        [IrcTag("message-id")]
         public string   message_id      { get; protected set; }
 
         /// <summary>
         /// The sender id and recipient id.
         /// </summary>
-        [ValidateTag("thread-id")]
+        [IrcTag("thread-id")]
         public string   thread_id       { get; protected set; }
 
         /// <summary>
         /// The id of the recipient.
         /// </summary>
-        [ValidateTag("recipient-id")]
+        [IrcTag("recipient-id")]
         public string   recipient_id    { get; protected set; }
 
         /// <summary>
         /// <para>The sender's user type</para>
         /// <para>Set to <see cref="UserType.None"/> if the sender has no elevated privileges.</para>
         /// </summary>
-        [ValidateTag("user-type")]
+        [IrcTag("user-type")]
         public UserType user_type       { get; protected set; }
 
         /// <summary>
         /// <para>The color of the sender's display name.</para>
         /// <para>The color is <see cref="Color.Empty"/> if it was never set by the sender.</para>
         /// </summary>
-        [ValidateTag("color")]
+        [IrcTag("color")]
         public Color    color           { get; protected set; }
 
         /// <summary>
         /// <para>The chat badges that the sender has, if any.</para>
         /// <para>The array is empty if the sender has no chat badges.</para>
         /// </summary>
-        [ValidateTag("badges")]
+        [IrcTag("badges")]
         public Badge[]  badges          { get; protected set; }
 
         /// <summary>
         /// <para>The emotes the sender used in the message, if any.</para>
         /// <para>The array is empty if the sender did not use any emotes.</para>
         /// </summary>
-        [ValidateTag("emotes")]
+        [IrcTag("emotes")]
         public Emote[]  emotes          { get; protected set; }
 
         /// <summary>
@@ -88,26 +83,20 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="message">The IRC message to parse.</param>
         public WhisperTags(in IrcMessage message)
         {
-            exist = message.tags.IsValid();
-            if (!exist)
-            {
-                return;
-            }
+            turbo           = TwitchIrcUtil.Tags.ToBool(message, "turbo");
 
-            turbo           = TagsUtil.ToBool(message, "turbo");
-
-            display_name    = TagsUtil.ToString(message, "display-name");
-            user_id         = TagsUtil.ToString(message, "user-id");
-            message_id      = TagsUtil.ToString(message, "message-id");
-            thread_id       = TagsUtil.ToString(message, "thread-id");
+            display_name    = TwitchIrcUtil.Tags.ToString(message, "display-name");
+            user_id         = TwitchIrcUtil.Tags.ToString(message, "user-id");
+            message_id      = TwitchIrcUtil.Tags.ToString(message, "message-id");
+            thread_id       = TwitchIrcUtil.Tags.ToString(message, "thread-id");
             recipient_id    = thread_id.TextAfter('_');
 
-            user_type       = TagsUtil.ToUserType(message, "user-type");
+            user_type       = TwitchIrcUtil.Tags.ToUserType(message, "user-type");
 
-            color           = TagsUtil.FromtHtml(message, "color");
+            color           = TwitchIrcUtil.Tags.FromtHtml(message, "color");
 
-            badges          = TagsUtil.ToBadges(message, "badges");
-            emotes          = TagsUtil.ToEmotes(message, "emotes");
+            badges          = TwitchIrcUtil.Tags.ToBadges(message, "badges");
+            emotes          = TwitchIrcUtil.Tags.ToEmotes(message, "emotes");
         }
     }
 }

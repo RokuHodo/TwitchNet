@@ -7,18 +7,13 @@ namespace
 TwitchNet.Clients.Irc.Twitch
 {
     public class
-    NoticeTags : ITags
+    NoticeTags
     {
-        /// <summary>
-        /// Whether or not tags were attached to the message;
-        /// </summary>
-        public bool         exist   { get; protected set; }
-
         /// <summary>
         /// The id that describes the notice from the server.
         /// <para>Set to <see cref="UserNoticeType.Other"/> if the id could not be parsed.</para>
         /// </summary>
-        [ValidateTag("msg-id")]
+        [IrcTag("msg-id")]
         public NoticeType   msg_id  { get; protected set; }
 
         /// <summary>
@@ -27,13 +22,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="message">The IRC message to parse.</param>
         public NoticeTags(in IrcMessage message)
         {
-            exist = message.tags.IsValid();
-            if (!exist)
-            {
-                return;
-            }
-
-            msg_id = TagsUtil.ToNoticeType(message, "msg-id");
+            msg_id = TwitchIrcUtil.Tags.ToNoticeType(message, "msg-id");
         }
     }
 }

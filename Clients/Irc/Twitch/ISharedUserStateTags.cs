@@ -5,7 +5,7 @@ namespace
 TwitchNet.Clients.Irc.Twitch
 {
     public interface
-    ISharedUserStateTags : ITags
+    ISharedUserStateTags
     {
         /// <summary>
         /// Whether or not the user is a moderator.

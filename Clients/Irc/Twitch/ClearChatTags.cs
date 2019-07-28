@@ -10,43 +10,38 @@ namespace
 TwitchNet.Clients.Irc.Twitch
 {
     public class
-    ClearChatTags : ITags
+    ClearChatTags
     {
-        /// <summary>
-        /// Whether or not tags were attached to the message;
-        /// </summary>
-        public bool     exist           { get; protected set; }
-
         /// <summary>
         /// <para>The length of the ban, in seconds.</para>
         /// <para>Set to <see cref="TimeSpan.Zero"/> if the ban is permanent.</para>
         /// </summary>
-        [ValidateTag("ban-duration")]
+        [IrcTag("ban-duration")]
         public TimeSpan ban_duration    { get; protected set; }
 
         /// <summary>
         /// <para>The moderator’s reason for the timeout or ban.</para>
         /// <para>Empty if the moderator gave no reason.</para>
         /// </summary>
-        [ValidateTag("ban-reason")]
+        [IrcTag("ban-reason")]
         public string   ban_reason      { get; protected set; }
 
         /// <summary>
         /// The id of the room where the user got timed out or banned.
         /// </summary>
-        [ValidateTag("room-id")]
+        [IrcTag("room-id")]
         public string   room_id         { get; protected set; }
 
         /// <summary>
         /// The id of the user who got timed out or banned.
         /// </summary>
-        [ValidateTag("target-user-id")]
+        [IrcTag("target-user-id")]
         public string   target_user_id  { get; protected set; }
 
         /// <summary>
         /// The time message was sent.
         /// </summary>
-        [ValidateTag("tmi-sent-ts")]
+        [IrcTag("tmi-sent-ts")]
         public DateTime tmi_sent_ts     { get; protected set; }
 
         /// <summary>
@@ -55,19 +50,13 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="message">The IRC message to parse.</param>
         public ClearChatTags(in IrcMessage message)
         {
-            exist = message.tags.IsValid();
-            if (!exist)
-            {
-                return;
-            }
+            ban_duration    = TwitchIrcUtil.Tags.ToTimeSpanFromSeconds(message, "ban-duration");
+            ban_reason      = TwitchIrcUtil.Tags.ToString(message, "ban-reason").Replace("\\s", " ");
 
-            ban_duration    = TagsUtil.ToTimeSpanFromSeconds(message, "ban-duration");
-            ban_reason      = TagsUtil.ToString(message, "ban-reason").Replace("\\s", " ");
+            room_id         = TwitchIrcUtil.Tags.ToString(message, "room-id");
+            target_user_id  = TwitchIrcUtil.Tags.ToString(message, "target-user-id");
 
-            room_id         = TagsUtil.ToString(message, "room-id");
-            target_user_id  = TagsUtil.ToString(message, "target-user-id");
-
-            tmi_sent_ts     = TagsUtil.FromUnixEpochMilliseconds(message, "tmi-sent-ts");
+            tmi_sent_ts     = TwitchIrcUtil.Tags.FromUnixEpochMilliseconds(message, "tmi-sent-ts");
         }
     }
 }

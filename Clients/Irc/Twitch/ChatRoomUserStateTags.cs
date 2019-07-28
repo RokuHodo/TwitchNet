@@ -20,34 +20,34 @@ TwitchNet.Clients.Irc.Twitch
         /// <summary>
         /// Whether or not the user is a moderator.
         /// </summary>
-        [ValidateTag("mod")]
+        [IrcTag("mod")]
         public bool     mod             { get; protected set; }
 
         /// <summary>
         /// <para>The display name of the user.</para>
         /// <para>This is empty if it was never set by the user.</para>
         /// </summary>
-        [ValidateTag("display-name")]
+        [IrcTag("display-name")]
         public string   display_name    { get; protected set; }
 
         /// <summary>
         /// The emote sets that are available for the user to use.
         /// </summary>
-        [ValidateTag("emote-sets")]
+        [IrcTag("emote-sets")]
         public string[] emote_sets      { get; protected set; }
 
         /// <summary>
         /// <para>The user's type</para>
         /// <para>Set to <see cref="UserType.None"/> if the user has no elevated privileges.</para>
         /// </summary>
-        [ValidateTag("user-type")]
+        [IrcTag("user-type")]
         public UserType user_type       { get; protected set; }
 
         /// <summary>
         /// <para>The color of the user's display name.</para>
         /// <para>The color is <see cref="Color.Empty"/> if it was never set by the user.</para>
         /// </summary>
-        [ValidateTag("color")]
+        [IrcTag("color")]
         public Color    color           { get; protected set; }
 
         /// <summary>
@@ -62,14 +62,14 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            mod             = TagsUtil.ToBool(message, "mod");
+            mod             = TwitchIrcUtil.Tags.ToBool(message, "mod");
 
-            display_name    = TagsUtil.ToString(message, "display-name");
-            emote_sets      = TagsUtil.ToStringArray(message, "emote-sets", ',');
+            display_name    = TwitchIrcUtil.Tags.ToString(message, "display-name");
+            emote_sets      = TwitchIrcUtil.Tags.ToStringArray(message, "emote-sets", ',');
 
-            user_type       = TagsUtil.ToUserType(message, "user-type");
+            user_type       = TwitchIrcUtil.Tags.ToUserType(message, "user-type");
 
-            color           = TagsUtil.FromtHtml(message, "color");
+            color           = TwitchIrcUtil.Tags.FromtHtml(message, "color");
         }
 
         /// <summary>

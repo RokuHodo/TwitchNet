@@ -18,14 +18,14 @@ TwitchNet.Clients.Irc.Twitch
         /// <summary>
         /// The unique UUID of the chat room.
         /// </summary>
-        [ValidateMember(Check.RegexIsMatch, RegexPatternUtil.UUID)]
+        [ValidateMember(Check.RegexIsMatch, TwitchIrcUtil.REGEX_PATTERN_UUID)]
         public string                       channel_uuid    { get; protected set; }
 
         /// <summary>
         /// <para>The tags attached to the message, if any.</para>
         /// <para>Check the <code>exist</code> property to determine if tags were attached to the message.</para>
         /// </summary>
-        [ValidateMember(Check.Tags)]
+        [ValidateMember(Check.TagsMissing)]
         public new ChatRoomUserStateTags    tags            { get; protected set; }
 
         /// <summary>

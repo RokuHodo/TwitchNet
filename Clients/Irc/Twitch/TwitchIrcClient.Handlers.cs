@@ -689,7 +689,7 @@ TwitchNet.Clients.Irc.Twitch
         private void
         HandleUserNotice(in IrcMessage message)
         {
-            UserNoticeType type = TagsUtil.ToUserNoticeType(message, "msg-id");
+            UserNoticeType type = TwitchIrcUtil.Tags.ToUserNoticeType(message, "msg-id");
             switch (type)
             {
                 case UserNoticeType.Sub:

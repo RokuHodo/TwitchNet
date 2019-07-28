@@ -2,7 +2,7 @@
 using TwitchNet.Debugger;
 using TwitchNet.Extensions;
 using TwitchNet.Clients.Irc;
-using TwitchNet.Utilities;
+using TwitchNet.Clients.Irc.Twitch;
 
 namespace
 TwitchNet.Events.Clients.Irc
@@ -19,7 +19,7 @@ TwitchNet.Events.Clients.Irc
         /// <summary>
         /// The unique UUID of the chat room.
         /// </summary>
-        [ValidateMember(Check.RegexIsMatch, RegexPatternUtil.UUID)]
+        [ValidateMember(Check.RegexIsMatch, TwitchIrcUtil.REGEX_PATTERN_UUID)]
         public string channel_uuid      { get; protected set; }
 
         /// <summary>

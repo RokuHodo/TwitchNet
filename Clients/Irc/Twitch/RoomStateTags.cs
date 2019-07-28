@@ -7,7 +7,7 @@ namespace
 TwitchNet.Clients.Irc.Twitch
 {
     public class
-    RoomStateTags : ITags
+    RoomStateTags
     {
         /// <summary>
         /// Whether or not tags were attached to the message;
@@ -17,27 +17,27 @@ TwitchNet.Clients.Irc.Twitch
         /// <summary>
         /// Whether or not the room is in emote only mode.
         /// </summary>
-        [ValidateTag("emote-only")]
+        [IrcTag("emote-only")]
         public bool                 emote_only          { get; protected set; }
 
         /// <summary>
         /// Whether or r9k mode is enabled.
         /// When enabled, messages 9 characters or longer must be unique from other messages.
         /// </summary>
-        [ValidateTag("r9k")]
+        [IrcTag("r9k")]
         public bool                 r9k                 { get; protected set; }
 
         /// <summary>
         /// Whether or not rituals are enabled.
         /// </summary>
-        [ValidateTag("rituals")]
+        [IrcTag("rituals")]
         public bool                 rituals             { get; protected set; }
 
         /// <summary>
         /// Whether or not the room is in sub only mode.
         /// When enabled, only subs can sent chat messages.
         /// </summary>
-        [ValidateTag("subs-only")]
+        [IrcTag("subs-only")]
         public bool                 subs_only           { get; protected set; }
 
         /// <summary>
@@ -47,20 +47,20 @@ TwitchNet.Clients.Irc.Twitch
         /// Set to -1 when follower only mode is disabled.
         /// </para>
         /// </summary>
-        [ValidateTag("followers-only")]
+        [IrcTag("followers-only")]
         public int                  followers_only      { get; protected set; }
 
         /// <summary>
         /// <para>How frequently, in seconds, non-elevated users can send messages.</para>
         /// <para>Set to 0 if slow mode is disabled.</para>
         /// </summary>
-        [ValidateTag("slow")]
+        [IrcTag("slow")]
         public uint                 slow                { get; protected set; }
 
         /// <summary>
         /// The id of the room whose state has changed and/or the client has joined.
         /// </summary>
-        [ValidateTag("room-id")]
+        [IrcTag("room-id")]
         public string               room_id             { get; protected set; }
 
         /// <summary>
@@ -70,7 +70,7 @@ TwitchNet.Clients.Irc.Twitch
         /// </para>
         /// <para>Set to <see cref="BroadcasterLanguage.None"/> if the room is not language restricted.</para>
         /// </summary>
-        [ValidateTag("broadcaster-lang")]
+        [IrcTag("broadcaster-lang")]
         public BroadcasterLanguage  broadcaster_lang    { get; protected set; }
 
         /// <summary>
@@ -88,55 +88,49 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="message">The IRC message to parse.</param>
         public RoomStateTags(in IrcMessage message)
         {
-            exist = message.tags.IsValid();
-            if (!exist)
+            if (TwitchIrcUtil.Tags.IsTagValid(message, "emote-only"))
             {
-                return;
-            }
-
-            if (TagsUtil.IsTagValid(message, "emote-only"))
-            {
-                emote_only = TagsUtil.ToBool(message, "emote-only");
+                emote_only = TwitchIrcUtil.Tags.ToBool(message, "emote-only");
                 changed_states |= RoomStateType.EmoteOnly;
             }
 
-            if (TagsUtil.IsTagValid(message, "r9k"))
+            if (TwitchIrcUtil.Tags.IsTagValid(message, "r9k"))
             {
-                r9k = TagsUtil.ToBool(message, "r9k");
+                r9k = TwitchIrcUtil.Tags.ToBool(message, "r9k");
                 changed_states |= RoomStateType.R9K;
             }
 
-            if (TagsUtil.IsTagValid(message, "rituals"))
+            if (TwitchIrcUtil.Tags.IsTagValid(message, "rituals"))
             {
-                rituals = TagsUtil.ToBool(message, "rituals");
+                rituals = TwitchIrcUtil.Tags.ToBool(message, "rituals");
                 changed_states |= RoomStateType.Rituals;
             }
 
-            if (TagsUtil.IsTagValid(message, "subs-only"))
+            if (TwitchIrcUtil.Tags.IsTagValid(message, "subs-only"))
             {
-                subs_only = TagsUtil.ToBool(message, "subs-only");
+                subs_only = TwitchIrcUtil.Tags.ToBool(message, "subs-only");
                 changed_states |= RoomStateType.SubsOnly;
             }
 
-            if (TagsUtil.IsTagValid(message, "followers-only"))
+            if (TwitchIrcUtil.Tags.IsTagValid(message, "followers-only"))
             {
-                followers_only = TagsUtil.ToInt32(message, "followers-only");
+                followers_only = TwitchIrcUtil.Tags.ToInt32(message, "followers-only");
                 changed_states |= RoomStateType.FollowersOnly;
             }
 
-            if (TagsUtil.IsTagValid(message, "slow"))
+            if (TwitchIrcUtil.Tags.IsTagValid(message, "slow"))
             {
-                slow = TagsUtil.ToUInt32(message, "slow");
+                slow = TwitchIrcUtil.Tags.ToUInt32(message, "slow");
                 changed_states |= RoomStateType.Slow;
             }
 
-            if (TagsUtil.IsTagValid(message, "broadcaster-lang"))
+            if (TwitchIrcUtil.Tags.IsTagValid(message, "broadcaster-lang"))
             {
-                broadcaster_lang = TagsUtil.ToBroadcasterLanguage(message, "broadcaster-lang");
+                broadcaster_lang = TwitchIrcUtil.Tags.ToBroadcasterLanguage(message, "broadcaster-lang");
                 changed_states |= RoomStateType.BroadcasterLang;
             }
 
-            room_id = TagsUtil.ToString(message, "room-id");
+            room_id = TwitchIrcUtil.Tags.ToString(message, "room-id");
         }
     }
 }

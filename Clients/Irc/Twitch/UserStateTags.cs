@@ -12,14 +12,14 @@ TwitchNet.Clients.Irc.Twitch
         /// <summary>
         /// Whether or not the user is subscribed to the channel.
         /// </summary>
-        [ValidateTag("subscriber")]
+        [IrcTag("subscriber")]
         public bool     subscriber  { get; protected set; }
 
         /// <summary>
         /// <para>The chat badges that the user has, if any.</para>
         /// <para>The array is empty if the user has no chat badges.</para>
         /// </summary>
-        [ValidateTag("badges")]
+        [IrcTag("badges")]
         public Badge[]  badges      { get; protected set; }
 
         /// <summary>
@@ -34,9 +34,9 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            subscriber  = TagsUtil.ToBool(message, "subscriber");
+            subscriber  = TwitchIrcUtil.Tags.ToBool(message, "subscriber");
 
-            badges      = TagsUtil.ToBadges(message, "badges");
+            badges      = TwitchIrcUtil.Tags.ToBadges(message, "badges");
         }
     }
 }

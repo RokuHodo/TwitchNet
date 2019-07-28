@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Clients\Irc\Twitch\TwitchIrcUtil.cs" />
     <Compile Include="Debugger\Check.cs" />
     <Compile Include="Debugger\DebugLevel.cs" />
     <Compile Include="Debugger\ErrorLevel.cs" />
@@ -105,7 +106,6 @@
     <Compile Include="Clients\Irc\Twitch\FollowersDurationPeriod.cs" />
     <Compile Include="Clients\Irc\Twitch\UserNoticeType.cs" />
     <Compile Include="Clients\Irc\Twitch\RoomStateType.cs" />
-    <Compile Include="Clients\Irc\Twitch\BadgeType.cs" />
     <Compile Include="BroadcasterLanguage.cs" />
     <Compile Include="Clients\Irc\ChannelOperatorEventArgs.cs" />
     <Compile Include="Clients\Irc\DataEventArgs.cs" />
@@ -170,7 +170,6 @@
     <Compile Include="Extensions\ValidationExtensions.cs" />
     <Compile Include="Helpers\Json\JsonDeserializer.cs" />
     <Compile Include="Helpers\Json\VideoDurationConverter.cs" />
-    <Compile Include="Clients\Irc\ITags.cs" />
     <Compile Include="Clients\Irc\Twitch\ISharedRoomStateTags.cs" />
     <Compile Include="Clients\Irc\Twitch\ISharedUserStateTags.cs" />
     <Compile Include="Rest\Helix\Users.cs" />
@@ -190,8 +189,6 @@
     <Compile Include="Clients\Irc\Twitch\UserNoticeTags.cs" />
     <Compile Include="Clients\Irc\Twitch\NoticeTags.cs" />
     <Compile Include="Clients\Irc\Twitch\GlobalUserStateTags.cs" />
-    <Compile Include="Clients\Irc\Twitch\Emote.cs" />
-    <Compile Include="Clients\Irc\Twitch\Badge.cs" />
     <Compile Include="Clients\Irc\Twitch\ClearChatTags.cs" />
     <Compile Include="Rest\OAuth\Validate\OAuthTokenInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -200,14 +197,14 @@
     <Compile Include="Utilities\ExceptionUtil.cs" />
     <Compile Include="Rest\OAuth\OAuth2.Async.cs" />
     <Compile Include="Utilities\RegexPatternUtil.cs" />
-    <Compile Include="Utilities\TagsUtil.cs" />
-    <Compile Include="Utilities\TwitchUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Rest\Helix\HelixApi.Internal.cs" />
     <None Include="packages.config" />
     <Compile Include="Rest\OAuth\OAuth2.Internal.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

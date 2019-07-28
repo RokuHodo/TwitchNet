@@ -6,12 +6,12 @@ namespace
 TwitchNet.Clients.Irc.Twitch
 {
     public class
-    RitualTags : UserNoticeTags, ITags
+    RitualTags : UserNoticeTags
     {
         /// <summary>
         /// The ritual type.
         /// </summary>
-        [ValidateTag("msg-param-ritual-name")]
+        [IrcTag("msg-param-ritual-name")]
         public RitualType msg_param_ritual_name { get; protected set; }
 
         /// <summary>
@@ -20,12 +20,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <param name="message">The IRC message to parse.</param>
         public RitualTags(in IrcMessage message) : base(message)
         {
-            if (!exist)
-            {
-                return;
-            }
-
-            msg_param_ritual_name = TagsUtil.ToRitualType(message, "msg-param-ritual-name");
+            msg_param_ritual_name = TwitchIrcUtil.Tags.ToRitualType(message, "msg-param-ritual-name");
         }
     }
 }

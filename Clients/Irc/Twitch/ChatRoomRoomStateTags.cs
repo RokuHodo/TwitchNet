@@ -17,27 +17,27 @@ TwitchNet.Clients.Irc.Twitch
         /// <summary>
         /// Whether or not the room is in emote only mode.
         /// </summary>
-        [ValidateTag("emote-only")]
+        [IrcTag("emote-only")]
         public bool             emote_only      { get; protected set; }
 
         /// <summary>
         /// Whether or r9k mode is enabled.
         /// When enabled, messages 9 characters or longer must be unique from other messages.
         /// </summary>
-        [ValidateTag("r9k")]
+        [IrcTag("r9k")]
         public bool             r9k             { get; protected set; }
 
         /// <summary>
         /// <para>How frequently, in seconds, non-elevated users can send messages.</para>
         /// <para>Set to 0 if slow mode is disabled.</para>
         /// </summary>
-        [ValidateTag("slow")]
+        [IrcTag("slow")]
         public uint             slow            { get; protected set; }
 
         /// <summary>
         /// The id of the room whose state has changed and/or the client has joined.
         /// </summary>
-        [ValidateTag("room-id")]
+        [IrcTag("room-id")]
         public string           room_id         { get; protected set; }
 
         /// <summary>
@@ -61,25 +61,25 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            if (TagsUtil.IsTagValid(message, "emote-only"))
+            if (TwitchIrcUtil.Tags.IsTagValid(message, "emote-only"))
             {
-                emote_only = TagsUtil.ToBool(message, "emote-only");
+                emote_only = TwitchIrcUtil.Tags.ToBool(message, "emote-only");
                 changed_states |= RoomStateType.EmoteOnly;
             }
 
-            if (TagsUtil.IsTagValid(message, "r9k"))
+            if (TwitchIrcUtil.Tags.IsTagValid(message, "r9k"))
             {
-                r9k = TagsUtil.ToBool(message, "r9k");
+                r9k = TwitchIrcUtil.Tags.ToBool(message, "r9k");
                 changed_states |= RoomStateType.R9K;
             }
 
-            if (TagsUtil.IsTagValid(message, "slow"))
+            if (TwitchIrcUtil.Tags.IsTagValid(message, "slow"))
             {
-                slow = TagsUtil.ToUInt32(message, "slow");
+                slow = TwitchIrcUtil.Tags.ToUInt32(message, "slow");
                 changed_states |= RoomStateType.Slow;
             }
 
-            room_id = TagsUtil.ToString(message, "room-id");
+            room_id = TwitchIrcUtil.Tags.ToString(message, "room-id");
         }
 
         /// <summary>

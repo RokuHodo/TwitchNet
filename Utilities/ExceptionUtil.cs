@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 
 // project namespaces
+using TwitchNet.Clients.Irc.Twitch;
 using TwitchNet.Extensions;
 
 namespace
@@ -276,7 +277,7 @@ TwitchNet.Utilities
                 return;
             }
 
-            if (TwitchUtil.IsValidNick(parameter))
+            if (TwitchIrcUtil.IsValidNick(parameter))
             {
                 return;
             }
@@ -318,7 +319,7 @@ TwitchNet.Utilities
                 return;
             }
 
-            if (TwitchUtil.IsValidFollowersDurationFormat(parameter))
+            if (TwitchIrcUtil.IsValidFollowersDurationFormat(parameter))
             {
                 return;
             }

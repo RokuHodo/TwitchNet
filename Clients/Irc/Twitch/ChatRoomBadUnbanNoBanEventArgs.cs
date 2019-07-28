@@ -18,7 +18,7 @@ TwitchNet.Clients.Irc.Twitch
         /// <summary>
         /// The unique UUID of the chat room.
         /// </summary>        
-        [ValidateMember(Check.RegexIsMatch, RegexPatternUtil.UUID)]
+        [ValidateMember(Check.RegexIsMatch, TwitchIrcUtil.REGEX_PATTERN_UUID)]
         public string channel_uuid      { get; protected set; }
 
         /// <summary>

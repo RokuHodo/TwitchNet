@@ -176,10 +176,10 @@ TwitchNet.Clients.Irc.Twitch
         {
             ExceptionUtil.ThrowIfInvalid(user_id, nameof(user_id));
             ExceptionUtil.ThrowIfInvalid(uuid, nameof(uuid));
-            Regex regex = new Regex(RegexPatternUtil.UUID);
+            Regex regex = new Regex(TwitchIrcUtil.REGEX_PATTERN_UUID);
             if (!regex.IsMatch(uuid))
             {
-                throw new FormatException("The argument " + nameof(uuid).WrapQuotes() + " must match the regex pattern " + RegexPatternUtil.UUID.WrapQuotes());
+                throw new FormatException("The argument " + nameof(uuid).WrapQuotes() + " must match the regex pattern " + TwitchIrcUtil.REGEX_PATTERN_UUID.WrapQuotes());
             }
             ExceptionUtil.ThrowIfInvalid(format, nameof(format));
 
@@ -814,10 +814,10 @@ TwitchNet.Clients.Irc.Twitch
         {
             ExceptionUtil.ThrowIfInvalidFollowersDuration(duration);
 
-            if (!TwitchUtil.TryConvertToFollowerDuratrion(duration, out TimeSpan time_span_duration))
+            if (!TwitchIrcUtil.TryConvertToFollowerDuratrion(duration, out TimeSpan time_span_duration))
             {
                 // If the format is valid and it couldn't be converted, the value overflowed. Just continue using the max duration.
-                if (TwitchUtil.IsValidFollowersDurationFormat(duration))
+                if (TwitchIrcUtil.IsValidFollowersDurationFormat(duration))
                 {
                     time_span_duration = new TimeSpan(90, 0, 0, 0, 0);
                 }

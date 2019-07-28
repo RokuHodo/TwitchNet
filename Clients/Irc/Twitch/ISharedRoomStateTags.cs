@@ -2,7 +2,7 @@
 TwitchNet.Clients.Irc.Twitch
 {
     public interface
-    ISharedRoomStateTags : ITags
+    ISharedRoomStateTags
     {
         /// <summary>
         /// Whether or not the room is in emote only mode.

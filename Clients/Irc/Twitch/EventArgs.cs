@@ -1,6 +1,8 @@
 ﻿// standard namespaces
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.Serialization;
 
 // project namespaces
 using TwitchNet.Debugger;
@@ -16,45 +18,52 @@ TwitchNet.Clients.Irc.Twitch
     ChatPrivmsgEventArgs : IrcMessageEventArgs
     {
         /// <summary>
-        /// The user who sent the message.
+        /// Where the message was sent from.
+        /// </summary>
+        public MessageSource source { get; private set; }
+
+        /// <summary>
+        /// Whether or not the message started with '\u0001ACTION', i.e., the '/me' command was used with the message.
+        /// </summary>
+        public bool action { get; protected set; }
+
+        /// <summary>
+        /// <para>The nick of the IRC user who sent the message.</para>
+        /// <para>The sender is equivalent to their login name.</para>
         /// </summary>
         [ValidateMember(Check.IsValid)]
         public string sender { get; protected set; }
 
         /// <summary>
-        /// <para>The channel the message was sent in.</para>
+        /// The IRC channel the message was sent in.
         /// <para>
-        /// If the message was sent in a chat room, this is set to the full IRC channel, i.e., the #chatroom signifier, channel ID, and UUID.
-        /// If the message was sent in a stream chat, the channel is just the name of the channel the message was sent in.
+        /// If the message was sent in a stream chat, the channel is equivalent to the streamer's login name prefixed with '#'.
+        /// If the message was sent in a chat room, the channel contains the room's uuid and the ID of the user who owns the room.
         /// </para>
         /// </summary>
         [ValidateMember(Check.IsValid)]
         public string channel { get; protected set; }
 
         /// <summary>
-        /// <para>The ID of the user who the chat room belongs to.</para>
-        /// <para>Set to null if the message was not sent in a chat room.</para>
+        /// <para>The ID of the user who owns the chat room.</para>
+        /// <para>Set to an empty string if the message was not sent in a chat room.</para>
         /// </summary>
-        //[ValidateMember(Check.IsValid)]
+        [ValidateMember(Check.IsValid)]
         public string channel_user_id { get; protected set; }
 
         /// <summary>
-        /// <para>The unique UUID of the chat room.</para>
-        /// <para>Set to null if the message was not sent in a chat room.</para>
+        /// <para>The UUID of the chat room.</para>
+        /// <para>Set to an empty string if the message was not sent in a chat room.</para>
         /// </summary>
-        //[ValidateMember(Check.RegexIsMatch, RegexPatternUtil.UUID)]
+        [ValidateMember(Check.RegexIsMatch, TwitchIrcUtil.REGEX_PATTERN_UUID)]
         public string channel_uuid { get; protected set; }
 
         /// <summary>
         /// The body of the message.
+        /// Any instance of '\u0001ACTION' or '\u0001' is automatically removed if the '/me' command was used.
         /// </summary>
         [ValidateMember(Check.IsValid)]
-        public string body { get; protected set; }
-
-        /// <summary>
-        /// Where the message was sent from.
-        /// </summary>
-        public MessageSource source { get; private set; }
+        public string body { get; protected set; }        
 
         /// <summary>
         /// Whether or not IRC tags were sent with the message.
@@ -65,46 +74,49 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>The converted IRC tags attached to the message.</para>
         /// <para>Set to null if the message was not sent in a chat room.</para>
         /// </summary>
-        //[ValidateMember(Check.Tags)]
+        [ValidateMember]
+        [ValidateMember(Check.TagsMissing)]
+        // [ValidateMember(Check.TagsExtra)]
         public ChatRoomPrivmsgTags tags_chat_room { get; protected set; }
 
         /// <summary>
         /// <para>The converted IRC tags attached to the message.</para>
         /// <para>Set to null if the message was not sent in a stream chat.</para>
         /// </summary>
-        [ValidateMember(Check.Tags)]
+        [ValidateMember]
+        [ValidateMember(Check.TagsMissing)]
+        // [ValidateMember(Check.TagsExtra)]
         public StreamChatPrivmsgTags tags_stream_chat { get; protected set; }
 
-        /// <summary>
-        /// Creates a new instance of the <see cref="ChatPrivmsgEventArgs"/> class.
-        /// </summary>
-        /// <param name="args">The event arguments to parse.</param>
         public ChatPrivmsgEventArgs(PrivmsgEventArgs args) : base(args.irc_message)
         {
+            source = TwitchIrcUtil.GetMessageSource(args.channel);
+
+            action = args.body.StartsWith(TwitchIrcUtil.ACTION_PREFIX) ? true : false;            
+
             sender = args.nick;
+            channel = args.channel;
+            channel_user_id = string.Empty;
+            channel_uuid = string.Empty;
+
             body = args.body;
+            if (action)
+            {
+                body = body.TextBetween(TwitchIrcUtil.ACTION_PREFIX, TwitchIrcUtil.ACTION_SUFFIX).Trim();
+            }
 
-            tags_exist = args.irc_message.tags.IsValid();
-
-            source = Helpers.GetMessageSource(args.channel);
+            tags_exist = args.irc_message.tags_exist;
 
             if (source == MessageSource.ChatRoom)
             {
-                channel = args.channel;
-                channel_user_id = channel.TextBetween(':', ':');
-
-                int index = channel.LastIndexOf(':');
-                if (index != -1)
-                {
-                    channel_uuid = channel.TextAfter(':', index);
-                }
+                Tuple<string, string> temp = TwitchIrcUtil.ParseChatRoomChannel(args.channel);
+                channel_user_id = temp.Item1;
+                channel_uuid = temp.Item2;
 
                 tags_chat_room = new ChatRoomPrivmsgTags(tags_exist, args);
             }
             else if (source == MessageSource.StreamChat)
             {
-                channel = args.channel;
-
                 tags_stream_chat = new StreamChatPrivmsgTags(tags_exist, args);
             }
         }
@@ -116,90 +128,102 @@ TwitchNet.Clients.Irc.Twitch
         /// <summary>
         /// Whether or not the sender is a moderator.
         /// </summary>
-        [ValidateTag("mod")]
+        [IrcTag("mod")]
         public bool mod { get; protected set; }
 
         /// <summary>
         /// Whether or not the sender is subscribed to the channel.
         /// </summary>
-        [ValidateTag("subscriber")]
+        [Obsolete("This tag is obsolte and can be deleted at any time. Use the 'badges' tag to look for this information instraad")]
+        [IrcTag("subscriber")]
         public bool subscriber { get; protected set; }
 
         /// <summary>
         /// Whether or not the sender has Twitch turbo.
         /// </summary>
-        [ValidateTag("turbo")]
+        [Obsolete("This tag has been deprecated and can be deleted at any time. Use the 'badges' tag to look for this information instead")]
+        [IrcTag("turbo")]
         public bool turbo { get; protected set; }
 
         /// <summary>
         /// Whether or not the body of the message only contains emotes.
         /// </summary>
-        [ValidateTag("emote-only")]
+        [IrcTag("emote-only")]
         public bool emote_only { get; protected set; }
 
         /// <summary>
-        /// The unique message id.
+        /// The unique message ID.
         /// </summary>
-        [ValidateTag("id")]
+        [IrcTag("id")]
         public string id { get; protected set; }
 
         /// <summary>
         /// <para>The display name of the sender.</para>
-        /// <para>This is empty if it was never set by the sender.</para>
+        /// <para>Set to <see cref="string.Empty"/> if the sender never explicitly set their display name.</para>
         /// </summary>
-        [ValidateTag("display-name")]
+        [IrcTag("display-name")]
         public string display_name { get; protected set; }
 
         /// <summary>
-        /// The user id of the sender.
+        /// The user ID of the sender.
         /// </summary>
-        [ValidateTag("user-id")]
+        [IrcTag("user-id")]
         public string user_id { get; protected set; }
 
         /// <summary>
-        /// The user id of the channel the message was sent in.
+        /// The user ID of the channel the message was sent in.
         /// </summary>
-        [ValidateTag("room-id")]
+        [IrcTag("room-id")]
         public string room_id { get; protected set; }
 
         /// <summary>
         /// <para>The sender's user type</para>
         /// <para>Set to <see cref="UserType.None"/> if the sender has no elevated privileges.</para>
         /// </summary>
-        [ValidateTag("user-type")]
+        [Obsolete("This tag has been deprecated and can be deleted at any time. Use the 'badges' tag to look for this information instead")]
+        [IrcTag("user-type")]
         public UserType user_type { get; protected set; }
 
         /// <summary>
         /// <para>The color of the sender's display name.</para>
-        /// <para>The color is <see cref="Color.Empty"/> if it was never set by the sender.</para>
+        /// <para>Set to <see cref="Color.Empty"/> if the sender never explicitly set their display name color.</para>
         /// </summary>
-        [ValidateTag("color")]
+        [IrcTag("color")]
         public Color color { get; protected set; }
 
         /// <summary>
         /// The time the message was sent.
         /// </summary>
-        [ValidateTag("tmi-sent-ts")]
+        [IrcTag("tmi-sent-ts")]
         public DateTime tmi_sent_ts { get; protected set; }
 
         /// <summary>
         /// <para>The chat badges that the sender has, if any.</para>
-        /// <para>The array is empty if the sender has no chat badges.</para>
+        /// <para>Set to an empty array if the sender has no chat badges.</para>
         /// </summary>
-        [ValidateTag("badges")]
+        [ValidateMember]
+        [IrcTag("badges")]
         public Badge[] badges { get; protected set; }
 
         /// <summary>
-        /// <para>The emotes the sender used in the message, if any.</para>
-        /// <para>The array is empty if the sender did not use any emotes.</para>
+        /// <para>
+        /// Detailed information on badge tenure.
+        /// Currently, this only returns information for the subscriber badge.
+        /// </para>
+        /// <para>Set to an empty array if the sender has no chat badges.</para>
         /// </summary>
-        [ValidateTag("emotes")]
-        public Emote[] emotes { get; protected set; }
+        [ValidateMember]
+        [IrcTag("badge-info")]
+        public BadgeInfo[] badge_info { get; protected set; }
 
         /// <summary>
-        /// Creates a new instance of the <see cref="ChatRoomPrivmsgTags"/> class.
+        /// <para>The emotes the sender used in the message, if any.</para>
+        /// <para>Set to an empty array if the sender did not use any emotes in the message.</para>
         /// </summary>
-        /// <param name="args">The event arguments to parse.</param>
+        [ValidateMember]
+        [IrcTag("emotes")]
+        public Emote[] emotes { get; protected set; }
+
         public ChatRoomPrivmsgTags(bool tags_exist, PrivmsgEventArgs args)
         {
             if (!tags_exist)
@@ -207,23 +231,24 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            mod = TagsUtil.ToBool(args.irc_message, "mod");
-            subscriber = TagsUtil.ToBool(args.irc_message, "subscriber");
-            turbo = TagsUtil.ToBool(args.irc_message, "turbo");
-            emote_only = TagsUtil.ToBool(args.irc_message, "emote-only");
+            mod = TwitchIrcUtil.Tags.ToBool(args.irc_message, "mod");
+            subscriber = TwitchIrcUtil.Tags.ToBool(args.irc_message, "subscriber");
+            turbo = TwitchIrcUtil.Tags.ToBool(args.irc_message, "turbo");
+            emote_only = TwitchIrcUtil.Tags.ToBool(args.irc_message, "emote-only");
 
-            id = TagsUtil.ToString(args.irc_message, "id");
-            display_name = TagsUtil.ToString(args.irc_message, "display-name");
-            user_id = TagsUtil.ToString(args.irc_message, "user-id");
-            room_id = TagsUtil.ToString(args.irc_message, "room-id");
+            id = TwitchIrcUtil.Tags.ToString(args.irc_message, "id");
+            display_name = TwitchIrcUtil.Tags.ToString(args.irc_message, "display-name");
+            user_id = TwitchIrcUtil.Tags.ToString(args.irc_message, "user-id");
+            room_id = TwitchIrcUtil.Tags.ToString(args.irc_message, "room-id");
 
-            user_type = TagsUtil.ToUserType(args.irc_message, "user-type");
+            user_type = TwitchIrcUtil.Tags.ToUserType(args.irc_message, "user-type");
 
-            color = TagsUtil.FromtHtml(args.irc_message, "color");
-            tmi_sent_ts = TagsUtil.FromUnixEpochMilliseconds(args.irc_message, "tmi-sent-ts");
+            color = TwitchIrcUtil.Tags.FromtHtml(args.irc_message, "color");
+            tmi_sent_ts = TwitchIrcUtil.Tags.FromUnixEpochMilliseconds(args.irc_message, "tmi-sent-ts");
 
-            badges = TagsUtil.ToBadges(args.irc_message, "badges");
-            emotes = TagsUtil.ToEmotes(args.irc_message, "emotes");
+            badges = TwitchIrcUtil.Tags.ToBadges(args.irc_message, "badges");
+            badge_info = TwitchIrcUtil.Tags.ToBadgeInfo(args.irc_message, "badge-info");
+            emotes = TwitchIrcUtil.Tags.ToEmotes(args.irc_message, "emotes");
         }
     }
 
@@ -234,96 +259,108 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>The amount of bits the sender cheered, if any.</para>
         /// <para>Set to 0 if the sender did not cheer.</para>
         /// </summary>
-        [ValidateTag("bits", Check.IsNotEqualTo, 0u)]
+        [IrcTag("bits")]
         public uint bits { get; protected set; }
 
         /// <summary>
         /// Whether or not the sender is a moderator.
         /// </summary>
-        [ValidateTag("mod")]
+        [IrcTag("mod")]
         public bool mod { get; protected set; }
 
         /// <summary>
         /// Whether or not the sender is subscribed to the channel.
         /// </summary>
-        [ValidateTag("subscriber")]
+        [Obsolete("This tag is obsolte and can be deleted at any time. Use the 'badges' tag to look for this information instraad")]
+        [IrcTag("subscriber")]
         public bool subscriber { get; protected set; }
 
         /// <summary>
         /// Whether or not the sender has Twitch turbo.
         /// </summary>
-        [ValidateTag("turbo")]
+        [Obsolete("This tag has been deprecated and can be deleted at any time. Use the 'badges' tag to look for this information instead")]
+        [IrcTag("turbo")]
         public bool turbo { get; protected set; }
 
         /// <summary>
         /// Whether or not the body of the message only contains emotes.
         /// </summary>
-        [ValidateTag("emote-only")]
+        [IrcTag("emote-only")]
         public bool emote_only { get; protected set; }
 
         /// <summary>
-        /// The unique message id.
+        /// The unique message ID.
         /// </summary>
-        [ValidateTag("id")]
+        [IrcTag("id")]
         public string id { get; protected set; }
 
         /// <summary>
         /// <para>The display name of the sender.</para>
-        /// <para>This is empty if it was never set by the sender.</para>
+        /// <para>Set to <see cref="string.Empty"/> if the sender never explicitly set their display name.</para>
         /// </summary>
-        [ValidateTag("display-name")]
+        [IrcTag("display-name")]
         public string display_name { get; protected set; }
 
         /// <summary>
-        /// The user id of the sender.
+        /// The user ID of the sender.
         /// </summary>
-        [ValidateTag("user-id")]
+        [IrcTag("user-id")]
         public string user_id { get; protected set; }
 
         /// <summary>
-        /// The user id of the channel the message was sent in.
+        /// The user ID of the channel the message was sent in.
         /// </summary>
-        [ValidateTag("room-id")]
+        [IrcTag("room-id")]
         public string room_id { get; protected set; }
 
         /// <summary>
         /// <para>The sender's user type</para>
         /// <para>Set to <see cref="UserType.None"/> if the sender has no elevated privileges.</para>
         /// </summary>
-        [ValidateTag("user-type")]
+        [Obsolete("This tag has been deprecated and can be deleted at any time. Use the 'badges' tag to look for this information instead")]
+        [IrcTag("user-type")]
         public UserType user_type { get; protected set; }
 
         /// <summary>
         /// <para>The color of the sender's display name.</para>
-        /// <para>The color is <see cref="Color.Empty"/> if it was never set by the sender.</para>
+        /// <para>Set to <see cref="Color.Empty"/> if the sender never explicitly set their display name color.</para>
         /// </summary>
-        [ValidateTag("color")]
+        [IrcTag("color")]
         public Color color { get; protected set; }
 
         /// <summary>
         /// The time the message was sent.
         /// </summary>
-        [ValidateTag("tmi-sent-ts")]
+        [IrcTag("tmi-sent-ts")]
         public DateTime tmi_sent_ts { get; protected set; }
 
         /// <summary>
         /// <para>The chat badges that the sender has, if any.</para>
-        /// <para>The array is empty if the sender has no chat badges.</para>
+        /// <para>Set to an empty array if the sender has no chat badges.</para>
         /// </summary>
-        [ValidateTag("badges")]
+        [ValidateMember]
+        [IrcTag("badges")]
         public Badge[] badges { get; protected set; }
 
         /// <summary>
-        /// <para>The emotes the sender used in the message, if any.</para>
-        /// <para>The array is empty if the sender did not use any emotes.</para>
+        /// <para>
+        /// Detailed information on badge tenure.
+        /// Currently, this only returns information for the subscriber badge.
+        /// </para>
+        /// <para>Set to an empty array if the sender has no chat badges.</para>
         /// </summary>
-        [ValidateTag("emotes")]
-        public Emote[] emotes { get; protected set; }
+        [ValidateMember]
+        [IrcTag("badge-info")]
+        public BadgeInfo[] badge_info { get; protected set; }
 
         /// <summary>
-        /// Creates a new instance of the <see cref="ChatRoomPrivmsgTags"/> class.
+        /// <para>The emotes the sender used in the message, if any.</para>
+        /// <para>Set to an empty array if the sender did not use any emotes in the message.</para>
         /// </summary>
-        /// <param name="args">The event arguments to parse.</param>
+        [ValidateMember]
+        [IrcTag("emotes")]
+        public Emote[] emotes { get; protected set; }
+
         public StreamChatPrivmsgTags(bool tags_exist, PrivmsgEventArgs args)
         {
             if (!tags_exist)
@@ -331,29 +368,279 @@ TwitchNet.Clients.Irc.Twitch
                 return;
             }
 
-            bits = TagsUtil.ToUInt32(args.irc_message, "bits");
+            bits = TwitchIrcUtil.Tags.ToUInt32(args.irc_message, "bits");
 
-            mod = TagsUtil.ToBool(args.irc_message, "mod");
-            subscriber = TagsUtil.ToBool(args.irc_message, "subscriber");
-            turbo = TagsUtil.ToBool(args.irc_message, "turbo");
-            emote_only = TagsUtil.ToBool(args.irc_message, "emote-only");
+            mod = TwitchIrcUtil.Tags.ToBool(args.irc_message, "mod");
+            subscriber = TwitchIrcUtil.Tags.ToBool(args.irc_message, "subscriber");
+            turbo = TwitchIrcUtil.Tags.ToBool(args.irc_message, "turbo");
+            emote_only = TwitchIrcUtil.Tags.ToBool(args.irc_message, "emote-only");
 
-            id = TagsUtil.ToString(args.irc_message, "id");
-            display_name = TagsUtil.ToString(args.irc_message, "display-name");
-            user_id = TagsUtil.ToString(args.irc_message, "user-id");
-            room_id = TagsUtil.ToString(args.irc_message, "room-id");
+            id = TwitchIrcUtil.Tags.ToString(args.irc_message, "id");
+            display_name = TwitchIrcUtil.Tags.ToString(args.irc_message, "display-name");
+            user_id = TwitchIrcUtil.Tags.ToString(args.irc_message, "user-id");
+            room_id = TwitchIrcUtil.Tags.ToString(args.irc_message, "room-id");
 
-            user_type = TagsUtil.ToUserType(args.irc_message, "user-type");
+            user_type = TwitchIrcUtil.Tags.ToUserType(args.irc_message, "user-type");
 
-            color = TagsUtil.FromtHtml(args.irc_message, "color");
-            tmi_sent_ts = TagsUtil.FromUnixEpochMilliseconds(args.irc_message, "tmi-sent-ts");
+            color = TwitchIrcUtil.Tags.FromtHtml(args.irc_message, "color");
+            tmi_sent_ts = TwitchIrcUtil.Tags.FromUnixEpochMilliseconds(args.irc_message, "tmi-sent-ts");
 
-            badges = TagsUtil.ToBadges(args.irc_message, "badges");
-            emotes = TagsUtil.ToEmotes(args.irc_message, "emotes");
+            badges = TwitchIrcUtil.Tags.ToBadges(args.irc_message, "badges");
+            badge_info = TwitchIrcUtil.Tags.ToBadgeInfo(args.irc_message, "badge-info");
+            emotes = TwitchIrcUtil.Tags.ToEmotes(args.irc_message, "emotes");
+        }
+    }
+
+    public class
+    Badge
+    {
+        /// <summary>
+        /// <para>The badge verison.</para>
+        /// <para>Set to -1 when <see cref="type"/> is equal to <see cref="BadgeType.Other"/>.</para>
+        /// </summary>
+        [ValidateMember(Check.IsNotEqualTo, -1)]
+        public int version { get; protected set; }
+
+        /// <summary>
+        /// <para>The badge type.</para>
+        /// <para>Set to <see cref="BadgeType.Other"/> if no supported badge type is found.</para>
+        /// </summary>
+        [ValidateMember(Check.IsNotEqualTo, BadgeType.Other)]
+        public BadgeType type { get; protected set; }
+
+        public Badge(string pair)
+        {
+            char separator = '/';
+
+            if (!Int32.TryParse(pair.TextAfter(separator), out int _version))
+            {
+                _version = -1;
+            }
+            version = _version;
+
+            EnumUtil.TryParse(pair.TextBefore('/'), out BadgeType _type);
+            type = _type;
+        }
+    }
+
+    public class
+    BadgeInfo
+    {
+        /// <summary>
+        /// <para>How many months the user has been subscribed.</para>
+        /// <para>Set to -1 when <see cref="type"/> is equal to <see cref="BadgeType.Other"/>.</para>
+        /// </summary>
+        [ValidateMember(Check.IsNotEqualTo, -1)]
+        public int tenure { get; protected set; }
+
+        /// <summary>
+        /// <para>
+        /// The badge type.
+        /// Currently, only <see cref="BadgeType.Subscriber"/> is the only valid value.
+        /// </para>
+        /// <para>Set to <see cref="BadgeType.Other"/> if no supported badge type is found.</para>
+        /// </summary>
+        [ValidateMember(Check.IsNotEqualTo, BadgeType.Other)]
+        public BadgeType type { get; protected set; }
+
+        public BadgeInfo(string pair)
+        {
+            char separator = '/';
+
+            if (!Int32.TryParse(pair.TextAfter(separator), out int _tenure))
+            {
+                _tenure = -1;
+            }
+            tenure = _tenure;
+
+            EnumUtil.TryParse(pair.TextBefore('/'), out BadgeType _type);
+            type = _type;
+        }
+    }
+
+    public enum
+    BadgeType
+    {
+        #region Default badge
+
+        /// <summary>
+        /// Unsupported or unknown badge type.
+        /// </summary>
+        [EnumMember(Value = "")]
+        Other = 0,
+
+        #endregion  
+
+        #region Normal badges
+
+        /// <summary>
+        /// Admin badge.
+        /// </summary>
+        [EnumMember(Value = "admin")]
+        Admin,
+
+        /// <summary>
+        /// Bits badge.
+        /// </summary>
+        [EnumMember(Value = "bits")]
+        Bits,
+
+        /// <summary>
+        /// Bits charity badge.
+        /// </summary>
+        [EnumMember(Value = "bits-charity")]
+        BitsCharity,
+
+        /// <summary>
+        /// Broadcaster badge.
+        /// </summary>
+        [EnumMember(Value = "broadcaster")]
+        Broadcaster,
+
+        /// <summary>
+        /// Global mod badge.
+        /// </summary>
+        [EnumMember(Value = "global_mod")]
+        GlobalMod,
+
+        /// <summary>
+        /// Moderator badge.
+        /// </summary>
+        [EnumMember(Value = "moderator")]
+        Moderator,
+
+        /// <summary>
+        /// Subscriber badge.
+        /// </summary>
+        [EnumMember(Value = "subscriber")]
+        Subscriber,
+
+        /// <summary>
+        /// Staff badge.
+        /// </summary>
+        [EnumMember(Value = "staff")]
+        Staff,
+
+        /// <summary>
+        /// Trwitch prime badge.
+        /// </summary>
+        [EnumMember(Value = "premium")]
+        Premium,
+
+        /// <summary>
+        /// Twitch turbo badge.
+        /// </summary>
+        [EnumMember(Value = "turbo")]
+        Turbo,
+
+        /// <summary>
+        /// Twitch partner badge.
+        /// </summary>
+        [EnumMember(Value = "partner")]
+        Partner,
+
+        #endregion
+
+        #region Other badges
+
+        /// <summary>
+        /// Twitch partner badge.
+        /// </summary>
+        [EnumMember(Value = "sub-gifter")]
+        SubGifter,
+
+        /// <summary>
+        /// Clip champ badge.
+        /// </summary>
+        [EnumMember(Value = "clip-champ")]
+        ClipChamp,
+
+        /// <summary>
+        /// Clip champ badge.
+        /// </summary>
+        [EnumMember(Value = "twitchcon2017")]
+        Twitchcon2017,
+
+        /// <summary>
+        /// Clip champ badge.
+        /// </summary>
+        [EnumMember(Value = "overwatch-league-insider_1")]
+        OverwatchLeagueInsider,
+
+        #endregion        
+    }
+
+    public class
+    Emote
+    {
+        /// <summary>
+        /// The emote ID.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string id { get; protected set; }
+
+        /// <summary>
+        /// The character index range(s) in the message where the emote was used.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public EmoteRange[] ranges { get; protected set; }
+
+        public Emote(string pair)
+        {
+            if (pair.IsValid())
+            {
+                id = pair.TextBefore(':');
+
+                List<EmoteRange> ranges_list = new List<EmoteRange>();
+
+                string[] _ranges = pair.TextAfter(':').Split(',');
+                foreach (string _range in _ranges)
+                {
+                    EmoteRange range = new EmoteRange(_range);
+                    ranges_list.Add(range);
+                }
+
+                ranges = ranges_list.ToArray();
+            }
+        }
+    }
+
+    public class
+    EmoteRange
+    {
+        /// <summary>
+        /// <para>The index in the message where the first emote character is located.</para>
+        /// <para>Set to -1 if the index could not be parsed.</para>
+        /// </summary>
+        [ValidateMember(Check.IsNotEqualTo, -1)]
+        public int index_start { get; protected set; }
+
+        /// <summary>
+        /// <para>The index in the message where the last emote character is located.</para>
+        /// <para>Set to -1 if the index could not be parsed.</para>
+        /// </summary>
+        [ValidateMember(Check.IsNotEqualTo, -1)]
+        public int index_end { get; protected set; }
+
+        public EmoteRange(string range_pair)
+        {
+            if (!Int32.TryParse(range_pair.TextBefore('-'), out int _index_start))
+            {
+                _index_start = -1;
+            }
+            index_start = _index_start;
+
+            if (!Int32.TryParse(range_pair.TextAfter('-'), out int _index_end))
+            {
+                _index_end = -1;
+            }
+            index_end = _index_end;
         }
     }
 
     #endregion
+
+    #region Helpers
 
     public enum
     MessageSource
@@ -373,20 +660,7 @@ TwitchNet.Clients.Irc.Twitch
         /// The message was sent in a chat room.
         /// </summary>
         ChatRoom
-    }
-
-    static class
-    Helpers
-    {
-        public static MessageSource
-        GetMessageSource(string channel)
-        {
-            if (channel.IsNull())
-            {
-                return MessageSource.Other;
-            }
-
-            return channel.TextBefore(':') == "#chatrooms" ? MessageSource.ChatRoom : MessageSource.StreamChat;
-        }
     }    
+
+    #endregion
 }

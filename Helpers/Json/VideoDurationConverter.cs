@@ -2,7 +2,7 @@
 using System;
 
 // project namespaces
-using TwitchNet.Utilities;
+using TwitchNet.Clients.Irc.Twitch;
 
 // imported .dll's
 using Newtonsoft.Json;
@@ -42,7 +42,7 @@ TwitchNet.Helpers.Json
             if(!TimeSpan.TryParse(value, out TimeSpan time_span))
             {
                 // attempt to match 00h00m00s format
-                TwitchUtil.TryConvertToVideoLength(value, out time_span);
+                TwitchIrcUtil.TryConvertToVideoLength(value, out time_span);
             }
 
             return time_span;

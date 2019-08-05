@@ -128,10 +128,6 @@
     <Compile Include="Clients\Irc\Twitch\BadHostRateExceededEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\BadHostHostingEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\ChatRoomAlreadyBannedEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\ChatRoomPartEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\ChatRoomJoinEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\ChatRoomNamReplyEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\ChatRoonEndOfNamesEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\ChatRoomNoticeEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\ChatRoomClearChatEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\NoticeEventArgs.cs" />
@@ -141,7 +137,6 @@
     <Compile Include="Clients\Irc\Twitch\ChatRoomUserStateEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\ChatRoomRoomStateEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\AlreadyBannedEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\WhisperEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\UserStateEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\RitualEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\RaidEventArgs.cs" />
@@ -151,15 +146,11 @@
     <Compile Include="Clients\Irc\Twitch\GlobalUserStateEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\ClearChatEventArgs.cs" />
     <Compile Include="Clients\Irc\UserModeEventArgs.cs" />
-    <Compile Include="Clients\Irc\EndOfNamesEventArgs.cs" />
     <Compile Include="Clients\Irc\ChannelModeEventArgs.cs" />
     <Compile Include="Clients\Irc\PrivmsgEventArgs.cs" />
-    <Compile Include="Clients\Irc\PartEventArgs.cs" />
-    <Compile Include="Clients\Irc\JoinEventArgs.cs" />
     <Compile Include="Clients\Irc\MotdEventArgs.cs" />
     <Compile Include="Clients\Irc\UnknownCommandEventArgs.cs" />
     <Compile Include="Clients\Irc\NumericReplyEventArgs.cs" />
-    <Compile Include="Clients\Irc\NamReplyEventArgs.cs" />
     <Compile Include="Clients\Irc\IrcMessageEventArgs.cs" />
     <Compile Include="Extensions\EventExtensions.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
@@ -180,7 +171,6 @@
     <Compile Include="Clients\Irc\Twitch\GiftedSubscriberTags.cs" />
     <Compile Include="Clients\Irc\Twitch\ChatRoomUserStateTags.cs" />
     <Compile Include="Clients\Irc\Twitch\ChatRoomRoomStateTags.cs" />
-    <Compile Include="Clients\Irc\Twitch\WhisperTags.cs" />
     <Compile Include="Clients\Irc\Twitch\UserStateTags.cs" />
     <Compile Include="Clients\Irc\Twitch\RoomStateTags.cs" />
     <Compile Include="Clients\Irc\Twitch\SubscriberTags.cs" />
@@ -200,6 +190,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Rest\Helix\HelixApi.Internal.cs" />
+    <Compile Include="Clients\Irc\IrcClient.EventArgs.cs" />
     <None Include="packages.config" />
     <Compile Include="Rest\OAuth\OAuth2.Internal.cs" />
   </ItemGroup>

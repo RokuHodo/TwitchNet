@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 
 // project namespaces
-using TwitchNet.Events.Clients.Irc;
 using TwitchNet.Extensions;
 using TwitchNet.Utilities;
 
@@ -13,74 +12,6 @@ TwitchNet.Clients.Irc.Twitch
     public partial class
     TwitchIrcClient : IrcClient
     {
-        #region Base event overrides
-
-        /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 353, RPL_NAMREPLY in a stream chat.</para>
-        /// <para>
-        /// Contains a partial list of users that haved joined a channel's stream chat.
-        /// Received when joining a room.
-        /// </para>
-        /// <para>Requires /membership.</para>
-        /// </summary>
-        public override event EventHandler<NamReplyEventArgs>       OnNamReply;
-
-        /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 353, RPL_NAMREPLY in a chat room.</para>
-        /// <para>
-        /// Contains a partial list of users that haved joined a channel's chat room.
-        /// Received when joining a room.
-        /// </para>
-        /// <para>Requires /membership.</para>
-        /// </summary>
-        public event EventHandler<ChatRoomNamReplyEventArgs>        OnChatRoomNamReply;
-
-        /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 366, RPL_ENDOFNAMES in a stream chat.</para>
-        /// <para>
-        /// Contains a complete list of users that haved joined a channel's stream chat.
-        /// Received when joining a room.
-        /// </para>
-        /// <para>Requires /membership.</para>
-        /// </summary>
-        public override event EventHandler<EndOfNamesEventArgs>     OnEndOfNames;
-
-        /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 366, RPL_ENDOFNAMES in a chat room.</para>
-        /// <para>
-        /// Contains a complete list of users that haved joined a channel's chat room.
-        /// Received when joining a room.
-        /// </para>
-        /// <para>Requires /membership.</para>
-        /// </summary>
-        public event EventHandler<ChatRoonEndOfNamesEventArgs>      OnChatRoomOnEndOfNames;
-
-        /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command JOIN in a stream chat.</para>
-        /// <para>Signifies that a user has joined a channel's stream chat.</para>
-        /// </summary>
-        public override event EventHandler<JoinEventArgs>           OnJoin;
-
-        /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command JOIN in a chat room.</para>
-        /// <para>Signifies that a user has joined a channel's chat room.</para>
-        /// </summary>
-        public event EventHandler<ChatRoomJoinEventArgs>            OnChatRoomJoin;
-
-        /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command PART in a stream chat</para>
-        /// <para>Signifies that a user has left a channel's stream chat.</para>
-        /// </summary>
-        public override event EventHandler<PartEventArgs>           OnPart;
-
-        /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command PART in a chat room.</para>
-        /// <para>Signifies that a user has left a channel's chat room.</para>
-        /// </summary>
-        public event EventHandler<ChatRoomPartEventArgs>            OnChatRoomPart;
-
-        #endregion
-
         #region Twitch events
 
         /// <summary>
@@ -101,8 +32,10 @@ TwitchNet.Clients.Irc.Twitch
         public event EventHandler<ChatPrivmsgEventArgs>             OnChatPrivmsg;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command WHISPER.</para>
-        /// <para>Signifies that a direct chat message was received from another user.</para>
+        /// <para>
+        /// Raised when an <see cref="IrcMessage"/> is received with the command WHISPER.
+        /// Signifies that a direct chat message was received from another user.
+        /// </para>
         /// <para>Supplementary tags can be added to the message by requesting /tags.</para>
         /// </summary>
         public event EventHandler<WhisperEventArgs>                 OnWhisper;
@@ -502,102 +435,6 @@ TwitchNet.Clients.Irc.Twitch
 
         #endregion
 
-        #region Base override handlers
-
-        protected override void
-        HandleNamReply(in IrcMessage message)
-        {
-            if (message.parameters.Length < 3 || !message.parameters[2].IsValid())
-            {
-                return;
-            }
-
-            if (IsChatRoom(message, 2))
-            {
-                ChatRoomNamReplyEventArgs args = new ChatRoomNamReplyEventArgs(message);
-                AddNames(args.channel, args.names);
-
-                OnChatRoomNamReply.Raise(this, args);
-            }
-            else
-            {
-                NamReplyEventArgs args = new NamReplyEventArgs(message);
-                AddNames(args.channel, args.names);
-
-                OnNamReply.Raise(this, args);
-            }            
-
-            void
-            AddNames(string key, string[] list)
-            {
-                if (!names.ContainsKey(key))
-                {
-                    names[key] = new List<string>();
-                }
-
-                if (list.IsValid())
-                {
-                    names[key].AddRange(list);
-                }
-            }            
-        }
-
-        protected override void
-        HandleEndOfNames(in IrcMessage message)
-        {
-            if (IsChatRoom(message, 1))
-            {
-                ChatRoonEndOfNamesEventArgs args = new ChatRoonEndOfNamesEventArgs(message, names);
-                RemoveNames(args.channel);
-
-                OnChatRoomOnEndOfNames.Raise(this, args);
-            }
-            else
-            {
-                EndOfNamesEventArgs args = new EndOfNamesEventArgs(message, names);
-                RemoveNames(args.channel);
-
-                OnEndOfNames.Raise(this, args);
-            }
-
-            void
-            RemoveNames(string key)
-            {
-                if (names.ContainsKey(key))
-                {
-                    names.Remove(key);
-                }
-            }
-        }
-
-        protected override void
-        HandleJoin(in IrcMessage message)
-        {
-            if (IsChatRoom(message))
-            {
-                OnChatRoomJoin.Raise(this, new ChatRoomJoinEventArgs(message));
-            }
-            else
-            {
-                OnJoin.Raise(this, new JoinEventArgs(message));
-            }
-        }
-
-        protected override void
-        HandlePart(in IrcMessage message)
-        {
-            if (IsChatRoom(message))
-            {
-                OnChatRoomPart.Raise(this, new ChatRoomPartEventArgs(message));
-            }
-            else
-            {
-                OnPart.Raise(this, new PartEventArgs(message));
-            }
-        }
-
-        #endregion
-
         #region Twitch handlers
 
         /// <summary>
@@ -607,13 +444,6 @@ TwitchNet.Clients.Irc.Twitch
         ResetHandlers()
         {
             base.ResetHandlers();
-
-            // IRC override handlers
-            SetHandler("353", HandleNamReply);
-            SetHandler("366", HandleEndOfNames);
-
-            SetHandler("JOIN", HandleJoin);
-            SetHandler("PART", HandlePart);
 
             // Twitch handlers
             SetHandler("WHISPER", HandleWhisper);
@@ -652,7 +482,6 @@ TwitchNet.Clients.Irc.Twitch
             {
                 OnClearChat.Raise(this, new ClearChatEventArgs(message));
             }
-
         }
 
         /// <summary>

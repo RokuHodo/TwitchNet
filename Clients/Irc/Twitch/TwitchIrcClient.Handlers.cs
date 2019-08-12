@@ -22,16 +22,6 @@ TwitchNet.Clients.Irc.Twitch
         public event EventHandler<ChannelOperatorEventArgs>         OnChannelOperator;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command PRIVMSG in a stream chat or chat room.</para>
-        /// <para>
-        /// Requires /commands for stream chat messages.
-        /// Supplementary tags can be added to the message by requesting /tags.
-        /// The /tags command must be requested for chat room messages.
-        /// </para>
-        /// </summary>
-        public event EventHandler<ChatPrivmsgEventArgs>             OnChatPrivmsg;
-
-        /// <summary>
         /// <para>
         /// Raised when an <see cref="IrcMessage"/> is received with the command WHISPER.
         /// Signifies that a direct chat message was received from another user.
@@ -422,17 +412,6 @@ TwitchNet.Clients.Irc.Twitch
             OnChannelOperator.Raise(this, new ChannelOperatorEventArgs(args));
         }
 
-        /// <summary>
-        /// Callback for the <see cref="IrcClient.OnPrivmsg"/> event.
-        /// </summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="args">The event arguments.</param>
-        private void
-        Callback_OnPrivmsg(object sender, PrivmsgEventArgs args)
-        {
-            OnChatPrivmsg.Raise(this, new ChatPrivmsgEventArgs(args));
-        }
-
         #endregion
 
         #region Twitch handlers
@@ -454,6 +433,8 @@ TwitchNet.Clients.Irc.Twitch
             SetHandler("USERSTATE", HandleUserState);
             SetHandler("HOSTTARGET", HandleHostTarget);
             SetHandler("RECONNECT", HandleReconnect);
+
+            // TODO: Move to IrcClient.EvenArgs. This is a native IRC command.
             SetHandler("NOTICE", HandleNotice);
         }
 

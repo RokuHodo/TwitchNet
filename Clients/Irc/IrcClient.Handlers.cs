@@ -224,8 +224,8 @@ TwitchNet.Clients.Irc
             SetHandler("421", HandleUnknownCommand);
 
             SetHandler("JOIN", HandleJoin);
-            SetHandler("MODE", HandleMode);
             SetHandler("PART", HandlePart);
+            SetHandler("MODE", HandleMode);
             SetHandler("PING", HandlePing);
             SetHandler("PRIVMSG", HandlePrivmsg);
         }

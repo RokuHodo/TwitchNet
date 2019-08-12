@@ -21,7 +21,7 @@ TwitchNet.Clients.Irc
         public char     mode        { get; protected set; }
 
         /// <summary>
-        /// A combination of the 'modifier' and the 'mode_set'.
+        /// A combination of the 'modifier' and the 'mode'.
         /// The complete change that occured.
         /// </summary>
         [ValidateMember(Check.IsValid)]
@@ -33,8 +33,11 @@ TwitchNet.Clients.Irc
         [ValidateMember(Check.IsValid)]
         public string   channel     { get; protected set; }
 
+        // TODO: Change to an array since this could be none or all 3 arguments,
+
         /// <summary>
-        /// Arguments, if any, associated with the mode such as masks or specific values.
+        /// Arguments, if any, associated with the mode change.
+        /// These inckude a ban mask, limit, and/or an IRC user.
         /// </summary>
         [ValidateMember(Check.IsValid)]
         public string   arguments   { get; protected set; }
@@ -51,6 +54,9 @@ TwitchNet.Clients.Irc
             }
 
             channel = message.parameters[0];
+
+            // This assumes only one argument after the mode set.
+            // This is fine for Twitch, but change this to an array because it *could* be up to 3 parameters after the mode set.
             arguments = message.parameters[2];
 
             mode_set = message.parameters[1];

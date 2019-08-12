@@ -56,7 +56,6 @@ TwitchNet.Clients.Irc.Twitch
         {
             OnSocketConnected   += new EventHandler<EventArgs>(Callback_OnSocketConnected);
             OnChannelMode       += new EventHandler<ChannelModeEventArgs>(Callback_OnChannelMode);
-            OnPrivmsg           += new EventHandler<PrivmsgEventArgs>(Callback_OnPrivmsg);
         }
 
         #endregion

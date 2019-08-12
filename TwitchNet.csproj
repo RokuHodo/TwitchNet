@@ -147,7 +147,6 @@
     <Compile Include="Clients\Irc\Twitch\ClearChatEventArgs.cs" />
     <Compile Include="Clients\Irc\UserModeEventArgs.cs" />
     <Compile Include="Clients\Irc\ChannelModeEventArgs.cs" />
-    <Compile Include="Clients\Irc\PrivmsgEventArgs.cs" />
     <Compile Include="Clients\Irc\MotdEventArgs.cs" />
     <Compile Include="Clients\Irc\UnknownCommandEventArgs.cs" />
     <Compile Include="Clients\Irc\NumericReplyEventArgs.cs" />

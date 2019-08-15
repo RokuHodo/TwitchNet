@@ -25,6 +25,34 @@ TwitchNet.Clients.Irc
     // -------------------------------------------------------------------------------------------------------------
 
     public class
+    DataEventArgs : EventArgs
+    {
+        /// <summary>
+        /// The byte data.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public byte[] data { get; protected set; }
+
+        /// <summary>
+        /// The UTF-8 encoded data.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string message { get; protected set; }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="DataEventArgs"/> class.
+        /// </summary>
+        /// <param name="data">The byte sata receieved.</param>
+        /// <param name="message">The UTF-8 encoded data.</param>
+        public DataEventArgs(byte[] data, string message)
+        {
+            this.data = data;
+
+            this.message = message;
+        }
+    }
+
+    public class
     NamReplyEventArgs : ChatRoomSupportedMessageEventArgs
     {
         /// <summary>
@@ -137,6 +165,77 @@ TwitchNet.Clients.Irc
     }
 
     public class
+    MotdEventArgs : IrcMessageEventArgs
+    {
+        /// <summary>
+        /// The IRC client nick.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string client { get; protected set; }
+
+        /// <summary>
+        /// The IRC server's message of the day.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string motd { get; protected set; }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="MotdEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
+        public MotdEventArgs(in IrcMessage message) : base(message)
+        {
+            motd = message.trailing;
+
+            if (!message.parameters.IsValid())
+            {
+                return;
+            }
+
+            client = message.parameters[0];
+        }
+    }
+
+    public class
+    UnknownCommandEventArgs : IrcMessageEventArgs
+    {
+        /// <summary>
+        /// The IRC client nick.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string client { get; protected set; }
+
+        /// <summary>
+        /// The unsupported IRC command.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string command { get; protected set; }
+
+        /// <summary>
+        /// The error description.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string description { get; protected set; }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="UnknownCommandEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
+        public UnknownCommandEventArgs(in IrcMessage message) : base(message)
+        {
+            description = message.trailing;
+
+            if (!message.parameters.IsValid() || message.parameters.Length < 2)
+            {
+                return;
+            }
+
+            client = message.parameters[0];
+            command = message.parameters[1];
+        }
+    }
+
+    public class
     JoinEventArgs : ChatRoomSupportedMessageEventArgs
     {
         /// <summary>
@@ -190,6 +289,154 @@ TwitchNet.Clients.Irc
 
             channel = message.parameters[0];
         }		
+    }
+
+    public class
+    ChannelModeEventArgs : IrcMessageEventArgs
+    {
+        /// <summary>
+        /// Denotes the whether the mode was added '+', or removed '-'.
+        /// </summary>
+        [ValidateMember(Check.IsNotNullOrDefault)]
+        public char modifier { get; protected set; }
+
+        /// <summary>
+        /// The change that occured to either the channel or the user.
+        /// </summary>
+        [ValidateMember(Check.IsNotNullOrDefault)]
+        public char mode { get; protected set; }
+
+        /// <summary>
+        /// A combination of the 'modifier' and the 'mode'.
+        /// The complete change that occured.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string mode_set { get; protected set; }
+
+        /// <summary>
+        /// The IRC channel whose mode was changed.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        // TODO: Change to an array since this could be none or all 3 arguments,
+
+        /// <summary>
+        /// Arguments, if any, associated with the mode change.
+        /// These inckude a ban mask, limit, and/or an IRC user.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string arguments { get; protected set; }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="ChannelModeEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
+        public ChannelModeEventArgs(in IrcMessage message) : base(message)
+        {
+            if (!message.parameters.IsValid() || message.parameters.Length < 3)
+            {
+                return;
+            }
+
+            channel = message.parameters[0];
+
+            // This assumes only one argument after the mode set.
+            // This is fine for Twitch, but change this to an array because it *could* be up to 3 parameters after the mode set.
+            arguments = message.parameters[2];
+
+            mode_set = message.parameters[1];
+            if (message.parameters[1].Length < 2)
+            {
+                return;
+            }
+            modifier = message.parameters[1][0];
+            mode = message.parameters[1][1];
+        }
+    }
+
+    public class
+    ChannelOperatorEventArgs : IrcMessageEventArgs
+    {
+        /// <summary>
+        /// Whether or not the user is an operator in the IRC channel.
+        /// </summary>
+        [ValidateMember(Check.IsNotNull)]
+        public bool is_operator { get; protected set; }
+
+        /// <summary>
+        /// The user nick that gained or lost operator status.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string user { get; protected set; }
+
+        /// <summary>
+        /// The IRC channel where the user's operator status changed.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="ChannelOperatorEventArgs"/> class.
+        /// </summary>
+        /// <param name="args">The event arguments to parse.</param>
+        public ChannelOperatorEventArgs(ChannelModeEventArgs args) : base(args.irc_message)
+        {
+            is_operator = args.modifier == '+' ? true : false;
+            user = args.arguments;
+            channel = args.channel;
+        }
+    }
+
+    public class
+    UserModeEventArgs : IrcMessageEventArgs
+    {
+        /// <summary>
+        /// The name of the user whose mode was changed.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string nick { get; protected set; }
+
+        /// <summary>
+        /// Denotes the whether the mode was added '+', or removed '-'.
+        /// </summary>
+        [ValidateMember(Check.IsNotNullOrDefault)]
+        public char modifier { get; protected set; }
+
+        /// <summary>
+        /// The change that occured to either the channel or the user.
+        /// </summary>
+        [ValidateMember(Check.IsNotNullOrDefault)]
+        public char mode { get; protected set; }
+
+        /// <summary>
+        /// A combination of the 'modifier' and the 'mode_set'.
+        /// The complete change that occured.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string mode_set { get; protected set; }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="UserModeEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
+        public UserModeEventArgs(in IrcMessage message) : base(message)
+        {
+            if (!message.parameters.IsValid() || message.parameters.Length < 2)
+            {
+                return;
+            }
+
+            nick = message.parameters[0];
+
+            mode_set = message.parameters[1];
+            if (message.parameters[1].Length < 2)
+            {
+                return;
+            }
+            modifier = message.parameters[1][0];
+            mode = message.parameters[1][1];
+        }
     }
 
     public class
@@ -845,6 +1092,45 @@ TwitchNet.Clients.Irc
                     channel_uuid = message.parameters[channel_index].TextAfter(':', index);
                 }
             }
+        }
+    }
+
+    public class
+    NumericReplyEventArgs : IrcMessageEventArgs
+    {
+        /// <summary>
+        /// The IRC client nick.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string client { get; protected set; }
+
+        public NumericReplyEventArgs(in IrcMessage message) : base(message)
+        {
+            if (!message.parameters.IsValid())
+            {
+                return;
+            }
+
+            client = message.parameters[0];
+        }
+    }
+
+    public class
+    IrcMessageEventArgs : EventArgs
+    {
+        /// <summary>
+        /// The parsed IRC message.
+        /// </summary>
+        [ValidateMember(Check.IsNotNullOrDefault)]
+        public IrcMessage irc_message { get; protected set; }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="IrcMessageEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The parsed IRC message.</param>
+        public IrcMessageEventArgs(in IrcMessage message)
+        {
+            irc_message = message;
         }
     }
 }

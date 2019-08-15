@@ -169,6 +169,13 @@ TwitchNet.Clients.Irc
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command MODE.</para>
+        /// <para>Signifies that a user gained or lost operator (moderator) status in a channel.</para>
+        /// <para>Requires /membership.</para>
+        /// </summary>
+        public event EventHandler<ChannelOperatorEventArgs> OnChannelOperator;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command MODE.</para>
         /// <para>Signifies that a MODE change occured to a specific user.</para>
         /// </summary>
         public virtual event EventHandler<UserModeEventArgs>        OnUserMode;
@@ -446,7 +453,13 @@ TwitchNet.Clients.Irc
 
             if(message.parameters[0][0] == '#' || message.parameters[0][0] == '&')
             {
-                OnChannelMode.Raise(this, new ChannelModeEventArgs(message));
+                ChannelModeEventArgs channel_mode_args = new ChannelModeEventArgs(message);
+                OnChannelMode.Raise(this, channel_mode_args);
+
+                if (channel_mode_args.mode == 'o')
+                {
+                    OnChannelOperator.Raise(this, new ChannelOperatorEventArgs(channel_mode_args));
+                }
             }
             else
             {

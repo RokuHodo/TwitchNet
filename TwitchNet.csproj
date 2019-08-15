@@ -107,8 +107,6 @@
     <Compile Include="Clients\Irc\Twitch\UserNoticeType.cs" />
     <Compile Include="Clients\Irc\Twitch\RoomStateType.cs" />
     <Compile Include="BroadcasterLanguage.cs" />
-    <Compile Include="Clients\Irc\ChannelOperatorEventArgs.cs" />
-    <Compile Include="Clients\Irc\DataEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\ChatRoomBadUnmodModEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\BadUnmodModEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\ChatRoomBadModModEventArgs.cs" />
@@ -145,12 +143,6 @@
     <Compile Include="Clients\Irc\Twitch\RoomStateEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\GlobalUserStateEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\ClearChatEventArgs.cs" />
-    <Compile Include="Clients\Irc\UserModeEventArgs.cs" />
-    <Compile Include="Clients\Irc\ChannelModeEventArgs.cs" />
-    <Compile Include="Clients\Irc\MotdEventArgs.cs" />
-    <Compile Include="Clients\Irc\UnknownCommandEventArgs.cs" />
-    <Compile Include="Clients\Irc\NumericReplyEventArgs.cs" />
-    <Compile Include="Clients\Irc\IrcMessageEventArgs.cs" />
     <Compile Include="Extensions\EventExtensions.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\MathExtensions .cs" />

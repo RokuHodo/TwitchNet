@@ -55,7 +55,6 @@ TwitchNet.Clients.Irc.Twitch
         public TwitchIrcClient(ushort port, IrcUser irc_user) : base("irc.chat.twitch.tv", port, irc_user)
         {
             OnSocketConnected   += new EventHandler<EventArgs>(Callback_OnSocketConnected);
-            OnChannelMode       += new EventHandler<ChannelModeEventArgs>(Callback_OnChannelMode);
         }
 
         #endregion

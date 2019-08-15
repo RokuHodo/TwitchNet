@@ -14,12 +14,6 @@ TwitchNet.Clients.Irc.Twitch
     {
         #region Twitch events
 
-        /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command MODE.</para>
-        /// <para>Signifies that a user gained or lost operator (moderator) status in a channel.</para>
-        /// <para>Requires /membership.</para>
-        /// </summary>
-        public event EventHandler<ChannelOperatorEventArgs>         OnChannelOperator;
 
         /// <summary>
         /// <para>
@@ -399,17 +393,6 @@ TwitchNet.Clients.Irc.Twitch
             {
                 RequestTags();
             }
-        }
-
-        /// <summary>
-        /// Callback for the <see cref="IrcClient.OnChannelMode"/> event.
-        /// </summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="args">The event arguments.</param>
-        private void
-        Callback_OnChannelMode(object sender, ChannelModeEventArgs args)
-        {
-            OnChannelOperator.Raise(this, new ChannelOperatorEventArgs(args));
         }
 
         #endregion

@@ -49,12 +49,14 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received from the server.</para>
         /// </summary>
-        public virtual event EventHandler<IrcMessageEventArgs>      OnIrcMessageReceived;        
+        public virtual event EventHandler<IrcMessageEventArgs>      OnIrcMessageReceived;
 
         /// <summary>
-        /// <para>Raised when an the internal socket establishes a connection to the IRC server.</para>
         /// <para>
+        /// Raised when an the internal socket establishes a connection to the IRC server.
         /// Signifies that the client is ready to send and receive messages.
+        /// </para>
+        /// <para>        
         /// This occurs before the client logs into the IRC server and before <see cref="OnConnected"/> is raised.
         /// At this point, <see cref="state"/> is still equal to <see cref="ClientState.Connecting"/> since the client is not yet logged into the IRC.
         /// </para>
@@ -62,15 +64,17 @@ TwitchNet.Clients.Irc
         public virtual event EventHandler<EventArgs>                OnSocketConnected;        
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 001, RPL_WELCOME.</para>
-        /// <para>Signifies that the <see cref="IrcClient"/> has successfully registered and connected to the IRC server.</para>
+        /// Raised when an <see cref="IrcMessage"/> is received with the command 001, RPL_WELCOME.
+        /// Signifies that the <see cref="IrcClient"/> has successfully registered and connected to the IRC server.
         /// </summary>
         public virtual event EventHandler<NumericReplyEventArgs>    OnConnected;
 
         /// <summary>
-        /// <para>Raised when an the internal socket disconnects from the IRC server.</para>
         /// <para>
+        /// Raised when an the internal socket disconnects from the IRC server.
         /// Signifies that the client can no longer send and receive messages.
+        /// </para>
+        /// <para>        
         /// This occurs before the reader finishes processing the current data, before all currently raised events have finihshed, and before <see cref="OnDisconnected"/> is raised.
         /// At this point, <see cref="state"/> is still equal to <see cref="ClientState.Disconnecting"/> since the reader is still waiting for all event to finish executing.
         /// </para>
@@ -80,129 +84,124 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// <para>Raised when the <see cref="IrcClient"/> disconnects from the IRC server.</para>
         /// <para>
-        /// This is only raised when <see cref="Disconnect"/> or <see cref="DisconnectAsync"/> is called by the client.
+        /// This is only raised when a client has chosen to manually disconnect.
         /// This is not raised when the connection is terminated by the server because no message is sent signifying the end of the connection. 
         /// </para>
         /// </summary>
         public virtual event EventHandler<EventArgs>                OnDisconnected;
 
         /// <summary>
-        /// <para>Raised when the <see cref="IrcClient"/> is disposed.</para>
-        /// <para>This is raised before the disconnect handler.</para>
+        /// Raised when the <see cref="IrcClient"/> is disposed.
         /// </summary>
         public virtual event EventHandler<EventArgs>                OnDisposed;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 002, RPL_YOURHOST.</para>
-        /// <para>
+        /// Raised when an <see cref="IrcMessage"/> is received with the command 002, RPL_YOURHOST.
         /// Gives information about the IRC server the <see cref="IrcClient"/> has connected too.
         /// This is part of the post-registration process.
-        /// </para>
         /// </summary>
         public virtual event EventHandler<NumericReplyEventArgs>    OnYourHost;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 003, RPL_CREATED.</para>
         /// <para>
+        /// Raised when an <see cref="IrcMessage"/> is received with the command 003, RPL_CREATED.
         /// Gives information about when the IRC server was started or created.
         /// This is part of the post-registration process.
-        /// </para>
+        /// </para>        
         /// </summary>
         public virtual event EventHandler<NumericReplyEventArgs>    OnCreated;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 004, RPL_MYINFO.</para>
-        /// <para>
+        /// Raised when an <see cref="IrcMessage"/> is received with the command 004, RPL_MYINFO.
         /// Gives information about the available modes that are available to use.
         /// This is part of the post-registration process.
-        /// </para>
         /// </summary>
         public virtual event EventHandler<NumericReplyEventArgs>    OnMyInfo;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 353, RPL_NAMREPLY.</para>
-        /// <para>Lists all clients that haved joined a channel.</para>
+        /// Raised when an <see cref="IrcMessage"/> is received with the command 353, RPL_NAMREPLY.
+        /// Lists all clients that haved joined a channel.
         /// </summary>
         public virtual event EventHandler<NamReplyEventArgs>        OnNamReply;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 366, RPL_ENDOFNAMES.</para>
-        /// <para>Signifies the end of receiving a list of channel names that have joined a channel.</para>
+        /// Raised when an <see cref="IrcMessage"/> is received with the command 366, RPL_ENDOFNAMES.
+        /// Signifies the end of receiving a list of channel names that have joined a channel.
         /// </summary>
         public virtual event EventHandler<EndOfNamesEventArgs>      OnEndOfNames;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 372, RPL_MOTD.</para>
-        /// <para>Contains the Motd, message of the day, of the server.</para>
+        /// Raised when an <see cref="IrcMessage"/> is received with the command 372, RPL_MOTD.
+        /// Contains the Motd, message of the day, of the server.
         /// </summary>
         public virtual event EventHandler<MotdEventArgs>            OnMotd;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 375, RPL_MOTDSTART.</para>
-        /// <para>Signifies the start of the Motd, message of the day.</para>
+        /// Raised when an <see cref="IrcMessage"/> is received with the command 375, RPL_MOTDSTART.
+        /// Signifies the start of the Motd, message of the day.
         /// </summary>
         public virtual event EventHandler<NumericReplyEventArgs>    OnMotdStart;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 376, RPL_ENDOFMOTD.</para>
-        /// <para>Signifies the end of the Motd, message of the day.</para>
+        /// Raised when an <see cref="IrcMessage"/> is received with the command 376, RPL_ENDOFMOTD.
+        /// Signifies the end of the Motd, message of the day.
         /// </summary>
         public virtual event EventHandler<NumericReplyEventArgs>    OnEndOfMotd;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command 421, ERR_UNKNOWNCOMMAND.</para>
-        /// <para>Signifies that the command trying to be used is not suported by the server.</para>
+        /// Raised when an <see cref="IrcMessage"/> is received with the command 421, ERR_UNKNOWNCOMMAND.
+        /// Signifies that the command trying to be used is not suported by the server
         /// </summary>
         public virtual event EventHandler<UnknownCommandEventArgs>  OnUnknownCommand;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command JOIN.</para>
-        /// <para>Signifies that a user has joined a channel.</para>
+        /// Raised when an <see cref="IrcMessage"/> is received with the command JOIN.
+        /// Signifies that a user has joined a channel.
         /// </summary>
         public virtual event EventHandler<JoinEventArgs>            OnJoin;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command MODE.</para>
-        /// <para>Signifies that a MODE change occured to a client's channel.</para>
+        /// Raised when an <see cref="IrcMessage"/> is received with the command MODE.
+        /// Signifies that a MODE change occured to a client's channel.
         /// </summary>
         public virtual event EventHandler<ChannelModeEventArgs>     OnChannelMode;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command MODE.</para>
-        /// <para>Signifies that a user gained or lost operator (moderator) status in a channel.</para>
+        /// <para>
+        /// Raised when an <see cref="IrcMessage"/> is received with the command MODE.
+        /// Signifies that a user gained or lost operator (moderator) status in a channel.
+        /// </para>
         /// <para>Requires /membership.</para>
         /// </summary>
-        public event EventHandler<ChannelOperatorEventArgs> OnChannelOperator;
+        public event EventHandler<ChannelOperatorEventArgs>         OnChannelOperator;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command MODE.</para>
-        /// <para>Signifies that a MODE change occured to a specific user.</para>
+        /// Raised when an <see cref="IrcMessage"/> is received with the command MODE.
+        /// Signifies that a MODE change occured to a specific user.
         /// </summary>
         public virtual event EventHandler<UserModeEventArgs>        OnUserMode;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command PART.</para>
-        /// <para>Signifies that a user has left a channel.</para>
+        /// Raised when an <see cref="IrcMessage"/> is received with the command PART.
+        /// Signifies that a user has left a channel.
         /// </summary>
         public virtual event EventHandler<PartEventArgs>            OnPart;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command PING.</para>
-        /// <para>
+        /// Raised when an <see cref="IrcMessage"/> is received with the command PING.
         /// Sent by the server to test to see if a connected client is still active.
-        /// The client should then respong with the appropriate PONG message as soon as possible for the connectin to not be terminated.
-        /// </para>
+        /// The client should then respong with the appropriate PONG message as soon as possible for the connectin to remain active.
         /// </summary>
         public virtual event EventHandler<IrcMessageEventArgs>      OnPing;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command PRIVMSG.</para>
+        /// Raised when an <see cref="IrcMessage"/> is received with the command PRIVMSG.
         /// </summary>
         public virtual event EventHandler<PrivmsgEventArgs>         OnPrivmsg;
 
         /// <summary>
-        /// <para>Raised when the socket or stream encounters an error.</para>
-        /// <para>It is strongly recommended to reconnect to the IRC server if a network error is encountered.</para>
+        /// Raised when the socket or stream encounters an error.</para>
+        /// It is strongly recommended to reconnect to the IRC server if a network error is encountered.
         /// </summary>
         public virtual event EventHandler<ErrorEventArgs>           OnNetworkError;
 
@@ -467,7 +466,7 @@ TwitchNet.Clients.Irc
             }
         }
 
-        /// <summary>
+        /// <summary> 
         /// Handles the IRC message with the command PART.
         /// </summary>
         /// <param name="message">The irc message to be handled.</param>

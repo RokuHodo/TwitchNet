@@ -131,7 +131,7 @@
     <Compile Include="Clients\Irc\Twitch\NoticeEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\HostTargetEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\GiftedSubscriberEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\EventArgs.cs" />
+    <Compile Include="Clients\Irc\Twitch\TwitchIrcClient.EventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\ChatRoomUserStateEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\ChatRoomRoomStateEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\AlreadyBannedEventArgs.cs" />
@@ -156,8 +156,6 @@
     <Compile Include="Clients\Irc\Twitch\ISharedUserStateTags.cs" />
     <Compile Include="Rest\Helix\Users.cs" />
     <Compile Include="Rest\Helix\Videos.cs" />
-    <Compile Include="Clients\Irc\IrcMessage.cs" />
-    <Compile Include="Clients\Irc\IrcUser.cs" />
     <Compile Include="Debugger\ValidateTagAttribute.cs" />
     <Compile Include="Clients\Irc\Twitch\GiftedSubscriberTags.cs" />
     <Compile Include="Clients\Irc\Twitch\ChatRoomUserStateTags.cs" />

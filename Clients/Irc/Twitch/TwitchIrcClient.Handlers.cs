@@ -14,7 +14,6 @@ TwitchNet.Clients.Irc.Twitch
     {
         #region Twitch events
 
-
         /// <summary>
         /// <para>
         /// Raised when an <see cref="IrcMessage"/> is received with the command WHISPER.
@@ -35,13 +34,6 @@ TwitchNet.Clients.Irc.Twitch
         public event EventHandler<ClearChatEventArgs>               OnClearChat;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command CLEARCHAT in a chat room.</para>
-        /// <para>Signifies that a user was timed out/banned in a channel's chat room.</para>
-        /// <para>Requires /commands and /tags.</para>
-        /// </summary>
-        public event EventHandler<ChatRoomClearChatEventArgs>       OnChatRoomClearchat;
-
-        /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command GLOBALUSERSTATE.</para>
         /// <para>Signifies that the client successfully logged into the irc server.</para>
         /// <para>
@@ -60,13 +52,6 @@ TwitchNet.Clients.Irc.Twitch
         /// </para>
         /// </summary>
         public event EventHandler<RoomStateEventArgs>               OnRoomState;
-
-        /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command ROOMSTATE in a chat room.</para>
-        /// <para>Signifies that the client joined a channel's chat room or a chat room's setting was changed.</para>
-        /// <para>Requires /commands and /tags.</para>
-        /// </summary>
-        public event EventHandler<ChatRoomRoomStateEventArgs>       OnChatRoomRoomState;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command USERNOTICE with the <see cref="UserNoticeType.Sub"/> or <see cref="UserNoticeType.Resub"/> msg-id tag</para>
@@ -118,13 +103,6 @@ TwitchNet.Clients.Irc.Twitch
         /// </para>
         /// </summary>
         public event EventHandler<UserStateEventArgs>               OnUserState;
-
-        /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command USERSTATE in a chat room.</para>
-        /// <para>Signifies that the client joined a channel's chat room or sent a PRIVMSG to a user in a chat room.</para>
-        /// <para>Requires /commands and /tags.</para>
-        /// </summary>
-        public event EventHandler<ChatRoomUserStateEventArgs>       OnChatRoomUserState;
 
         /// <summary>
         /// <para>Raised when a channel starts or stops hosting another channel.</para>
@@ -438,14 +416,7 @@ TwitchNet.Clients.Irc.Twitch
         private void
         HandleClearChat(in IrcMessage message)
         {
-            if (IsChatRoom(message))
-            {
-                OnChatRoomClearchat.Raise(this, new ChatRoomClearChatEventArgs(message));
-            }
-            else
-            {
-                OnClearChat.Raise(this, new ClearChatEventArgs(message));
-            }
+            OnClearChat.Raise(this, new ClearChatEventArgs(message));
         }
 
         /// <summary>
@@ -465,14 +436,7 @@ TwitchNet.Clients.Irc.Twitch
         private void
         HandleRoomState(in IrcMessage message)
         {
-            if (IsChatRoom(message))
-            {
-                OnChatRoomRoomState.Raise(this, new ChatRoomRoomStateEventArgs(message));
-            }
-            else
-            {
-                OnRoomState.Raise(this, new RoomStateEventArgs(message));
-            }
+            OnRoomState.Raise(this, new RoomStateEventArgs(message));
         }
 
         /// <summary>
@@ -516,6 +480,7 @@ TwitchNet.Clients.Irc.Twitch
                     OnUserNotice.Raise(this, new UserNoticeEventArgs(message));
                 }
                 break;
+
             }
         }
 
@@ -526,14 +491,7 @@ TwitchNet.Clients.Irc.Twitch
         private void
         HandleUserState(in IrcMessage message)
         {
-            if (IsChatRoom(message))
-            {
-                OnChatRoomUserState.Raise(this, new ChatRoomUserStateEventArgs(message));
-            }
-            else
-            {
-                OnUserState.Raise(this, new UserStateEventArgs(message));
-            }
+            OnUserState.Raise(this, new UserStateEventArgs(message));
         }
 
         /// <summary>

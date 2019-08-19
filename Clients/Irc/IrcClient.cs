@@ -1068,7 +1068,7 @@ TwitchNet.Clients.Irc
             trailing                    = string.Empty;
             parameters                  = new string[0];
 
-            string message_post_tags    = ParseTags(raw, ref tags);
+            string message_post_tags    = ParseTags(raw, ref tags, ref tags_exist);
             string message_post_prefix  = ParsePrefix(message_post_tags, ref prefix, ref server_or_nick, ref user, ref host);
             string message_post_command = ParseCommand(message_post_prefix, ref command);
 
@@ -1086,7 +1086,7 @@ TwitchNet.Clients.Irc
         /// <param name="message">The irc message to parse.</param>
         /// <returns>Returns the irc message after the tags.</returns>
         private string
-        ParseTags(string message, ref Dictionary<string, string> tags)
+        ParseTags(string message, ref Dictionary<string, string> tags, ref bool tags_exist)
         {
             string message_no_tags = message;
 
@@ -1095,6 +1095,8 @@ TwitchNet.Clients.Irc
             {
                 return message_no_tags;
             }
+
+            tags_exist = true;
 
             string all_tags = message.TextBetween('@', ' ');
             string[] array = all_tags.Split(';');

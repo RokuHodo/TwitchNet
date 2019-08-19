@@ -16,7 +16,7 @@ TwitchNet.Clients.Irc
     // -------------------------------------------------------------------------------------------------------------
     //
     // - This file contains all IRC messages that are natively supported and documented in the RFC 1459 Specification.
-    // - RFC 1459 Spec: https://tools.ietf.org/html/rfc1459.html
+    //   RFC 1459 Spec: https://tools.ietf.org/html/rfc1459.html
     // - Any message that is specific to Twitch can be found in its own file, TwitchIrcClient.EventArgs.
     //
     // - However, these messages do contain extra parsed members that pertain only to Twitch. These members are separated 
@@ -62,24 +62,16 @@ TwitchNet.Clients.Irc
     }
 
     public class
-    NumericReplyEventArgs : EventArgs
+    NumericReplyEventArgs : IrcMessageEventArgs
     {
-        /// <summary>
-        /// The parsed IRC message.
-        /// </summary>
-        [ValidateMember(Check.IsNotNullOrDefault)]
-        public IrcMessage irc_message { get; protected set; }
-
         /// <summary>
         /// The IRC client nick.
         /// </summary>
         [ValidateMember(Check.IsValid)]
         public string client { get; protected set; }
 
-        public NumericReplyEventArgs(in IrcMessage message)
+        public NumericReplyEventArgs(in IrcMessage message) : base(message)
         {
-            irc_message = message;
-
             if (message.parameters.Length > 0)
             {
                 client = message.parameters[0];
@@ -90,11 +82,6 @@ TwitchNet.Clients.Irc
     public class
     NamReplyEventArgs : ChatRoomSupportedMessageEventArgs
     {
-        /// <summary>
-        /// The parsed IRC message.
-        /// </summary>
-        public IrcMessage irc_message { get; protected set; }
-
         /// <summary>
         /// The character that specifies if the IRC channel is public, secret, or private.
         /// </summary>
@@ -142,8 +129,6 @@ TwitchNet.Clients.Irc
 
         public NamReplyEventArgs(in IrcMessage message) : base(message, 2)
         {
-            irc_message = message;
-
             // Native IRC aprsing
             if (message.parameters.Length > 2)
             {
@@ -174,11 +159,6 @@ TwitchNet.Clients.Irc
     EndOfNamesEventArgs : ChatRoomSupportedMessageEventArgs
     {
         /// <summary>
-        /// The parsed IRC message.
-        /// </summary>
-        public IrcMessage irc_message { get; protected set; }
-
-        /// <summary>
         /// The IRC client nick.
         /// </summary>
         [ValidateMember(Check.IsValid)]
@@ -198,15 +178,13 @@ TwitchNet.Clients.Irc
 
         public EndOfNamesEventArgs(in IrcMessage message, Dictionary<string, List<string>> names) : base(message, 1)
         {
-            irc_message = message;
-
-            this.names = names[channel].ToArray();
-            
             if (message.parameters.Length > 1)
             {
                 client = message.parameters[0];
                 channel = message.parameters[1];
             }
+
+            this.names = names[channel].ToArray();
         }
     }
 
@@ -1114,7 +1092,7 @@ TwitchNet.Clients.Irc
     }
 
     public class
-    ChatRoomSupportedMessageEventArgs : EventArgs
+    ChatRoomSupportedMessageEventArgs : IrcMessageEventArgs
     {
         /// <summary>
         /// Where the message was sent from.
@@ -1135,7 +1113,7 @@ TwitchNet.Clients.Irc
         [ValidateMember(Check.RegexIsMatch, TwitchIrcUtil.REGEX_PATTERN_UUID)]
         public string channel_uuid { get; protected set; }
 
-        public ChatRoomSupportedMessageEventArgs(in IrcMessage message, uint channel_index = 0)
+        public ChatRoomSupportedMessageEventArgs(in IrcMessage message, uint channel_index = 0) : base(message)
         {
             source = TwitchIrcUtil.GetMessageSource(message.parameters[channel_index]);
 

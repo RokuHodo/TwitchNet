@@ -456,7 +456,7 @@ TwitchNet.Clients.Irc.Twitch
                 }
                 break;
 
-                case UserNoticeType.GiftSub:
+                case UserNoticeType.SubGift:
                 {
                     OnGiftedSubscriber.Raise(this, new GiftedSubscriberEventArgs(message));
                 }

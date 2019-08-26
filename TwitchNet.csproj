@@ -98,13 +98,11 @@
     <Compile Include="Clients\ClientState.cs" />
     <Compile Include="Clients\Irc\Twitch\CommercialLength.cs" />
     <Compile Include="Clients\Irc\Twitch\ChatCommand.cs" />
-    <Compile Include="Clients\Irc\Twitch\RitualType.cs" />
     <Compile Include="Clients\Irc\Twitch\DisplayNameColor.cs" />
     <Compile Include="SubscriptionTier.cs" />
     <Compile Include="Clients\Irc\Twitch\HostTargetType.cs" />
     <Compile Include="Clients\Irc\Twitch\NoticeType.cs" />
     <Compile Include="Clients\Irc\Twitch\FollowersDurationPeriod.cs" />
-    <Compile Include="Clients\Irc\Twitch\RoomStateType.cs" />
     <Compile Include="BroadcasterLanguage.cs" />
     <Compile Include="Clients\Irc\Twitch\ChatRoomBadUnmodModEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\BadUnmodModEventArgs.cs" />
@@ -127,12 +125,8 @@
     <Compile Include="Clients\Irc\Twitch\ChatRoomAlreadyBannedEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\ChatRoomNoticeEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\NoticeEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\GiftedSubscriberEventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\TwitchIrcClient.EventArgs.cs" />
     <Compile Include="Clients\Irc\Twitch\AlreadyBannedEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\RitualEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\RaidEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\SubscriberEventArgs.cs" />
     <Compile Include="Extensions\EventExtensions.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\MathExtensions .cs" />
@@ -145,10 +139,6 @@
     <Compile Include="Rest\Helix\Users.cs" />
     <Compile Include="Rest\Helix\Videos.cs" />
     <Compile Include="Debugger\ValidateTagAttribute.cs" />
-    <Compile Include="Clients\Irc\Twitch\GiftedSubscriberTags.cs" />
-    <Compile Include="Clients\Irc\Twitch\SubscriberTags.cs" />
-    <Compile Include="Clients\Irc\Twitch\RitualTags.cs" />
-    <Compile Include="Clients\Irc\Twitch\RaidTags.cs" />
     <Compile Include="Clients\Irc\Twitch\NoticeTags.cs" />
     <Compile Include="Rest\OAuth\Validate\OAuthTokenInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

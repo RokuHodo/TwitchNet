@@ -63,7 +63,10 @@ TwitchNet.Clients.Irc.Twitch
         WhisperEventArgs(in IrcMessage message) : base(message)
         {
             tags_exist = message.tags_exist;
-            tags = new WhisperTags(message);
+            if (tags_exist)
+            {
+                tags = new WhisperTags(message);
+            }
 
             sender = message.server_or_nick;
 
@@ -150,11 +153,6 @@ TwitchNet.Clients.Irc.Twitch
         public
         WhisperTags(in IrcMessage message)
         {
-            if (!message.tags_exist)
-            {
-                return;
-            }
-
             turbo = TwitchIrcUtil.Tags.ToBool(message, "turbo");
 
             display_name = TwitchIrcUtil.Tags.ToString(message, "display-name");
@@ -208,7 +206,10 @@ TwitchNet.Clients.Irc.Twitch
         ClearChatEventArgs(in IrcMessage message) : base(message)
         {
             tags_exist = message.tags_exist;
-            tags = new ClearChatTags(message);
+            if (tags_exist)
+            {
+                tags = new ClearChatTags(message);
+            }
 
             if (message.parameters.Length > 0)
             {
@@ -258,11 +259,6 @@ TwitchNet.Clients.Irc.Twitch
         public
         ClearChatTags(in IrcMessage message)
         {
-            if (!message.tags_exist)
-            {
-                return;
-            }
-
             ban_duration    = TwitchIrcUtil.Tags.ToTimeSpanFromSeconds(message, "ban-duration");
             ban_reason      = TwitchIrcUtil.Tags.ToString(message, "ban-reason").Replace("\\s", " ");
             room_id         = TwitchIrcUtil.Tags.ToString(message, "room-id");
@@ -294,7 +290,10 @@ TwitchNet.Clients.Irc.Twitch
         GlobalUserStateEventArgs(in IrcMessage message) : base(message)
         {
             tags_exist = message.tags_exist;
-            tags = new GlobalUserStateTags(message);
+            if (tags_exist)
+            {
+                tags = new GlobalUserStateTags(message);
+            }
         }
     }
 
@@ -352,11 +351,6 @@ TwitchNet.Clients.Irc.Twitch
         public
         GlobalUserStateTags(in IrcMessage message)
         {
-            if (!message.tags_exist)
-            {
-                return;
-            }
-
             user_id = TwitchIrcUtil.Tags.ToString(message, "user-id");
             display_name = TwitchIrcUtil.Tags.ToString(message, "display-name");
             emote_sets = TwitchIrcUtil.Tags.ToStringArray(message, "emote-sets", ',');
@@ -372,7 +366,7 @@ TwitchNet.Clients.Irc.Twitch
 
     #endregion
 
-    #region Command: ROOMSTATE - updated
+    #region Command: ROOMSTATE - Updated
 
     public class
     RoomStateEventArgs : ChatRoomSupportedMessageEventArgs
@@ -398,7 +392,6 @@ TwitchNet.Clients.Irc.Twitch
 
         /// <summary>
         /// The IRC channel whose state has changed and/or the client has joined.
-        /// Always valid.
         /// </summary>
         [ValidateMember(Check.IsValid)]
         public string channel { get; protected set; }
@@ -407,13 +400,16 @@ TwitchNet.Clients.Irc.Twitch
         RoomStateEventArgs(in IrcMessage message) : base(message)
         {
             tags_exist = message.tags_exist;
-            if(source == MessageSource.StreamChat)
+            if (tags_exist)
             {
-                tags_stream_chat = new RoomStateTags(message);
-            }
-            else
-            {
-                tags_chat_room = new ChatRoomRoomStateTags(message);
+                if (source == MessageSource.StreamChat)
+                {
+                    tags_stream_chat = new RoomStateTags(message);
+                }
+                else
+                {
+                    tags_chat_room = new ChatRoomRoomStateTags(message);
+                }
             }
 
             if (message.parameters.Length > 0)
@@ -491,11 +487,6 @@ TwitchNet.Clients.Irc.Twitch
         public
         RoomStateTags(in IrcMessage message)
         {
-            if (!message.tags_exist)
-            {
-                return;
-            }
-
             if (TwitchIrcUtil.Tags.IsTagValid(message, "emote-only"))
             {
                 emote_only = TwitchIrcUtil.Tags.ToBool(message, "emote-only");
@@ -579,11 +570,6 @@ TwitchNet.Clients.Irc.Twitch
 
         public ChatRoomRoomStateTags(in IrcMessage message)
         {
-            if (!message.tags_exist)
-            {
-                return;
-            }
-
             if (TwitchIrcUtil.Tags.IsTagValid(message, "emote-only"))
             {
                 emote_only = TwitchIrcUtil.Tags.ToBool(message, "emote-only");
@@ -606,6 +592,51 @@ TwitchNet.Clients.Irc.Twitch
         }
     }
 
+    [Flags]
+    public enum
+    RoomStateType
+    {
+        /// <summary>
+        /// No room state has changed.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// Emote only mode has been enabled or disabled.
+        /// </summary>
+        EmoteOnly = 1 << 0,
+
+        /// <summary>
+        /// Mercury mode as been enabled or disabled.
+        /// </summary>
+        Mercury = 1 << 1,
+
+        /// <summary>
+        /// R9K mode has been enabled or disabled.
+        /// </summary>
+        R9K = 1 << 2,
+
+        /// <summary>
+        /// Rituals has been enabled or disabled.
+        /// </summary>
+        Rituals = 1 << 3,
+
+        /// <summary>
+        /// Subscriber mode has been enabled or disabled.
+        /// </summary>
+        SubsOnly = 1 << 4,
+
+        /// <summary>
+        /// Follower only mode has been enabled, disabled, or the duration has changed.
+        /// </summary>
+        FollowersOnly = 1 << 5,
+
+        /// <summary>
+        /// Slow mode has been enabled, disabled, or the duration has changed.
+        /// </summary>
+        Slow = 1 << 6,
+    }
+
     #endregion
 
     #region Command: USERNOTICE
@@ -626,23 +657,26 @@ TwitchNet.Clients.Irc.Twitch
         public UserNoticeTags tags { get; protected set; }        
 
         /// <summary>
-        /// The IEC channel that the user notice was sent in.
-        /// Always valid.
+        /// The IRC channel that the user notice was sent in.
         /// </summary>
         [ValidateMember(Check.IsValid)]
         public string channel { get; protected set; }
 
         /// <summary>
         /// <para>The messsage sent by the user.</para>
-        /// <para>This is empty if the user did not send a message.</para>
+        /// <para>Set to an empty string if there was no message.</para>
         /// </summary>
         [ValidateMember(Check.IsValid)]
         public string body { get; protected set; }
 
-        public UserNoticeEventArgs(in IrcMessage message) : base(message)
+        public
+        UserNoticeEventArgs(in IrcMessage message) : base(message)
         {
             tags_exist = message.tags_exist;
-            tags = new UserNoticeTags(message);
+            if (tags_exist)
+            {
+                tags = new UserNoticeTags(message);
+            }
 
             if (message.parameters.Length > 0)
             {
@@ -650,7 +684,6 @@ TwitchNet.Clients.Irc.Twitch
             }
 
             body = message.trailing;
-
         }
     }
 
@@ -814,6 +847,9 @@ TwitchNet.Clients.Irc.Twitch
         }
     }
 
+    // TODO: Manually set these default value since these are parsed in a slightly different way.
+    // TODO: Mark each tag with their applicable msg-id tag.
+
     public class
     UserNoticeTags : UserNoticeBaseTags
     {
@@ -904,14 +940,59 @@ TwitchNet.Clients.Irc.Twitch
         [IrcTag("msg-param-promo-name")]
         public string msg_param_promo_name { get; protected set; }
 
+        /// -------------------
+        /// 
+        /// Raid Tags
+        /// 
+        /// -------------------
+
+        /// <summary>
+        /// The number of viewers participating the the raid.
+        /// </summary>
+        [IrcTag("msg-param-viewerCount")]
+        public ulong msg_param_viewer_count { get; protected set; }
+
+        /// <summary>
+        /// <para>The display name of the user that is raiding.</para>
+        /// <para>Set to an empty string if it was never set by the user.</para>
+        /// </summary>
+        [IrcTag("msg-param-displayName")]
+        public string msg_param_display_name { get; protected set; }
+
+        /// <summary>
+        /// The login of the user that is raiding.
+        /// </summary>
+        [IrcTag("msg-param-login")]
+        public string msg_param_login { get; protected set; }
+
+        /// -------------------
+        /// 
+        /// Ritual Tags
+        /// 
+        /// -------------------
+
+        /// <summary>
+        /// The ritual type.
+        /// </summary>
+        [IrcTag("msg-param-ritual-name")]
+        public RitualType msg_param_ritual_name { get; protected set; }
+
+
+        /// -------------------
+        /// 
+        /// Bits Badge Tags
+        /// 
+        /// -------------------
+
+        /// <summary>
+        /// The Bits badge tier the user just unlocked.
+        /// </summary>
+        [IrcTag("msg-param-threshold")]
+        public int msg_param_threshold { get; protected set; }
+
         public
         UserNoticeTags(in IrcMessage message) : base(message)
         {
-            if (!message.tags_exist)
-            {
-                return;
-            }
-
             // sub, resub tags
             if(msg_id == UserNoticeType.Sub || 
                msg_id == UserNoticeType.Resub)
@@ -959,28 +1040,147 @@ TwitchNet.Clients.Irc.Twitch
             // raid tags
             if (msg_id == UserNoticeType.Raid)
             {
-                /*
-                msg_param_displayName
-                msg_param_login
-                msg_param_viewerCount
-                */
+                msg_param_viewer_count              = TwitchIrcUtil.Tags.ToUInt32(message, "msg-param-viewerCount");
+                msg_param_display_name              = TwitchIrcUtil.Tags.ToString(message, "msg-param-displayName");
+                msg_param_login                     = TwitchIrcUtil.Tags.ToString(message, "msg-param-login");
             }
 
             // ritual tags
-            if (msg_id == UserNoticeType.Raid)
+            if (msg_id == UserNoticeType.Ritual)
             {
-                /*
-                msg_param_ritual_name
-                */
+                msg_param_ritual_name = TwitchIrcUtil.Tags.ToRitualType(message, "msg-param-ritual-name");
             }
 
             // bitsbadgetier tags
-            if (msg_id == UserNoticeType.BitsBadGetTier)
+            if (msg_id == UserNoticeType.BitsBadgeTier)
             {
-                /*
-                msg_param_threshold
-                */
+                msg_param_threshold = TwitchIrcUtil.Tags.ToInt32(message, "msg-param-threshold");
             }
+        }
+    }
+
+    public enum
+    UserNoticeType
+    {
+        /// <summary>
+        /// Unsupported user notice type.
+        /// </summary>
+        [EnumMember(Value = "")]
+        Other = 0,
+
+        /// <summary>
+        /// A user subscribed.
+        /// </summary>
+        [EnumMember(Value = "sub")]
+        Sub,
+
+        /// <summary>
+        /// A user resubscribed.
+        /// </summary>
+        [EnumMember(Value = "resub")]
+        Resub,
+
+        /// <summary>
+        /// A user gifted a subscription to another user.
+        /// </summary>
+        [EnumMember(Value = "subgift")]
+        SubGift,
+
+        /// <summary>
+        /// A user anonymously gifted a subscription to another user.
+        /// </summary>
+        [EnumMember(Value = "anonsubgift")]
+        AnonSubGift,
+
+        /// <summary>
+        /// A user gifted multiple subscriptions to to a channel's community.
+        /// </summary>
+        [EnumMember(Value = "submysterygift")]
+        SubMysteryGift,
+
+        /// <summary>
+        /// A user chose to continue their gifted subscription.
+        /// </summary>
+        [EnumMember(Value = "giftpaidupgrade")]
+        GiftPaidUpgrade,
+
+        /// <summary>
+        /// A user chose to continue their anonymously gifted subscription.
+        /// </summary>
+        [EnumMember(Value = "anongiftpaidupgrade")]
+        AnonGiftPaidUpgrade,
+
+        /// <summary>
+        /// 'placeholder_desc'
+        /// </summary>
+        [EnumMember(Value = "rewardgift")]
+        RewardGift,
+
+        /// <summary>
+        /// A user started to raid another user.
+        /// </summary>
+        [EnumMember(Value = "raid")]
+        Raid,
+
+        /// <summary>
+        /// A user stopped a raid in progress.
+        /// </summary>
+        [EnumMember(Value = "unraid")]
+        Unraid,
+
+        /// <summary>
+        /// A ritual has occured, i.e., a user triggered the new chatter notic.
+        /// </summary>
+        [EnumMember(Value = "ritual")]
+        Ritual,
+
+        /// <summary>
+        /// A suer unlocked the next gift subscription badge tier.
+        /// </summary>
+        [EnumMember(Value = "bitsbadgetier")]
+        BitsBadgeTier
+    }
+
+    public class
+    SubscriptionEventArgs : IrcMessageEventArgs
+    {
+        /// <summary>
+        /// Whether or not IRC tags were sent with the message.
+        /// </summary>
+        public bool tags_exist { get; private set; }
+
+        /// <summary>
+        /// <para>The converted IRC tags attached to the message.</para>
+        /// <para>Set to null if no tags were sent with the message.</para>
+        /// </summary>
+        [ValidateMember(Check.TagsMissing)]
+        public SubscriptionTags tags { get; protected set; }
+
+        /// <summary>
+        /// The IRC channel that the user notice was sent in.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// <para>The messsage sent by the user.</para>
+        /// <para>Set to an empty string if there was no message.</para>
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string body { get; protected set; }
+
+        public
+        SubscriptionEventArgs(UserNoticeEventArgs args) : base(args.irc_message)
+        {
+            tags_exist = args.tags_exist;
+            if (tags_exist)
+            {
+                tags = new SubscriptionTags(args.tags);
+            }
+
+            channel = args.channel;
+
+            body = args.body;
         }
     }
 
@@ -1115,86 +1315,185 @@ TwitchNet.Clients.Irc.Twitch
         }
     }
 
-    public enum
-    UserNoticeType
+    public class
+    RaidEventArgs : IrcMessageEventArgs
     {
         /// <summary>
-        /// Unsupported user notice type.
+        /// Whether or not IRC tags were sent with the message.
+        /// </summary>
+        public bool tags_exist { get; private set; }
+
+        /// <summary>
+        /// <para>The converted IRC tags attached to the message.</para>
+        /// <para>Set to null if no tags were sent with the message.</para>
+        /// </summary>
+        [ValidateMember(Check.TagsMissing)]
+        public RaidTags tags { get; protected set; }
+
+        /// <summary>
+        /// The IRC channel that the user notice was sent in.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        public
+        RaidEventArgs(UserNoticeEventArgs args) : base(args.irc_message)
+        {
+            tags_exist = args.tags_exist;
+            if (tags_exist)
+            {
+                tags = new RaidTags(args.tags);
+            }
+
+            channel = args.channel;
+        }
+    }
+
+    public class
+    RaidTags : UserNoticeBaseTags
+    {
+        /// <summary>
+        /// The number of viewers participating the the raid.
+        /// </summary>
+        [IrcTag("msg-param-viewerCount")]
+        public ulong msg_param_viewer_count { get; protected set; }
+
+        /// <summary>
+        /// <para>The display name of the user that is raiding.</para>
+        /// <para>Set to an empty string if it was never set by the user.</para>
+        /// </summary>
+        [IrcTag("msg-param-displayName")]
+        public string msg_param_display_name { get; protected set; }
+
+        /// <summary>
+        /// The login of the user that is raiding.
+        /// </summary>
+        [IrcTag("msg-param-login")]
+        public string msg_param_login { get; protected set; }
+
+        public
+        RaidTags(UserNoticeTags tags) : base(tags)
+        {
+            msg_param_viewer_count  = tags.msg_param_viewer_count;
+            msg_param_display_name  = tags.msg_param_display_name;
+            msg_param_login         = tags.msg_param_login;
+        }
+    }
+
+    public class
+    RitualEventArgs : IrcMessageEventArgs
+    {
+        /// <summary>
+        /// Whether or not IRC tags were sent with the message.
+        /// </summary>
+        public bool tags_exist { get; private set; }
+
+        /// <summary>
+        /// <para>The converted IRC tags attached to the message.</para>
+        /// <para>Set to null if no tags were sent with the message.</para>
+        /// </summary>
+        [ValidateMember(Check.TagsMissing)]
+        public RitualTags tags { get; protected set; }
+
+        /// <summary>
+        /// The IRC channel that the user notice was sent in.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        public
+        RitualEventArgs(UserNoticeEventArgs args) : base(args.irc_message)
+        {
+            tags_exist = args.tags_exist;
+            if (tags_exist)
+            {
+                tags = new RitualTags(args.tags);
+            }
+
+            channel = args.channel;
+        }
+    }
+
+    public class
+    RitualTags : UserNoticeBaseTags
+    {
+        /// <summary>
+        /// The ritual type.
+        /// </summary>
+        [IrcTag("msg-param-ritual-name")]
+        public RitualType msg_param_ritual_name { get; protected set; }
+
+        public
+        RitualTags(UserNoticeTags tags) : base(tags)
+        {
+            msg_param_ritual_name = tags.msg_param_ritual_name;
+        }
+    }
+
+    public enum
+    RitualType
+    {
+        /// <summary>
+        /// Unsupported ritual type.
         /// </summary>
         [EnumMember(Value = "")]
         Other = 0,
 
         /// <summary>
-        /// A user subscribed.
+        /// A person is new to a channel.
         /// </summary>
-        [EnumMember(Value = "sub")]
-        Sub,
+        [EnumMember(Value = "new_chatter")]
+        NewChatter
+    }
+
+    public class
+    BitsBadgeEventArgs : IrcMessageEventArgs
+    {
+        /// <summary>
+        /// Whether or not IRC tags were sent with the message.
+        /// </summary>
+        public bool tags_exist { get; private set; }
 
         /// <summary>
-        /// A user resubscribed.
+        /// <para>The converted IRC tags attached to the message.</para>
+        /// <para>Set to null if no tags were sent with the message.</para>
         /// </summary>
-        [EnumMember(Value = "resub")]
-        Resub,
+        [ValidateMember(Check.TagsMissing)]
+        public BitsBadgeTags tags { get; protected set; }
 
         /// <summary>
-        /// A user gifted a subscription to another user.
+        /// The IRC channel that the user notice was sent in.
         /// </summary>
-        [EnumMember(Value = "subgift")]
-        SubGift,
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
 
-        /// <summary>
-        /// A user anonymously gifted a subscription to another user.
-        /// </summary>
-        [EnumMember(Value = "anonsubgift")]
-        AnonSubGift,
+        public
+        BitsBadgeEventArgs(UserNoticeEventArgs args) : base(args.irc_message)
+        {
+            tags_exist = args.tags_exist;
+            if (tags_exist)
+            {
+                tags = new BitsBadgeTags(args.tags);
+            }
 
-        /// <summary>
-        /// A user gifted multiple subscriptions to to a channel's community.
-        /// </summary>
-        [EnumMember(Value = "submysterygift")]
-        SubMysteryGift,
+            channel = args.channel;
+        }
+    }
 
+    public class
+    BitsBadgeTags : UserNoticeBaseTags
+    {
         /// <summary>
-        /// A user chose to continue their gifted subscription.
+        /// The Bits badge tier the user just unlocked.
         /// </summary>
-        [EnumMember(Value = "giftpaidupgrade")]
-        GiftPaidUpgrade,
+        [IrcTag("msg-param-threshold")]
+        public int msg_param_threshold { get; protected set; }
 
-        /// <summary>
-        /// A user chose to continue their anonymously gifted subscription.
-        /// </summary>
-        [EnumMember(Value = "anongiftpaidupgrade")]
-        AnonGiftPaidUpgrade,
-
-        /// <summary>
-        /// 'placeholder_desc'
-        /// </summary>
-        [EnumMember(Value = "rewardgift")]
-        RewardGift,
-
-        /// <summary>
-        /// A user started to raid another user.
-        /// </summary>
-        [EnumMember(Value = "raid")]
-        Raid,
-
-        /// <summary>
-        /// A user stopped a raid in progress.
-        /// </summary>
-        [EnumMember(Value = "unraid")]
-        Unraid,
-
-        /// <summary>
-        /// A ritual has occured, i.e., a user triggered the new chatter notic.
-        /// </summary>
-        [EnumMember(Value = "ritual")]
-        Ritual,
-
-        /// <summary>
-        /// A suer unlocked the next gift subscription badge tier.
-        /// </summary>
-        [EnumMember(Value = "bitsbadgetier")]
-        BitsBadGetTier
+        public
+        BitsBadgeTags(UserNoticeTags tags) : base(tags)
+        {
+            msg_param_threshold = tags.msg_param_threshold;
+        }
     }
 
     #endregion

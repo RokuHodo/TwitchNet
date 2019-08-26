@@ -54,18 +54,11 @@ TwitchNet.Clients.Irc.Twitch
         public event EventHandler<RoomStateEventArgs>               OnRoomState;
 
         /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command USERNOTICE with the <see cref="UserNoticeType.Sub"/> or <see cref="UserNoticeType.Resub"/> msg-id tag</para>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command USERNOTICE with the any subscription msg-id tag</para>
         /// <para>Signifies that a user subscribed or resubscribed to a channel.</para>
         /// <para>Requires /commands and /tags.</para>
         /// </summary>
-        public event EventHandler<SubscriberEventArgs>              OnSubscriber;
-
-        /// <summary>
-        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command USERNOTICE with the <see cref="UserNoticeType.GiftSub"/> msg-id tag</para>
-        /// <para>Signifies that a user gifted a subscription to another user.</para>
-        /// <para>Requires /commands and /tags.</para>
-        /// </summary>
-        public event EventHandler<GiftedSubscriberEventArgs>        OnGiftedSubscriber;
+        public event EventHandler<SubscriptionEventArgs>            OnSubscription;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command USERNOTICE with the <see cref="UserNoticeType.Raid"/> msg-id tag</para>
@@ -80,6 +73,13 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>Requires /commands and /tags.</para>
         /// </summary>
         public event EventHandler<RitualEventArgs>                  OnRitual;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command USERNOTICE with the <see cref="UserNoticeType.BitsBadgeTier"/> msg-id tag</para>
+        /// <para>Signifies that a user earned a new Bits badge.</para>
+        /// <para>Requires /commands and /tags.</para>
+        /// </summary>
+        public event EventHandler<BitsBadgeEventArgs>               OnBitsBadge;
 
         /// <summary>
         /// <para>Raised when an <see cref="IrcMessage"/> is received with the command USERNOTICE and tags were not requested.</para>
@@ -446,41 +446,45 @@ TwitchNet.Clients.Irc.Twitch
         private void
         HandleUserNotice(in IrcMessage message)
         {
-            UserNoticeType type = TwitchIrcUtil.Tags.ToUserNoticeType(message, "msg-id");
-            switch (type)
+            UserNoticeEventArgs args = new UserNoticeEventArgs(message);
+            OnUserNotice.Raise(this, args);
+
+            if (!args.tags_exist)
+            {
+                return;
+            }
+
+            switch (args.tags.msg_id)
             {
                 case UserNoticeType.Sub:
                 case UserNoticeType.Resub:
-                {
-                    OnSubscriber.Raise(this, new SubscriberEventArgs(message));
-                }
-                break;
-
                 case UserNoticeType.SubGift:
+                case UserNoticeType.AnonSubGift:
+                case UserNoticeType.SubMysteryGift:
+                case UserNoticeType.GiftPaidUpgrade:
+                case UserNoticeType.AnonGiftPaidUpgrade:
                 {
-                    OnGiftedSubscriber.Raise(this, new GiftedSubscriberEventArgs(message));
+                    OnSubscription.Raise(this, new SubscriptionEventArgs(args));
                 }
                 break;
 
                 case UserNoticeType.Raid:
                 {
-                    OnRaid.Raise(this, new RaidEventArgs(message));
+                    OnRaid.Raise(this, new RaidEventArgs(args));
                 }
                 break;
 
                 case UserNoticeType.Ritual:
                 {
-                    OnRitual.Raise(this, new RitualEventArgs(message));
+                    OnRitual.Raise(this, new RitualEventArgs(args));
                 }
                 break;
 
-                case UserNoticeType.Other:
-                default:
+                case UserNoticeType.BitsBadgeTier:
                 {
-                    OnUserNotice.Raise(this, new UserNoticeEventArgs(message));
+                    OnBitsBadge.Raise(this, new BitsBadgeEventArgs(args));
                 }
                 break;
-
             }
         }
 

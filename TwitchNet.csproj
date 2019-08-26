@@ -100,7 +100,6 @@
     <Compile Include="Clients\Irc\Twitch\ChatCommand.cs" />
     <Compile Include="Clients\Irc\Twitch\DisplayNameColor.cs" />
     <Compile Include="SubscriptionTier.cs" />
-    <Compile Include="Clients\Irc\Twitch\HostTargetType.cs" />
     <Compile Include="Clients\Irc\Twitch\NoticeType.cs" />
     <Compile Include="Clients\Irc\Twitch\FollowersDurationPeriod.cs" />
     <Compile Include="BroadcasterLanguage.cs" />

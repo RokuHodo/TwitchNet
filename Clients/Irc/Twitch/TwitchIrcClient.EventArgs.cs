@@ -639,7 +639,7 @@ TwitchNet.Clients.Irc.Twitch
 
     #endregion
 
-    #region Command: USERNOTICE
+    #region Command: USERNOTICE - Updated
 
     public class
     UserNoticeEventArgs : IrcMessageEventArgs
@@ -847,9 +847,6 @@ TwitchNet.Clients.Irc.Twitch
         }
     }
 
-    // TODO: Manually set these default value since these are parsed in a slightly different way.
-    // TODO: Mark each tag with their applicable msg-id tag.
-
     public class
     UserNoticeTags : UserNoticeBaseTags
     {
@@ -860,85 +857,134 @@ TwitchNet.Clients.Irc.Twitch
         /// -------------------
 
         /// <summary>
+        /// <para>
         /// The total number of months the user has been subscribed.
+        /// Sent only when msg_id is set to <see cref="UserNoticeType.Sub"/> or <see cref="UserNoticeType.Resub"/>.
+        /// </para>
+        /// <para>Set to -1 if the tag was not included in the message.</para>
         /// </summary>
         [IrcTag("msg-param-cumulative-months")]
-        public int msg_param_cumulative_months { get; protected set; }
+        public int msg_param_cumulative_months { get; protected set; } = -1;
 
         /// <summary>
+        /// <para>
         /// Whether or not the user who subscribed wants their subscription streak shared.
+        /// Sent only when msg_id is set to <see cref="UserNoticeType.Sub"/> or <see cref="UserNoticeType.Resub"/>.
+        /// </para>
+        /// <para>Set to -1 if the tag was not included in the message.</para>
         /// </summary>
         [IrcTag("msg-param-should-share-streak")]
-        public bool msg_param_should_share_streak { get; protected set; }
+        public bool msg_param_should_share_streak { get; protected set; } = false;
 
         /// <summary>
-        /// <para>The number of consecutive months the user has been subscribed.</para>
-        /// <para>Set to 0 if <see cref="msg_param_should_share_streak"/> is set to false.</para>
+        /// <para>
+        /// The number of consecutive months the user has been subscribed.
+        /// Sent only when msg_id is set to <see cref="UserNoticeType.Sub"/> or <see cref="UserNoticeType.Resub"/>.
+        /// </para>
+        /// <para>Set to -1 if <see cref="msg_param_should_share_streak"/> is set to false or if the tag was not included in the message.</para>
         /// </summary>
         [IrcTag("msg-param-streak-months")]
-        public int msg_param_streak_months { get; protected set; }
+        public int msg_param_streak_months { get; protected set; } = -1;
 
         /// <summary>
+        /// <para>
         /// The subscription tier.
+        /// Sent only when msg_id is set to <see cref="UserNoticeType.Sub"/>, <see cref="UserNoticeType.Resub"/>, <see cref="UserNoticeType.SubGift"/>, or <see cref="UserNoticeType.AnonSubGift"/>.
+        /// </para>
+        /// <para>Set to <see cref="SubscriptionTier.Other"/> if the tag was not included in the message.</para>
         /// </summary>
         [IrcTag("msg-param-sub-plan")]
-        public SubscriptionTier msg_param_sub_plan { get; protected set; }
+        public SubscriptionTier msg_param_sub_plan { get; protected set; } = SubscriptionTier.Other;
 
         /// <summary>
+        /// <para>
         /// The display name of the subscription plan.
+        /// Sent only when msg_id is set to <see cref="UserNoticeType.Sub"/>, <see cref="UserNoticeType.Resub"/>, <see cref="UserNoticeType.SubGift"/>, or <see cref="UserNoticeType.AnonSubGift"/>.
+        /// </para>
+        /// <para>Set to an empty string if the tag was not included in the message.</para>
         /// </summary>
         [IrcTag("msg-param-sub-plan-name")]
-        public string msg_param_sub_plan_name { get; protected set; }
+        public string msg_param_sub_plan_name { get; protected set; } = string.Empty;
 
         /// <summary>
+        /// <para>
         /// The total number of months the user has been subscribed.
+        /// Sent only when msg_id is set to <see cref="UserNoticeType.SubGift"/> or <see cref="UserNoticeType.AnonSubGift"/>.
+        /// </para>
+        /// <para>Set to -1 if the tag was not included in the message.</para>
         /// </summary>
         [IrcTag("msg-param-months")]
-        public int msg_param_months { get; protected set; }
+        public int msg_param_months { get; protected set; } = -1;
 
         /// <summary>
-        /// <para>The display name of the user who was gifted the subscription.</para>
-        /// <para>Set to an empty string if it was never set by the user.</para>
+        /// <para>
+        /// The display name of the user who was gifted the subscription.
+        /// Sent only when msg_id is set to <see cref="UserNoticeType.SubGift"/> or <see cref="UserNoticeType.AnonSubGift"/>.
+        /// </para>
+        /// <para>Set to an empty string if it was never set by the user or if the tag was not included in the message.</para>
         /// </summary>
         [IrcTag("msg-param-recipient-display-name")]
-        public string msg_param_recipient_display_name { get; protected set; }
+        public string msg_param_recipient_display_name { get; protected set; } = string.Empty;
 
         /// <summary>
+        /// <para>
         /// The ID of the user who was gifted the subscription.
+        /// Sent only when msg_id is set to <see cref="UserNoticeType.SubGift"/> or <see cref="UserNoticeType.AnonSubGift"/>.
+        /// </para>
+        /// <para>Set to an empty string if the tag was not included in the message.</para>
         /// </summary>
         [IrcTag("msg-param-recipient-id")]
-        public string msg_param_recipient_id { get; protected set; }
+        public string msg_param_recipient_id { get; protected set; } = string.Empty;
 
         /// <summary>
+        /// <para>
         /// The login of the user who was gifted the subscription.
+        /// Sent only when msg_id is set to <see cref="UserNoticeType.SubGift"/> or <see cref="UserNoticeType.AnonSubGift"/>.
+        /// </para>
+        /// <para>Set to an empty string if the tag was not included in the message.</para>
         /// </summary>
         [IrcTag("msg-param-recipient-user-name")]
-        public string msg_param_recipient_user_name { get; protected set; }
+        public string msg_param_recipient_user_name { get; protected set; } = string.Empty;
 
         /// <summary>
+        /// <para>
         /// The login of the user who gifted the subscription.
+        /// Sent only when msg_id is set to <see cref="UserNoticeType.GiftPaidUpgrade"/>.
+        /// </para>
+        /// <para>Set to an empty string if the tag was not included in the message.</para>
         /// </summary>
         [IrcTag("msg-param-sender-login")]
-        public string msg_param_sender_login { get; protected set; }
+        public string msg_param_sender_login { get; protected set; } = string.Empty;
 
         /// <summary>
-        /// <para>The display name of the user who gifted the subscription.</para>
-        /// <para>Set to an empty string if it was never set by the user.</para>
+        /// <para>
+        /// The display name of the user who gifted the subscription.
+        /// Sent only when msg_id is set to <see cref="UserNoticeType.GiftPaidUpgrade"/>.
+        /// </para>
+        /// <para>Set to an empty string if it was never set by the user or if the tag was not included in the message.</para>
         /// </summary>
         [IrcTag("msg-param-sender-name")]
-        public string msg_param_sender_name { get; protected set; }
+        public string msg_param_sender_name { get; protected set; } = string.Empty;
 
         /// <summary>
+        /// <para>
         /// The total number of gift subscriptions the gifter has given during the promotion.
+        /// Sent only when msg_id is set to <see cref="UserNoticeType.GiftPaidUpgrade"/> or <see cref="UserNoticeType.AnonGiftPaidUpgrade"/>.
+        /// </para>
+        /// <para>Set to -1 if the tag was not included in the message.</para>
         /// </summary>
         [IrcTag("msg-param-promo-gift-total")]
-        public int msg_param_promo_gift_total { get; protected set; }
+        public int msg_param_promo_gift_total { get; protected set; } = -1;
 
         /// <summary>
+        /// <para>
         /// The name of the subscription promotion going on, if any; i.e., Subtember.
+        /// Sent only when msg_id is set to <see cref="UserNoticeType.GiftPaidUpgrade"/> or <see cref="UserNoticeType.AnonGiftPaidUpgrade"/>.
+        /// </para>
+        /// <para>Set to an empty string if the tag was not included in the message.</para>
         /// </summary>
         [IrcTag("msg-param-promo-name")]
-        public string msg_param_promo_name { get; protected set; }
+        public string msg_param_promo_name { get; protected set; } = string.Empty;
 
         /// -------------------
         /// 
@@ -947,23 +993,34 @@ TwitchNet.Clients.Irc.Twitch
         /// -------------------
 
         /// <summary>
+        /// <para>
         /// The number of viewers participating the the raid.
+        /// Sent only when msg_id is set to <see cref="UserNoticeType.Raid"/>.
+        /// </para>
+        /// <para>Set to -1 if the tag was not included in the message.</para>
         /// </summary>
         [IrcTag("msg-param-viewerCount")]
-        public ulong msg_param_viewer_count { get; protected set; }
+        public int msg_param_viewer_count { get; protected set; } = -1;
 
         /// <summary>
-        /// <para>The display name of the user that is raiding.</para>
-        /// <para>Set to an empty string if it was never set by the user.</para>
+        /// <para>
+        /// The display name of the user that is raiding.
+        /// Sent only when msg_id is set to <see cref="UserNoticeType.Raid"/>.
+        /// </para>
+        /// <para>Set to an empty string if it was never set by the user or if the tag was not included in the message.</para>
         /// </summary>
         [IrcTag("msg-param-displayName")]
-        public string msg_param_display_name { get; protected set; }
+        public string msg_param_display_name { get; protected set; } = string.Empty;
 
         /// <summary>
+        /// <para>
         /// The login of the user that is raiding.
+        /// Sent only when msg_id is set to <see cref="UserNoticeType.Raid"/>.
+        /// </para>
+        /// <para>Set to an empty string if the tag was not included in the message.</para>
         /// </summary>
         [IrcTag("msg-param-login")]
-        public string msg_param_login { get; protected set; }
+        public string msg_param_login { get; protected set; } = string.Empty;
 
         /// -------------------
         /// 
@@ -972,10 +1029,14 @@ TwitchNet.Clients.Irc.Twitch
         /// -------------------
 
         /// <summary>
+        /// <para>
         /// The ritual type.
+        /// Sent only when msg_id is set to <see cref="UserNoticeType.Ritual"/>.
+        /// </para>
+        /// <para>Set to <see cref="RitualType.Other"/> if the tag was not included in the message.</para>
         /// </summary>
         [IrcTag("msg-param-ritual-name")]
-        public RitualType msg_param_ritual_name { get; protected set; }
+        public RitualType msg_param_ritual_name { get; protected set; } = RitualType.Other;
 
 
         /// -------------------
@@ -985,10 +1046,14 @@ TwitchNet.Clients.Irc.Twitch
         /// -------------------
 
         /// <summary>
+        /// <para>
         /// The Bits badge tier the user just unlocked.
+        /// Sent only when msg_id is set to <see cref="UserNoticeType.BitsBadgeTier"/>.
+        /// </para>
+        /// <para>Set to -1 if the tag was not included in the message.</para>
         /// </summary>
         [IrcTag("msg-param-threshold")]
-        public int msg_param_threshold { get; protected set; }
+        public int msg_param_threshold { get; protected set; } = -1;
 
         public
         UserNoticeTags(in IrcMessage message) : base(message)
@@ -1040,7 +1105,7 @@ TwitchNet.Clients.Irc.Twitch
             // raid tags
             if (msg_id == UserNoticeType.Raid)
             {
-                msg_param_viewer_count              = TwitchIrcUtil.Tags.ToUInt32(message, "msg-param-viewerCount");
+                msg_param_viewer_count              = TwitchIrcUtil.Tags.ToInt32(message, "msg-param-viewerCount");
                 msg_param_display_name              = TwitchIrcUtil.Tags.ToString(message, "msg-param-displayName");
                 msg_param_login                     = TwitchIrcUtil.Tags.ToString(message, "msg-param-login");
             }
@@ -1356,7 +1421,7 @@ TwitchNet.Clients.Irc.Twitch
         /// The number of viewers participating the the raid.
         /// </summary>
         [IrcTag("msg-param-viewerCount")]
-        public ulong msg_param_viewer_count { get; protected set; }
+        public int msg_param_viewer_count { get; protected set; }
 
         /// <summary>
         /// <para>The display name of the user that is raiding.</para>
@@ -1509,34 +1574,39 @@ TwitchNet.Clients.Irc.Twitch
         public bool tags_exist { get; private set; }
 
         /// <summary>
-        /// <para>The tags attached to the message, if any.</para>
-        /// <para>Check the <code>exist</code> property to determine if tags were attached to the message.</para>
+        /// <para>The converted IRC tags attached to the message.</para>
+        /// <para>Set to null if the message source was not from stream chat or no tags were sent with the message.</para>
         /// </summary>
         [ValidateMember(Check.TagsMissing)]
         public UserStateTags tags_stream_chat { get; protected set; }
 
         /// <summary>
-        /// <para>The tags attached to the message, if any.</para>
-        /// <para>Check the <code>exist</code> property to determine if tags were attached to the message.</para>
+        /// <para>The converted IRC tags attached to the message.</para>
+        /// <para>Set to null if the message source was not from a chat room or no tags were sent with the message.</para>
         /// </summary>
         [ValidateMember(Check.TagsMissing)]
         public ChatRoomUserStateTags tags_chat_room { get; protected set; }
 
         /// <summary>
-        /// The channel that the user has joined or sent sent a message in.
+        /// The IRC channel that the user has joined or sent sent a message in.
         /// </summary>
         [ValidateMember(Check.IsValid)]
         public string channel { get; protected set; }        
 
-        public UserStateEventArgs(in IrcMessage message) : base(message)
+        public
+        UserStateEventArgs(in IrcMessage message) : base(message)
         {
-            if (source == MessageSource.StreamChat)
+            tags_exist = message.tags_exist;
+            if (tags_exist)
             {
-                tags_stream_chat = new UserStateTags(message);
-            }
-            else
-            {
-                tags_chat_room = new ChatRoomUserStateTags(message);
+                if (source == MessageSource.StreamChat)
+                {
+                    tags_stream_chat = new UserStateTags(message);
+                }
+                else
+                {
+                    tags_chat_room = new ChatRoomUserStateTags(message);
+                }
             }
 
             if (message.parameters.Length > 0)
@@ -1597,11 +1667,6 @@ TwitchNet.Clients.Irc.Twitch
 
         public UserStateTags(in IrcMessage message)
         {
-            if (!message.tags_exist)
-            {
-                return;
-            }
-
             mod = TwitchIrcUtil.Tags.ToBool(message, "mod");
 
             display_name = TwitchIrcUtil.Tags.ToString(message, "display-name");
@@ -1673,7 +1738,7 @@ TwitchNet.Clients.Irc.Twitch
 
     #endregion
 
-    #region Command: HOSTTARGET
+    #region Command: HOSTTARGET - Updated
 
     public class
     HostTargetEventArgs : IrcMessageEventArgs
@@ -1687,7 +1752,7 @@ TwitchNet.Clients.Irc.Twitch
 
         /// <summary>
         /// <para>The user that is being hosted.</para>
-        /// <para>This is empty if the hosting channel stops hosting.</para>
+        /// <para>Set to an empty string if the hosting channel stops hosting.</para>
         /// </summary>
         [ValidateMember(Check.IsValid)]
         public string target_user { get; protected set; }
@@ -1705,7 +1770,8 @@ TwitchNet.Clients.Irc.Twitch
         [ValidateMember(Check.IsNotEqualTo, HostTargetType.None)]
         public HostTargetType target_type { get; protected set; }
 
-        public HostTargetEventArgs(in IrcMessage message) : base(message)
+        public
+        HostTargetEventArgs(in IrcMessage message) : base(message)
         {
             target_type = HostTargetType.None;
 
@@ -1740,6 +1806,25 @@ TwitchNet.Clients.Irc.Twitch
 
             viewer_count = Int32.TryParse(message.trailing.TextAfter(' '), out int _viewer_count) ? _viewer_count : -1;
         }
+    }
+
+    public enum
+    HostTargetType
+    {
+        /// <summary>
+        /// There was an error parsing the host target message.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// The hosting channel started hosting another channel.
+        /// </summary>
+        Start = 1,
+
+        /// <summary>
+        /// The hosting channel stopped hosting another channel.
+        /// </summary>
+        Stop = 2
     }
 
     #endregion

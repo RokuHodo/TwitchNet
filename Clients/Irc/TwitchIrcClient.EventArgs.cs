@@ -1,16 +1,14 @@
 ﻿// standard namespaces
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.Serialization;
 
 // project namespaces
 using TwitchNet.Debugger;
 using TwitchNet.Extensions;
-using TwitchNet.Utilities;
 
 namespace
-TwitchNet.Clients.Irc.Twitch
+TwitchNet.Clients.Irc
 {
     // -------------------------------------------------------------------------------------------------------------
     //
@@ -1563,7 +1561,7 @@ TwitchNet.Clients.Irc.Twitch
 
     #endregion
 
-    #region Command: USERSTATE
+    #region Command: USERSTATE - Updated
 
     public class
     UserStateEventArgs : ChatRoomSupportedMessageEventArgs
@@ -1627,7 +1625,7 @@ TwitchNet.Clients.Irc.Twitch
 
         /// <summary>
         /// <para>The display name of the user.</para>
-        /// <para>This is empty if it was never set by the user.</para>
+        /// <para>Set to an empty string if it was never set by the user.</para>
         /// </summary>
         [IrcTag("display-name")]
         public string display_name { get; protected set; }
@@ -1642,12 +1640,13 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>The user's type</para>
         /// <para>Set to <see cref="UserType.None"/> if the user has no elevated privileges.</para>
         /// </summary>
+        [Obsolete("This tag has been deprecated and can be deleted at any time. Use the 'badges' tag to look for this information instead")]
         [IrcTag("user-type")]
         public UserType user_type { get; protected set; }
 
         /// <summary>
         /// <para>The color of the user's display name.</para>
-        /// <para>The color is <see cref="Color.Empty"/> if it was never set by the user.</para>
+        /// <para>Set to <see cref="Color.Empty"/> if it was never set by the user.</para>
         /// </summary>
         [IrcTag("color")]
         public Color color { get; protected set; }
@@ -1655,15 +1654,23 @@ TwitchNet.Clients.Irc.Twitch
         /// <summary>
         /// Whether or not the user is subscribed to the channel.
         /// </summary>
+        [Obsolete("This tag has been deprecated and can be deleted at any time. Use the 'badges' tag to look for this information instead")]
         [IrcTag("subscriber")]
         public bool subscriber { get; protected set; }
 
         /// <summary>
         /// <para>The chat badges that the user has, if any.</para>
-        /// <para>The array is empty if the user has no chat badges.</para>
+        /// <para>Set to an empty array if the user has no chat badges.</para>
         /// </summary>
         [IrcTag("badges")]
         public Badge[] badges { get; protected set; }
+
+        /// <summary>
+        /// <para>Metadata related to the badges that the IRC user has, if any.</para>
+        /// <para>Set to an empty array if the user has no chat badges.</para>
+        /// </summary>
+        [IrcTag("badge-info")]
+        public BadgeInfo[] badge_info { get; protected set; }
 
         public UserStateTags(in IrcMessage message)
         {
@@ -1679,6 +1686,7 @@ TwitchNet.Clients.Irc.Twitch
             subscriber = TwitchIrcUtil.Tags.ToBool(message, "subscriber");
 
             badges = TwitchIrcUtil.Tags.ToBadges(message, "badges");
+            badge_info = TwitchIrcUtil.Tags.ToBadgeInfo(message, "badges");
         }
     }
 
@@ -1693,7 +1701,7 @@ TwitchNet.Clients.Irc.Twitch
 
         /// <summary>
         /// <para>The display name of the user.</para>
-        /// <para>This is empty if it was never set by the user.</para>
+        /// <para>Set to an empty string if it was never set by the user.</para>
         /// </summary>
         [IrcTag("display-name")]
         public string display_name { get; protected set; }
@@ -1708,12 +1716,13 @@ TwitchNet.Clients.Irc.Twitch
         /// <para>The user's type</para>
         /// <para>Set to <see cref="UserType.None"/> if the user has no elevated privileges.</para>
         /// </summary>
+        [Obsolete("This tag has been deprecated and can be deleted at any time.")]
         [IrcTag("user-type")]
         public UserType user_type { get; protected set; }
 
         /// <summary>
         /// <para>The color of the user's display name.</para>
-        /// <para>The color is <see cref="Color.Empty"/> if it was never set by the user.</para>
+        /// <para>Set to <see cref="Color.Empty"/> if it was never set by the user.</para>
         /// </summary>
         [IrcTag("color")]
         public Color color { get; protected set; }
@@ -1852,4 +1861,4 @@ TwitchNet.Clients.Irc.Twitch
     }    
 
     #endregion
-}
+} 

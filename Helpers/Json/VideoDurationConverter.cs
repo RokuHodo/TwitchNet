@@ -2,7 +2,7 @@
 using System;
 
 // project namespaces
-using TwitchNet.Clients.Irc.Twitch;
+using TwitchNet.Clients.Irc;
 
 // imported .dll's
 using Newtonsoft.Json;

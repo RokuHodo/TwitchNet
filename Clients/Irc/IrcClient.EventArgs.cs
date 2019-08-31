@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 // project namespaces
 using TwitchNet.Debugger;
 using TwitchNet.Extensions;
-using TwitchNet.Clients.Irc.Twitch;
+using TwitchNet.Clients.Irc;
 using TwitchNet.Utilities;
 
 namespace
@@ -23,6 +23,832 @@ TwitchNet.Clients.Irc
     //   clearly from the native IRC spec members witin each data structure.
     //
     // -------------------------------------------------------------------------------------------------------------
+
+    #region Command: NOTICE
+
+    public class
+    NoticeEventArgs : ChatRoomSupportedMessageEventArgs
+    {
+        /// <summary>
+        /// Whether or not IRC tags were sent with the message.
+        /// </summary>
+        public bool tags_exist { get; private set; }
+
+        /// <summary>
+        /// <para>The converted IRC tags attached to the message.</para>
+        /// <para>Set to null if no tags were sent with the message.</para>
+        /// </summary>
+        [ValidateMember(Check.TagsMissing)]
+        public NoticeTags tags { get; protected set; }
+
+        /// <summary>
+        /// <para>The channel notice was sent in.</para>
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// The notice message sent by the server.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string body { get; protected set; }        
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="NoticeEventArgs"/> class.
+        /// </summary>
+        /// <param name="message">The IRC message to parse.</param>
+        public NoticeEventArgs(in IrcMessage message) : base(message)
+        {
+            tags_exist = message.tags_exist;
+            if (tags_exist)
+            {
+                tags = new NoticeTags(message);
+            }
+
+            if (message.parameters.Length > 0)
+            {
+                channel = message.parameters[0];
+            }
+
+            body = message.trailing;
+        }
+    }
+
+    public class
+    NoticeTags
+    {
+        /// <summary>
+        /// The id that describes the notice from the server.
+        /// <para>Set to <see cref="UserNoticeType.Other"/> if the id could not be parsed.</para>
+        /// </summary>
+        [IrcTag("msg-id")]
+        public NoticeType msg_id { get; protected set; }
+
+        public
+        NoticeTags(in IrcMessage message)
+        {
+            msg_id = TwitchIrcUtil.Tags.ToNoticeType(message, "msg-id");
+        }
+    }
+
+    public enum
+    NoticeType
+    {
+        /// <summary>
+        /// Unsupported msg-id tag.
+        /// </summary>
+        [EnumMember(Value = "")]
+        Other = 0,
+
+        // @msg-id = already_banned :tmi.twitch.tv NOTICE #rokuhodo_ :RokuBotto is already banned in this channel.
+        /// <summary>
+        /// A user was attempted to be banned that is already banned.
+        /// </summary>
+        [EnumMember(Value = "already_banned")]
+        AlreadyBanned,
+
+        /// <summary>
+        /// Emote only mode was attempted to be turned off but is already off.
+        /// </summary>
+        [EnumMember(Value = "already_emote_only_off")]
+        AlreadyEmoteOnlyOff,
+
+        /// <summary>
+        /// Emote only mode was attempted to be turned on but is already on.
+        /// </summary>
+        [EnumMember(Value = "already_emote_only_on")]
+        AlreadyEmoteOnlyOn,
+
+        /// <summary>
+        /// R9K mode was attempted to be turned off but is already off.
+        /// </summary>
+        [EnumMember(Value = "already_r9k_off")]
+        AlreadyR9kOff,
+
+        /// <summary>
+        /// R9K mode was attempted to be turned on but is already on.
+        /// </summary>
+        [EnumMember(Value = "already_r9k_on")]
+        AlreadyR9kOn,
+
+        /// <summary>
+        /// Subscriber only mode was attempted to be turned off but is already off.
+        /// </summary>
+        [EnumMember(Value = "already_subs_off")]
+        AlreadySubsOff,
+
+        /// <summary>
+        /// Subscriber only mode was attempted to be turned on but is already on.
+        /// </summary>
+        [EnumMember(Value = "already_subs_on")]
+        AlreadySubsOn,
+
+        /// <summary>
+        /// The commercial failed to start playing.
+        /// </summary>
+        [EnumMember(Value = "bad_commercial_error")]
+        BadCommercialError,
+
+        // @msg-id=bad_host_hosting :tmi.twitch.tv NOTICE #rokuhodo_ :This channel is already hosting handmade_hero.
+        /// <summary>
+        /// Attempted to host a user that you are already hosting.
+        /// </summary>
+        [EnumMember(Value = "bad_host_hosting")]
+        BadHostHosting,
+
+        // @msg-id=bad_host_rate_exceeded :tmi.twitch.tv NOTICE #rokuhodo_ :Host target cannot be changed more than 3 times every half hour.
+        /// <summary>
+        /// An attempt was made to host more than 'n' different users in a half hour time span.
+        /// </summary>
+        [EnumMember(Value = "bad_host_rate_exceeded")]
+        BadHostRateExceeded,
+
+        // @msg-id = bad_mod_mod :tmi.twitch.tv NOTICE #rokuhodo_ :RokuBotto is already a moderator of this channel.
+        /// <summary>
+        /// An attempt was made to give a user moderator status, but is already a moderator.
+        /// </summary>
+        [EnumMember(Value = "bad_mod_mod")]
+        BadModMod,
+
+        /// <summary>
+        /// Slow mode was enabled with a duration larger than the allowed maximum.
+        /// </summary>
+        [EnumMember(Value = "bad_slow_duration")]
+        BadSlowDuration,
+
+        // @msg-id = bad_unmod_mod :tmi.twitch.tv NOTICE #rokuhodo_ :RokuBotto is not a moderator of this channel.
+        /// <summary>
+        /// An attempt was made to remove a user's a moderator status, but is not a moderator.
+        /// </summary>
+        [EnumMember(Value = "bad_unmod_mod")]
+        BadUnmodMod,
+
+        /// <summary>
+        /// A user was banned.
+        /// </summary>
+        [EnumMember(Value = "ban_success")]
+        BanSuccess,
+
+        // @msg-id=bad_unban_no_ban :tmi.twitch.tv NOTICE #rokuhodo_ :RokuBotto is not banned from this channel.
+        /// <summary>
+        /// A user was attempted to be banned but is already banned.
+        /// </summary>
+        [EnumMember(Value = "bad_unban_no_ban")]
+        BadUnbanNoBan,
+
+        // @msg-id=cmds_available :tmi.twitch.tv NOTICE #rokuhodo_ :Commands available to you in this room (use /help <command> for details): /help /w /me /disconnect /mods /color /commercial /mod /unmod /ban /unban /timeout /untimeout /slow /slowoff /r9kbeta /r9kbetaoff /emoteonly /emoteonlyoff /clear /subscribers /subscribersoff /followers /followersoff /host /unhost
+        /// <summary>
+        /// The command /help was use din chat with no comman specified.
+        /// Lists the available chat commands that can used in a chat.
+        /// </summary>
+        [EnumMember(Value = "cmds_available")]
+        CmdsAvailable,
+
+        /// <summary>
+        /// The display name color was changed.
+        /// </summary>
+        [EnumMember(Value = "color_changed")]
+        ColorChanged,
+
+        /// <summary>
+        /// Emote only mode in a room was turned off.
+        /// </summary>
+        [EnumMember(Value = "emote_only_off")]
+        EmoteOnlyOff,
+
+        /// <summary>
+        /// Emote only mode in a room was turned on.
+        /// </summary>
+        [EnumMember(Value = "emote_only_on")]
+        EmoteOnlyOn,
+
+        /// <summary>
+        /// A channel has exited host mode.
+        /// </summary>
+        [EnumMember(Value = "host_off")]
+        HostOff,
+
+        /// <summary>
+        /// A channel has started hosting another user.
+        /// </summary>
+        [EnumMember(Value = "host_on")]
+        HostOn,
+
+        // @msg-id=hosts_remaining :tmi.twitch.tv NOTICE #rokuhodo_ :2 host commands remaining this half hour.
+        /// <summary>
+        /// A channel has started hosting another user and has 'n' number of hosts remaining.
+        /// </summary>
+        [EnumMember(Value = "hosts_remaining")]
+        HostsRemaining,
+
+        // @msg-id=invalid_user :tmi.twitch.tv NOTICE rokuhodo_ :Invalid username: jhksdfjhsfdjhgsfd
+        /// <summary>
+        /// The user nick provided when using a chat command was invalid or does not exist.
+        /// </summary>
+        [EnumMember(Value = "invalid_user")]
+        InvalidUser,
+
+        /// <summary>
+        /// A user was modded.
+        /// </summary>
+        [EnumMember(Value = "mod_success")]
+        ModSuccess,
+
+        /// <summary>
+        /// Attempted to join a channel that was either suspended or deleted.
+        /// </summary>
+        [EnumMember(Value = "msg_channel_suspended")]
+        MsgChannelSuspended,
+
+        /// <summary>
+        /// Attempted to join a chat room that does not exist.
+        /// </summary>
+        [EnumMember(Value = "msg_room_not_found")]
+        MsgRoomNotFound,
+
+        /// <summary>
+        /// Help was requested for a command, but no help is available.
+        /// </summary>
+        [EnumMember(Value = "no_help")]
+        NoHelp,
+
+        /// <summary>
+        /// Attempted to use a command that the client doesn't have permission to use.
+        /// </summary>
+        [EnumMember(Value = "no_permission")]
+        NoPermission,
+
+        /// <summary>
+        /// R9K mode was turned off.
+        /// </summary>
+        [EnumMember(Value = "r9k_off")]
+        R9kOff,
+
+        /// <summary>
+        /// R9K mode was turned on.
+        /// </summary>
+        [EnumMember(Value = "r9k_on")]
+        R9kOn,
+
+        // @msg-id=room_mods :tmi.twitch.tv NOTICE rokuhodo_ :The moderators of this channel are: dumj01, guyfromuranus, hoshinokamikagaseo, jents217, odizzle94, rokuhodo_, thewalkthroughking, usernameop
+        /// <summary>
+        /// The list of moderators for a room was requested.
+        /// </summary>
+        [EnumMember(Value = "room_mods")]
+        RoomMods,
+
+        /// <summary>
+        /// Slow mode was turned off.
+        /// </summary>
+        [EnumMember(Value = "slow_off")]
+        SlowOff,
+
+        /// <summary>
+        /// Slow mode was turned on.
+        /// </summary>
+        [EnumMember(Value = "slow_on")]
+        SlowOn,
+
+        /// <summary>
+        /// Subscriber only mode was turned off.
+        /// </summary>
+        [EnumMember(Value = "subs_off")]
+        SubsOff,
+
+        /// <summary>
+        /// Subscriber only mode was turned on.
+        /// </summary>
+        [EnumMember(Value = "subs_on")]
+        SubsOn,
+
+        /// <summary>
+        /// A user was timed out.
+        /// </summary>
+        [EnumMember(Value = "timeout_success")]
+        TimeoutSuccess,
+
+        /// <summary>
+        /// Attempted to change the display name color using HTML color notation when it does not have Turbo or Twitch Prime.
+        /// </summary>
+        [EnumMember(Value = "turbo_only_color")]
+        TurboOnlyColor,
+
+        // @msg-id=unban_success :tmi.twitch.tv NOTICE #rokuhodo_ :RokuBotto is no longer banned from this channel.
+        /// <summary>
+        /// A user was unbanned or untimed out.
+        /// </summary>
+        [EnumMember(Value = "unban_success")]
+        UnbanSuccess,
+
+        /// <summary>
+        /// A user was unmodded.
+        /// </summary>
+        [EnumMember(Value = "unmod_success")]
+        UnmodSuccess,
+
+        /// <summary>
+        /// An unrecognized Twitch chat command was attempted to be used or was attempted to get help on.
+        /// </summary>
+        [EnumMember(Value = "unrecognized_cmd")]
+        UnrecognizedCmd,
+
+        /// <summary>
+        /// Help was requested for the command /color, or the syntax used with /color was incorrect.
+        /// </summary>
+        [EnumMember(Value = "usage_color")]
+        UsageColor,
+
+        /// <summary>
+        /// Help was requested for the command, /disconnect.
+        /// </summary>
+        [EnumMember(Value = "usage_disconnect")]
+        UsageDisconnect,
+
+        /// <summary>
+        /// Help was requested for the command, /help.
+        /// </summary>
+        [EnumMember(Value = "usage_help")]
+        UsageHelp,
+
+        /// <summary>
+        /// Help was requested for the command, /me.
+        /// </summary>
+        [EnumMember(Value = "usage_me")]
+        UsageMe,
+
+        /// <summary>
+        /// Help was requested for the command, /mods.
+        /// </summary>
+        [EnumMember(Value = "usage_mods")]
+        UsageMods,
+
+        /// <summary>
+        /// Help was requested for the command /ban, or /ban was used without a specifying a user nick.
+        /// </summary>
+        [EnumMember(Value = "usage_ban")]
+        UsageBan,
+
+        /// <summary>
+        /// Help was requested for the command /timeout, or /timeout was used with syntactically correct parameters but may be out of the valid ranges.
+        /// </summary>
+        [EnumMember(Value = "usage_timeout")]
+        UsageTimeout,
+
+        /// <summary>
+        /// Help was requested for the command /unban, or /unban was used without a specifying a user nick.
+        /// </summary>
+        [EnumMember(Value = "usage_unban")]
+        UsageUnban,
+
+        /// <summary>
+        /// Help was requested for the command /untimeout, or /untimeout was used without a specifying a user nick.
+        /// </summary>
+        [EnumMember(Value = "usage_untimeout")]
+        UsageUntimeout,
+
+        /// <summary>
+        /// Help was requested for the command /clear, or /clear was used with additional characters after the command.
+        /// </summary>
+        [EnumMember(Value = "usage_clear")]
+        UsageClear,
+
+        /// <summary>
+        /// Help was requested for the command /emoteonly, or /emoteonly was used with additional characters after the command.
+        /// </summary>
+        [EnumMember(Value = "usage_emote_only_on")]
+        UsageEmoteOnlyOn,
+
+        /// <summary>
+        /// Help was requested for the command /emoteonlyoff, or /emoteonlyoff was used with additional characters after the command.
+        /// </summary>
+        [EnumMember(Value = "usage_emote_only_off")]
+        UsageEmoteOnlyOff,
+
+        /// <summary>
+        /// Help was requested for the command /followers, or /followers was used with additional characters after the command.
+        /// </summary>
+        [EnumMember(Value = "usage_followers_on")]
+        UsageFollowersOn,
+
+        /// <summary>
+        /// Help was requested for the command, /followersoff, or /followersoff was used with additional characters after the command.
+        /// </summary>
+        [EnumMember(Value = "usage_followers_off")]
+        UsageFollowersOff,
+
+        /// <summary>
+        /// Help was requested for the command /r9kbeta, or /r9kbeta was used with additional characters after the command.
+        /// </summary>
+        [EnumMember(Value = "usage_r9k_on")]
+        UsageR9kOn,
+
+        /// <summary>
+        /// Help was requested for the command /r9kbetaoff, or /r9kbetaoff was used with additional characters after the command.
+        /// </summary>
+        [EnumMember(Value = "usage_r9k_off")]
+        UsageR9kOff,
+
+        /// <summary>
+        /// Help was requested for the command /slow, or /slow was used with a duration that could not be parsed.
+        /// </summary>
+        [EnumMember(Value = "usage_slow_on")]
+        UsageSlowOn,
+
+        /// <summary>
+        /// Help was requested for the command /slowoff, or /slowoff was used with additional characters after the command.
+        /// </summary>
+        [EnumMember(Value = "usage_slow_off")]
+        UsageSlowOff,
+
+        /// <summary>
+        /// Help was requested for the command /subscribers, or /subscribers was used with additional characters after the command.
+        /// </summary>
+        [EnumMember(Value = "usage_subs_on")]
+        UsageSubsOn,
+
+        /// <summary>
+        /// Help was requested for the command /subscribersoff, or /subscribersoff was used with additional characters after the command.
+        /// </summary>
+        [EnumMember(Value = "usage_subs_off")]
+        UsageSubsOff,
+
+        /// <summary>
+        /// Help was requested for the command /commercial, or /commercial was used with a length that was not valid or could not be parsed.
+        /// </summary>
+        [EnumMember(Value = "usage_commercial")]
+        UsageCommercial,
+
+        /// <summary>
+        /// Help was requested for the command /host, or /host was used without a specifying a user nick.
+        /// </summary>
+        [EnumMember(Value = "usage_host")]
+        UsageHost,
+
+        /// <summary>
+        /// Help was requested for the command /unhost, or /unhost was used with additional characters after the command.
+        /// </summary>
+        [EnumMember(Value = "usage_unhost")]
+        UsageUnhost,
+
+        // @msg-id=unsupported_chatrooms_cmd :tmi.twitch.tv NOTICE #chatrooms:45947671:e0cb36e1-29b1-481a-a85f-a01bc9a36646 :The command /commercial cannot be used in a chatroom
+        /// <summary>
+        /// An unsupported chat room coomand was attempted to be used.
+        /// </summary>
+        [EnumMember(Value = "unsupported_chatrooms_cmd")]
+        UnsupportedChatRoomsCmd,
+
+        /// <summary>
+        /// A whisper was attempted to be sent with incorrect syntax.
+        /// </summary>
+        [EnumMember(Value = "whisper_invalid_args")]
+        WhisperInvalidArgs,
+    }
+
+    public class
+    AlreadyBannedEventArgs : ChatRoomSupportedMessageEventArgs
+    {
+        /// <summary>
+        /// The channel that the NOTICE was sent to.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// The user who was attempted to be banned or timed out, but is already banned or timed out.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string user_nick { get; protected set; }
+
+        public
+        AlreadyBannedEventArgs(NoticeEventArgs args) : base(args.irc_message)
+        {
+            channel = args.channel;
+            user_nick = args.body.TextBefore(' ');
+        }
+    }
+
+    public class
+    BadHostHostingEventArgs : IrcMessageEventArgs
+    {
+        /// <summary>
+        /// The channel that the NOTICE was sent to.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// The user that was attempted to be hosted, but is already being hosted.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string user_nick { get; protected set; }
+
+        public
+        BadHostHostingEventArgs(NoticeEventArgs args) : base(args.irc_message)
+        {
+            channel = args.channel;
+
+            int index = args.body.LastIndexOf(' ');
+            if (index != 1)
+            {
+                user_nick = args.body.TextBetween(' ', '.', index);
+            }
+        }
+    }
+
+    public class
+    BadHostRateExceededEventArgs : IrcMessageEventArgs
+    {
+        /// <summary>
+        /// The channel that the NOTICE was sent to.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// The maximum number of users that can be hosted in half an hour.
+        /// Set to -1 if the value could not be parsed.
+        /// </summary>
+        [ValidateMember(Check.IsNotEqualTo, -1)]
+        public int host_rate_limit { get; protected set; }
+
+        public
+        BadHostRateExceededEventArgs(NoticeEventArgs args) : base(args.irc_message)
+        {
+            channel = args.channel;
+
+            host_rate_limit = Int32.TryParse(args.body.TextBetween("than ", " times"), out int _host_rate_limit) ? _host_rate_limit : -1;
+        }
+    }
+
+    public class
+    BadModModEventArgs : ChatRoomSupportedMessageEventArgs
+    {
+        /// <summary>
+        /// The channel that the NOTICE was sent to.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// The user who was attempted to be modded but is modded.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string user_nick { get; protected set; }
+
+        public
+        BadModModEventArgs(NoticeEventArgs args) : base(args.irc_message)
+        {
+            channel = args.channel;
+
+            user_nick = args.body.TextBefore(' ');
+        }
+    }
+
+    public class
+    BadUnmodModEventArgs : ChatRoomSupportedMessageEventArgs
+    {
+        /// <summary>
+        /// The channel that the NOTICE was sent to.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// The user who was attempted to be unmodded but is not modded.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string user_nick { get; protected set; }
+
+        public
+        BadUnmodModEventArgs(NoticeEventArgs args) : base(args.irc_message)
+        {
+            channel = args.channel;
+
+            user_nick = args.body.TextBefore(' ');
+        }
+    }
+
+    public class
+    BadUnbanNoBanEventArgs : ChatRoomSupportedMessageEventArgs
+    {
+        /// <summary>
+        /// The channel that the NOTICE was sent to.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// The user who was attempted to be unbanned or untimed out, but is not banned or timed out.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string user_nick { get; protected set; }
+
+        public
+        BadUnbanNoBanEventArgs(NoticeEventArgs args) : base(args.irc_message)
+        {
+            channel = args.channel;
+
+            user_nick = args.body.TextBefore(' ');
+        }
+    }
+
+    public class
+    CmdsAvailableEventArgs : ChatRoomSupportedMessageEventArgs
+    {
+        /// <summary>
+        /// The channel that the NOTICE was sent to.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// The commands that can be used in chat.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public ChatCommand[] commands { get; protected set; }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="CmdsAvailableEventArgs"/> class.
+        /// </summary>
+        /// <param name="args">The event arguments to parse.</param>
+        public CmdsAvailableEventArgs(NoticeEventArgs args) : base(args.irc_message)
+        {
+            channel = args.channel;
+
+            string _commands = args.body.TextAfter(':').Trim(' ');
+            string[] array = _commands.Split(' ');
+
+            List<ChatCommand> list = new List<ChatCommand>();
+            foreach (string element in array)
+            {
+                EnumUtil.TryParse(element, out ChatCommand command);
+                list.Add(command);
+            }
+            commands = list.ToArray();
+        }
+    }
+
+    public class
+    HostsRemainingEventArgs : ChatRoomSupportedMessageEventArgs
+    {
+        /// <summary>
+        /// The channel that the NOTICE was sent to.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// The remaining number of hosts that can be used until it resets.
+        /// Set to -1 if the value could not be parsed.
+        /// </summary>
+        [ValidateMember(Check.IsNotEqualTo, -1)]
+        public int remaining { get; protected set; }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="HostsRemainingEventArgs"/> class.
+        /// </summary>
+        /// <param name="args">The event arguments to parse.</param>
+        public HostsRemainingEventArgs(NoticeEventArgs args) : base(args.irc_message)
+        {
+            channel = args.channel;
+
+            remaining = Int32.TryParse(args.body.TextBefore(' '), out int _hosts_remaining) ? _hosts_remaining : -1;
+        }
+    }
+
+    public class
+    InvalidUserEventArgs : ChatRoomSupportedMessageEventArgs
+    {
+        /// <summary>
+        /// The channel that the NOTICE was sent to.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// The invalid user nick
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string user_nick { get; protected set; }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="InvalidUserEventArgs"/> class.
+        /// </summary>
+        /// <param name="args">The event arguments to parse.</param>
+        public InvalidUserEventArgs(NoticeEventArgs args) : base(args.irc_message)
+        {
+            channel = args.channel;
+
+            user_nick = args.body.TextAfter(':').TrimStart(' ');
+        }
+    }
+
+    public class
+    RoomModsEventArgs : ChatRoomSupportedMessageEventArgs
+    {
+        /// <summary>
+        /// The channel that the NOTICE was sent to.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// The room's moderators.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string[] user_nicks { get; protected set; }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="RoomModsEventArgs"/> class.
+        /// </summary>
+        /// <param name="args">The event arguments to parse.</param>
+        public RoomModsEventArgs(NoticeEventArgs args) : base(args.irc_message)
+        {
+            channel = args.channel;
+
+            string nicks = args.body.TextAfter(':').Trim(' ');
+            user_nicks = nicks.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
+        }
+    }
+
+    public class
+    UnbanSuccessEventArgs : ChatRoomSupportedMessageEventArgs
+    {
+        /// <summary>
+        /// The channel that the NOTICE was sent to.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// The user who was unbanned.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string user_nick { get; protected set; }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="UnbanSuccessEventArgs"/> class.
+        /// </summary>
+        /// <param name="args">The event arguments to parse.</param>
+        public UnbanSuccessEventArgs(NoticeEventArgs args) : base(args.irc_message)
+        {
+            channel = args.channel;
+
+            user_nick = args.body.TextBefore(' ');
+        }
+    }
+
+    public class
+    UnsupportedChatRoomCmdEventArgs : IrcMessageEventArgs
+    {
+        /// <summary>
+        /// The channel that the NOTICE was sent to.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// The id of the user who the chat room belongs to.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+
+        public string channel_user_id { get; protected set; }
+
+        /// <summary>
+        /// The unique UUID of the chat room.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+
+        public string channel_uuid { get; protected set; }
+
+        /// <summary>
+        /// The unsupported chat command that was attempted to be used in a chat room.
+        /// </summary>
+        [ValidateMember(Check.IsNotEqualTo, ChatCommand.Other)]
+        public ChatCommand command { get; protected set; }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="UnsupportedChatRoomCmdEventArgs"/> class.
+        /// </summary>
+        /// <param name="args">The event arguments to parse.</param>
+        public UnsupportedChatRoomCmdEventArgs(NoticeEventArgs args) : base(args.irc_message)
+        {
+            channel = args.channel;
+            channel_user_id = channel.TextBetween(':', ':');
+
+            int index = channel.LastIndexOf(':');
+            if (index != -1)
+            {
+                channel_uuid = channel.TextAfter(':', index);
+            }
+
+            EnumUtil.TryParse(args.body.TextBetween("command ", " cannot"), out ChatCommand _command);
+            command = _command;
+        }
+    }
+
+    #endregion
 
     public class
     DataEventArgs : EventArgs

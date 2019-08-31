@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 
 // project namespaces
@@ -10,7 +11,7 @@ using TwitchNet.Utilities;
 using TwitchNet.Extensions;
 
 namespace
-TwitchNet.Clients.Irc.Twitch
+TwitchNet.Clients.Irc
 {
     internal static class
     TwitchIrcUtil
@@ -303,6 +304,52 @@ TwitchNet.Clients.Irc.Twitch
                 // This is just to make sure it compiles.
                 return FollowersDurationPeriod.Seconds;
             }
+        }
+
+        public enum
+        FollowersDurationPeriod
+        {
+            /// <summary>
+            /// Unsupported duration period.
+            /// </summary>
+            [EnumMember(Value = "")]
+            Other = 0,
+
+            /// <summary>
+            /// s, second, seconds
+            /// </summary>
+            [EnumMember(Value = "seconds")]
+            Seconds,
+
+            /// <summary>
+            /// m, minute, minutes
+            /// </summary>
+            [EnumMember(Value = "minutes")]
+            Minutes,
+
+            /// <summary>
+            /// h, hour, hours
+            /// </summary>
+            [EnumMember(Value = "hours")]
+            Hours,
+
+            /// <summary>
+            /// d, day, days
+            /// </summary>
+            [EnumMember(Value = "days")]
+            Days,
+
+            /// <summary>
+            /// w, week, weeks
+            /// </summary>
+            [EnumMember(Value = "weeks")]
+            Weeks,
+
+            /// <summary>
+            /// m, month, months
+            /// </summary>
+            [EnumMember(Value = "months")]
+            Months,
         }
 
         /// <summary>

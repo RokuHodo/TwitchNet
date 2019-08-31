@@ -49,7 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Clients\Irc\Twitch\TwitchIrcUtil.cs" />
+    <Compile Include="Clients\Irc\TwitchIrcUtil.cs" />
     <Compile Include="Debugger\Check.cs" />
     <Compile Include="Debugger\DebugLevel.cs" />
     <Compile Include="Debugger\ErrorLevel.cs" />
@@ -74,8 +74,8 @@
     <Compile Include="Rest\Helix\HelixApi.OAuth.cs" />
     <Compile Include="Clients\Irc\IrcClient.Handlers.cs" />
     <Compile Include="Clients\Irc\IrcClient.cs" />
-    <Compile Include="Clients\Irc\Twitch\TwitchIrcClient.Handlers.cs" />
-    <Compile Include="Clients\Irc\Twitch\TwitchIrcClient.cs" />
+    <Compile Include="Clients\Irc\TwitchIrcClient.Handlers.cs" />
+    <Compile Include="Clients\Irc\TwitchIrcClient.cs" />
     <Compile Include="Debugger\Benchmark.cs" />
     <Compile Include="Debugger\Debug.Writing.cs" />
     <Compile Include="Debugger\Debug.Validation.cs" />
@@ -96,36 +96,9 @@
     <Compile Include="Rest\Exceptions.cs" />
     <Compile Include="Rest\OAuth\Token\RefreshTokenParameters.cs" />
     <Compile Include="Clients\ClientState.cs" />
-    <Compile Include="Clients\Irc\Twitch\CommercialLength.cs" />
-    <Compile Include="Clients\Irc\Twitch\ChatCommand.cs" />
-    <Compile Include="Clients\Irc\Twitch\DisplayNameColor.cs" />
     <Compile Include="SubscriptionTier.cs" />
-    <Compile Include="Clients\Irc\Twitch\NoticeType.cs" />
-    <Compile Include="Clients\Irc\Twitch\FollowersDurationPeriod.cs" />
     <Compile Include="BroadcasterLanguage.cs" />
-    <Compile Include="Clients\Irc\Twitch\ChatRoomBadUnmodModEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\BadUnmodModEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\ChatRoomBadModModEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\BadModModEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\ChatRoomRoomModsEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\RoomModsEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\ChatRoomInvalidUserEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\InvalidUserEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\ChatRoomCmdsAvailableEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\CmdsAvailableEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\ChatRoomUnbanSuccessEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\UnbanSuccessEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\ChatRoomBadUnbanNoBanEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\BadUnbanNoBanEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\UnsupportedChatRoomCmdEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\HostsRemainingEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\BadHostRateExceededEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\BadHostHostingEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\ChatRoomAlreadyBannedEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\ChatRoomNoticeEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\NoticeEventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\TwitchIrcClient.EventArgs.cs" />
-    <Compile Include="Clients\Irc\Twitch\AlreadyBannedEventArgs.cs" />
+    <Compile Include="Clients\Irc\TwitchIrcClient.EventArgs.cs" />
     <Compile Include="Extensions\EventExtensions.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\MathExtensions .cs" />
@@ -138,7 +111,6 @@
     <Compile Include="Rest\Helix\Users.cs" />
     <Compile Include="Rest\Helix\Videos.cs" />
     <Compile Include="Debugger\ValidateTagAttribute.cs" />
-    <Compile Include="Clients\Irc\Twitch\NoticeTags.cs" />
     <Compile Include="Rest\OAuth\Validate\OAuthTokenInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserType.cs" />

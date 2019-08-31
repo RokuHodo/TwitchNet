@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 // project namespaces
-using TwitchNet.Clients.Irc.Twitch;
+using TwitchNet.Clients.Irc;
 using TwitchNet.Extensions;
 
 namespace

@@ -205,6 +205,136 @@ TwitchNet.Clients.Irc
         /// </summary>
         public virtual event EventHandler<ErrorEventArgs>           OnNetworkError;
 
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command NOTICE in a stream chat.</para>
+        /// <para>These are general server notices sent specifically to the client, with a few excpections that are sent to all users in a channel's stream chat regardless of the source.</para>
+        /// <para>
+        /// Requires /commands.
+        /// Supplementary tags can be added to the message by requesting /tags.
+        /// </para>
+        /// </summary>
+        public event EventHandler<NoticeEventArgs> OnNotice;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command NOTICE with the <see cref="NoticeType.AlreadyBanned"/> msg-id tag in a stream chat.</para>
+        /// <para>
+        /// A secondary event raised after <see cref="OnNotice"/>.
+        /// Signifies that a user was attempted to be banned/timed out in a channel's stream chat, but is already banned/timed out.
+        /// </para>
+        /// <para>Requires /commands and /tags.</para>
+        /// </summary>
+        public event EventHandler<AlreadyBannedEventArgs> OnAlreadyBanned;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command NOTICE with the <see cref="NoticeType.BadHostHosting"/> msg-id tag.</para>
+        /// <para>
+        /// A secondary event raised after <see cref="OnNotice"/>.
+        /// Signifies that a user was attempted to be hosted, but is already being hosted.
+        /// </para>
+        /// <para>Requires /commands and /tags.</para>
+        /// </summary>
+        public event EventHandler<BadHostHostingEventArgs> OnBadHostHosting;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command NOTICE with the <see cref="NoticeType.BadHostRateExceeded"/> msg-id tag.</para>
+        /// <para>
+        /// A secondary event raised after <see cref="OnNotice"/>.
+        /// Signifies that more than the maximum number of users was attempted to be hosted in half an hour.
+        /// </para>
+        /// <para>Requires /commands and /tags.</para>
+        /// </summary>
+        public event EventHandler<BadHostRateExceededEventArgs> OnBadHostRateExceeded;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command NOTICE with the <see cref="NoticeType.BadModMod"/> msg-id tag in a stream chat.</para>
+        /// <para>
+        /// A secondary event raised after <see cref="OnNotice"/>.
+        /// Signifies that a user was attempted to be modded in a channel's stream chat, but is already modded.
+        /// </para>
+        /// <para>Requires /commands and /tags.</para>
+        /// </summary>
+        public event EventHandler<BadModModEventArgs> OnBadModMod;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command NOTICE with the <see cref="NoticeType.BadUnmodMod"/> msg-id tag in a stream chat.</para>
+        /// <para>
+        /// A secondary event raised after <see cref="OnNotice"/>.
+        /// Signifies that a user was attempted to be unmodded in a channel's stream chat, but is not a moderator.
+        /// </para>
+        /// <para>Requires /commands and /tags.</para>
+        /// </summary>
+        public event EventHandler<BadUnmodModEventArgs> OnBadUnmodMod;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command NOTICE with the <see cref="NoticeType.BadUnbanNoBan"/> msg-id tag in a stream chat.</para>
+        /// <para>
+        /// A secondary event raised after <see cref="OnNotice"/>.
+        /// Signifies that a user was attempted to be unbanned/untimed out in a channel's stream chat, but is not banned/timed out.
+        /// </para>
+        /// <para>Requires /commands and /tags.</para>
+        /// </summary>
+        public event EventHandler<BadUnbanNoBanEventArgs> OnBadUnbanNoBan;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command NOTICE with the <see cref="NoticeType.CmdsAvailable"/> msg-id tag in a stream chat.</para>
+        /// <para>
+        /// A secondary event raised after <see cref="OnNotice"/>.
+        /// Contains the chat commands that can be used in a channel's stream chat.
+        /// </para>
+        /// <para>Requires /commands and /tags.</para>
+        /// </summary>
+        public event EventHandler<CmdsAvailableEventArgs> OnCmdsAvailable;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command NOTICE with the <see cref="NoticeType.HostsRemaining"/> msg-id tag.</para>
+        /// <para>
+        /// A secondary event raised after <see cref="OnNotice"/>.
+        /// Contains how many hosts can be used until the value resets.
+        /// </para>
+        /// <para>Requires /commands and /tags.</para>
+        /// </summary>
+        public event EventHandler<HostsRemainingEventArgs> OnHostsRemaining;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command NOTICE with the <see cref="NoticeType.InvalidUser"/> msg-id tag in a stream chat.</para>
+        /// <para>
+        /// A secondary event raised after <see cref="OnNotice"/>.
+        /// Signifies that an invalid user nick was provided when trying to use a chat command in a channel's stream chat.
+        /// </para>
+        /// <para>Requires /commands and /tags.</para>
+        /// </summary>
+        public event EventHandler<InvalidUserEventArgs> OnInvalidUser;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command NOTICE with the <see cref="NoticeType.RoomMods"/> msg-id tag in a stream chat.</para>
+        /// <para>
+        /// A secondary event raised after <see cref="OnNotice"/>.
+        /// Contains a list of a channel's moderators.
+        /// </para>
+        /// <para>Requires /commands and /tags.</para>
+        /// </summary>
+        public event EventHandler<RoomModsEventArgs> OnRoomMods;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command NOTICE with the <see cref="NoticeType.UnbanSuccess"/> msg-id tag in a stream chat.</para>
+        /// <para>
+        /// A secondary event raised after <see cref="OnNotice"/>.
+        /// Signifies that a user was unbanned from a channel's stream chat.
+        /// </para>
+        /// <para>Requires /commands and /tags.</para>
+        /// </summary>
+        public event EventHandler<UnbanSuccessEventArgs> OnUnbanSuccess;
+
+        /// <summary>
+        /// <para>Raised when an <see cref="IrcMessage"/> is received with the command NOTICE with the <see cref="NoticeType.UnsupportedChatRoomsCmd"/> msg-id tag.</para>
+        /// <para>
+        /// A secondary event raised after <see cref="OnChatRoomNotice"/>.
+        /// Signifies that a chat command was attempted to be used in a channel's chat room, but is not supported in chat rooms.
+        /// </para>
+        /// <para>Requires /commands and /tags.</para>
+        /// </summary>
+        public event EventHandler<UnsupportedChatRoomCmdEventArgs> OnUnsupportedChatRoomCmd;
+
         #endregion
 
         #region Messange handling
@@ -234,6 +364,7 @@ TwitchNet.Clients.Irc
             SetHandler("MODE", HandleMode);
             SetHandler("PING", HandlePing);
             SetHandler("PRIVMSG", HandlePrivmsg);
+            SetHandler("NOTICE", HandleNotice);
         }
 
         /// <summary>
@@ -499,6 +630,93 @@ TwitchNet.Clients.Irc
         HandlePrivmsg(in IrcMessage message)
         {
             OnPrivmsg.Raise(this, new PrivmsgEventArgs(message));
+        }
+
+        /// <summary>
+        /// Handles the IRC message with the command NOTICE.
+        /// </summary>
+        /// <param name="message">The irc message to be handled.</param>
+        private void
+        HandleNotice(in IrcMessage message)
+        {
+            NoticeEventArgs args = new NoticeEventArgs(message);
+            OnNotice.Raise(this, args);
+
+                    
+            switch (args.tags.msg_id)
+            {
+                case NoticeType.AlreadyBanned:
+                    {
+                        OnAlreadyBanned.Raise(this, new AlreadyBannedEventArgs(args));
+                    }
+                    break;
+
+                case NoticeType.BadHostHosting:
+                    {
+                        OnBadHostHosting.Raise(this, new BadHostHostingEventArgs(args));
+                    }
+                    break;
+
+                case NoticeType.BadHostRateExceeded:
+                    {
+                        OnBadHostRateExceeded.Raise(this, new BadHostRateExceededEventArgs(args));
+                    }
+                    break;
+
+                case NoticeType.BadModMod:
+                    {
+                        OnBadModMod.Raise(this, new BadModModEventArgs(args));
+                    }
+                    break;
+
+                case NoticeType.BadUnbanNoBan:
+                    {
+                        OnBadUnbanNoBan.Raise(this, new BadUnbanNoBanEventArgs(args));
+                    }
+                    break;
+
+                case NoticeType.BadUnmodMod:
+                    {
+                        OnBadUnmodMod.Raise(this, new BadUnmodModEventArgs(args));
+                    }
+                    break;
+
+                case NoticeType.CmdsAvailable:
+                    {
+                        OnCmdsAvailable.Raise(this, new CmdsAvailableEventArgs(args));
+                    }
+                    break;
+
+                case NoticeType.HostsRemaining:
+                    {
+                        OnHostsRemaining.Raise(this, new HostsRemainingEventArgs(args));
+                    }
+                    break;
+
+                case NoticeType.InvalidUser:
+                    {
+                        OnInvalidUser.Raise(this, new InvalidUserEventArgs(args));
+                    }
+                    break;
+
+                case NoticeType.RoomMods:
+                    {
+                        OnRoomMods.Raise(this, new RoomModsEventArgs(args));
+                    }
+                    break;
+
+                case NoticeType.UnbanSuccess:
+                    {
+                        OnUnbanSuccess.Raise(this, new UnbanSuccessEventArgs(args));
+                    }
+                    break;
+
+                case NoticeType.UnsupportedChatRoomsCmd:
+                    {
+                        OnUnsupportedChatRoomCmd.Raise(this, new UnsupportedChatRoomCmdEventArgs(args));
+                    }
+                    break;
+            }
         }
 
         #endregion        

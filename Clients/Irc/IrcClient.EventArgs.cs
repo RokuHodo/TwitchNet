@@ -27,7 +27,7 @@ TwitchNet.Clients.Irc
     #region Command: NOTICE
 
     public class
-    NoticeEventArgs : ChatRoomSupportedMessageEventArgs
+    NoticeEventArgs : IrcMessageEventArgs
     {
         /// <summary>
         /// Whether or not IRC tags were sent with the message.
@@ -51,7 +51,7 @@ TwitchNet.Clients.Irc
         /// The notice message sent by the server.
         /// </summary>
         [ValidateMember(Check.IsValid)]
-        public string body { get; protected set; }        
+        public string body { get; protected set; }
 
         /// <summary>
         /// Creates a new instance of the <see cref="NoticeEventArgs"/> class.
@@ -95,417 +95,954 @@ TwitchNet.Clients.Irc
     NoticeType
     {
         /// <summary>
-        /// Unsupported msg-id tag.
+        /// Unknown or unsupported msg-id.
         /// </summary>
         [EnumMember(Value = "")]
         Other = 0,
 
-        // @msg-id = already_banned :tmi.twitch.tv NOTICE #rokuhodo_ :RokuBotto is already banned in this channel.
+        // --- \\
         /// <summary>
-        /// A user was attempted to be banned that is already banned.
+        /// {user} is already banned in this channel.
         /// </summary>
         [EnumMember(Value = "already_banned")]
-        AlreadyBanned,
+        AlreadyBanned, 
 
         /// <summary>
-        /// Emote only mode was attempted to be turned off but is already off.
+        /// This room is not in emote-only mode.
         /// </summary>
         [EnumMember(Value = "already_emote_only_off")]
         AlreadyEmoteOnlyOff,
 
         /// <summary>
-        /// Emote only mode was attempted to be turned on but is already on.
+        /// This room is already in emote-only mode.
         /// </summary>
         [EnumMember(Value = "already_emote_only_on")]
         AlreadyEmoteOnlyOn,
 
         /// <summary>
-        /// R9K mode was attempted to be turned off but is already off.
+        /// This room is not in r9k mode.
         /// </summary>
         [EnumMember(Value = "already_r9k_off")]
         AlreadyR9kOff,
 
         /// <summary>
-        /// R9K mode was attempted to be turned on but is already on.
+        /// This room is already in r9k mode.
         /// </summary>
         [EnumMember(Value = "already_r9k_on")]
         AlreadyR9kOn,
 
         /// <summary>
-        /// Subscriber only mode was attempted to be turned off but is already off.
+        /// This room is not in subscribers-only mode.
         /// </summary>
         [EnumMember(Value = "already_subs_off")]
         AlreadySubsOff,
 
         /// <summary>
-        /// Subscriber only mode was attempted to be turned on but is already on.
+        /// This room is already in subscribers-only mode.
         /// </summary>
         [EnumMember(Value = "already_subs_on")]
         AlreadySubsOn,
 
+        // --- \\
+        /// <summary> - INC
+        /// You cannot ban admin {user}. Please email support@twitch.tv if an admin is being abusive.
+        /// </summary>
+        [EnumMember(Value = "bad_ban_admin")]
+        BadBanAdmin,
+
+        // --- \\
         /// <summary>
-        /// The commercial failed to start playing.
+        /// You cannot ban anonymous users.
+        /// </summary>
+        [EnumMember(Value = "bad_ban_anon")]
+        BadBanAnon,
+
+        // --- \\
+        /// <summary>
+        /// You cannot ban the broadcaster.
+        /// </summary>
+        [EnumMember(Value = "bad_ban_broadcaster")]
+        BadBanBroadcaster,
+
+        // --- \\
+        /// <summary>
+        /// You cannot ban global moderator {user}. Please email support@twitch.tv if a global moderator is being abusive.
+        /// </summary>
+        [EnumMember(Value = "bad_ban_global_mod")]
+        BadBanGlobalMod,
+
+        // --- \\
+        /// <summary>
+        /// You cannot ban moderator {user} unless you are the owner of this channel.
+        /// </summary>
+        [EnumMember(Value = "bad_ban_mod")]
+        BadBanMod,
+
+        // --- \\
+        /// <summary>
+        /// You cannot ban yourself.
+        /// </summary>
+        [EnumMember(Value = "bad_ban_self")]
+        BadBanSelf,
+
+        // --- \\
+        /// <summary>
+        /// You cannot ban staff {user}. Please email support@twitch.tv if a staff member is being abusive.
+        /// </summary>
+        [EnumMember(Value = "bad_ban_staff")]
+        BadBanStaff,
+
+        /// <summary>
+        /// Failed to start commercial.
         /// </summary>
         [EnumMember(Value = "bad_commercial_error")]
         BadCommercialError,
 
-        // @msg-id=bad_host_hosting :tmi.twitch.tv NOTICE #rokuhodo_ :This channel is already hosting handmade_hero.
         /// <summary>
-        /// Attempted to host a user that you are already hosting.
+        /// You cannot delete the broadcaster's messages.
+        /// </summary>
+        [EnumMember(Value = "bad_delete_message_broadcaster")]
+        BadDeleteMessageBroadcaster,
+
+        /// <summary>
+        /// You cannot delete messages from another moderator {user}.
+        /// </summary>
+        [EnumMember(Value = "bad_delete_message_mod")]
+        BadDeleteMessageMod,
+
+        /// <summary>
+        /// There was a problem hosting {channel}. Please try again in a minute.
+        /// </summary>
+        [EnumMember(Value = "bad_host_error")]
+        BadHostError,
+
+        /// <summary>
+        /// This channel is already hosting {channel}.
         /// </summary>
         [EnumMember(Value = "bad_host_hosting")]
         BadHostHosting,
 
-        // @msg-id=bad_host_rate_exceeded :tmi.twitch.tv NOTICE #rokuhodo_ :Host target cannot be changed more than 3 times every half hour.
         /// <summary>
-        /// An attempt was made to host more than 'n' different users in a half hour time span.
+        /// Host target cannot be changed more than {number} times every half hour.
         /// </summary>
         [EnumMember(Value = "bad_host_rate_exceeded")]
         BadHostRateExceeded,
 
-        // @msg-id = bad_mod_mod :tmi.twitch.tv NOTICE #rokuhodo_ :RokuBotto is already a moderator of this channel.
         /// <summary>
-        /// An attempt was made to give a user moderator status, but is already a moderator.
+        /// This channel is unable to be hosted.
+        /// </summary>
+        [EnumMember(Value = "bad_host_rejected")]
+        BadHostRejected,
+
+        /// <summary>
+        /// A channel cannot host itself.
+        /// </summary>
+        [EnumMember(Value = "bad_host_self")]
+        BadHostSelf,
+
+        /// <summary>
+        /// Sorry, /marker is not available through this client.
+        /// </summary>
+        [EnumMember(Value = "bad_marker_client")]
+        BadMarkerClient,
+
+        /// <summary>
+        /// {user} is banned in this channel. You must unban this user before granting mod status.
+        /// </summary>
+        [EnumMember(Value = "bad_mod_banned")]
+        BadModBanned,
+
+        /// <summary>
+        /// {user} is already a moderator of this channel.
         /// </summary>
         [EnumMember(Value = "bad_mod_mod")]
         BadModMod,
 
         /// <summary>
-        /// Slow mode was enabled with a duration larger than the allowed maximum.
+        /// You cannot set slow delay to more than {number} seconds.
         /// </summary>
         [EnumMember(Value = "bad_slow_duration")]
         BadSlowDuration,
 
-        // @msg-id = bad_unmod_mod :tmi.twitch.tv NOTICE #rokuhodo_ :RokuBotto is not a moderator of this channel.
         /// <summary>
-        /// An attempt was made to remove a user's a moderator status, but is not a moderator.
+        /// You cannot timeout admin {user}. Please email support@twitch.tv if an admin is being abusive.
         /// </summary>
-        [EnumMember(Value = "bad_unmod_mod")]
-        BadUnmodMod,
+        [EnumMember(Value = "bad_timeout_admin")]
+        BadTimeoutAdmin,
 
         /// <summary>
-        /// A user was banned.
+        /// You cannot timeout anonymous users.
         /// </summary>
-        [EnumMember(Value = "ban_success")]
-        BanSuccess,
+        [EnumMember(Value = "bad_timeout_anon")]
+        BadTimeoutAnon,
 
-        // @msg-id=bad_unban_no_ban :tmi.twitch.tv NOTICE #rokuhodo_ :RokuBotto is not banned from this channel.
         /// <summary>
-        /// A user was attempted to be banned but is already banned.
+        /// You cannot timeout the broadcaster.
+        /// </summary>
+        [EnumMember(Value = "bad_timeout_broadcaster")]
+        BadTimeoutBroadcaster,
+
+        /// <summary>
+        /// You cannot time a user out for more than {seconds}.
+        /// </summary>
+        [EnumMember(Value = "bad_timeout_duration")]
+        BadTimeoutDuration,
+
+        /// <summary>
+        /// You cannot timeout global moderator {user}. Please email support@twitch.tv if a global moderator is being abusive.
+        /// </summary>
+        [EnumMember(Value = "bad_timeout_global_mod")]
+        BadTimeoutGlobalMod,
+
+        /// <summary>
+        /// You cannot timeout moderator {user} unless you are the owner of this channel.
+        /// </summary>
+        [EnumMember(Value = "bad_timeout_mod")]
+        BadTimeoutMod,
+
+        /// <summary>
+        /// You cannot timeout yourself.
+        /// </summary>
+        [EnumMember(Value = "bad_timeout_self")]
+        BadTimeoutSelf,
+
+        /// <summary>
+        /// You cannot timeout staff {user}. Please email support@twitch.tv if a staff member is being abusive.
+        /// </summary>
+        [EnumMember(Value = "bad_timeout_staff")]
+        BadTimeoutStaff,
+
+        // -- \\
+        /// <summary>
+        /// {user} is not banned from this channel.
         /// </summary>
         [EnumMember(Value = "bad_unban_no_ban")]
         BadUnbanNoBan,
 
-        // @msg-id=cmds_available :tmi.twitch.tv NOTICE #rokuhodo_ :Commands available to you in this room (use /help <command> for details): /help /w /me /disconnect /mods /color /commercial /mod /unmod /ban /unban /timeout /untimeout /slow /slowoff /r9kbeta /r9kbetaoff /emoteonly /emoteonlyoff /clear /subscribers /subscribersoff /followers /followersoff /host /unhost
         /// <summary>
-        /// The command /help was use din chat with no comman specified.
-        /// Lists the available chat commands that can used in a chat.
+        /// There was a problem exiting host mode. Please try again in a minute.
+        /// </summary>
+        [EnumMember(Value = "bad_unhost_error")]
+        BadUnhostError,
+
+        /// <summary>
+        /// {user} is not a moderator of this channel.
+        /// </summary>
+        [EnumMember(Value = "bad_unmod_mod")]
+        BadUnmodMod,
+
+        // --- \\
+        /// <summary>
+        /// {user} is now banned from this channel.
+        /// </summary>
+        [EnumMember(Value = "ban_success")]
+        BanSuccess,
+
+        /// <summary>
+        /// Commands available to you in this room (use /help {command} for details): {list of commands}
         /// </summary>
         [EnumMember(Value = "cmds_available")]
         CmdsAvailable,
 
         /// <summary>
-        /// The display name color was changed.
+        /// Your color has been changed.
         /// </summary>
         [EnumMember(Value = "color_changed")]
         ColorChanged,
 
         /// <summary>
-        /// Emote only mode in a room was turned off.
+        /// Initiating {number} second commercial break. Please keep in mind that your stream is still live and not everyone will get a commercial.
+        /// </summary>
+        [EnumMember(Value = "commercial_success")]
+        CommercialSuccess,
+
+        /// <summary>
+        /// The message from {user} is now deleted.
+        /// </summary>
+        [EnumMember(Value = "delete_message_success")]
+        DeleteMessageSuccess,
+
+        /// <summary>
+        /// This room is no longer in emote-only mode.
         /// </summary>
         [EnumMember(Value = "emote_only_off")]
         EmoteOnlyOff,
 
         /// <summary>
-        /// Emote only mode in a room was turned on.
+        /// This room is now in emote-only mode.
         /// </summary>
         [EnumMember(Value = "emote_only_on")]
         EmoteOnlyOn,
 
         /// <summary>
-        /// A channel has exited host mode.
+        /// This room is no longer in followers-only mode.
+        /// </summary>
+        [EnumMember(Value = "followers_off")]
+        FollowersOff,
+
+        /// <summary>
+        /// This room is now in {duration} followers-only mode.
+        /// </summary>
+        [EnumMember(Value = "followers_on")]
+        FollowersOn,
+
+        /// <summary>
+        /// This room is now in followers-only mode.
+        /// </summary>
+        [EnumMember(Value = "followers_onzero")]
+        FollowersOnzero,
+
+        /// <summary>
+        /// Exited host mode.
         /// </summary>
         [EnumMember(Value = "host_off")]
         HostOff,
 
         /// <summary>
-        /// A channel has started hosting another user.
+        /// Now hosting {channel}.
         /// </summary>
         [EnumMember(Value = "host_on")]
         HostOn,
 
-        // @msg-id=hosts_remaining :tmi.twitch.tv NOTICE #rokuhodo_ :2 host commands remaining this half hour.
         /// <summary>
-        /// A channel has started hosting another user and has 'n' number of hosts remaining.
+        /// {user} is now hosting you.
+        /// </summary>
+        [EnumMember(Value = "host_success")]
+        HostSuccess,
+
+        /// <summary>
+        /// {user} is now hosting you for up to {number} viewers.
+        /// </summary>
+        [EnumMember(Value = "host_success_viewers")]
+        HostSuccessViewers,
+
+        /// <summary>
+        /// {channel} has gone offline. Exiting host mode.
+        /// </summary>
+        [EnumMember(Value = "host_target_went_offline")]
+        HostTargetWentOffline,
+
+        /// <summary>
+        /// {number} host commands remaining this half hour.
         /// </summary>
         [EnumMember(Value = "hosts_remaining")]
         HostsRemaining,
 
-        // @msg-id=invalid_user :tmi.twitch.tv NOTICE rokuhodo_ :Invalid username: jhksdfjhsfdjhgsfd
         /// <summary>
-        /// The user nick provided when using a chat command was invalid or does not exist.
+        /// Invalid username: {user}
         /// </summary>
         [EnumMember(Value = "invalid_user")]
         InvalidUser,
 
         /// <summary>
-        /// A user was modded.
+        /// You have added {user} as a moderator of this channel.
         /// </summary>
         [EnumMember(Value = "mod_success")]
         ModSuccess,
 
         /// <summary>
-        /// Attempted to join a channel that was either suspended or deleted.
+        /// You are permanently banned from talking in {channel}.
+        /// </summary>
+        [EnumMember(Value = "msg_banned")]
+        MsgBanned,
+
+        /// <summary>
+        /// Your message was not sent because it contained too many unprocessable characters. If you believe this is an error, please rephrase and try again.
+        /// </summary>
+        [EnumMember(Value = "msg_bad_characters")]
+        MsgBadCharacters,
+
+        /// <summary>
+        /// Your message was not sent because your account is not in good standing in this channel.
+        /// </summary>
+        [EnumMember(Value = "msg_channel_blocked")]
+        MsgChannelBlocked,
+
+        /// <summary>
+        /// This channel has been suspended.
         /// </summary>
         [EnumMember(Value = "msg_channel_suspended")]
         MsgChannelSuspended,
 
         /// <summary>
-        /// Attempted to join a chat room that does not exist.
+        /// Your message was not sent because it is identical to the previous one you sent, less than 30 seconds ago.
+        /// </summary>
+        [EnumMember(Value = "msg_duplicate")]
+        MsgDuplicate,
+
+        /// <summary>
+        /// This room is in emote only mode. You can find your currently available emoticons using the smiley in the chat text area.
+        /// </summary>
+        [EnumMember(Value = "msg_emoteonly")]
+        MsgEmoteonly,
+
+        /// <summary>
+        /// You must Facebook Connect to send messages to this channel. You can Facebook Connect in your Twitch settings under the connections tab.
+        /// </summary>
+        [EnumMember(Value = "msg_facebook")]
+        MsgFacebook,
+
+        /// <summary>
+        /// This room is in {duration} followers-only mode. Follow {channel} to join the community!
+        /// </summary>
+        [EnumMember(Value = "msg_followersonly")]
+        MsgFollowersonly,
+
+        /// <summary>
+        /// This room is in {duration1} followers-only mode. You have been following for {duration2}. Continue following to chat!
+        /// </summary>
+        [EnumMember(Value = "msg_followersonly_followed")]
+        MsgFollowersonlyFollowed,
+
+        /// <summary>
+        /// This room is in followers-only mode. Follow {channel} to join the community!
+        /// </summary>
+        [EnumMember(Value = "msg_followersonly_zero")]
+        MsgFollowersonlyZero,
+
+        /// <summary>
+        /// This room is in r9k mode and the message you attempted to send is not unique.
+        /// </summary>
+        [EnumMember(Value = "msg_r9k")]
+        MsgR9k,
+
+        /// <summary>
+        /// Your message was not sent because you are sending messages too quickly.
+        /// </summary>
+        [EnumMember(Value = "msg_ratelimit")]
+        MsgRatelimit,
+
+        /// <summary>
+        /// Hey! Your message is being checked by mods and has not been sent.
+        /// </summary>
+        [EnumMember(Value = "msg_rejected")]
+        MsgRejected,
+
+        /// <summary>
+        /// Your message wasn't posted due to conflicts with the channel's moderation settings.
+        /// </summary>
+        [EnumMember(Value = "msg_rejected_mandatory")]
+        MsgRejectedMandatory,
+
+        /// <summary>
+        /// The room was not found.
         /// </summary>
         [EnumMember(Value = "msg_room_not_found")]
         MsgRoomNotFound,
 
         /// <summary>
-        /// Help was requested for a command, but no help is available.
+        /// This room is in slow mode and you are sending messages too quickly. You will be able to talk again in {number} seconds.
+        /// </summary>
+        [EnumMember(Value = "msg_slowmode")]
+        MsgSlowmode,
+
+        /// <summary>
+        /// This room is in subscribers only mode. To talk, purchase a channel subscription at https://www.twitch.tv/products/{broadcaster login name}/ticket?ref=subscriber_only_mode_chat.
+        /// </summary>
+        [EnumMember(Value = "msg_subsonly")]
+        MsgSubsOnly,
+
+        /// <summary>
+        /// Your account has been suspended.
+        /// </summary>
+        [EnumMember(Value = "msg_suspended")]
+        MsgSuspended,
+
+        /// <summary>
+        /// You are banned from talking in {channel} for {number} more seconds.
+        /// </summary>
+        [EnumMember(Value = "msg_timedout")]
+        MsgTimedOut,
+
+        /// <summary>
+        /// This room requires a verified email address to chat. Please verify your email at https://www.twitch.tv/settings/profile.
+        /// </summary>
+        [EnumMember(Value = "msg_verified_email")]
+        MsgVerifiedEmail,
+
+        /// <summary>
+        /// No help available.
         /// </summary>
         [EnumMember(Value = "no_help")]
         NoHelp,
 
         /// <summary>
-        /// Attempted to use a command that the client doesn't have permission to use.
+        /// There are no moderators of this channel.
+        /// </summary>
+        [EnumMember(Value = "no_mods")]
+        NoMods,
+
+        /// <summary>
+        /// No channel is currently being hosted.
+        /// </summary>
+        [EnumMember(Value = "not_hosting")]
+        NotHosting,
+
+        /// <summary>
+        /// You don’t have permission to perform that action.
         /// </summary>
         [EnumMember(Value = "no_permission")]
         NoPermission,
 
         /// <summary>
-        /// R9K mode was turned off.
+        /// This room is no longer in r9k mode.
         /// </summary>
         [EnumMember(Value = "r9k_off")]
         R9kOff,
 
         /// <summary>
-        /// R9K mode was turned on.
+        /// This room is now in r9k mode.
         /// </summary>
         [EnumMember(Value = "r9k_on")]
         R9kOn,
 
-        // @msg-id=room_mods :tmi.twitch.tv NOTICE rokuhodo_ :The moderators of this channel are: dumj01, guyfromuranus, hoshinokamikagaseo, jents217, odizzle94, rokuhodo_, thewalkthroughking, usernameop
         /// <summary>
-        /// The list of moderators for a room was requested.
+        /// You already have a raid in progress.
+        /// </summary>
+        [EnumMember(Value = "raid_error_already_raiding")]
+        RaidErrorAlreadyRaiding,
+
+        /// <summary>
+        /// You cannot raid this channel.
+        /// </summary>
+        [EnumMember(Value = "raid_error_forbidden")]
+        RaidErrorForbidden,
+
+        /// <summary>
+        /// A channel cannot raid itself.
+        /// </summary>
+        [EnumMember(Value = "raid_error_self")]
+        RaidErrorSelf,
+
+        /// <summary>
+        /// Sorry, you have more viewers than the maximum currently supported by raids right now.
+        /// </summary>
+        [EnumMember(Value = "raid_error_too_many_viewers")]
+        RaidErrorTooManyViewers,
+
+        /// <summary>
+        /// There was a problem raiding {channel}. Please try again in a minute.
+        /// </summary>
+        [EnumMember(Value = "raid_error_unexpected")]
+        RaidErrorUnexpected,
+
+        /// <summary>
+        /// This channel is intended for mature audiences.
+        /// </summary>
+        [EnumMember(Value = "raid_notice_mature")]
+        RaidNoticeMature,
+
+        /// <summary>
+        /// This channel has follower or subscriber only chat.
+        /// </summary>
+        [EnumMember(Value = "raid_notice_restricted_chat")]
+        RaidNoticeRestrictedChat,
+
+        /// <summary>
+        /// The moderators of this channel are: {list of users}
         /// </summary>
         [EnumMember(Value = "room_mods")]
         RoomMods,
 
         /// <summary>
-        /// Slow mode was turned off.
+        /// This room is no longer in slow mode.
         /// </summary>
         [EnumMember(Value = "slow_off")]
         SlowOff,
 
         /// <summary>
-        /// Slow mode was turned on.
+        /// This room is now in slow mode. You may send messages every {number} seconds.
         /// </summary>
         [EnumMember(Value = "slow_on")]
         SlowOn,
 
         /// <summary>
-        /// Subscriber only mode was turned off.
+        /// This room is no longer in subscribers-only mode.
         /// </summary>
         [EnumMember(Value = "subs_off")]
         SubsOff,
 
         /// <summary>
-        /// Subscriber only mode was turned on.
+        /// This room is now in subscribers-only mode.
         /// </summary>
         [EnumMember(Value = "subs_on")]
         SubsOn,
 
         /// <summary>
-        /// A user was timed out.
+        /// {user} is not timed out from this channel.
+        /// </summary>
+        [EnumMember(Value = "timeout_no_timeout")]
+        TimeoutNoTimeout,
+
+        /// <summary>
+        /// {user} has been timed out for {duration} seconds.
         /// </summary>
         [EnumMember(Value = "timeout_success")]
         TimeoutSuccess,
 
         /// <summary>
-        /// Attempted to change the display name color using HTML color notation when it does not have Turbo or Twitch Prime.
+        /// The community has closed channel {channel} due to Terms of Service violations.
+        /// </summary>
+        [EnumMember(Value = "tos_ban")]
+        TosBan,
+
+        /// <summary>
+        /// Only turbo users can specify an arbitrary hex color. Use one of the following instead: {list of colors}.
         /// </summary>
         [EnumMember(Value = "turbo_only_color")]
         TurboOnlyColor,
 
-        // @msg-id=unban_success :tmi.twitch.tv NOTICE #rokuhodo_ :RokuBotto is no longer banned from this channel.
         /// <summary>
-        /// A user was unbanned or untimed out.
+        /// {user} is no longer banned from this channel.
         /// </summary>
         [EnumMember(Value = "unban_success")]
         UnbanSuccess,
 
         /// <summary>
-        /// A user was unmodded.
+        /// You have removed {user} as a moderator of this channel.
         /// </summary>
         [EnumMember(Value = "unmod_success")]
         UnmodSuccess,
 
         /// <summary>
-        /// An unrecognized Twitch chat command was attempted to be used or was attempted to get help on.
+        /// You do not have an active raid.
+        /// </summary>
+        [EnumMember(Value = "unraid_error_no_active_raid")]
+        UnraidErrorNoActiveRaid,
+
+        /// <summary>
+        /// There was a problem stopping the raid. Please try again in a minute.
+        /// </summary>
+        [EnumMember(Value = "unraid_error_unexpected")]
+        UnraidErrorUnexpected,
+
+        /// <summary>
+        /// The raid has been cancelled.
+        /// </summary>
+        [EnumMember(Value = "unraid_success")]
+        UnraidSuccess,
+
+        /// <summary>
+        /// Unrecognized command: {command}
         /// </summary>
         [EnumMember(Value = "unrecognized_cmd")]
         UnrecognizedCmd,
 
         /// <summary>
-        /// Help was requested for the command /color, or the syntax used with /color was incorrect.
-        /// </summary>
-        [EnumMember(Value = "usage_color")]
-        UsageColor,
-
-        /// <summary>
-        /// Help was requested for the command, /disconnect.
-        /// </summary>
-        [EnumMember(Value = "usage_disconnect")]
-        UsageDisconnect,
-
-        /// <summary>
-        /// Help was requested for the command, /help.
-        /// </summary>
-        [EnumMember(Value = "usage_help")]
-        UsageHelp,
-
-        /// <summary>
-        /// Help was requested for the command, /me.
-        /// </summary>
-        [EnumMember(Value = "usage_me")]
-        UsageMe,
-
-        /// <summary>
-        /// Help was requested for the command, /mods.
-        /// </summary>
-        [EnumMember(Value = "usage_mods")]
-        UsageMods,
-
-        /// <summary>
-        /// Help was requested for the command /ban, or /ban was used without a specifying a user nick.
-        /// </summary>
-        [EnumMember(Value = "usage_ban")]
-        UsageBan,
-
-        /// <summary>
-        /// Help was requested for the command /timeout, or /timeout was used with syntactically correct parameters but may be out of the valid ranges.
-        /// </summary>
-        [EnumMember(Value = "usage_timeout")]
-        UsageTimeout,
-
-        /// <summary>
-        /// Help was requested for the command /unban, or /unban was used without a specifying a user nick.
-        /// </summary>
-        [EnumMember(Value = "usage_unban")]
-        UsageUnban,
-
-        /// <summary>
-        /// Help was requested for the command /untimeout, or /untimeout was used without a specifying a user nick.
-        /// </summary>
-        [EnumMember(Value = "usage_untimeout")]
-        UsageUntimeout,
-
-        /// <summary>
-        /// Help was requested for the command /clear, or /clear was used with additional characters after the command.
-        /// </summary>
-        [EnumMember(Value = "usage_clear")]
-        UsageClear,
-
-        /// <summary>
-        /// Help was requested for the command /emoteonly, or /emoteonly was used with additional characters after the command.
-        /// </summary>
-        [EnumMember(Value = "usage_emote_only_on")]
-        UsageEmoteOnlyOn,
-
-        /// <summary>
-        /// Help was requested for the command /emoteonlyoff, or /emoteonlyoff was used with additional characters after the command.
-        /// </summary>
-        [EnumMember(Value = "usage_emote_only_off")]
-        UsageEmoteOnlyOff,
-
-        /// <summary>
-        /// Help was requested for the command /followers, or /followers was used with additional characters after the command.
-        /// </summary>
-        [EnumMember(Value = "usage_followers_on")]
-        UsageFollowersOn,
-
-        /// <summary>
-        /// Help was requested for the command, /followersoff, or /followersoff was used with additional characters after the command.
-        /// </summary>
-        [EnumMember(Value = "usage_followers_off")]
-        UsageFollowersOff,
-
-        /// <summary>
-        /// Help was requested for the command /r9kbeta, or /r9kbeta was used with additional characters after the command.
-        /// </summary>
-        [EnumMember(Value = "usage_r9k_on")]
-        UsageR9kOn,
-
-        /// <summary>
-        /// Help was requested for the command /r9kbetaoff, or /r9kbetaoff was used with additional characters after the command.
-        /// </summary>
-        [EnumMember(Value = "usage_r9k_off")]
-        UsageR9kOff,
-
-        /// <summary>
-        /// Help was requested for the command /slow, or /slow was used with a duration that could not be parsed.
-        /// </summary>
-        [EnumMember(Value = "usage_slow_on")]
-        UsageSlowOn,
-
-        /// <summary>
-        /// Help was requested for the command /slowoff, or /slowoff was used with additional characters after the command.
-        /// </summary>
-        [EnumMember(Value = "usage_slow_off")]
-        UsageSlowOff,
-
-        /// <summary>
-        /// Help was requested for the command /subscribers, or /subscribers was used with additional characters after the command.
-        /// </summary>
-        [EnumMember(Value = "usage_subs_on")]
-        UsageSubsOn,
-
-        /// <summary>
-        /// Help was requested for the command /subscribersoff, or /subscribersoff was used with additional characters after the command.
-        /// </summary>
-        [EnumMember(Value = "usage_subs_off")]
-        UsageSubsOff,
-
-        /// <summary>
-        /// Help was requested for the command /commercial, or /commercial was used with a length that was not valid or could not be parsed.
-        /// </summary>
-        [EnumMember(Value = "usage_commercial")]
-        UsageCommercial,
-
-        /// <summary>
-        /// Help was requested for the command /host, or /host was used without a specifying a user nick.
-        /// </summary>
-        [EnumMember(Value = "usage_host")]
-        UsageHost,
-
-        /// <summary>
-        /// Help was requested for the command /unhost, or /unhost was used with additional characters after the command.
-        /// </summary>
-        [EnumMember(Value = "usage_unhost")]
-        UsageUnhost,
-
-        // @msg-id=unsupported_chatrooms_cmd :tmi.twitch.tv NOTICE #chatrooms:45947671:e0cb36e1-29b1-481a-a85f-a01bc9a36646 :The command /commercial cannot be used in a chatroom
-        /// <summary>
-        /// An unsupported chat room coomand was attempted to be used.
+        /// The command {command} cannot be used in a chatroom.
         /// </summary>
         [EnumMember(Value = "unsupported_chatrooms_cmd")]
         UnsupportedChatRoomsCmd,
 
         /// <summary>
-        /// A whisper was attempted to be sent with incorrect syntax.
+        /// {user} is permanently banned. Use "/unban" to remove a ban.
+        /// </summary>
+        [EnumMember(Value = "untimeout_banned")]
+        UntimeoutBanned,
+
+        /// <summary>
+        /// {user} is no longer timed out in this channel.
+        /// </summary>
+        [EnumMember(Value = "untimeout_success")]
+        UntimeoutSuccess,
+
+        /// <summary>
+        /// Usage: “/ban {username} [reason]” - Permanently prevent a user from chatting. Reason is optional and will be shown to the target and other moderators. Use “/unban” to remove a ban.
+        /// </summary>
+        [EnumMember(Value = "usage_ban")]
+        UsageBan,
+
+        /// <summary>
+        /// Usage: “/clear” - Clear chat history for all users in this room.
+        /// </summary>
+        [EnumMember(Value = "usage_clear")]
+        UsageClear,
+
+        /// <summary>
+        /// Usage: “/color” {color} - Change your username color. Color must be in hex (#000000) or one of the following: Blue, BlueViolet, CadetBlue, Chocolate, Coral, DodgerBlue, Firebrick, GoldenRod, Green, HotPink, OrangeRed, Red, SeaGreen, SpringGreen, YellowGreen.
+        /// </summary>
+        [EnumMember(Value = "usage_color")]
+        UsageColor,
+
+        /// <summary>
+        /// Usage: “/commercial [length]” - Triggers a commercial. Length (optional) must be a positive number of seconds.
+        /// </summary>
+        [EnumMember(Value = "usage_commercial")]
+        UsageCommercial,
+
+        /// <summary>
+        /// Usage: “/disconnect” - Reconnects to chat.
+        /// </summary>
+        [EnumMember(Value = "usage_disconnect")]
+        UsageDisconnect,
+
+        /// <summary>
+        /// Usage: /emoteonlyoff” - Disables emote-only mode.
+        /// </summary>
+        [EnumMember(Value = "usage_emote_only_off")]
+        UsageEmoteOnlyOff,
+
+        /// <summary>
+        /// Usage: “/emoteonly” - Enables emote-only mode (only emoticons may be used in chat). Use /emoteonlyoff to disable.
+        /// </summary>
+        [EnumMember(Value = "usage_emote_only_on")]
+        UsageEmoteOnlyOn,
+
+        /// <summary>
+        /// Usage: /followersoff” - Disables followers-only mode.
+        /// </summary>
+        [EnumMember(Value = "usage_followers_off")]
+        UsageFollowersOff,
+
+        /// <summary>
+        /// Usage: “/followers - Enables followers-only mode (only users who have followed for “duration” may chat). Examples: “30m”, “1 week”, “5 days 12 hours”. Must be less than 3 months.
+        /// </summary>
+        [EnumMember(Value = "usage_followers_on")]
+        UsageFollowersOn,
+
+        /// <summary>
+        /// Usage: “/help” - Lists the commands available to you in this room.
+        /// </summary>
+        [EnumMember(Value = "usage_help")]
+        UsageHelp,
+
+        /// <summary>
+        /// Usage: “/host {channel}” - Host another channel. Use “/unhost” to unset host mode.
+        /// </summary>
+        [EnumMember(Value = "usage_host")]
+        UsageHost,
+
+        /// <summary>
+        /// Usage: “/marker {optional comment}” - Adds a stream marker (with an optional comment, max 140 characters) at the current timestamp. You can use markers in the Highlighter for easier editing.
+        /// </summary>
+        [EnumMember(Value = "usage_marker")]
+        UsageMarker,
+
+        /// <summary>
+        /// Usage: “/me {message}” - Send an “emote” message in the third person.
+        /// </summary>
+        [EnumMember(Value = "usage_me")]
+        UsageMe,
+
+        /// <summary>
+        /// Usage: “/mod {username}” - Grant mod status to a user. Use “/mods” to list the moderators of this channel.
+        /// </summary>
+        [EnumMember(Value = "usage_mod")]
+        UsageMod,
+
+        /// <summary>
+        /// Usage: “/mods” - Lists the moderators of this channel.
+        /// </summary>
+        [EnumMember(Value = "usage_mods")]
+        UsageMods,
+
+        /// <summary>
+        /// Usage: “/r9kbetaoff” - Disables r9k mode.
+        /// </summary>
+        [EnumMember(Value = "usage_r9k_off")]
+        UsageR9kOff,
+
+        /// <summary>
+        /// Usage: “/r9kbeta” - Enables r9k mode. Use “/r9kbetaoff“ to disable.
+        /// </summary>
+        [EnumMember(Value = "usage_r9k_on")]
+        UsageR9kOn,
+
+        /// <summary>
+        /// Usage: “/raid {channel}” - Raid another channel. Use “/unraid” to cancel the Raid.
+        /// </summary>
+        [EnumMember(Value = "usage_raid")]
+        UsageRaid,
+
+        /// <summary>
+        /// Usage: “/slowoff” - Disables slow mode.
+        /// </summary>
+        [EnumMember(Value = "usage_slow_off")]
+        UsageSlowOff,
+
+        /// <summary>
+        /// Usage: “/slow” [duration] - Enables slow mode (limit how often users may send messages). Duration (optional, default={number}) must be a positive integer number of seconds. Use “/slowoff” to disable.
+        /// </summary>
+        [EnumMember(Value = "usage_slow_on")]
+        UsageSlowOn,
+
+        /// <summary>
+        /// Usage: “/subscribersoff” - Disables subscribers-only mode.
+        /// </summary>
+        [EnumMember(Value = "usage_subs_off")]
+        UsageSubsOff,
+
+        /// <summary>
+        /// Usage: “/subscribers” - Enables subscribers-only mode (only subscribers may chat in this channel). Use “/subscribersoff” to disable.
+        /// </summary>
+        [EnumMember(Value = "usage_subs_on")]
+        UsageSubsOn,
+
+        /// <summary>
+        /// Usage: “/timeout {username} [duration][time unit] [reason]" - Temporarily prevent a user from chatting. Duration (optional, default=10 minutes) must be a positive integer; time unit (optional, default=s) must be one of s, m, h, d, w; maximum duration is 2 weeks. Combinations like 1d2h are also allowed. Reason is optional and will be shown to the target user and other moderators. Use “untimeout” to remove a timeout.
+        /// </summary>
+        [EnumMember(Value = "usage_timeout")]
+        UsageTimeout,
+
+        /// <summary>
+        /// Usage: “/unban {username}” - Removes a ban on a user.
+        /// </summary>
+        [EnumMember(Value = "usage_unban")]
+        UsageUnban,
+
+        /// <summary>
+        /// Usage: “/unhost” - Stop hosting another channel.
+        /// </summary>
+        [EnumMember(Value = "usage_unhost")]
+        UsageUnhost,
+
+        /// <summary>
+        /// Usage: “/unmod {username}” - Revoke mod status from a user. Use “/mods” to list the moderators of this channel.
+        /// </summary>
+        [EnumMember(Value = "usage_unmod")]
+        UsageUnmod,
+
+        /// <summary>
+        /// Usage: “/unraid” - Cancel the Raid.
+        /// </summary>
+        [EnumMember(Value = "usage_unraid")]
+        UsageUnraid,
+
+        /// <summary>
+        /// Usage: “/raid {username}” - Removes a timeout on a user.
+        /// </summary>
+        [EnumMember(Value = "usage_untimeout")]
+        UsageUntimeout,
+
+        /// <summary>
+        /// You have been banned from sending whispers.
+        /// </summary>
+        [EnumMember(Value = "whisper_banned")]
+        WhisperBanned,
+
+        /// <summary>
+        /// That user has been banned from receiving whispers.
+        /// </summary>
+        [EnumMember(Value = "whisper_banned_recipient")]
+        WhisperBannedRecipient,
+
+        /// <summary>
+        /// Usage: {login} {message}
         /// </summary>
         [EnumMember(Value = "whisper_invalid_args")]
         WhisperInvalidArgs,
+
+        /// <summary>
+        /// No user matching that login.
+        /// </summary>
+        [EnumMember(Value = "whisper_invalid_login")]
+        WhisperInvalidLogin,
+
+        /// <summary>
+        /// You cannot whisper to yourself.
+        /// </summary>
+        [EnumMember(Value = "whisper_invalid_self")]
+        WhisperInvalidSelf,
+
+        /// <summary>
+        /// You are sending whispers too fast. Try again in a minute.
+        /// </summary>
+        [EnumMember(Value = "whisper_limit_per_min")]
+        WhisperLimitPerMin,
+
+        /// <summary>
+        /// You are sending whispers too fast. Try again in a second.
+        /// </summary>
+        [EnumMember(Value = "whisper_limit_per_sec")]
+        WhisperLimitPerSec,
+
+        /// <summary>
+        /// Your settings prevent you from sending this whisper.
+        /// </summary>
+        [EnumMember(Value = "whisper_restricted")]
+        WhisperRestricted,
+
+        /// <summary>
+        /// That user's settings prevent them from receiving this whisper.
+        /// </summary>
+        [EnumMember(Value = "whisper_restricted_recipient")]
+        WhisperRestrictedRecipient
     }
 
     public class
-    AlreadyBannedEventArgs : ChatRoomSupportedMessageEventArgs
+    BanFailedEventArgs : IrcMessageEventArgs
+    {
+        /// <summary>
+        /// Why the ban failed.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public NoticeType reason { get; protected set; }
+
+        /// <summary>
+        /// The channel that the NOTICE was sent to.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// The nick of the user who was attempted and failed to be banned.
+        /// Set to an empty string if no user nick was available.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string user_nick { get; protected set; }
+
+        /// <summary>
+        /// The notice message sent by the server.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string body { get; protected set; }
+
+        public
+        BanFailedEventArgs(NoticeEventArgs args) : base(args.irc_message)
+        {
+            reason = args.tags.msg_id;
+            channel = args.channel;
+            body = args.body;
+
+            user_nick = string.Empty;
+            switch (args.tags.msg_id)
+            {
+                case NoticeType.AlreadyBanned:
+                {
+                    user_nick = args.body.TextBefore(' '); 
+                }
+                break;
+
+                case NoticeType.BadBanAdmin:
+                {
+                    user_nick = args.body.TextBetween("admin ", ".");
+                }
+                break;
+
+                case NoticeType.BadBanGlobalMod:
+                case NoticeType.BadBanMod:
+                {
+                    user_nick = args.body.TextBetween("moderator ", " ").TrimEnd('.');
+                }
+                break;
+
+                case NoticeType.BadBanStaff:
+                {
+                    user_nick = args.body.TextBetween("staff ", ".");
+                }
+                break;
+
+                case NoticeType.BadBanBroadcaster:
+                {
+                    user_nick = channel.TextAfter('#');
+                }
+                break;
+            }
+        }
+    }
+
+    public class
+    BanSuccessEventArgs : IrcMessageEventArgs
     {
         /// <summary>
         /// The channel that the NOTICE was sent to.
@@ -514,16 +1051,120 @@ TwitchNet.Clients.Irc
         public string channel { get; protected set; }
 
         /// <summary>
-        /// The user who was attempted to be banned or timed out, but is already banned or timed out.
+        /// The nick of the user who was banned.
         /// </summary>
         [ValidateMember(Check.IsValid)]
         public string user_nick { get; protected set; }
 
+        /// <summary>
+        /// The notice message sent by the server.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string body { get; protected set; }
+
         public
-        AlreadyBannedEventArgs(NoticeEventArgs args) : base(args.irc_message)
+        BanSuccessEventArgs(NoticeEventArgs args) : base(args.irc_message)
         {
             channel = args.channel;
-            user_nick = args.body.TextBefore(' ');
+            body = args.body;
+
+            user_nick = body.TextBefore(' ');
+        }
+    }
+
+    public class
+    UnbanFailedEventArgs : IrcMessageEventArgs
+    {
+        /// <summary>
+        /// Why the ban failed.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public NoticeType reason { get; protected set; }
+
+        /// <summary>
+        /// The channel that the NOTICE was sent to.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// The nick of the user who was attempted and failed to be unbanned.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string user_nick { get; protected set; }
+
+        /// <summary>
+        /// The notice message sent by the server.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string body { get; protected set; }
+
+        public
+        UnbanFailedEventArgs(NoticeEventArgs args) : base(args.irc_message)
+        {
+            reason = args.tags.msg_id;
+
+            channel = args.channel;
+            body = args.body;
+
+            user_nick = body.TextBefore(' ');
+        }
+    }
+
+    public class
+    UnbanSuccessEventArgs : IrcMessageEventArgs
+    {
+        /// <summary>
+        /// The channel that the NOTICE was sent to.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// The nick of the user who was attempted and failed to be unbanned.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string user_nick { get; protected set; }
+
+        /// <summary>
+        /// The notice message sent by the server.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string body { get; protected set; }
+
+        public
+        UnbanSuccessEventArgs(NoticeEventArgs args) : base(args.irc_message)
+        {
+            channel = args.channel;
+            body = args.body;
+
+            user_nick = body.TextBefore(' ');
+        }
+    }
+
+    public class
+    ModsEventArgs : IrcMessageEventArgs
+    {
+        /// <summary>
+        /// The channel that the NOTICE was sent to.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string channel { get; protected set; }
+
+        /// <summary>
+        /// The room's moderators.
+        /// Set to an empty array if there are no assigned moderators.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string[] user_nicks { get; protected set; }
+
+        public
+        ModsEventArgs(NoticeEventArgs args) : base(args.irc_message)
+        {
+            channel = args.channel;
+
+            string nicks = args.body.TextAfter(':').Trim(' ');
+            user_nicks = nicks.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
         }
     }
 
@@ -581,7 +1222,7 @@ TwitchNet.Clients.Irc
     }
 
     public class
-    BadModModEventArgs : ChatRoomSupportedMessageEventArgs
+    BadModModEventArgs : IrcMessageEventArgs
     {
         /// <summary>
         /// The channel that the NOTICE was sent to.
@@ -605,7 +1246,7 @@ TwitchNet.Clients.Irc
     }
 
     public class
-    BadUnmodModEventArgs : ChatRoomSupportedMessageEventArgs
+    BadUnmodModEventArgs : IrcMessageEventArgs
     {
         /// <summary>
         /// The channel that the NOTICE was sent to.
@@ -629,31 +1270,7 @@ TwitchNet.Clients.Irc
     }
 
     public class
-    BadUnbanNoBanEventArgs : ChatRoomSupportedMessageEventArgs
-    {
-        /// <summary>
-        /// The channel that the NOTICE was sent to.
-        /// </summary>
-        [ValidateMember(Check.IsValid)]
-        public string channel { get; protected set; }
-
-        /// <summary>
-        /// The user who was attempted to be unbanned or untimed out, but is not banned or timed out.
-        /// </summary>
-        [ValidateMember(Check.IsValid)]
-        public string user_nick { get; protected set; }
-
-        public
-        BadUnbanNoBanEventArgs(NoticeEventArgs args) : base(args.irc_message)
-        {
-            channel = args.channel;
-
-            user_nick = args.body.TextBefore(' ');
-        }
-    }
-
-    public class
-    CmdsAvailableEventArgs : ChatRoomSupportedMessageEventArgs
+    CmdsAvailableEventArgs : IrcMessageEventArgs
     {
         /// <summary>
         /// The channel that the NOTICE was sent to.
@@ -689,7 +1306,7 @@ TwitchNet.Clients.Irc
     }
 
     public class
-    HostsRemainingEventArgs : ChatRoomSupportedMessageEventArgs
+    HostsRemainingEventArgs : IrcMessageEventArgs
     {
         /// <summary>
         /// The channel that the NOTICE was sent to.
@@ -717,7 +1334,7 @@ TwitchNet.Clients.Irc
     }
 
     public class
-    InvalidUserEventArgs : ChatRoomSupportedMessageEventArgs
+    InvalidUserEventArgs : IrcMessageEventArgs
     {
         /// <summary>
         /// The channel that the NOTICE was sent to.
@@ -740,111 +1357,6 @@ TwitchNet.Clients.Irc
             channel = args.channel;
 
             user_nick = args.body.TextAfter(':').TrimStart(' ');
-        }
-    }
-
-    public class
-    RoomModsEventArgs : ChatRoomSupportedMessageEventArgs
-    {
-        /// <summary>
-        /// The channel that the NOTICE was sent to.
-        /// </summary>
-        [ValidateMember(Check.IsValid)]
-        public string channel { get; protected set; }
-
-        /// <summary>
-        /// The room's moderators.
-        /// </summary>
-        [ValidateMember(Check.IsValid)]
-        public string[] user_nicks { get; protected set; }
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="RoomModsEventArgs"/> class.
-        /// </summary>
-        /// <param name="args">The event arguments to parse.</param>
-        public RoomModsEventArgs(NoticeEventArgs args) : base(args.irc_message)
-        {
-            channel = args.channel;
-
-            string nicks = args.body.TextAfter(':').Trim(' ');
-            user_nicks = nicks.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
-        }
-    }
-
-    public class
-    UnbanSuccessEventArgs : ChatRoomSupportedMessageEventArgs
-    {
-        /// <summary>
-        /// The channel that the NOTICE was sent to.
-        /// </summary>
-        [ValidateMember(Check.IsValid)]
-        public string channel { get; protected set; }
-
-        /// <summary>
-        /// The user who was unbanned.
-        /// </summary>
-        [ValidateMember(Check.IsValid)]
-        public string user_nick { get; protected set; }
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="UnbanSuccessEventArgs"/> class.
-        /// </summary>
-        /// <param name="args">The event arguments to parse.</param>
-        public UnbanSuccessEventArgs(NoticeEventArgs args) : base(args.irc_message)
-        {
-            channel = args.channel;
-
-            user_nick = args.body.TextBefore(' ');
-        }
-    }
-
-    public class
-    UnsupportedChatRoomCmdEventArgs : IrcMessageEventArgs
-    {
-        /// <summary>
-        /// The channel that the NOTICE was sent to.
-        /// </summary>
-        [ValidateMember(Check.IsValid)]
-
-        public string channel { get; protected set; }
-
-        /// <summary>
-        /// The id of the user who the chat room belongs to.
-        /// </summary>
-        [ValidateMember(Check.IsValid)]
-
-        public string channel_user_id { get; protected set; }
-
-        /// <summary>
-        /// The unique UUID of the chat room.
-        /// </summary>
-        [ValidateMember(Check.IsValid)]
-
-        public string channel_uuid { get; protected set; }
-
-        /// <summary>
-        /// The unsupported chat command that was attempted to be used in a chat room.
-        /// </summary>
-        [ValidateMember(Check.IsNotEqualTo, ChatCommand.Other)]
-        public ChatCommand command { get; protected set; }
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="UnsupportedChatRoomCmdEventArgs"/> class.
-        /// </summary>
-        /// <param name="args">The event arguments to parse.</param>
-        public UnsupportedChatRoomCmdEventArgs(NoticeEventArgs args) : base(args.irc_message)
-        {
-            channel = args.channel;
-            channel_user_id = channel.TextBetween(':', ':');
-
-            int index = channel.LastIndexOf(':');
-            if (index != -1)
-            {
-                channel_uuid = channel.TextAfter(':', index);
-            }
-
-            EnumUtil.TryParse(args.body.TextBetween("command ", " cannot"), out ChatCommand _command);
-            command = _command;
         }
     }
 
@@ -906,7 +1418,7 @@ TwitchNet.Clients.Irc
     }
 
     public class
-    NamReplyEventArgs : ChatRoomSupportedMessageEventArgs
+    NamReplyEventArgs : IrcMessageEventArgs
     {
         /// <summary>
         /// The character that specifies if the IRC channel is public, secret, or private.
@@ -953,7 +1465,7 @@ TwitchNet.Clients.Irc
         [ValidateMember(Check.IsNotNull)]
         public bool is_private { get; protected set; }
 
-        public NamReplyEventArgs(in IrcMessage message) : base(message, 2)
+        public NamReplyEventArgs(in IrcMessage message) : base(message)
         {
             // Native IRC aprsing
             if (message.parameters.Length > 2)
@@ -982,7 +1494,7 @@ TwitchNet.Clients.Irc
     }
 
     public class
-    EndOfNamesEventArgs : ChatRoomSupportedMessageEventArgs
+    EndOfNamesEventArgs : IrcMessageEventArgs
     {
         /// <summary>
         /// The IRC client nick.
@@ -1002,7 +1514,7 @@ TwitchNet.Clients.Irc
         [ValidateMember(Check.IsValid)]
         public string[] names { get; protected set; }
 
-        public EndOfNamesEventArgs(in IrcMessage message, Dictionary<string, List<string>> names) : base(message, 1)
+        public EndOfNamesEventArgs(in IrcMessage message, Dictionary<string, List<string>> names) : base(message)
         {
             if (message.parameters.Length > 1)
             {
@@ -1048,13 +1560,8 @@ TwitchNet.Clients.Irc
     }
 
     public class
-    UnknownCommandEventArgs : EventArgs
+    UnknownCommandEventArgs : IrcMessageEventArgs
     {
-        /// <summary>
-        /// The parsed IRC message.
-        /// </summary>
-        public IrcMessage irc_message { get; protected set; }
-
         /// <summary>
         /// The IRC client nick.
         /// </summary>
@@ -1073,7 +1580,7 @@ TwitchNet.Clients.Irc
         [ValidateMember(Check.IsValid)]
         public string description { get; protected set; }
 
-        public UnknownCommandEventArgs(in IrcMessage message)
+        public UnknownCommandEventArgs(in IrcMessage message) : base(message)
         {
             irc_message = message;
 
@@ -1089,13 +1596,8 @@ TwitchNet.Clients.Irc
     }
 
     public class
-    JoinEventArgs : ChatRoomSupportedMessageEventArgs
+    JoinEventArgs : IrcMessageEventArgs
     {
-        /// <summary>
-        /// The parsed IRC message.
-        /// </summary>
-        public IrcMessage irc_message { get; protected set; }
-
         /// <summary>
         /// The nick of the client who joined the channel.
         /// </summary>
@@ -1122,13 +1624,8 @@ TwitchNet.Clients.Irc
     }
 
     public class
-    PartEventArgs : ChatRoomSupportedMessageEventArgs
+    PartEventArgs : IrcMessageEventArgs
     {
-        /// <summary>
-        /// The parsed IRC message.
-        /// </summary>
-        public IrcMessage irc_message { get; protected set; }
-
         /// <summary>
         /// The nick of the client who left the channel.
         /// </summary>
@@ -1155,13 +1652,8 @@ TwitchNet.Clients.Irc
     }
 
     public class
-    ChannelModeEventArgs : EventArgs
+    ChannelModeEventArgs : IrcMessageEventArgs
     {
-        /// <summary>
-        /// The parsed IRC message.
-        /// </summary>
-        public IrcMessage irc_message { get; protected set; }
-
         /// <summary>
         /// Denotes the whether the mode was added '+', or removed '-'.
         /// </summary>
@@ -1196,7 +1688,7 @@ TwitchNet.Clients.Irc
         [ValidateMember(Check.IsValid)]
         public string arguments { get; protected set; }
 
-        public ChannelModeEventArgs(in IrcMessage message)
+        public ChannelModeEventArgs(in IrcMessage message) : base(message)
         {
             irc_message = message;
 
@@ -1219,13 +1711,8 @@ TwitchNet.Clients.Irc
     }
 
     public class
-    ChannelOperatorEventArgs : EventArgs
+    ChannelOperatorEventArgs : IrcMessageEventArgs
     {
-        /// <summary>
-        /// The parsed IRC message.
-        /// </summary>
-        public IrcMessage irc_message { get; protected set; }
-
         /// <summary>
         /// Whether or not the user is an operator in the IRC channel.
         /// </summary>
@@ -1244,7 +1731,7 @@ TwitchNet.Clients.Irc
         [ValidateMember(Check.IsValid)]
         public string channel { get; protected set; }
 
-        public ChannelOperatorEventArgs(ChannelModeEventArgs args)
+        public ChannelOperatorEventArgs(ChannelModeEventArgs args) : base(args.irc_message)
         {
             irc_message = args.irc_message;
 
@@ -1306,13 +1793,8 @@ TwitchNet.Clients.Irc
     }
 
     public class
-    PrivmsgEventArgs : ChatRoomSupportedMessageEventArgs
+    PrivmsgEventArgs : IrcMessageEventArgs
     {
-        /// <summary>
-        /// The parsed IRC message.
-        /// </summary>
-        public IrcMessage irc_message { get; protected set; }
-
         // Native RFC 1459 propperties
 
         /// <summary>
@@ -1359,21 +1841,12 @@ TwitchNet.Clients.Irc
 
         /// <summary>
         /// <para>The converted IRC tags attached to the message.</para>
-        /// <para>Set to null if the message source was not from a chat room.</para>
+        /// <para>Set to null if no tags were sent with the message.</para>
         /// </summary>
         [ValidateMember]
         [ValidateMember(Check.TagsMissing)]
         // [ValidateMember(Check.TagsExtra)]
-        public ChatRoomPrivmsgTags tags_chat_room { get; protected set; }
-
-        /// <summary>
-        /// <para>The converted IRC tags attached to the message.</para>
-        /// <para>Set to null if the message source was not from a stream chat.</para>
-        /// </summary>
-        [ValidateMember]
-        [ValidateMember(Check.TagsMissing)]
-        // [ValidateMember(Check.TagsExtra)]
-        public StreamChatPrivmsgTags tags_stream_chat { get; protected set; }
+        public PrivmsgTags tags { get; protected set; }
 
         public PrivmsgEventArgs(in IrcMessage message) : base(message)
         {
@@ -1399,145 +1872,13 @@ TwitchNet.Clients.Irc
 
             if (tags_exist)
             {
-                if (source == MessageSource.ChatRoom)
-                {
-                    tags_chat_room = new ChatRoomPrivmsgTags(irc_message);
-                }
-                else if (source == MessageSource.StreamChat)
-                {
-                    tags_stream_chat = new StreamChatPrivmsgTags(irc_message);
-                }
+                tags = new PrivmsgTags(irc_message);
             }
         }
     }
 
     public class
-    ChatRoomPrivmsgTags
-    {
-        /// <summary>
-        /// Whether or not the sender is a moderator.
-        /// </summary>
-        [IrcTag("mod")]
-        public bool mod { get; protected set; }
-
-        /// <summary>
-        /// Whether or not the sender is subscribed to the channel.
-        /// </summary>
-        [Obsolete("This tag is obsolte and can be deleted at any time. Use the 'badges' tag to look for this information instraad")]
-        [IrcTag("subscriber")]
-        public bool subscriber { get; protected set; }
-
-        /// <summary>
-        /// Whether or not the sender has Twitch turbo.
-        /// </summary>
-        [Obsolete("This tag has been deprecated and can be deleted at any time. Use the 'badges' tag to look for this information instead")]
-        [IrcTag("turbo")]
-        public bool turbo { get; protected set; }
-
-        /// <summary>
-        /// Whether or not the body of the message only contains emotes.
-        /// </summary>
-        [IrcTag("emote-only")]
-        public bool emote_only { get; protected set; }
-
-        /// <summary>
-        /// The unique message ID.
-        /// </summary>
-        [IrcTag("id")]
-        public string id { get; protected set; }
-
-        /// <summary>
-        /// <para>The display name of the sender.</para>
-        /// <para>Set to an empty string if the sender never explicitly set their display name.</para>
-        /// </summary>
-        [IrcTag("display-name")]
-        public string display_name { get; protected set; }
-
-        /// <summary>
-        /// The user ID of the sender.
-        /// </summary>
-        [IrcTag("user-id")]
-        public string user_id { get; protected set; }
-
-        /// <summary>
-        /// The user ID of the channel the message was sent in.
-        /// </summary>
-        [IrcTag("room-id")]
-        public string room_id { get; protected set; }
-
-        /// <summary>
-        /// <para>The sender's user type</para>
-        /// <para>Set to <see cref="UserType.None"/> if the sender has no elevated privileges.</para>
-        /// </summary>
-        [Obsolete("This tag has been deprecated and can be deleted at any time. Use the 'badges' tag to look for this information instead")]
-        [IrcTag("user-type")]
-        public UserType user_type { get; protected set; }
-
-        /// <summary>
-        /// <para>The color of the sender's display name.</para>
-        /// <para>Set to <see cref="Color.Empty"/> if the sender never explicitly set their display name color.</para>
-        /// </summary>
-        [IrcTag("color")]
-        public Color color { get; protected set; }
-
-        /// <summary>
-        /// The time the message was sent.
-        /// </summary>
-        [IrcTag("tmi-sent-ts")]
-        public DateTime tmi_sent_ts { get; protected set; }
-
-        /// <summary>
-        /// <para>The chat badges that the sender has, if any.</para>
-        /// <para>Set to an empty array if the sender has no chat badges.</para>
-        /// </summary>
-        [ValidateMember]
-        [IrcTag("badges")]
-        public Badge[] badges { get; protected set; }
-
-        /// <summary>
-        /// <para>
-        /// Detailed information on badge tenure.
-        /// Currently, this only returns information for the subscriber badge.
-        /// </para>
-        /// <para>Set to an empty array if the sender has no chat badges.</para>
-        /// </summary>
-        [ValidateMember]
-        [IrcTag("badge-info")]
-        public BadgeInfo[] badge_info { get; protected set; }
-
-        /// <summary>
-        /// <para>The emotes the sender used in the message, if any.</para>
-        /// <para>Set to an empty array if the sender did not use any emotes in the message.</para>
-        /// </summary>
-        [ValidateMember]
-        [IrcTag("emotes")]
-        public Emote[] emotes { get; protected set; }
-
-        public ChatRoomPrivmsgTags(IrcMessage message)
-        {
-            mod = TwitchIrcUtil.Tags.ToBool(message, "mod");
-            subscriber = TwitchIrcUtil.Tags.ToBool(message, "subscriber");
-            turbo = TwitchIrcUtil.Tags.ToBool(message, "turbo");
-            emote_only = TwitchIrcUtil.Tags.ToBool(message, "emote-only");
-
-            id = TwitchIrcUtil.Tags.ToString(message, "id");
-            display_name = TwitchIrcUtil.Tags.ToString(message, "display-name");
-            user_id = TwitchIrcUtil.Tags.ToString(message, "user-id");
-            room_id = TwitchIrcUtil.Tags.ToString(message, "room-id");
-
-            user_type = TwitchIrcUtil.Tags.ToUserType(message, "user-type");
-
-            color = TwitchIrcUtil.Tags.FromtHtml(message, "color");
-            tmi_sent_ts = TwitchIrcUtil.Tags.FromUnixEpochMilliseconds(message, "tmi-sent-ts");
-
-            badges = TwitchIrcUtil.Tags.ToBadges(message, "badges");
-            badge_info = TwitchIrcUtil.Tags.ToBadgeInfo(message, "badge-info");
-            emotes = TwitchIrcUtil.Tags.ToEmotes(message, "emotes");
-        }
-    }
-
-    public class
-    StreamChatPrivmsgTags
+    PrivmsgTags
     {
         /// <summary>
         /// <para>The amount of bits the sender cheered, if any.</para>
@@ -1645,7 +1986,7 @@ TwitchNet.Clients.Irc
         [IrcTag("emotes")]
         public Emote[] emotes { get; protected set; }
 
-        public StreamChatPrivmsgTags(IrcMessage message)
+        public PrivmsgTags(IrcMessage message)
         {
             bits = TwitchIrcUtil.Tags.ToUInt32(message, "bits");
 
@@ -1916,45 +2257,4 @@ TwitchNet.Clients.Irc
             index_end = _index_end;
         }
     }
-
-    public class
-    ChatRoomSupportedMessageEventArgs : IrcMessageEventArgs
-    {
-        /// <summary>
-        /// Where the message was sent from.
-        /// </summary>
-        public MessageSource source { get; private set; }
-
-        /// <summary>
-        /// <para>The ID of the user who owns the chat room.</para>
-        /// <para>Set to an empty string if the message source was not from a chat room.</para>
-        /// </summary>
-        [ValidateMember(Check.IsValid)]
-        public string channel_user_id { get; protected set; }
-
-        /// <summary>
-        /// <para>The UUID of the chat room.</para>
-        /// <para>Set to an empty string if the message source was not from a chat room.</para>
-        /// </summary>
-        [ValidateMember(Check.RegexIsMatch, TwitchIrcUtil.REGEX_PATTERN_UUID)]
-        public string channel_uuid { get; protected set; }
-
-        public ChatRoomSupportedMessageEventArgs(in IrcMessage message, uint channel_index = 0) : base(message)
-        {
-            source = TwitchIrcUtil.GetMessageSource(message.parameters[channel_index]);
-
-            channel_user_id = string.Empty;
-            channel_uuid = string.Empty;
-            if (source == MessageSource.ChatRoom)
-            {
-                channel_user_id = message.parameters[channel_index].TextBetween(':', ':');
-
-                int index = message.parameters[channel_index].LastIndexOf(':');
-                if (index != -1)
-                {
-                    channel_uuid = message.parameters[channel_index].TextAfter(':', index);
-                }
-            }
-        }
-    }        
 }

@@ -173,7 +173,7 @@ TwitchNet.Clients.Irc
     #region Command: CLEARCHAT - Updated
 
     public class
-    ClearChatEventArgs : ChatRoomSupportedMessageEventArgs
+    ClearChatEventArgs : IrcMessageEventArgs
     {
         /// <summary>
         /// Whether or not IRC tags were sent with the message.
@@ -367,7 +367,7 @@ TwitchNet.Clients.Irc
     #region Command: ROOMSTATE - Updated
 
     public class
-    RoomStateEventArgs : ChatRoomSupportedMessageEventArgs
+    RoomStateEventArgs : IrcMessageEventArgs
     {
         /// <summary>
         /// Whether or not IRC tags were sent with the message.
@@ -376,17 +376,10 @@ TwitchNet.Clients.Irc
 
         /// <summary>
         /// <para>The converted IRC tags attached to the message.</para>
-        /// <para>Set to null if the message source was not from stream chat or no tags were sent with the message.</para>
+        /// <para>Set to null if no tags were sent with the message.</para>
         /// </summary>
         [ValidateMember(Check.TagsMissing)]
-        public RoomStateTags tags_stream_chat { get; protected set; }
-
-        /// <summary>
-        /// <para>The converted IRC tags attached to the message.</para>
-        /// <para>Set to null if the message source was not from a chat room or no tags were sent with the message.</para>
-        /// </summary>
-        [ValidateMember(Check.TagsMissing)]
-        public ChatRoomRoomStateTags tags_chat_room { get; protected set; }
+        public RoomStateTags tags { get; protected set; }
 
         /// <summary>
         /// The IRC channel whose state has changed and/or the client has joined.
@@ -400,14 +393,7 @@ TwitchNet.Clients.Irc
             tags_exist = message.tags_exist;
             if (tags_exist)
             {
-                if (source == MessageSource.StreamChat)
-                {
-                    tags_stream_chat = new RoomStateTags(message);
-                }
-                else
-                {
-                    tags_chat_room = new ChatRoomRoomStateTags(message);
-                }
+                tags = new RoomStateTags(message);
             }
 
             if (message.parameters.Length > 0)
@@ -513,71 +499,6 @@ TwitchNet.Clients.Irc
             {
                 followers_only = TwitchIrcUtil.Tags.ToInt32(message, "followers-only");
                 changed_states |= RoomStateType.FollowersOnly;
-            }
-
-            if (TwitchIrcUtil.Tags.IsTagValid(message, "slow"))
-            {
-                slow = TwitchIrcUtil.Tags.ToInt32(message, "slow");
-                changed_states |= RoomStateType.Slow;
-            }
-
-            room_id = TwitchIrcUtil.Tags.ToString(message, "room-id");
-        }
-    }
-
-    public class
-    ChatRoomRoomStateTags
-    {
-        /// <summary>
-        /// Whether or not the chat room is in emote only mode.
-        /// </summary>
-        [IrcTag("emote-only")]
-        public bool emote_only { get; protected set; }
-
-        /// <summary>
-        /// Whether or r9k mode is enabled.
-        /// When enabled, messages 9 characters or longer must be unique from other messages.
-        /// </summary>
-        [IrcTag("r9k")]
-        public bool r9k { get; protected set; }
-
-        /// <summary>
-        /// <para>How frequently, in seconds, non-elevated users can send messages.</para>
-        /// <para>
-        /// Set to 0 if slow mode is disabled.
-        /// Set to the number of seconds a user must wait in between sending messages if enabled.
-        /// </para>
-        /// </summary>
-        [IrcTag("slow")]
-        public int slow { get; protected set; }
-
-        /// <summary>
-        /// The ID of the user whose chat state was changed and/or the client has joined.
-        /// </summary>
-        [IrcTag("room-id")]
-        public string room_id { get; protected set; }
-
-        /// <summary>
-        /// <para>
-        /// Bitfield enum. Contains the room state(s) that changed.
-        /// Check this to see which room state fields are valid.
-        /// </para>
-        /// <para>Set to <see cref="RoomStateType.None"/> if no room states have changed. This should never be the case.</para>
-        /// </summary>
-        public RoomStateType changed_states { get; protected set; }
-
-        public ChatRoomRoomStateTags(in IrcMessage message)
-        {
-            if (TwitchIrcUtil.Tags.IsTagValid(message, "emote-only"))
-            {
-                emote_only = TwitchIrcUtil.Tags.ToBool(message, "emote-only");
-                changed_states |= RoomStateType.EmoteOnly;
-            }
-
-            if (TwitchIrcUtil.Tags.IsTagValid(message, "r9k"))
-            {
-                r9k = TwitchIrcUtil.Tags.ToBool(message, "r9k");
-                changed_states |= RoomStateType.R9K;
             }
 
             if (TwitchIrcUtil.Tags.IsTagValid(message, "slow"))
@@ -1564,7 +1485,7 @@ TwitchNet.Clients.Irc
     #region Command: USERSTATE - Updated
 
     public class
-    UserStateEventArgs : ChatRoomSupportedMessageEventArgs
+    UserStateEventArgs : IrcMessageEventArgs
     {
         /// <summary>
         /// Whether or not IRC tags were sent with the message.
@@ -1573,17 +1494,10 @@ TwitchNet.Clients.Irc
 
         /// <summary>
         /// <para>The converted IRC tags attached to the message.</para>
-        /// <para>Set to null if the message source was not from stream chat or no tags were sent with the message.</para>
+        /// <para>Set to null if no tags were sent with the message.</para>
         /// </summary>
         [ValidateMember(Check.TagsMissing)]
-        public UserStateTags tags_stream_chat { get; protected set; }
-
-        /// <summary>
-        /// <para>The converted IRC tags attached to the message.</para>
-        /// <para>Set to null if the message source was not from a chat room or no tags were sent with the message.</para>
-        /// </summary>
-        [ValidateMember(Check.TagsMissing)]
-        public ChatRoomUserStateTags tags_chat_room { get; protected set; }
+        public UserStateTags tags { get; protected set; }
 
         /// <summary>
         /// The IRC channel that the user has joined or sent sent a message in.
@@ -1597,14 +1511,7 @@ TwitchNet.Clients.Irc
             tags_exist = message.tags_exist;
             if (tags_exist)
             {
-                if (source == MessageSource.StreamChat)
-                {
-                    tags_stream_chat = new UserStateTags(message);
-                }
-                else
-                {
-                    tags_chat_room = new ChatRoomUserStateTags(message);
-                }
+                tags = new UserStateTags(message);
             }
 
             if (message.parameters.Length > 0)
@@ -1687,61 +1594,6 @@ TwitchNet.Clients.Irc
 
             badges = TwitchIrcUtil.Tags.ToBadges(message, "badges");
             badge_info = TwitchIrcUtil.Tags.ToBadgeInfo(message, "badges");
-        }
-    }
-
-    public class
-    ChatRoomUserStateTags
-    {
-        /// <summary>
-        /// Whether or not the user is a moderator.
-        /// </summary>
-        [IrcTag("mod")]
-        public bool mod { get; protected set; }
-
-        /// <summary>
-        /// <para>The display name of the user.</para>
-        /// <para>Set to an empty string if it was never set by the user.</para>
-        /// </summary>
-        [IrcTag("display-name")]
-        public string display_name { get; protected set; }
-
-        /// <summary>
-        /// The emote sets that are available for the user to use.
-        /// </summary>
-        [IrcTag("emote-sets")]
-        public string[] emote_sets { get; protected set; }
-
-        /// <summary>
-        /// <para>The user's type</para>
-        /// <para>Set to <see cref="UserType.None"/> if the user has no elevated privileges.</para>
-        /// </summary>
-        [Obsolete("This tag has been deprecated and can be deleted at any time.")]
-        [IrcTag("user-type")]
-        public UserType user_type { get; protected set; }
-
-        /// <summary>
-        /// <para>The color of the user's display name.</para>
-        /// <para>Set to <see cref="Color.Empty"/> if it was never set by the user.</para>
-        /// </summary>
-        [IrcTag("color")]
-        public Color color { get; protected set; }
-
-        public ChatRoomUserStateTags(in IrcMessage message)
-        {
-            if (!message.tags_exist)
-            {
-                return;
-            }
-
-            mod = TwitchIrcUtil.Tags.ToBool(message, "mod");
-
-            display_name = TwitchIrcUtil.Tags.ToString(message, "display-name");
-            emote_sets = TwitchIrcUtil.Tags.ToStringArray(message, "emote-sets", ',');
-
-            user_type = TwitchIrcUtil.Tags.ToUserType(message, "user-type");
-
-            color = TwitchIrcUtil.Tags.FromtHtml(message, "color");
         }
     }
 
@@ -1835,30 +1687,6 @@ TwitchNet.Clients.Irc
         /// </summary>
         Stop = 2
     }
-
-    #endregion
-
-    #region Helpers
-
-    public enum
-    MessageSource
-    {
-        /// <summary>
-        /// The message source could not be determined.
-        /// The message was likely corrupt and was not able to be parsed.
-        /// </summary>
-        Other = 0,
-
-        /// <summary>
-        /// The message was sent in a stream chat.
-        /// </summary>
-        StreamChat,
-
-        /// <summary>
-        /// The message was sent in a chat room.
-        /// </summary>
-        ChatRoom
-    }    
 
     #endregion
 } 

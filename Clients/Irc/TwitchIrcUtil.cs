@@ -32,32 +32,6 @@ TwitchNet.Clients.Irc
 
         public const string REGEX_PATTERN_UUID = "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
 
-        public static MessageSource
-        GetMessageSource(string channel)
-        {
-            if (channel.IsNull())
-            {
-                return MessageSource.Other;
-            }
-
-            return channel.TextBefore(':') == "#chatrooms" ? MessageSource.ChatRoom : MessageSource.StreamChat;
-        }
-
-        public static Tuple<string, string>
-        ParseChatRoomChannel(string channel)
-        {
-            string user_id = channel.TextBetween(':', ':');
-            string uuid = string.Empty;
-
-            int index = channel.LastIndexOf(':');
-            if (index != -1)
-            {
-                uuid = channel.TextAfter(':', index);
-            }
-
-            return Tuple.Create(user_id, uuid);
-        }        
-
         /// <summary>
         /// Checks to see if the followers duration length is between 0 seconds and 90 days (3 months).
         /// </summary>

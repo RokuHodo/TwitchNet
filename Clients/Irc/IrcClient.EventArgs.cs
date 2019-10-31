@@ -729,12 +729,6 @@ TwitchNet.Clients.Irc
         UnrecognizedCmd,
 
         /// <summary>
-        /// The command {command} cannot be used in a chatroom.
-        /// </summary>
-        [EnumMember(Value = "unsupported_chatrooms_cmd")]
-        UnsupportedChatRoomsCmd,
-
-        /// <summary>
         /// {user} is permanently banned. Use "/unban" to remove a ban.
         /// </summary>
         [EnumMember(Value = "untimeout_banned")]

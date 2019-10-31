@@ -136,61 +136,6 @@ TwitchNet.Clients.Irc
             SendPrivmsg("#jtv", trailing);
         }
 
-        /// <summary>
-        /// Joins a channel's chat room.
-        /// </summary>
-        /// <param name="user_id">The user_id of the channel. The owner of the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room.</param>
-        public void
-        JoinChatRoom(string user_id, string uuid)
-        {
-            ExceptionUtil.ThrowIfInvalid(user_id, nameof(user_id));
-            ExceptionUtil.ThrowIfInvalid(uuid, nameof(uuid));
-
-            Send("JOIN #chatrooms:" + user_id + ":" + uuid);
-        }
-
-        /// <summary>
-        /// Leave a channel's chat room.
-        /// </summary>
-        /// <param name="user_id">The user_id of the channel. The owner of the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room.</param>
-        public void
-        PartChatRoom(string user_id, string uuid)
-        {
-            ExceptionUtil.ThrowIfInvalid(user_id, nameof(user_id));
-            ExceptionUtil.ThrowIfInvalid(uuid, nameof(uuid));
-
-            Send("PART #chatrooms:" + user_id + ":" + uuid);
-        }
-
-        /// <summary>
-        /// Sends a private message in an IRC channel's chat room.
-        /// </summary>
-        /// <param name="user_id">The user_id of the channel. The owner of the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room.</param>
-        /// <param name="format">
-        /// The message to send.
-        /// This can be a normal string and does not need to include variable formats.
-        /// </param>
-        /// <param name="arguments">Optional format variable arugments.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void
-        SendChatRoomPrivmsg(string user_id, string uuid, string format, params string[] arguments)
-        {
-            ExceptionUtil.ThrowIfInvalid(user_id, nameof(user_id));
-            ExceptionUtil.ThrowIfInvalid(uuid, nameof(uuid));
-            Regex regex = new Regex(TwitchIrcUtil.REGEX_PATTERN_UUID);
-            if (!regex.IsMatch(uuid))
-            {
-                throw new FormatException("The argument " + nameof(uuid).WrapQuotes() + " must match the regex pattern " + TwitchIrcUtil.REGEX_PATTERN_UUID.WrapQuotes());
-            }
-            ExceptionUtil.ThrowIfInvalid(format, nameof(format));
-
-            string trailing = !arguments.IsValid() ? format : string.Format(format, arguments);
-            SendPrivmsg("#chatrooms:" + user_id + ":" + uuid, trailing);
-        }
-
         #endregion
 
         #region Chat command wrappers
@@ -204,18 +149,6 @@ TwitchNet.Clients.Irc
         ChangeDisplayNameColor(string channel, DisplayNameColor color)
         {
             SendChatCommand(channel, ChatCommand.Color, EnumUtil.GetName(color));
-        }
-
-        /// <summary>
-        /// Change the client's display name color.
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        /// <param name="color">The display name color.</param>
-        public void
-        ChangeDisplayNameColor(string user_id, string uuid, DisplayNameColor color)
-        {
-            SendChatCommand(user_id, uuid, ChatCommand.Color, EnumUtil.GetName(color));
         }
 
         /// <summary>
@@ -239,24 +172,6 @@ TwitchNet.Clients.Irc
         /// <para>Change the client's display name color.</para>
         /// <para>Requires Twitch Prime or Turbo to be used.</para>
         /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        /// <param name="color">The display name color.</param>
-        public void
-        ChangeDisplayNameColor(string user_id, string uuid, Color color)
-        {
-            if (color.IsEmpty)
-            {
-                return;
-            }
-
-            SendChatCommand(user_id, uuid, ChatCommand.Color, ColorTranslator.ToHtml(color));
-        }
-
-        /// <summary>
-        /// <para>Change the client's display name color.</para>
-        /// <para>Requires Twitch Prime or Turbo to be used.</para>
-        /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
         /// <param name="html_color">The display name color in hex (HTML) format.</param>
         /// <exception cref="ArgumentException">Thrown if the <paramref name="html_color"/> is not in hex (HTML) format.</exception>
@@ -272,25 +187,6 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// <para>Change the client's display name color.</para>
-        /// <para>Requires Twitch Prime or Turbo to be used.</para>
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        /// <param name="html_color">The display name color in hex (HTML) format.</param>
-        /// <exception cref="ArgumentException">Thrown if the <paramref name="html_color"/> is not in hex (HTML) format.</exception>
-        public void
-        ChangeDisplayNameColor(string user_id, string uuid, string html_color)
-        {
-            if (!html_color.IsValidHtmlColor())
-            {
-                throw new ArgumentException(nameof(html_color) + " is not a valid HTML color name", nameof(html_color));
-            }
-
-            SendChatCommand(user_id, uuid, ChatCommand.Color, html_color);
-        }
-
-        /// <summary>
         /// Reconnects to an IRC channel.
         /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
@@ -298,17 +194,6 @@ TwitchNet.Clients.Irc
         ChatDisconnect(string channel)
         {
             SendChatCommand(channel, ChatCommand.Disconnect);
-        }
-
-        /// <summary>
-        /// Reconnects to a chat room.
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        public void
-        ChatDisconnect(string user_id, string uuid)
-        {
-            SendChatCommand(user_id, uuid, ChatCommand.Disconnect);
         }
 
         /// <summary>
@@ -323,18 +208,6 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// <para>Prints a list of chat commands that can be used by the client in a chat room.</para>
-        /// <para>The list can be retrieved by using <see cref="OnChatRoomCmdsAvailable"/>.</para>
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        public void
-        PrintAvailableCommands(string user_id, string uuid)
-        {
-            SendChatCommand(user_id, uuid, ChatCommand.Help);
-        }
-
-        /// <summary>
         /// Prints help for a chat command that can be used in an IRC channel, if any help exists.
         /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
@@ -343,18 +216,6 @@ TwitchNet.Clients.Irc
         PrintHelp(string channel, ChatCommand command)
         {
             SendChatCommand(channel, ChatCommand.Help, EnumUtil.GetName(command).TextAfter('/'));
-        }
-
-        /// <summary>
-        /// Prints help for a chat command that can be used in a chat room, if any help exists.
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        /// <param name="command">The chat command to print help for.</param>
-        public void
-        PrintHelp(string user_id, string uuid, ChatCommand command)
-        {
-            SendChatCommand(user_id, uuid, ChatCommand.Help, EnumUtil.GetName(command).TextAfter('/'));
         }
 
         /// <summary>
@@ -378,27 +239,6 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// Sends a private message in a chat room using the /me chat command.
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        /// <param name="format">
-        /// The message to send.
-        /// This can be a normal string and does not need to include variable formats.
-        /// </param>
-        /// <param name="arguments">Optional format variable arugments.</param>
-        /// <exception cref="ArgumentException">Thrown if the format is null, empty, or whitespace.</exception>
-        public void
-        SendChatRoomPrivmsgMe(string user_id, string uuid, string format, params string[] arguments)
-        {
-            // Check format here since only sending /me is not allowed
-            ExceptionUtil.ThrowIfInvalid(format, nameof(format));
-
-            string trailing = EnumUtil.GetName(ChatCommand.Me) + ' ' + format;
-            SendChatRoomPrivmsg(user_id, uuid, trailing, arguments);
-        }
-
-        /// <summary>
         /// Grants a user operator (moderator) status.
         /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
@@ -409,20 +249,6 @@ TwitchNet.Clients.Irc
             ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
             SendChatCommand(channel, ChatCommand.Mod, user_nick);
-        }
-
-        /// <summary>
-        /// Grants a user operator (moderator) status.
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        /// <param name="user_nick">The user to grant operator status.</param>
-        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
-        public void Mod(string user_id, string uuid, string user_nick)
-        {
-            ExceptionUtil.ThrowIfInvalidNick(user_nick);
-
-            SendChatCommand(user_id, uuid, ChatCommand.Mod, user_nick);
         }
 
         /// <summary>
@@ -439,20 +265,6 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// Removes a user's operator (moderator) status.
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        /// <param name="user_nick">The user to grant operator status.</param>
-        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
-        public void Unmod(string user_id, string uuid, string user_nick)
-        {
-            ExceptionUtil.ThrowIfInvalidNick(user_nick);
-
-            SendChatCommand(user_id, uuid, ChatCommand.Unmod, user_nick);
-        }
-
-        /// <summary>
         /// <para>Prints a list of oeprators (moderators) in an IRC channel.</para>
         /// <para>The list can be retrieved by using <see cref="OnRoomMods"/>.</para>
         /// </summary>
@@ -461,18 +273,6 @@ TwitchNet.Clients.Irc
         PrintMods(string channel)
         {
             SendChatCommand(channel, ChatCommand.Mods);
-        }
-
-        /// <summary>
-        /// <para>Prints a list of oeprators (moderators) in a chat room.</para>
-        /// <para>The list can be retrieved by using <see cref="OnChatRoomRoomMods"/>.</para>
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        public void
-        PrintMods(string user_id, string uuid)
-        {
-            SendChatCommand(user_id, uuid, ChatCommand.Mods);
         }
 
         /// <summary>
@@ -491,22 +291,6 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// Bans a user.
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        /// <param name="user_nick">The user to ban.</param>
-        /// <param name="reason">The optional reason for the ban.</param>
-        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
-        public void
-        Ban(string user_id, string uuid, string user_nick, string reason = "")
-        {
-            ExceptionUtil.ThrowIfInvalidNick(user_nick);
-
-            SendChatCommand(user_id, uuid, ChatCommand.Ban, user_nick, reason);
-        }
-
-        /// <summary>
         /// Unbans a user.
         /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
@@ -518,21 +302,6 @@ TwitchNet.Clients.Irc
             ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
             SendChatCommand(channel, ChatCommand.Unban, user_nick);
-        }
-
-        /// <summary>
-        /// Unbans a user.
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        /// <param name="user_nick">The user to unban.</param>
-        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
-        public void
-        Unban(string user_id, string uuid, string user_nick)
-        {
-            ExceptionUtil.ThrowIfInvalidNick(user_nick);
-
-            SendChatCommand(user_id, uuid, ChatCommand.Unban, user_nick);
         }
 
         /// <summary>
@@ -548,19 +317,6 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// Time out a user for 1 second.
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        /// <param name="user_nick">The user to purge.</param>
-        /// <param name="reason">The optional reason for the purge.</param>
-        public void
-        Purge(string user_id, string uuid, string user_nick, string reason = "")
-        {
-            Timeout(user_id, uuid, user_nick, 1, reason);
-        }
-
-        /// <summary>
         /// Time out a user for 5 minutes.
         /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
@@ -570,19 +326,6 @@ TwitchNet.Clients.Irc
         Timeout(string channel, string user_nick, string reason = "")
         {
             Timeout(channel, user_nick, 600, reason);
-        }
-
-        /// <summary>
-        /// Time out a user for 5 minutes.
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        /// <param name="user_nick">The user to purge.</param>
-        /// <param name="reason">The optional reason for the time out.</param>
-        public void
-        Timeout(string user_id, string uuid, string user_nick, string reason = "")
-        {
-            Timeout(user_id, uuid, user_nick, 600, reason);
         }
 
         /// <summary>
@@ -613,32 +356,6 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Time out a user for a specified amount of time.
         /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        /// <param name="user_nick">The user to purge.</param>
-        /// <param name="duration">
-        /// <para>
-        /// How long to time out the user for.
-        /// Clamped between the minimum and the maximum values.
-        /// </para>
-        /// <para>
-        /// Min: 1 second.
-        /// Max: 1209600 seconds (2 weeks).
-        /// </para>
-        /// </param>
-        /// <param name="reason">The optional reason for the time out.</param>
-        public void
-        Timeout(string user_id, string uuid, string user_nick, TimeSpan length, string reason = "")
-        {
-            // Clamp the value up here to prevent a possible overflow exception with Convert.ToUint32()
-            double length_seconds = length.TotalSeconds.Clamp(1, 1209600);
-
-            Timeout(user_id, uuid, user_nick, Convert.ToUInt32(length_seconds), reason);
-        }
-
-        /// <summary>
-        /// Time out a user for a specified amount of time.
-        /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
         /// <param name="user_nick">The user to purge.</param>
         /// <param name="duration_seconds">
@@ -664,34 +381,6 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// Time out a user for a specified amount of time.
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        /// <param name="user_nick">The user to purge.</param>
-        /// <param name="duration_seconds">
-        /// <para>
-        /// How long to time out the user for, in seconds.
-        /// Clamped between the minimum and the maximum values.
-        /// </para>
-        /// <para>
-        /// Min: 1 second.
-        /// Max: 1209600 seconds (2 weeks).
-        /// </para>
-        /// </param>
-        /// <param name="reason">The optional reason for the time out.</param>
-        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void
-        Timeout(string user_id, string uuid, string user_nick, uint duration_seconds, string reason = "")
-        {
-            ExceptionUtil.ThrowIfInvalidNick(user_nick);
-
-            // 1209600 seconds = 14 days (2 weeks)
-            SendChatCommand(user_id, uuid, ChatCommand.Timeout, user_nick, duration_seconds.Clamp<uint>(1, 1209600), reason);
-        }
-
-        /// <summary>
         /// Un-time out a user.
         /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
@@ -703,21 +392,6 @@ TwitchNet.Clients.Irc
             ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
             SendChatCommand(channel, ChatCommand.Untimeout, user_nick);
-        }
-
-        /// <summary>
-        /// Un-time out a user.
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        /// <param name="user_nick">The user to un-time out.</param>
-        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
-        public void
-        Untimeout(string user_id, string uuid, string user_nick)
-        {
-            ExceptionUtil.ThrowIfInvalidNick(user_nick);
-
-            SendChatCommand(user_id, uuid, ChatCommand.Untimeout, user_nick);
         }
 
         /// <summary>
@@ -744,20 +418,6 @@ TwitchNet.Clients.Irc
             SendChatCommand(channel, ChatCommand.EmoteOnly);
         }
 
-        /// <summary>
-        /// <para>Enables emote only mode in a chat room.</para>
-        /// <para>
-        /// Makes it so only emotes can be sent in chat.
-        /// The broadcaster and moderators are exempt from this command.
-        /// </para>
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        public void
-        EnableEmoteOnlyMode(string user_id, string uuid)
-        {
-            SendChatCommand(user_id, uuid, ChatCommand.EmoteOnly);
-        }
 
         /// <summary>
         /// Disables emote only mode in an IRC channel.
@@ -767,17 +427,6 @@ TwitchNet.Clients.Irc
         DisableEmoteOnlyMode(string channel)
         {
             SendChatCommand(channel, ChatCommand.EmoteOnlyOff);
-        }
-
-        /// <summary>
-        /// Disables emote only mode in a chat room.
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        public void
-        DisableEmoteOnlyMode(string user_id, string uuid)
-        {
-            SendChatCommand(user_id, uuid, ChatCommand.EmoteOnlyOff);
         }
 
         /// <summary>
@@ -885,21 +534,6 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// <para>Enables R9K mode in achat room.</para>
-        /// <para>
-        /// Makes it so messages longer than 9 non-symbol unicode chacter messages must be unquie to be sent.
-        /// The broadcaster and moderators are exempt from this command.
-        /// </para>
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        public void
-        EnableR9KBetaMode(string user_id, string uuid)
-        {
-            SendChatCommand(user_id, uuid, ChatCommand.R9kBeta);
-        }
-
-        /// <summary>
         /// Disables R9K mode in an IRC channel.
         /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
@@ -907,17 +541,6 @@ TwitchNet.Clients.Irc
         DisableR9KBetaMode(string channel)
         {
             SendChatCommand(channel, ChatCommand.R9kBetaOff);
-        }
-
-        /// <summary>
-        /// Disables R9K mode in a chat room.
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        public void
-        DisableR9KBetaMode(string user_id, string uuid)
-        {
-            SendChatCommand(user_id, uuid, ChatCommand.R9kBetaOff);
         }
 
         /// <summary>
@@ -932,21 +555,6 @@ TwitchNet.Clients.Irc
         EnableSlowMode(string channel)
         {
             EnableSlowMode(channel, 120);
-        }
-
-        /// <summary>
-        /// <para>Enables slow mode in a chat room.</para>
-        /// <para>
-        /// Makes it so users can only send messages every 2 minutes.
-        /// The broadcaster and moderators are exempt from this command.
-        /// </para>
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        public void
-        EnableSlowMode(string user_id, string uuid)
-        {
-            EnableSlowMode(user_id, uuid, 120);
         }
 
         /// <summary>
@@ -977,34 +585,6 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// <para>Enables slow mode in a chat room.</para>
-        /// <para>
-        /// Makes it so users can only send messages every so often.
-        /// The broadcaster and moderators are exempt from this command.
-        /// </para>
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        /// <param name="frequency">
-        /// <para>
-        /// How frequent users can send chat messages.
-        /// Clamped between the minimum and the maximum values.
-        /// </para>
-        /// <para>
-        /// Min: 1 second.
-        /// Max: 1 day.
-        /// </para>
-        /// </param>
-        public void
-        EnableSlowMode(string user_id, string uuid, TimeSpan frequency)
-        {
-            // Clamp the value up here to prevent a possible overflow exception with Convert.ToUint32()
-            double frequency_seconds = frequency.TotalSeconds.Clamp(1, 86400);
-
-            EnableSlowMode(user_id, uuid, Convert.ToUInt32(frequency_seconds));
-        }
-
-        /// <summary>
         /// <para>Enables slow mode in an IRC channel.</para>
         /// <para>
         /// Makes it so users can only send messages every so often.
@@ -1030,32 +610,6 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// <para>Enables slow mode in a chat room.</para>
-        /// <para>
-        /// Makes it so users can only send messages every so often.
-        /// The broadcaster and moderators are exempt from this command.
-        /// </para>
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        /// <param name="frequency_seconds">
-        /// <para>
-        /// How frequent users can send chat messages, in seconds.
-        /// Clamped between the minimum and the maximum values.
-        /// </para>
-        /// <para>
-        /// Min: 1 second.
-        /// Max: 86,400 seconds (1 day).
-        /// </para>
-        /// </param>
-        public void
-        EnableSlowMode(string user_id, string uuid, uint frequency_seconds)
-        {
-            // 86400 seconds = 1 day
-            SendChatCommand(user_id, uuid, ChatCommand.Slow, frequency_seconds.Clamp<uint>(1, 86400));
-        }
-
-        /// <summary>
         /// Disables slow mode in an IRC channel.
         /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
@@ -1063,17 +617,6 @@ TwitchNet.Clients.Irc
         DisableSlowMode(string channel)
         {
             SendChatCommand(channel, ChatCommand.SlowOff);
-        }
-
-        /// <summary>
-        /// Disables slow mode in a chat room.
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        public void
-        DisableSlowMode(string user_id, string uuid)
-        {
-            SendChatCommand(user_id, uuid, ChatCommand.SlowOff);
         }
 
         /// <summary>
@@ -1179,52 +722,6 @@ TwitchNet.Clients.Irc
                 trailing += ' ' + string.Join(" ", arguments);
             }
             SendPrivmsg(channel, trailing);
-        }
-
-        /// <summary>
-        /// Sends a chat command in a chat room.
-        /// </summary>
-        /// <param name="user_id">The id of the user who owns the chat room.</param>
-        /// <param name="uuid">The unique uuid of the chat room. Where to send the message.</param>
-        /// <param name="command">
-        /// <para>The command to send. The following chat commands are not allowed/supported in chat rooms:</para>
-        /// <para>
-        /// <see cref="ChatCommand.Commercial"/>,
-        /// <see cref="ChatCommand.Host"/>,
-        /// <see cref="ChatCommand.Unhost"/>,
-        /// <see cref="ChatCommand.Raid"/>,
-        /// <see cref="ChatCommand.Unraid"/>,
-        /// <see cref="ChatCommand.Clear"/>,
-        /// <see cref="ChatCommand.Followers"/>,
-        /// <see cref="ChatCommand.FollowersOff"/>.
-        /// </para>
-        /// </param>
-        /// <param name="arguments">Optional command arguments</param>
-        /// <exception cref="NotSupportedException">Thrown if an unsupported chat command is attempted to be used.</exception>
-        public void
-        SendChatCommand(string user_id, string uuid, ChatCommand command, params object[] arguments)
-        {
-            switch (command)
-            {
-                case ChatCommand.Commercial:
-                case ChatCommand.Host:
-                case ChatCommand.Unhost:
-                case ChatCommand.Raid:
-                case ChatCommand.Unraid:
-                case ChatCommand.Clear:
-                case ChatCommand.Followers:
-                case ChatCommand.FollowersOff:
-                {
-                    throw new NotSupportedException("The command " + EnumUtil.GetName(command) + " cannot be used in a chatroom.");
-                }
-            }
-
-            string trailing = EnumUtil.GetName(command);
-            if (arguments.IsValid())
-            {
-                trailing += ' ' + string.Join(" ", arguments);
-            }
-            SendChatRoomPrivmsg(user_id, uuid, trailing);
         }
 
         #endregion

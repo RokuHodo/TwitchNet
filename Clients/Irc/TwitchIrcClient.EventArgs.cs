@@ -21,155 +21,6 @@ TwitchNet.Clients.Irc
     //
     // -------------------------------------------------------------------------------------------------------------
 
-    #region Command: WHISPER - Updated
-
-    public class
-    WhisperEventArgs : IrcMessageEventArgs
-    {
-        /// <summary>
-        /// Whether or not IRC tags were sent with the message.
-        /// </summary>
-        public bool tags_exist { get; private set; }
-
-        /// <summary>
-        /// <para>The converted IRC tags attached to the message.</para>
-        /// <para>Set to null if no tags were sent with the message.</para>
-        /// </summary>
-        [ValidateMember(Check.TagsMissing)]
-        [ValidateMember(Check.TagsExtra)]
-        public WhisperTags tags { get; protected set; }
-
-        /// <summary>
-        /// The nick of the IRC user who sent the whisper.
-        /// </summary>
-        [ValidateMember(Check.IsValid)]
-        public string sender { get; protected set; }
-
-        /// <summary>
-        /// The nick of IRC user who received the whisper.
-        /// </summary>
-        [ValidateMember(Check.IsValid)]
-        public string recipient { get; protected set; }
-
-        /// <summary>
-        /// The body of the message.
-        /// </summary>
-        [ValidateMember(Check.IsValid)]
-        public string body { get; protected set; }        
-
-        public
-        WhisperEventArgs(in IrcMessage message) : base(message)
-        {
-            tags_exist = message.tags_exist;
-            if (tags_exist)
-            {
-                tags = new WhisperTags(message);
-            }
-
-            sender = message.server_or_nick;
-
-            if (message.parameters.Length > 0)
-            {
-                recipient = message.parameters[0];
-            }
-
-            body = message.trailing;            
-        }
-    }
-
-    public class
-    WhisperTags
-    {
-        /// <summary>
-        /// Whether or not the sender has Twitch turbo.
-        /// </summary>
-        [Obsolete("This tag has been deprecated and can be deleted at any time. Use the 'badges' tag to look for this information instead")]
-        [IrcTag("turbo")]
-        public bool turbo { get; protected set; }
-
-        /// <summary>
-        /// <para>The display name of the sender.</para>
-        /// <para>Set to an empty string if the sender never explicitly set their display name.</para>
-        /// </summary>
-        [IrcTag("display-name")]
-        public string display_name { get; protected set; }
-
-        /// <summary>
-        /// The user ID of the sender.
-        /// </summary>
-        [IrcTag("user-id")]
-        public string user_id { get; protected set; }
-
-        /// <summary>
-        /// The ID of the message.
-        /// </summary>
-        [IrcTag("message-id")]
-        public string message_id { get; protected set; }
-
-        /// <summary>
-        /// The user ID of the sender and the user ID of the recipient concatenated with an underscore.
-        /// </summary>
-        [IrcTag("thread-id")]
-        public string thread_id { get; protected set; }
-
-        /// <summary>
-        /// The user ID of the recipient.
-        /// </summary>
-        public string recipient_id { get; protected set; }
-
-        /// <summary>
-        /// <para>The sender's user type</para>
-        /// <para>Set to <see cref="UserType.None"/> if the sender has no elevated privileges.</para>
-        /// </summary>
-        [Obsolete("This tag has been deprecated and can be deleted at any time. Use the 'badges' tag to look for this information instead")]
-        [IrcTag("user-type")]
-        public UserType user_type { get; protected set; }
-
-        /// <summary>
-        /// <para>The color of the sender's display name.</para>
-        /// <para>Set to <see cref="Color.Empty"/> if the sender never explicitly set their display name color.</para>
-        /// </summary>
-        [IrcTag("color")]
-        public Color color { get; protected set; }
-
-        /// <summary>
-        /// <para>The chat badges that the sender has, if any.</para>
-        /// <para>Set to an empty array if the sender has no chat badges.</para>
-        /// </summary>
-        [ValidateMember]
-        [IrcTag("badges")]
-        public Badge[] badges { get; protected set; }
-
-        /// <summary>
-        /// <para>The emotes the sender used in the message, if any.</para>
-        /// <para>Set to an empty array if the sender did not use any emotes in the message.</para>
-        /// </summary>
-        [ValidateMember]
-        [IrcTag("emotes")]
-        public Emote[] emotes { get; protected set; }
-
-        public
-        WhisperTags(in IrcMessage message)
-        {
-            turbo = TwitchIrcUtil.Tags.ToBool(message, "turbo");
-
-            display_name = TwitchIrcUtil.Tags.ToString(message, "display-name");
-            user_id = TwitchIrcUtil.Tags.ToString(message, "user-id");
-            message_id = TwitchIrcUtil.Tags.ToString(message, "message-id");
-            thread_id = TwitchIrcUtil.Tags.ToString(message, "thread-id");
-            recipient_id = thread_id.TextAfter('_');
-
-            user_type = TwitchIrcUtil.Tags.ToUserType(message, "user-type");
-
-            color = TwitchIrcUtil.Tags.FromtHtml(message, "color");
-
-            badges = TwitchIrcUtil.Tags.ToBadges(message, "badges");
-            emotes = TwitchIrcUtil.Tags.ToEmotes(message, "emotes");
-        }
-    }
-
-    #endregion
-
     #region Command: CLEARCHAT - Updated
 
     public class
@@ -360,6 +211,97 @@ TwitchNet.Clients.Irc
             badges = TwitchIrcUtil.Tags.ToBadges(message, "badges");
             badge_info = TwitchIrcUtil.Tags.ToBadgeInfo(message, "badge-info");
         }
+    }
+
+    #endregion
+
+    #region Command: HOSTTARGET - Updated
+
+    public class
+    HostTargetEventArgs : IrcMessageEventArgs
+    {
+        /// <summary>
+        /// <para>The number of viewers watching hosting channel.</para>
+        /// <para>Set to -1 if this value was not inlcuded in the message.</para>
+        /// </summary>
+        [ValidateMember(Check.IsNotEqualTo, -1)]
+        public int viewer_count { get; protected set; }
+
+        /// <summary>
+        /// <para>The user that is being hosted.</para>
+        /// <para>Set to an empty string if the hosting channel stops hosting.</para>
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string target_user { get; protected set; }
+
+        /// <summary>
+        /// The channel that started or stopped hosting.
+        /// </summary>
+        [ValidateMember(Check.IsValid)]
+        public string hosting_channel { get; protected set; }
+
+        /// <summary>
+        /// <para>Whether the hosting channel started or stopped hosting a channel.</para>
+        /// <para>Set to <see cref="HostTargetType.None"/> if the message could not be parsed.</para>
+        /// </summary>
+        [ValidateMember(Check.IsNotEqualTo, HostTargetType.None)]
+        public HostTargetType target_type { get; protected set; }
+
+        public
+        HostTargetEventArgs(in IrcMessage message) : base(message)
+        {
+            target_type = HostTargetType.None;
+
+            if (message.parameters.Length == 0)
+            {
+                return;
+            }
+
+            hosting_channel = message.parameters[0];
+
+            if (!message.trailing.IsValid())
+            {
+                return;
+            }
+
+            if (message.trailing[0] == '-')
+            {
+                target_type = HostTargetType.Stop;
+
+                target_user = string.Empty;
+            }
+            else
+            {
+                target_type = HostTargetType.Start;
+
+                target_user = message.trailing.TextBefore(' ');
+                if (!target_user.IsValid())
+                {
+                    target_user = message.trailing;
+                }
+            }
+
+            viewer_count = Int32.TryParse(message.trailing.TextAfter(' '), out int _viewer_count) ? _viewer_count : -1;
+        }
+    }
+
+    public enum
+    HostTargetType
+    {
+        /// <summary>
+        /// There was an error parsing the host target message.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// The hosting channel started hosting another channel.
+        /// </summary>
+        Start = 1,
+
+        /// <summary>
+        /// The hosting channel stopped hosting another channel.
+        /// </summary>
+        Stop = 2
     }
 
     #endregion
@@ -1599,94 +1541,152 @@ TwitchNet.Clients.Irc
 
     #endregion
 
-    #region Command: HOSTTARGET - Updated
+    #region Command: WHISPER - Updated
 
     public class
-    HostTargetEventArgs : IrcMessageEventArgs
+    WhisperEventArgs : IrcMessageEventArgs
     {
         /// <summary>
-        /// <para>The number of viewers watching hosting channel.</para>
-        /// <para>Set to -1 if this value was not inlcuded in the message.</para>
+        /// Whether or not IRC tags were sent with the message.
         /// </summary>
-        [ValidateMember(Check.IsNotEqualTo, -1)]
-        public int viewer_count { get; protected set; }
+        public bool tags_exist { get; private set; }
 
         /// <summary>
-        /// <para>The user that is being hosted.</para>
-        /// <para>Set to an empty string if the hosting channel stops hosting.</para>
+        /// <para>The converted IRC tags attached to the message.</para>
+        /// <para>Set to null if no tags were sent with the message.</para>
+        /// </summary>
+        [ValidateMember(Check.TagsMissing)]
+        [ValidateMember(Check.TagsExtra)]
+        public WhisperTags tags { get; protected set; }
+
+        /// <summary>
+        /// The nick of the IRC user who sent the whisper.
         /// </summary>
         [ValidateMember(Check.IsValid)]
-        public string target_user { get; protected set; }
+        public string sender { get; protected set; }
 
         /// <summary>
-        /// The channel that started or stopped hosting.
+        /// The nick of IRC user who received the whisper.
         /// </summary>
         [ValidateMember(Check.IsValid)]
-        public string hosting_channel { get; protected set; }
+        public string recipient { get; protected set; }
 
         /// <summary>
-        /// <para>Whether the hosting channel started or stopped hosting a channel.</para>
-        /// <para>Set to <see cref="HostTargetType.None"/> if the message could not be parsed.</para>
+        /// The body of the message.
         /// </summary>
-        [ValidateMember(Check.IsNotEqualTo, HostTargetType.None)]
-        public HostTargetType target_type { get; protected set; }
+        [ValidateMember(Check.IsValid)]
+        public string body { get; protected set; }        
 
         public
-        HostTargetEventArgs(in IrcMessage message) : base(message)
+        WhisperEventArgs(in IrcMessage message) : base(message)
         {
-            target_type = HostTargetType.None;
-
-            if (message.parameters.Length == 0)
+            tags_exist = message.tags_exist;
+            if (tags_exist)
             {
-                return;
+                tags = new WhisperTags(message);
             }
 
-            hosting_channel = message.parameters[0];
+            sender = message.server_or_nick;
 
-            if (!message.trailing.IsValid())
+            if (message.parameters.Length > 0)
             {
-                return;
+                recipient = message.parameters[0];
             }
 
-            if (message.trailing[0] == '-')
-            {
-                target_type = HostTargetType.Stop;
-
-                target_user = string.Empty;
-            }
-            else
-            {
-                target_type = HostTargetType.Start;
-
-                target_user = message.trailing.TextBefore(' ');
-                if (!target_user.IsValid())
-                {
-                    target_user = message.trailing;
-                }
-            }
-
-            viewer_count = Int32.TryParse(message.trailing.TextAfter(' '), out int _viewer_count) ? _viewer_count : -1;
+            body = message.trailing;            
         }
     }
 
-    public enum
-    HostTargetType
+    public class
+    WhisperTags
     {
         /// <summary>
-        /// There was an error parsing the host target message.
+        /// Whether or not the sender has Twitch turbo.
         /// </summary>
-        None = 0,
+        [Obsolete("This tag has been deprecated and can be deleted at any time. Use the 'badges' tag to look for this information instead")]
+        [IrcTag("turbo")]
+        public bool turbo { get; protected set; }
 
         /// <summary>
-        /// The hosting channel started hosting another channel.
+        /// <para>The display name of the sender.</para>
+        /// <para>Set to an empty string if the sender never explicitly set their display name.</para>
         /// </summary>
-        Start = 1,
+        [IrcTag("display-name")]
+        public string display_name { get; protected set; }
 
         /// <summary>
-        /// The hosting channel stopped hosting another channel.
+        /// The user ID of the sender.
         /// </summary>
-        Stop = 2
+        [IrcTag("user-id")]
+        public string user_id { get; protected set; }
+
+        /// <summary>
+        /// The ID of the message.
+        /// </summary>
+        [IrcTag("message-id")]
+        public string message_id { get; protected set; }
+
+        /// <summary>
+        /// The user ID of the sender and the user ID of the recipient concatenated with an underscore.
+        /// </summary>
+        [IrcTag("thread-id")]
+        public string thread_id { get; protected set; }
+
+        /// <summary>
+        /// The user ID of the recipient.
+        /// </summary>
+        public string recipient_id { get; protected set; }
+
+        /// <summary>
+        /// <para>The sender's user type</para>
+        /// <para>Set to <see cref="UserType.None"/> if the sender has no elevated privileges.</para>
+        /// </summary>
+        [Obsolete("This tag has been deprecated and can be deleted at any time. Use the 'badges' tag to look for this information instead")]
+        [IrcTag("user-type")]
+        public UserType user_type { get; protected set; }
+
+        /// <summary>
+        /// <para>The color of the sender's display name.</para>
+        /// <para>Set to <see cref="Color.Empty"/> if the sender never explicitly set their display name color.</para>
+        /// </summary>
+        [IrcTag("color")]
+        public Color color { get; protected set; }
+
+        /// <summary>
+        /// <para>The chat badges that the sender has, if any.</para>
+        /// <para>Set to an empty array if the sender has no chat badges.</para>
+        /// </summary>
+        [ValidateMember]
+        [IrcTag("badges")]
+        public Badge[] badges { get; protected set; }
+
+        /// <summary>
+        /// <para>The emotes the sender used in the message, if any.</para>
+        /// <para>Set to an empty array if the sender did not use any emotes in the message.</para>
+        /// </summary>
+        [ValidateMember]
+        [IrcTag("emotes")]
+        public Emote[] emotes { get; protected set; }
+
+        public
+        WhisperTags(in IrcMessage message)
+        {
+            turbo = TwitchIrcUtil.Tags.ToBool(message, "turbo");
+
+            display_name = TwitchIrcUtil.Tags.ToString(message, "display-name");
+            user_id = TwitchIrcUtil.Tags.ToString(message, "user-id");
+            message_id = TwitchIrcUtil.Tags.ToString(message, "message-id");
+            thread_id = TwitchIrcUtil.Tags.ToString(message, "thread-id");
+            recipient_id = thread_id.TextAfter('_');
+
+            user_type = TwitchIrcUtil.Tags.ToUserType(message, "user-type");
+
+            color = TwitchIrcUtil.Tags.FromtHtml(message, "color");
+
+            badges = TwitchIrcUtil.Tags.ToBadges(message, "badges");
+            emotes = TwitchIrcUtil.Tags.ToEmotes(message, "emotes");
+        }
     }
 
-    #endregion
+    #endregion 
 } 

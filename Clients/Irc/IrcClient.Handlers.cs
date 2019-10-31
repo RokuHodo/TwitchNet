@@ -38,7 +38,12 @@ TwitchNet.Clients.Irc
 
         #endregion
 
-        #region Events
+        #region Events        
+
+        /// <summary>
+        /// <para>Raised when a message is sent by the client to the server.</para>
+        /// </summary>
+        public virtual event EventHandler<DataEventArgs>            OnDataSent;
 
         /// <summary>
         /// <para>
@@ -49,22 +54,18 @@ TwitchNet.Clients.Irc
         public virtual event EventHandler<DataEventArgs>            OnDataReceived;
 
         /// <summary>
-        /// <para>Raised when a message is sent by the client to the server.</para>
-        /// </summary>
-        public virtual event EventHandler<DataEventArgs>            OnDataSent;
-
-        /// <summary>
         /// <para>Raised when a message is received from the server.</para>
         /// </summary>
         public virtual event EventHandler<IrcMessageEventArgs>      OnIrcMessageReceived;
 
         /// <summary>
-        /// <para>
-        /// Raised when an the internal socket establishes a connection to the IRC server.
+        /// <para>Raised when an the internal socket establishes a connection to the IRC server.
         /// Signifies that the client is ready to send and receive messages.
-        /// This occurs before the client logs into the IRC server and before <see cref="OnConnected"/> is raised.
         /// </para>
-        /// <para>At this point, the state is set to <see cref="ClientState.Connecting"/> since the client is not yet logged into the IRC.</para>
+        /// <para>
+        /// This occurs before the client logs into the IRC server and before <see cref="OnConnected"/> is raised.
+        /// At this point, the state is set to <see cref="ClientState.Connecting"/> since the client is not yet logged into the IRC.
+        /// </para>
         /// </summary>
         public virtual event EventHandler<EventArgs>                OnSocketConnected;
 
@@ -81,9 +82,11 @@ TwitchNet.Clients.Irc
         /// <para>
         /// Raised when an the internal socket disconnects from the IRC server.
         /// Signifies that the client can no longer send and receive messages.
-        /// This occurs before the reader finishes processing the current data, before all currently raised events have finihshed, and before <see cref="OnDisconnected"/> is raised.
         /// </para>
-        /// <para>At this point, the state is set to <see cref="ClientState.Disconnecting"/> since the reader is still waiting for all event to finish executing.</para>
+        /// <para>
+        /// This occurs before the reader finishes processing the current data, before all currently raised events have finihshed, and before <see cref="OnDisconnected"/> is raised.
+        /// At this point, the state is set to <see cref="ClientState.Disconnecting"/> since the reader is still waiting for all event to finish executing.
+        /// </para>
         /// </summary>
         public virtual event EventHandler<EventArgs>                OnSocketDisconnected;
 
@@ -201,21 +204,23 @@ TwitchNet.Clients.Irc
         public virtual event EventHandler<PartEventArgs>            OnPart;
 
         /// <summary>
+        /// <para>
         /// Raised when a message is received with the command PING.
         /// Sent by the server to test to see if a connected client is still active.
-        /// The client should then respong with the appropriate PONG message as soon as possible for the connectin to remain active.
+        /// </para>
+        /// <para>The client should then respong with the appropriate PONG message as soon as possible for the connectin to remain active.</para>
         /// </summary>
         public virtual event EventHandler<IrcMessageEventArgs>      OnPing;
 
         /// <summary>
-        /// Raised when a message is received with the command PRIVMSG.
-        /// These are messages sent by users.
+        /// <para>Raised when a message is received with the command PRIVMSG.</para>
+        /// <para>These are messages sent by users.</para>
         /// </summary>
         public virtual event EventHandler<PrivmsgEventArgs>         OnPrivmsg;        
 
         /// <summary>
+        /// <para>Raised when a message is received with the command NOTICE in a stream chat.</para>
         /// <para>
-        /// Raised when a message is received with the command NOTICE in a stream chat.
         /// These are general server notices sent specifically to the client.
         /// There are a few excpections where notices are sent to all users that have joined the IRC channel, regardless of the notice source.</para>
         /// <para>
@@ -225,6 +230,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         public event EventHandler<NoticeEventArgs>                  OnNotice;
 
+        /*
         /// <summary>
         /// <para>
         /// A secondary event to <see cref="OnNotice"/>.
@@ -339,10 +345,10 @@ TwitchNet.Clients.Irc
         /// <para>Requires /commands and /tags.</para>
         /// </summary>
         public event EventHandler<InvalidUserEventArgs> OnInvalidUser;
-
+        */
         #endregion
 
-        #region MEssage handlers
+        #region Handlers
 
         /// <summary>
         /// Sets all <see cref="IrcMessage"/> handlers back to the default methods.
@@ -353,23 +359,23 @@ TwitchNet.Clients.Irc
             handlers    = new Dictionary<string, MessageHandler>();
             names       = new Dictionary<string, List<string>>();
 
-            SetHandler("001", HandleWelcome);
-            SetHandler("002", HandleYourHost);
-            SetHandler("003", HandleCreated);
-            SetHandler("004", HandleMyInfo);
-            SetHandler("353", HandleNamReply);
-            SetHandler("366", HandleEndOfNames);
-            SetHandler("372", HandleMotd);
-            SetHandler("375", HandleMotdStart);
-            SetHandler("376", HandleEndOfMotd);
-            SetHandler("421", HandleUnknownCommand);
+            SetHandler("001",       Handle_001_Welcome);
+            SetHandler("002",       Handle_002_YourHost);
+            SetHandler("003",       Handle_003_Created);
+            SetHandler("004",       Handle_004_MyInfo);
+            SetHandler("353",       Handle_353_NamReply);
+            SetHandler("366",       Handle_366_EndOfNames);
+            SetHandler("372",       Handle_372_Motd);
+            SetHandler("375",       Handle_375_MotdStart);
+            SetHandler("376",       Handle_376_EndOfMotd);
+            SetHandler("421",       Handle_421_UnknownCommand);
 
-            SetHandler("JOIN", HandleJoin);
-            SetHandler("PART", HandlePart);
-            SetHandler("MODE", HandleMode);
-            SetHandler("PING", HandlePing);
-            SetHandler("PRIVMSG", HandlePrivmsg);
-            SetHandler("NOTICE", HandleNotice);
+            SetHandler("JOIN",      Handle_Join);
+            SetHandler("PART",      Handle_Part);
+            SetHandler("MODE",      Handle_Mode);
+            SetHandler("PING",      Handle_Ping);
+            SetHandler("PRIVMSG",   Handle_Privmsg);
+            SetHandler("NOTICE",    Handle_Notice);
         }
 
         /// <summary>
@@ -436,16 +442,12 @@ TwitchNet.Clients.Irc
             handlers[message.command](message);
         }
 
-        #endregion
-
-        #region Numeric handlers
-
         /// <summary>
         /// Handles the IRC message with the command 001, RPL_WELCOME.
         /// </summary>
         /// <param name="message">The IRC message to be handled.</param>
         protected virtual void
-        HandleWelcome(in IrcMessage message)
+        Handle_001_Welcome(in IrcMessage message)
         {
             SetState(ClientState.Connected);
 
@@ -457,7 +459,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The IRC message to be handled.</param>
         protected virtual void
-        HandleYourHost(in IrcMessage message)
+        Handle_002_YourHost(in IrcMessage message)
         {
             OnYourHost.Raise(this, new NumericReplyEventArgs(message));
         }
@@ -467,7 +469,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The IRC message to be handled.</param>
         protected virtual void
-        HandleCreated(in IrcMessage message)
+        Handle_003_Created(in IrcMessage message)
         {
             OnCreated.Raise(this, new NumericReplyEventArgs(message));
         }
@@ -477,7 +479,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The IRC message to be handled.</param>
         protected virtual void
-        HandleMyInfo(in IrcMessage message)
+        Handle_004_MyInfo(in IrcMessage message)
         {
             OnMyInfo.Raise(this, new NumericReplyEventArgs(message));
         }
@@ -487,7 +489,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The IRC message to be handled.</param>
         protected virtual void
-        HandleNamReply(in IrcMessage message)
+        Handle_353_NamReply(in IrcMessage message)
         {
             NamReplyEventArgs args = new NamReplyEventArgs(message);
 
@@ -509,7 +511,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The IRC message to be handled.</param>
         protected virtual void
-        HandleEndOfNames(in IrcMessage message)
+        Handle_366_EndOfNames(in IrcMessage message)
         {
             EndOfNamesEventArgs args = new EndOfNamesEventArgs(message, names);
             if (names.ContainsKey(args.channel))
@@ -525,7 +527,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The IRC message to be handled.</param>
         protected virtual void
-        HandleMotd(in IrcMessage message)
+        Handle_372_Motd(in IrcMessage message)
         {
             OnMotd.Raise(this, new MotdEventArgs(message));
         }
@@ -535,7 +537,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The IRC message to be handled.</param>
         protected virtual void
-        HandleMotdStart(in IrcMessage message)
+        Handle_375_MotdStart(in IrcMessage message)
         {
             OnMotdStart.Raise(this, new NumericReplyEventArgs(message));
         }
@@ -545,7 +547,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The IRC message to be handled.</param>
         protected virtual void
-        HandleEndOfMotd(in IrcMessage message)
+        Handle_376_EndOfMotd(in IrcMessage message)
         {
             OnEndOfMotd.Raise(this, new NumericReplyEventArgs(message));
         }
@@ -555,21 +557,17 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The IRC message to be handled.</param>
         protected virtual void
-        HandleUnknownCommand(in IrcMessage message)
+        Handle_421_UnknownCommand(in IrcMessage message)
         {
             OnUnknownCommand.Raise(this, new UnknownCommandEventArgs(message));
         }
-
-        #endregion
-
-        #region Other handlers        
 
         /// <summary>
         /// Handles the IRC message with the command JOIN.
         /// </summary>
         /// <param name="message">The IRC message to be handled.</param>
         protected virtual void
-        HandleJoin(in IrcMessage message)
+        Handle_Join(in IrcMessage message)
         {
             OnJoin.Raise(this, new JoinEventArgs(message));
         }
@@ -579,7 +577,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The IRC message to be handled.</param>
         protected virtual void
-        HandlePart(in IrcMessage message)
+        Handle_Part(in IrcMessage message)
         {
             OnPart.Raise(this, new PartEventArgs(message));
         }
@@ -589,7 +587,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The IRC message to be handled.</param>
         protected virtual void
-        HandleMode(in IrcMessage message)
+        Handle_Mode(in IrcMessage message)
         {
             if (!message.parameters.IsValid() || !message.parameters[0].IsValid())
             {
@@ -617,7 +615,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The IRC message to be handled.</param>
         protected virtual void
-        HandlePing(in IrcMessage message)
+        Handle_Ping(in IrcMessage message)
         {
             if (auto_pong)
             {
@@ -632,7 +630,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The IRC message to be handled.</param>
         protected virtual void
-        HandlePrivmsg(in IrcMessage message)
+        Handle_Privmsg(in IrcMessage message)
         {
             OnPrivmsg.Raise(this, new PrivmsgEventArgs(message));
         }
@@ -642,11 +640,17 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The IRC message to be handled.</param>
         private void
-        HandleNotice(in IrcMessage message)
+        Handle_Notice(in IrcMessage message)
         {
             NoticeEventArgs args = new NoticeEventArgs(message);
             OnNotice.Raise(this, args);
-                    
+                
+            /*
+            TODO: Reimplement OnNotice sub-events in the future?
+
+            This is very much a 'nice'-to-have rather than a very loose 'need'.
+            This would also bloat the IRC library even more than it already is.
+
             switch (args.tags.msg_id)
             {
                 // Updated 
@@ -675,6 +679,7 @@ TwitchNet.Clients.Irc
                 case NoticeType.CmdsAvailable:              OnCmdsAvailable.Raise(this, new CmdsAvailableEventArgs(args));                      break;
                 case NoticeType.InvalidUser:                OnInvalidUser.Raise(this, new InvalidUserEventArgs(args));                          break;
             }
+            */
         }
 
         #endregion        

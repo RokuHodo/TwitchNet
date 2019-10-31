@@ -3,12 +3,6 @@ using System;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using System.Text.RegularExpressions;
-
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Globalization;
 
 // project namespaces
 using TwitchNet.Extensions;

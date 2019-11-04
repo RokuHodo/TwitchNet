@@ -2242,16 +2242,29 @@ TwitchNet.Clients.Irc
         public byte[] data { get; protected set; }
 
         /// <summary>
-        /// The UTF-8 encoded data.
+        /// The encoded data.
         /// </summary>
         [ValidateMember(Check.IsValid)]
         public string message { get; protected set; }
 
-        public DataEventArgs(byte[] data, string message)
-        {
-            this.data = data;
+        /*
+        /// <summary>
+        /// <para>A unique string manually provided to identify individual messages sent to the IRC server.</para>
+        /// <para>
+        /// Set to an empty string if it is data received from the IRC server as this is a library specific feature.
+        /// Set to the unique string provided when sending a message to the IRC server.
+        /// Set to an empty string otherwise.
+        /// </para>
+        /// </summary>
+        public string nonce { get; protected set; }
+        */
 
-            this.message = message;
+        public
+        DataEventArgs(byte[] data, string message)
+        {
+            this.data       = data;
+            this.message    = message;
+            // this.nonce      = nonce;
         }
     }
 
@@ -2278,7 +2291,8 @@ TwitchNet.Clients.Irc
         [ValidateMember(Check.IsValid)]
         public string client { get; protected set; }
 
-        public NumericReplyEventArgs(in IrcMessage message) : base(message)
+        public
+        NumericReplyEventArgs(in IrcMessage message) : base(message)
         {
             if (message.parameters.Length > 0)
             {

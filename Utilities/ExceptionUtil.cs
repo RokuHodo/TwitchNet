@@ -57,6 +57,43 @@ TwitchNet.Utilities
         /// <param name="callback">The action to perform if an exception would be thrown, before the excpetion is actually thrown.</param>
         /// <exception cref="ArgumentException">Thrown if the object is null or equal to its default value.</exception>
         public static void
+        ThrowIfDefault(object obj, string obj_name, Action callback = null)
+        {
+            ThrowIfDefault(obj, obj_name, obj_name + " cannot be null set to its default value.", callback);
+        }
+
+        /// <summary>
+        /// Throws an <see cref="ArgumentNullException"/> if the object is set to to its default value.
+        /// </summary>
+        /// <param name="obj">The object to check.</param>
+        /// <param name="obj_name">The name of the object</param>
+        /// <param name="message">The excpetion message.</param>
+        /// <param name="callback">The action to perform if an exception would be thrown, before the excpetion is actually thrown.</param>
+        /// <exception cref="ArgumentException">Thrown if the object is null or equal to its default value.</exception>
+        public static void
+        ThrowIfDefault(object obj, string obj_name, string message, Action callback = null)
+        {
+            if (!obj.IsDefault())
+            {
+                return;
+            }
+
+            if (!callback.IsNull())
+            {
+                callback();
+            }
+
+            throw new ArgumentException(message, obj_name);
+        }
+
+        /// <summary>
+        /// Throws an <see cref="ArgumentNullException"/> if the object is null or equal to its default value.
+        /// </summary>
+        /// <param name="obj">The object to check.</param>
+        /// <param name="obj_name">The name of the object</param>
+        /// <param name="callback">The action to perform if an exception would be thrown, before the excpetion is actually thrown.</param>
+        /// <exception cref="ArgumentException">Thrown if the object is null or equal to its default value.</exception>
+        public static void
         ThrowIfNullOrDefault(object obj, string obj_name, Action callback = null)
         {
             ThrowIfNullOrDefault(obj, obj_name, obj_name + " cannot be null or equal to its default value.", callback);
@@ -134,7 +171,7 @@ TwitchNet.Utilities
         public static void
         ThrowIfInvalid<type>(IList<type> parameter, string parameter_name, Action callback = null)
         {
-            ThrowIfInvalid(parameter, parameter_name, parameter_name + " cannot be null, empty, or whitespace.", callback);
+            ThrowIfInvalid(parameter, parameter_name, parameter_name + " cannot be null, empty, or contain only whitespace whitespace.", callback);
         }
 
         /// <summary>
@@ -272,54 +309,7 @@ TwitchNet.Utilities
         public static void
         ThrowIfInvalidNick(string parameter, string message, Action callback = null)
         {
-            if (parameter.IsValid())
-            {
-                return;
-            }
-
             if (TwitchIrcUtil.IsValidNick(parameter))
-            {
-                return;
-            }
-
-            if (!callback.IsNull())
-            {
-                callback();
-            }
-
-            throw new FormatException(message);
-        }
-
-        /// <summary>
-        /// Throws if an <see cref="FormatException"/> if a string does not meet Twitch's /followers duration format requirements.
-        /// </summary>
-        /// <param name="parameter">The parameter to check.</param>
-        /// <param name="parameter_name">The name of the parameter.</param>
-        /// <param name="callback">The action to perform if an exception would be thrown, before the excpetion is actually thrown.</param>
-        /// <exception cref="FormatException">Thrown if the string does not meet Twitch's /followers duration format requirements.</exception>
-        public static void
-        ThrowIfInvalidFollowersDuration(string parameter, Action callback = null)
-        {
-            ThrowIfInvalidFollowersDuration(parameter,  "Invalid /followers duration format: " + parameter + ".", callback);
-        }
-
-        /// <summary>
-        /// Throws if an <see cref="FormatException"/> if a string does not meet Twitch's /followers duration format requirements.
-        /// </summary>
-        /// <param name="parameter">The parameter to check.</param>
-        /// <param name="parameter_name">The name of the parameter.</param>
-        /// <param name="message">The excpetion message.</param>
-        /// <param name="callback">The action to perform if an exception would be thrown, before the excpetion is actually thrown.</param>
-        /// <exception cref="FormatException">Thrown if the string does not meet Twitch's /followers duration format requirements.</exception>
-        public static void
-        ThrowIfInvalidFollowersDuration(string parameter, string message, Action callback = null)
-        {
-            if (parameter.IsValid())
-            {
-                return;
-            }
-
-            if (TwitchIrcUtil.IsValidFollowersDurationFormat(parameter))
             {
                 return;
             }

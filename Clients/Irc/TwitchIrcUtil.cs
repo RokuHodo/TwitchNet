@@ -143,78 +143,78 @@ TwitchNet.Clients.Irc
                 switch (GetFollowersDurationPeriod(caputure_periods[index].Value))
                 {
                     case FollowersDurationPeriod.Months:
+                    {
+                        if (period_duration > FOLLOWERS_DURATION_MAX_MONTHS || months + period_duration > FOLLOWERS_DURATION_MAX_MONTHS)
                         {
-                            if (period_duration > FOLLOWERS_DURATION_MAX_MONTHS || months + period_duration > FOLLOWERS_DURATION_MAX_MONTHS)
-                            {
-                                return result;
-                            }
-
-                            months += period_duration;
+                            return result;
                         }
-                        break;
+
+                        months += period_duration;
+                    }
+                    break;
 
                     case FollowersDurationPeriod.Weeks:
+                    {
+                        if (period_duration > FOLLOWERS_DURATION_MAX_WEEKS || weeks + period_duration > FOLLOWERS_DURATION_MAX_WEEKS)
                         {
-                            if (period_duration > FOLLOWERS_DURATION_MAX_WEEKS || weeks + period_duration > FOLLOWERS_DURATION_MAX_WEEKS)
-                            {
-                                return result;
-                            }
-
-                            weeks += period_duration;
+                            return result;
                         }
-                        break;
+
+                        weeks += period_duration;
+                    }
+                    break;
 
                     case FollowersDurationPeriod.Days:
+                    {
+                        if (period_duration > FOLLOWERS_DURATION_MAX_DAYS || days + period_duration > FOLLOWERS_DURATION_MAX_DAYS)
                         {
-                            if (period_duration > FOLLOWERS_DURATION_MAX_DAYS || days + period_duration > FOLLOWERS_DURATION_MAX_DAYS)
-                            {
-                                return result;
-                            }
-
-                            days += period_duration;
+                            return result;
                         }
-                        break;
+
+                        days += period_duration;
+                    }
+                    break;
 
                     case FollowersDurationPeriod.Hours:
+                    {
+                        if (period_duration > FOLLOWERS_DURATION_MAX_HOURS || hours + period_duration > FOLLOWERS_DURATION_MAX_HOURS)
                         {
-                            if (period_duration > FOLLOWERS_DURATION_MAX_HOURS || hours + period_duration > FOLLOWERS_DURATION_MAX_HOURS)
-                            {
-                                return result;
-                            }
-
-                            hours += period_duration;
+                            return result;
                         }
-                        break;
+
+                        hours += period_duration;
+                    }
+                    break;
 
                     case FollowersDurationPeriod.Minutes:
+                    {
+                        if (period_duration > FOLLOWERS_DURATION_MAX_MINUTES || minutes + period_duration > FOLLOWERS_DURATION_MAX_MINUTES)
                         {
-                            if (period_duration > FOLLOWERS_DURATION_MAX_MINUTES || minutes + period_duration > FOLLOWERS_DURATION_MAX_MINUTES)
-                            {
-                                return result;
-                            }
-
-                            minutes += period_duration;
+                            return result;
                         }
-                        break;
+
+                        minutes += period_duration;
+                    }
+                    break;
 
                     case FollowersDurationPeriod.Seconds:
+                    {
+                        if (period_duration > FOLLOWERS_DURATION_MAX_SECONDS || seconds + period_duration > FOLLOWERS_DURATION_MAX_SECONDS)
                         {
-                            if (period_duration > FOLLOWERS_DURATION_MAX_SECONDS || seconds + period_duration > FOLLOWERS_DURATION_MAX_SECONDS)
-                            {
-                                return result;
-                            }
-
-                            seconds += period_duration;
+                            return result;
                         }
-                        break;
+
+                        seconds += period_duration;
+                    }
+                    break;
                 }
             }
 
-            // 1 minute .................................................. = 60        seconds
-            // 1 hour   .............................. = 60     minutes .. = 3,600     seconds
-            // 1 day    ............... = 24  hours .. = 1,440  minutes .. = 86,400    seconds
-            // 1 week   .. = 7  days .. = 168 hours .. = 10,080 minutes .. = 604,800   seconds
-            // 1 month  .. = 30 days .. = 720 hours .. = 43,200 minutes .. = 2,592,000 seconds
+            // 1 minute = 60        seconds
+            // 1 hour   = 3,600     seconds
+            // 1 day    = 86,400    seconds
+            // 1 week   = 604,800   seconds
+            // 1 month  = 2,592,000 seconds
             int total_seconds = seconds + (minutes * 60) + (hours * 3_600) + (days * 86_400) + (weeks * 604_800) + (months * 2_592_000);
             if (total_seconds > FOLLOWERS_DURATION_MAX_SECONDS)
             {
@@ -234,44 +234,44 @@ TwitchNet.Clients.Irc
                     case "mo":
                     case "month":
                     case "months":
-                        {
-                            return FollowersDurationPeriod.Months;
-                        }
+                    {
+                        return FollowersDurationPeriod.Months;
+                    }
 
                     case "w":
                     case "week":
                     case "weeks":
-                        {
-                            return FollowersDurationPeriod.Weeks;
-                        }
+                    {
+                        return FollowersDurationPeriod.Weeks;
+                    }
 
                     case "d":
                     case "day":
                     case "days":
-                        {
-                            return FollowersDurationPeriod.Days;
-                        }
+                    {
+                        return FollowersDurationPeriod.Days;
+                    }
 
                     case "h":
                     case "hour":
                     case "hours":
-                        {
-                            return FollowersDurationPeriod.Hours;
-                        }
+                    {
+                        return FollowersDurationPeriod.Hours;
+                    }
 
                     case "m":
                     case "minute":
                     case "minutes":
-                        {
-                            return FollowersDurationPeriod.Minutes;
-                        }
+                    {
+                        return FollowersDurationPeriod.Minutes;
+                    }
 
                     case "s":
                     case "second":
                     case "seconds":
-                        {
-                            return FollowersDurationPeriod.Seconds;
-                        }
+                    {
+                        return FollowersDurationPeriod.Seconds;
+                    }
                 }
 
                 // This will never be reached.
@@ -340,9 +340,7 @@ TwitchNet.Clients.Irc
         public static bool
         IsValidNick(string nick)
         {
-            bool result = user_nick_regex.IsMatch(nick);
-
-            return result;
+            return !nick.IsNull() && user_nick_regex.IsMatch(nick);
         }
 
         /// <summary>

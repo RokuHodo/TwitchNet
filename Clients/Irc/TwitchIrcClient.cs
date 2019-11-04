@@ -114,148 +114,236 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Sends a direct chat message to another user.
         /// </summary>
-        /// <param name="user_nick">The recipient's nick.</param>
+        /// <param name="user_nick">The recipient's IRC nick.</param>
         /// <param name="format">
-        /// The string to send.
+        /// The string to send without the CR-LF (\r\n), the CR-LF is automatically appended.
         /// This can be a normal string and does not need to include variable formats.
         /// </param>
         /// <param name="arguments">Optional format variable arugments.</param>
+        /// <exception cref="ArgumentException">Thrown if the format is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
         public void
         SendWhisper(string user_nick, string format, params string[] arguments)
         {
             ExceptionUtil.ThrowIfInvalid(user_nick, nameof(user_nick));
             ExceptionUtil.ThrowIfInvalid(format, nameof(format));
 
-            string trailing = "/w " + user_nick.ToLower() + " " + (!arguments.IsValid() ? format : string.Format(format, arguments));
-            SendPrivmsg("#jtv", trailing);
+            SendPrivmsg("#jtv", "/w " + user_nick.ToLower() + " " + format, arguments);
         }
 
         #endregion
 
         #region Chat command wrappers
 
+        // TODO: Add these chat commands.
+
+        // /poll - requires access to a web page, no point in really adding this one
+        // /endpoll
+
+        // /block - does this still not work when done via IRC?
+        // /unblock
+        // /marker
+        // /vip
+        // /unvip
+        // /vips
+        // /vote
+
         /// <summary>
         /// Change the client's display name color.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="color">The display name color.</param>
-        public void
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        public bool
         ChangeDisplayNameColor(string channel, DisplayNameColor color)
         {
-            SendChatCommand(channel, ChatCommand.Color, EnumUtil.GetName(color));
+            return SendChatCommand(channel, ChatCommand.Color, EnumUtil.GetName(color));
         }
 
         /// <summary>
         /// <para>Change the client's display name color.</para>
         /// <para>Requires Twitch Prime or Turbo to be used.</para>
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="color">The display name color.</param>
-        public void
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false if the color is empty.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        public bool
         ChangeDisplayNameColor(string channel, Color color)
         {
             if (color.IsEmpty)
             {
-                return;
+                return false;
             }
 
-            SendChatCommand(channel, ChatCommand.Color, ColorTranslator.ToHtml(color));
+            return SendChatCommand(channel, ChatCommand.Color, ColorTranslator.ToHtml(color));
         }
 
         /// <summary>
         /// <para>Change the client's display name color.</para>
         /// <para>Requires Twitch Prime or Turbo to be used.</para>
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="html_color">The display name color in hex (HTML) format.</param>
-        /// <exception cref="ArgumentException">Thrown if the <paramref name="html_color"/> is not in hex (HTML) format.</exception>
-        public void
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the <paramref name="html_color"/> is not in hex (HTML) format.</exception>
+        public bool
         ChangeDisplayNameColor(string channel, string html_color)
         {
             if (!html_color.IsValidHtmlColor())
             {
-                throw new ArgumentException(nameof(html_color) + " is not a valid HTML color name", nameof(html_color));
+                throw new FormatException(nameof(html_color) + " is not a valid HTML color name");
             }
 
-            SendChatCommand(channel, ChatCommand.Color, html_color);
+            return SendChatCommand(channel, ChatCommand.Color, html_color);
         }
 
         /// <summary>
         /// Reconnects to an IRC channel.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
-        public void
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        public bool
         ChatDisconnect(string channel)
         {
-            SendChatCommand(channel, ChatCommand.Disconnect);
+            return SendChatCommand(channel, ChatCommand.Disconnect);
         }
 
         /// <summary>
         /// <para>Prints a list of chat commands that can be used by the client in an IRC channel.</para>
         /// <para>The list can be retrieved by using <see cref="OnCmdsAvailable"/>.</para>
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
-        public void
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        public bool
         PrintAvailableCommands(string channel)
         {
-            SendChatCommand(channel, ChatCommand.Help);
+            return SendChatCommand(channel, ChatCommand.Help);
         }
 
         /// <summary>
         /// Prints help for a chat command that can be used in an IRC channel, if any help exists.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="command">The chat command to print help for.</param>
-        public void
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        public bool
         PrintHelp(string channel, ChatCommand command)
         {
-            SendChatCommand(channel, ChatCommand.Help, EnumUtil.GetName(command).TextAfter('/'));
+            return SendChatCommand(channel, ChatCommand.Help, EnumUtil.GetName(command).TextAfter('/'));
         }
 
         /// <summary>
         /// Sends a private message in an IRC channel using the /me chat command.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="format">
         /// The message to send.
         /// This can be a normal string and does not need to include variable formats.
         /// </param>
         /// <param name="arguments">Optional format variable arugments.</param>
-        /// <exception cref="ArgumentException">Thrown if the format is null, empty, or whitespace.</exception>
-        public void
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel or format  is null, empty, or contains only whitespace.</exception>        
+        public bool
         SendPrivmsgMe(string channel, string format, params string[] arguments)
         {
             // Check format here since only sending /me is not allowed
             ExceptionUtil.ThrowIfInvalid(format, nameof(format));
 
             string trailing = EnumUtil.GetName(ChatCommand.Me) + ' ' + format;
-            SendPrivmsg(channel, trailing, arguments);
+            return SendPrivmsg(channel, trailing, arguments);
         }
 
         /// <summary>
         /// Grants a user operator (moderator) status.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="user_nick">The user to grant operator status.</param>
-        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
-        public void Mod(string channel, string user_nick)
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
+        public bool
+        Mod(string channel, string user_nick)
         {
             ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
-            SendChatCommand(channel, ChatCommand.Mod, user_nick);
+            return SendChatCommand(channel, ChatCommand.Mod, user_nick);
         }
 
         /// <summary>
         /// Removes a user's operator (moderator) status.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="user_nick">The user to grant operator status.</param>
-        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
-        public void Unmod(string channel, string user_nick)
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
+        public bool
+        Unmod(string channel, string user_nick)
         {
             ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
-            SendChatCommand(channel, ChatCommand.Unmod, user_nick);
+            return SendChatCommand(channel, ChatCommand.Unmod, user_nick);
         }
 
         /// <summary>
@@ -263,51 +351,81 @@ TwitchNet.Clients.Irc
         /// <para>The list can be retrieved by using <see cref="OnRoomMods"/>.</para>
         /// </summary>
         /// <param name="channel">The IRC channel. Where to send the message.</param>
-        public void
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        public bool
         PrintMods(string channel)
         {
-            SendChatCommand(channel, ChatCommand.Mods);
+            return SendChatCommand(channel, ChatCommand.Mods);
         }
 
         /// <summary>
         /// Bans a user.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="user_nick">The user to ban.</param>
         /// <param name="reason">The optional reason for the ban.</param>
-        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
-        public void
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>        
+        public bool
         Ban(string channel, string user_nick, string reason = "")
         {
             ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
-            SendChatCommand(channel, ChatCommand.Ban, user_nick, reason);
+            return SendChatCommand(channel, ChatCommand.Ban, user_nick, reason);
         }
 
         /// <summary>
         /// Unbans a user.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="user_nick">The user to unban.</param>
-        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
-        public void
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
+        public bool
         Unban(string channel, string user_nick)
         {
             ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
-            SendChatCommand(channel, ChatCommand.Unban, user_nick);
+            return SendChatCommand(channel, ChatCommand.Unban, user_nick);
         }
 
         /// <summary>
         /// Time out a user for 1 second.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="user_nick">The user to purge.</param>
         /// <param name="reason">The optional reason for the purge.</param>
-        public void
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
+        public bool
         Purge(string channel, string user_nick, string reason = "")
         {
-            Timeout(channel, user_nick, 1, reason);
+            return Timeout(channel, user_nick, 1, reason);
         }
 
         /// <summary>
@@ -316,16 +434,25 @@ TwitchNet.Clients.Irc
         /// <param name="channel">The IRC channel. Where to send the message.</param>
         /// <param name="user_nick">The user to purge.</param>
         /// <param name="reason">The optional reason for the time out.</param>
-        public void
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
+        public bool
         Timeout(string channel, string user_nick, string reason = "")
         {
-            Timeout(channel, user_nick, 600, reason);
+            return Timeout(channel, user_nick, 600, reason);
         }
 
         /// <summary>
         /// Time out a user for a specified amount of time.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="user_nick">The user to purge.</param>
         /// <param name="duration">
         /// <para>
@@ -338,19 +465,28 @@ TwitchNet.Clients.Irc
         /// </para>
         /// </param>
         /// <param name="reason">The optional reason for the time out.</param>
-        public void
-        Timeout(string channel, string user_nick, TimeSpan duration, string reason = "")
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
+        public bool
+        Timeout(string channel, string user_nick, ref TimeSpan duration, string reason = "")
         {
             // Clamp the value up here to prevent a possible overflow exception with Convert.ToUint32()
             double length_seconds = duration.TotalSeconds.Clamp(1, 1209600);
 
-            Timeout(channel, user_nick, Convert.ToUInt32(length_seconds), reason);
+            return Timeout(channel, user_nick, Convert.ToUInt32(length_seconds), reason);
         }
 
         /// <summary>
         /// Time out a user for a specified amount of time.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="user_nick">The user to purge.</param>
         /// <param name="duration_seconds">
         /// <para>
@@ -363,39 +499,60 @@ TwitchNet.Clients.Irc
         /// </para>
         /// </param>
         /// <param name="reason">The optional reason for the time out.</param>
-        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void
+        public bool
         Timeout(string channel, string user_nick, uint duration_seconds, string reason = "")
         {
             ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
             // 1209600 seconds = 14 days (2 weeks)
-            SendChatCommand(channel, ChatCommand.Timeout, user_nick, duration_seconds.Clamp<uint>(1, 1209600), reason);
+            return SendChatCommand(channel, ChatCommand.Timeout, user_nick, duration_seconds.Clamp<uint>(1, 1209600), reason);
         }
 
         /// <summary>
         /// Un-time out a user.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="user_nick">The user to un-time out.</param>
-        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
-        public void
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
+        public bool
         Untimeout(string channel, string user_nick)
         {
             ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
-            SendChatCommand(channel, ChatCommand.Untimeout, user_nick);
+            return SendChatCommand(channel, ChatCommand.Untimeout, user_nick);
         }
 
         /// <summary>
         /// Clears all chat history from an IRC channel.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
-        public void
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        public bool
         ClearChat(string channel)
         {
-            SendChatCommand(channel, ChatCommand.Clear);
+            return SendChatCommand(channel, ChatCommand.Clear);
         }
 
         /// <summary>
@@ -405,7 +562,15 @@ TwitchNet.Clients.Irc
         /// The broadcaster and moderators are exempt from this command.
         /// </para>
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
         public void
         EnableEmoteOnlyMode(string channel)
         {
@@ -416,7 +581,15 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Disables emote only mode in an IRC channel.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
         public void
         DisableEmoteOnlyMode(string channel)
         {
@@ -430,7 +603,15 @@ TwitchNet.Clients.Irc
         /// The broadcaster and moderators are exempt from this command.
         /// </para>
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
         public void
         EnableFollowersOnlyMode(string channel)
         {
@@ -444,7 +625,10 @@ TwitchNet.Clients.Irc
         /// The broadcaster and moderators are exempt from this command.
         /// </para>
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="duration">
         /// <para>
         /// The amount of time the user must have been following the channel to send messages.
@@ -455,18 +639,25 @@ TwitchNet.Clients.Irc
         /// Max: 3 months (90 days).
         /// </para>
         /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
         /// <exception cref="FormatException">Thrown if the string does not meet Twitch's /followers duration format requirements.</exception>
         public void
         EnableFollowersOnlyMode(string channel, string duration)
         {
-            ExceptionUtil.ThrowIfInvalidFollowersDuration(duration);
-
             if (!TwitchIrcUtil.TryConvertToFollowerDuratrion(duration, out TimeSpan time_span_duration))
             {
                 // If the format is valid and it couldn't be converted, the value overflowed. Just continue using the max duration.
                 if (TwitchIrcUtil.IsValidFollowersDurationFormat(duration))
                 {
                     time_span_duration = new TimeSpan(90, 0, 0, 0, 0);
+                }
+                else
+                {
+                    throw new FormatException("Invalid /followers duration format: " + duration + ".");
                 }
             }
 
@@ -480,7 +671,10 @@ TwitchNet.Clients.Irc
         /// The broadcaster and moderators are exempt from this command.
         /// </para>
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="duration">
         /// <para>
         /// The amount of time the user must have been following the channel to send messages.
@@ -491,6 +685,11 @@ TwitchNet.Clients.Irc
         /// Max: 3 months (90 days).
         /// </para>
         /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
         public void
         EnableFollowersOnlyMode(string channel, TimeSpan duration)
         {
@@ -506,12 +705,22 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Disables follower only mode.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
         public void
         DisableFollowersOnlyMode(string channel)
         {
             SendChatCommand(channel, ChatCommand.FollowersOff);
         }
+
+        // TODO: Change to /uniquechat and /uniquechatoff
 
         /// <summary>
         /// <para>Enables R9K mode in an IRC channel.</para>
@@ -520,7 +729,15 @@ TwitchNet.Clients.Irc
         /// The broadcaster and moderators are exempt from this command.
         /// </para>
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
         public void
         EnableR9KBetaMode(string channel)
         {
@@ -530,7 +747,15 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Disables R9K mode in an IRC channel.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
         public void
         DisableR9KBetaMode(string channel)
         {
@@ -544,7 +769,15 @@ TwitchNet.Clients.Irc
         /// The broadcaster and moderators are exempt from this command.
         /// </para>
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
         public void
         EnableSlowMode(string channel)
         {
@@ -558,7 +791,10 @@ TwitchNet.Clients.Irc
         /// The broadcaster and moderators are exempt from this command.
         /// </para>
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="frequency">
         /// <para>
         /// How frequent users can send chat messages.
@@ -569,6 +805,11 @@ TwitchNet.Clients.Irc
         /// Max: 1 day.
         /// </para>
         /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
         public void
         EnableSlowMode(string channel, TimeSpan frequency)
         {
@@ -585,7 +826,10 @@ TwitchNet.Clients.Irc
         /// The broadcaster and moderators are exempt from this command.
         /// </para>
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="frequency_seconds">
         /// <para>
         /// How frequent users can send chat messages, in seconds.
@@ -596,6 +840,11 @@ TwitchNet.Clients.Irc
         /// Max: 86,400 seconds (1 day).
         /// </para>
         /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
         public void
         EnableSlowMode(string channel, uint frequency_seconds)
         {
@@ -606,7 +855,15 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Disables slow mode in an IRC channel.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
         public void
         DisableSlowMode(string channel)
         {
@@ -620,7 +877,15 @@ TwitchNet.Clients.Irc
         /// The broadcaster and moderators are exempt from this command.
         /// </para>
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
         public void
         EnableSubscribersOnlyMode(string channel)
         {
@@ -630,84 +895,140 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Disables subscriber only mode in an IRC channel.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
-        public void
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        public bool
         DisableSubscribersOnlyMode(string channel)
         {
-            SendChatCommand(channel, ChatCommand.SubscribersOff);
+            return SendChatCommand(channel, ChatCommand.SubscribersOff);
         }
 
         /// <summary>
         /// Runs a commercial.
         /// This is apartner only command.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="length">
         /// <para>The length of the commercial.</para>
         /// <para>Default: 30 seconds.</para>
         /// </param>
-        public void
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        public bool
         StartCommercial(string channel, CommercialLength length = CommercialLength.Seconds30)
         {
-            SendChatCommand(channel, ChatCommand.Commercial, EnumUtil.GetName(length));
+            return SendChatCommand(channel, ChatCommand.Commercial, EnumUtil.GetName(length));
         }
 
         /// <summary>
         /// Starts hosting another user who is streaming.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="user_nick">The user to host.</param>
         /// <param name="tagline">A message shown to viewing parties.</param>
-        /// <exception cref="ArgumentException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
-        public void
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
+        public bool
         Host(string channel, string user_nick, string tagline = "")
         {
             ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
-            SendChatCommand(channel, ChatCommand.Host, user_nick, tagline);
+            return SendChatCommand(channel, ChatCommand.Host, user_nick, tagline);
         }
 
         /// <summary>
         /// Stops hosting a user.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
-        public void
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        public bool
         StopHost(string channel)
         {
-            SendChatCommand(channel, ChatCommand.Unhost);
+            return SendChatCommand(channel, ChatCommand.Unhost);
         }
 
         /// <summary>
         /// Raid another user who is streaming.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
-        /// <param name="user_nick">The user to raid.</param>
-        /// <exception cref="FormatException">Thrown if the <paramref name="user_nick"/> does not match Twitch's user name requirements.</exception>
-        public void
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <param name="user_nick">The IRC user's nick to raid.</param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
+        public bool
         Raid(string channel, string user_nick)
         {
             ExceptionUtil.ThrowIfInvalidNick(user_nick);
 
-            SendChatCommand(channel, ChatCommand.Raid, user_nick);
+            return SendChatCommand(channel, ChatCommand.Raid, user_nick);
         }
 
         /// <summary>
         /// Stops a raid in progress from happening.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
-        public void
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        public bool
         StopRaid(string channel)
         {
-            SendChatCommand(channel, ChatCommand.Unraid);
+            return SendChatCommand(channel, ChatCommand.Unraid);
         }
 
         /// <summary>
         /// Sends a chat command in an IRC channel.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>        
         /// <param name="command">The command to send.</param>
         /// <param name="arguments">Optional command arguments</param>
-        public void
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        public bool
         SendChatCommand(string channel, ChatCommand command, params object[] arguments)
         {
             string trailing = EnumUtil.GetName(command);
@@ -715,7 +1036,8 @@ TwitchNet.Clients.Irc
             {
                 trailing += ' ' + string.Join(" ", arguments);
             }
-            SendPrivmsg(channel, trailing);
+
+            return SendPrivmsg(channel, trailing);
         }
 
         #endregion

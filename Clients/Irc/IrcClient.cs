@@ -24,35 +24,36 @@ TwitchNet.Clients.Irc
         private string _pass;
 
         /// <summary>
-        /// The nick name of the Irc user.
+        /// <para>The IRC user's nick.</para>
+        /// <para>The IRC nick must between 2 and 24 characters long and can only contain alpha-numeric characters.</para>
         /// </summary>
-        /// <exception cref="FormatException">Thrown if the string is not between 2 and 24 characters long, and does not only contian alpha-numeric characters.</exception>
+        /// <exception cref="FormatException">Thrown when setting the value if the string length is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
         public string nick
         {
             get
             {
-                ExceptionUtil.ThrowIfInvalidNick(_nick);
                 return _nick;
             }
             set
             {
+                ExceptionUtil.ThrowIfInvalidNick(value);
                 _nick = value;
             }
         }
 
         /// <summary>
-        /// The password of the Irc user.
+        /// The IRC user's password. This is tyically an OAuth token.
         /// </summary>
-        /// <exception cref="ArgumentException">Thrown if the pass is null, emtpy, or whitespace.</exception>
+        /// <exception cref="ArgumentException">Thrown if the pass is null, emtpy, or contains only whitespace.</exception>
         public string pass
         {
             get
             {
-                ExceptionUtil.ThrowIfInvalid(_pass, nameof(_pass));
                 return _pass;
             }
             set
             {
+                ExceptionUtil.ThrowIfInvalid(value, nameof(_pass));
                 _pass = value;
             }
         }
@@ -60,15 +61,15 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Creates a new instance of the <see cref="IrcUser"/> struct.
         /// </summary>
-        /// <param name="user_nick">The client nick.</param>
-        /// <param name="user_pass">The client pass.</param>
-        public IrcUser(string user_nick, string user_pass)
+        /// <param name="nick">The IRC user's nick.</param>
+        /// <param name="pass">The IRC user's pass.</param>
+        public IrcUser(string nick, string pass)
         {
-            _nick = user_nick;
-            _pass = user_pass;
+            _nick = nick;
+            _pass = pass;
 
-            nick = _nick;
-            pass = user_pass;
+            this.nick = _nick;
+            this.pass = _pass;
         }
     }
 
@@ -77,19 +78,21 @@ TwitchNet.Clients.Irc
     {
         #region Fields
 
-        private bool    reading;
-        private bool    disposing;
-        private bool    disposed;
+        private bool        reading;
+        private bool        disposing;
+        private bool        disposed;
 
-        private ushort  _port;
-        private string  _host;
+        private ushort      _port;
+        private string      _host;
 
-        private Socket  socket;
-        private Stream  stream;
+        private Socket      socket;
+        private Stream      stream;
 
-        private Thread  reader_thread;
+        private Encoding    _encoding;
 
-        private Mutex   state_mutex;
+        private Thread      reader_thread;
+
+        private Mutex       state_mutex;
 
         #endregion
 
@@ -98,7 +101,7 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// The port number of the remote host.
         /// </summary>
-        /// <exception cref="ArgumentException">Thrown if the port is null or equal to zero.</exception>
+        /// <exception cref="ArgumentException">Thrown if the port is equal to zero.</exception>
         public ushort port
         {
             get
@@ -115,7 +118,7 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// The name of the remote host.
         /// </summary>
-        /// <exception cref="ArgumentNullException">Thrown if the host is null, empty, or whitespace.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if the host is null, empty, or contains only whitespace.</exception>
         public string host
         {
             get
@@ -130,7 +133,7 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// The IRC user's credentials.
+        /// The IRC user's login credentials.
         /// </summary>
         public IrcUser irc_user     { get; private set; }
 
@@ -140,9 +143,28 @@ TwitchNet.Clients.Irc
         public ClientState state    { get; private set; }
 
         /// <summary>
-        /// Determines whether or not to automatically respond to a PING with a PONG.
+        /// <para>Determines whether or not to automatically respond to a PING with a PONG.</para>
+        /// <para>Default: <see cref="true"/>.</para>
         /// </summary>
         public bool auto_pong       { get; set; }
+
+        /// <summary>
+        /// <para>The type of encoding to be used when reading and writing data.</para>
+        /// <para>Default: <see cref="Encoding.UTF8"/>.</para>
+        /// </summary>
+        /// <exception cref="ArgumentException">Thrown if the encoding is set to null.</exception>
+        public Encoding encoding
+        {
+            get
+            {
+                return _encoding;
+            }
+            set
+            {
+                ExceptionUtil.ThrowIfNullOrDefault(value, nameof(encoding));
+                _encoding = value;
+            }
+        }
 
         #endregion
 
@@ -175,10 +197,10 @@ TwitchNet.Clients.Irc
             reading     = false;
             disposing   = false;
 
-            // The only *internal* difference between being disposed and not disposed is whether the client has state, for now.
+            // The only *internal* difference between being disposed and not disposed is whether the client maintains its state, for now.
             // When the client disconnects, the socket and stream are both disposed of automatically, but the state mutex remains. 
             // This may change at some point, but for now, this is how it works.
-            disposed = false;    
+            disposed    = false;    
 
             ResetSettings();            
             ResetHandlers();
@@ -194,7 +216,9 @@ TwitchNet.Clients.Irc
         public virtual void
         ResetSettings()
         {
-            auto_pong = false;
+            auto_pong = true;
+
+            encoding = Encoding.UTF8;
         }
 
         #endregion        
@@ -204,7 +228,7 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Establish a connection to a remote host using the <see cref="ProtocolType.Tcp"/> protocol and log into the IRC server.
         /// </summary>
-        /// <exception cref="ArgumentException">Thrown if the host is null, empty, or whitespace.</exception>
+        /// <exception cref="ArgumentException">Thrown if the host is null, empty, or contains only whitespace.</exception>
         /// <exception cref="ArgumentNullException">Thrown id the port is null or equal to zero.</exception>
         public void
         Connect()
@@ -226,7 +250,7 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Asynchronously establish a connection to a rmeote host using the <see cref="ProtocolType.Tcp"/> protocol and log into the IRC server.
         /// </summary>
-        /// <exception cref="ArgumentException">Thrown if the host is null, empty, or whitespace.</exception>
+        /// <exception cref="ArgumentException">Thrown if the host is null, empty, or contains whitespace.</exception>
         /// <exception cref="ArgumentNullException">Thrown id the port is null or equal to zero.</exception>
         public void
         ConnectAsync()
@@ -250,7 +274,7 @@ TwitchNet.Clients.Irc
         private void
         Callback_OnBeginConnect(IAsyncResult result)
         {
-            socket. EndConnect(result);
+            socket.EndConnect(result);
 
             Login();
         }
@@ -259,7 +283,7 @@ TwitchNet.Clients.Irc
         /// Log into the IRC server.
         /// </summary>
         /// <exception cref="ArgumentNullException">Thrown if the irc_user is null.</exception>
-        /// <exception cref="ArgumentException">Thrown if the nick or pass are null, empty, or whitespace.</exception>
+        /// <exception cref="ArgumentException">Thrown if the nick or pass are null, empty, or contains only whitespace.</exception>
         private void
         Login()
         {
@@ -461,7 +485,11 @@ TwitchNet.Clients.Irc
 
         /// <summary>
         /// <para>Force disconnects and frees all managed resources. The client will need to be re-instantiated to reconnect.</para>
-        /// <para>Calling this method directly not recommended. Call <see cref="Disconnect(bool)"/> or <see cref="DisconnectAsync(bool)"/> to safely disconnect and dispose all resources.</para>
+        /// <para>
+        /// Calling this method directly is not recommended.
+        /// Call <see cref="Disconnect(bool)"/> or <see cref="DisconnectAsync(bool)"/> to safely disconnect and dispose all resources.
+        /// If this method is called, it should only be done after disconnecting from the IRC server.
+        /// </para>
         /// </summary>
         public void
         Dispose()
@@ -602,19 +630,19 @@ TwitchNet.Clients.Irc
             {
                 case ClientState.Connected:
                 {
-                        Debug.WriteLine("Cannot connect to " + host + ": already connected");
+                    Debug.WriteLine("Cannot connect to " + host + ": already connected");
                 }
                 break;
 
                 case ClientState.Connecting:
                 {
-                        Debug.WriteLine("Cannot connect to " + host + ": currently connecting");
+                    Debug.WriteLine("Cannot connect to " + host + ": currently connecting");
                 }
                 break;
 
                 case ClientState.Disconnecting:
                 {
-                        Debug.WriteLine("Cannot connect to " + host + ": currently disconnecting");
+                    Debug.WriteLine("Cannot connect to " + host + ": currently disconnecting");
                 }
                 break;
 
@@ -668,10 +696,10 @@ TwitchNet.Clients.Irc
 
         #endregion
 
-        #region Command wrappers
+        #region Writing
 
         /// <summary>
-        /// Sends a raw PONG command to the IRC server.
+        /// Sends a PONG command to the IRC server.
         /// </summary>
         /// <param name="trailing">The trailing paramater to attach to the message.</param>
         public void
@@ -707,117 +735,142 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// Joins one or more IRC channels.
         /// </summary>
-        /// <param name="channels">The IRC channel(s) to join.</param>
-        /// <exception cref="ArgumentException">Thrown if the channel params are null or empty.</exception>
-        public void
+        /// <param name="channels">
+        /// The IRC channel(s) to join.      
+        /// Each channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel params are null or empty.</exception>
+        public bool
         Join(params string[] channels)
         {
             ExceptionUtil.ThrowIfInvalid(channels, nameof(channels));
 
             string format = channels.Length == 1 ? channels[0] : string.Join(",", channels);
-            Send("JOIN " + format);
+            return Send("JOIN " + format);
         }
 
         /// <summary>
         /// Leaves one or more IRC channels.        
         /// </summary>
-        /// <param name="channels">The IRC channel(s) to leave.</param>
-        /// <exception cref="ArgumentException">Thrown if the channel params are null or empty.</exception>
-        public void
+        /// <param name="channels">
+        /// The IRC channel(s) to leave.
+        /// Each channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel params are null or empty.</exception>
+        public bool
         Part(params string[] channels)
         {
             ExceptionUtil.ThrowIfInvalid(channels, nameof(channels));
 
             string format = channels.Length == 1 ? channels[0] : string.Join(",", channels);
-            Send("PART " + format);
+            return Send("PART " + format);
         }
 
         /// <summary>
         /// Sends a private message in an IRC channel.
         /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
         /// <param name="format">
-        /// The message to send.
+        /// The string to send without the CR-LF (\r\n), the CR-LF is automatically appended.
         /// This can be a normal string and does not need to include variable formats.
         /// </param>
         /// <param name="arguments">Optional format variable arugments.</param>
-        /// <exception cref="ArgumentException">Thrown if the channel or format are null, empty, or whitespace.</exception>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel or format are null, empty, or contains only whitespace.</exception>
+        public bool
         SendPrivmsg(string channel, string format, params object[] arguments)
         {
             ExceptionUtil.ThrowIfInvalid(channel, nameof(channel));
             ExceptionUtil.ThrowIfInvalid(format, nameof(format));
 
-            string trailing = !arguments.IsValid() ? format : string.Format(format, arguments);
-            Send("PRIVMSG " + channel + " :" + trailing);
+            return Send("PRIVMSG " + channel + " :" + format, arguments);
         }
 
-        #endregion
-
-        #region Sending
-
         /// <summary>
-        /// Sends a raw string.
+        /// Sends a message to the IRC server.
         /// </summary>
         /// <param name="format">
-        /// The string to send.
+        /// The string to send without the CR-LF (\r\n), the CR-LF is automatically appended.
         /// This can be a normal string and does not need to include variable formats.
         /// </param>
         /// <param name="arguments">Optional format arugments.</param>
-        /// <exception cref="ArgumentException">Thrown if the format is null, empty, or whitespace.</exception>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        public bool
         Send(string format, params object[] arguments)
         {
-            ExceptionUtil.ThrowIfInvalid(format, nameof(format));
-
             string message = !arguments.IsValid() ? format : string.Format(format, arguments);
             if (!CanSend(message))
             {
-                return;
+                return false;
             }
 
-            byte[] bytes = Encoding.UTF8.GetBytes(message + "\r\n");            
+            byte[] bytes = encoding.GetBytes(message + "\r\n");            
             stream.Write(bytes, 0, bytes.Length);
             stream.Flush();
 
             OnDataSent.Raise(this, new DataEventArgs(bytes, message));
+
+            return true;
         }
 
+
         /// <summary>
-        /// Asynchronously sends a raw string.
+        /// Asynchronously sends a message to the IRC server.
         /// </summary>
         /// <param name="format">
-        /// The string to send.
+        /// The string to send without the CR-LF (\r\n), the CR-LF is automatically appended.
         /// This can be a normal string and does not need to include variable formats.
         /// </param>
-        /// <param name="arguments">Optional format arugments.</param>
-        /// <exception cref="ArgumentException">Thrown if the format is null, empty, or whitespace.</exception>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async Task
+        /// <param name="arguments">Optional format arugments.</param>        
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        public async Task<bool>
         SendAsync(string format, params object[] arguments)
         {
-            ExceptionUtil.ThrowIfInvalid(format, nameof(format));
-
             string message = !arguments.IsValid() ? format : string.Format(format, arguments);
             if (!CanSend(message))
             {
-                return;
+                return false;
             }
 
-            byte[] bytes = Encoding.UTF8.GetBytes(message + "\r\n");
+            byte[] bytes = encoding.GetBytes(message + "\r\n");
             await stream.WriteAsync(bytes, 0, bytes.Length);
             stream.Flush();
 
             OnDataSent.Raise(this, new DataEventArgs(bytes, message));
+
+            return true;
         }
 
         /// <summary>
         /// Checks to see if a message can be sent.
         /// </summary>
         /// <param name="message">The message to check.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// Returns false if the IRc client is disposed.
+        /// Returns false if socket is not connected or is null.
+        /// Returns false if the stream is null.
+        /// Returns false if message length is more than 510 bytes, excluding the mandatory CR-LF (\r\n).
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool
         CanSend(string message)
@@ -836,11 +889,8 @@ TwitchNet.Clients.Irc
             {
                 result = false;
             }
-            else if (!message.IsValid())
-            {
-                result = false;
-            }
-            else if (message.Length > 512)
+            // 510 instead of 512 since two bytes are reserved for the \r\n appended to the message
+            else if (message.Length > 510)
             {
                 result = false;
             }
@@ -858,19 +908,24 @@ TwitchNet.Clients.Irc
         private async void
         ReadStream()
         {
-            bool polling = true;
+            bool        polling             = true;
 
-            int bytes_count = 0;
-            byte[] buffer = new byte[1024];
+            byte[]      buffer              = new byte[1024];
+            int         buffer_index_peek   = 0;
+            int         bytes_read_count    = 0;
 
-            List<byte> data = new List<byte>();
+            List<byte>  data                = new List<byte>(buffer.Length);
+
+            byte[]      message_bytes       = new byte[buffer.Length];
+            string      message_string      = string.Empty;
+            IrcMessage  message_irc         = default;
 
             reading = true;
             while (polling && !socket.IsNull() && !stream.IsNull())
             {
                 try
                 {
-                    bytes_count = await stream.ReadAsync(buffer, 0, buffer.Length);
+                    bytes_read_count = await stream.ReadAsync(buffer, 0, buffer.Length);
                 }
                 catch (ObjectDisposedException exception)
                 {
@@ -885,14 +940,9 @@ TwitchNet.Clients.Irc
                     continue;
                 }
 
-                if (bytes_count == 0 || !buffer.IsValid())
+                // We reached the end of the stream and there is nothing to process
+                if (bytes_read_count == 0 && buffer.Length == 0 && data.Count == 0)
                 {
-                    polling = false;
-                    reading = false;
-
-                    Exception exception = new Exception("Null or empty data received from the stream.");
-                    OnNetworkError.Raise(this, new ErrorEventArgs(exception));
-
                     continue;
                 }
 
@@ -901,21 +951,39 @@ TwitchNet.Clients.Irc
                     if (buffer[index] == 0x0)
                     {
                         continue;
-                    }                                       
+                    }
 
-                    // 0x0D = '\r', 0x0A = '\n'
+                    // 0x0D = '\r', 0x0A = '\n', 
                     if (buffer[index] == 0x0D || buffer[index] == 0x0A)
-                    {                       
+                    {
+                        // Any instance of buffer[1023] == '\r' from the previous read and buffer[0] == '\n' from this read will be caught here.
+                        // The list of data to be encoded will empty, so nothing will actually be encoded.
+                        message_bytes = data.ToArray();
+                        if (message_bytes.Length == 0)
+                        {
+                            continue;
+                        }
 
-                        ProcessData(data.ToArray());
+                        message_string = encoding.GetString(message_bytes, 0, message_bytes.Length);
+                        Debug.WriteLine(message_string);
+
+                        OnDataReceived.Raise(this, new DataEventArgs(message_bytes, message_string));
+
+                        message_irc = new IrcMessage(message_bytes, message_string);
+                        if (message_irc.command.Length == 0)
+                        {
+                            continue;
+                        }
+
+                        OnIrcMessageReceived.Raise(this, new IrcMessageEventArgs(message_irc));
+                        RunHandler(message_irc);
+
                         data.Clear();
 
-                        // This doesn't take into account boundary cases where buffer[1023] == '\n' and then buffer[0] == '\r'.
-                        // Need to "fix" this, although all it would do now is send a blank message.
-                        int next_index = index + 1;
-                        if (buffer[index] == 0x0D && next_index < buffer.Length)
+                        buffer_index_peek = index + 1;
+                        if (buffer[index] == 0x0D && buffer_index_peek < buffer.Length)
                         {
-                            if(buffer[next_index] == 0x0A)
+                            if(buffer[buffer_index_peek] == 0x0A)
                             {
                                 index++;
                             }
@@ -927,43 +995,10 @@ TwitchNet.Clients.Irc
                     }
                 }
 
-                Array.Clear(buffer, 0, bytes_count);
+                Array.Clear(buffer, 0, bytes_read_count);
             }
 
             reading = false;
-        }
-
-        /// <summary>
-        /// Processes message encoded by the <see cref="NetworkStream"/>.
-        /// </summary>
-        /// <param name="data">The byte data received form the server.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void
-        ProcessData(byte[] data)
-        {
-            if (data.Length == 0)
-            {
-                return;
-            }
-
-            string raw = Encoding.UTF8.GetString(data, 0, data.Length);
-            if (!raw.IsValid())
-            {
-                return;
-            }
-
-            Debug.WriteLine(raw);
-            OnDataReceived.Raise(this, new DataEventArgs(data, raw));
-
-            IrcMessage irc_message = new IrcMessage(data, raw);
-            if (!irc_message.command.IsValid())
-            {
-                return;
-            }
-
-            OnIrcMessageReceived.Raise(this, new IrcMessageEventArgs(irc_message));
-
-            RunHandler(irc_message);
         }
 
         #endregion

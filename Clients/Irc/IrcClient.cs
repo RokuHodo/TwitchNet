@@ -816,6 +816,7 @@ TwitchNet.Clients.Irc
         Send(string format, params object[] arguments)
         {
             string message = !arguments.IsValid() ? format : string.Format(format, arguments);
+            message = message.Trim();
             if (!CanSend(message))
             {
                 return false;
@@ -847,6 +848,7 @@ TwitchNet.Clients.Irc
         SendAsync(string format, params object[] arguments)
         {
             string message = !arguments.IsValid() ? format : string.Format(format, arguments);
+            message = message.Trim();
             if (!CanSend(message))
             {
                 return false;

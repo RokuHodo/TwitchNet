@@ -21,7 +21,7 @@ TwitchNet.Clients.Irc
     //
     // -------------------------------------------------------------------------------------------------------------
 
-    #region Command: CLEARCHAT - Updated
+    #region Command: CLEARCHAT
 
     public class
     ClearChatEventArgs : IrcMessageEventArgs
@@ -118,7 +118,7 @@ TwitchNet.Clients.Irc
 
     #endregion
 
-    #region Command: GLOBALUSERSTATE - Updated
+    #region Command: GLOBALUSERSTATE
 
     public class
     GlobalUserStateEventArgs : IrcMessageEventArgs
@@ -215,7 +215,7 @@ TwitchNet.Clients.Irc
 
     #endregion
 
-    #region Command: HOSTTARGET - Updated
+    #region Command: HOSTTARGET
 
     public class
     HostTargetEventArgs : IrcMessageEventArgs
@@ -306,7 +306,7 @@ TwitchNet.Clients.Irc
 
     #endregion
 
-    #region Command: ROOMSTATE - Updated
+    #region Command: ROOMSTATE
 
     public class
     RoomStateEventArgs : IrcMessageEventArgs
@@ -500,7 +500,7 @@ TwitchNet.Clients.Irc
 
     #endregion
 
-    #region Command: USERNOTICE - Updated
+    #region Command: USERNOTICE
 
     public class
     UserNoticeEventArgs : IrcMessageEventArgs
@@ -1424,7 +1424,7 @@ TwitchNet.Clients.Irc
 
     #endregion
 
-    #region Command: USERSTATE - Updated
+    #region Command: USERSTATE
 
     public class
     UserStateEventArgs : IrcMessageEventArgs
@@ -1541,7 +1541,7 @@ TwitchNet.Clients.Irc
 
     #endregion
 
-    #region Command: WHISPER - Updated
+    #region Command: WHISPER
 
     public class
     WhisperEventArgs : IrcMessageEventArgs

@@ -24,7 +24,7 @@ TwitchNet.Clients.Irc
     //
     // -------------------------------------------------------------------------------------------------------------
 
-    #region Command: 353 (NamReply) - Updated
+    #region Command: 353 (NamReply)
 
     public class
     NamReplyEventArgs : IrcMessageEventArgs
@@ -104,7 +104,7 @@ TwitchNet.Clients.Irc
 
     #endregion
 
-    #region Command: 366 (EndOfNames) - Updated
+    #region Command: 366 (EndOfNames)
 
     public class
     EndOfNamesEventArgs : IrcMessageEventArgs
@@ -141,7 +141,7 @@ TwitchNet.Clients.Irc
 
     #endregion
 
-    #region Command: 372 (Motd) - Updated
+    #region Command: 372 (Motd)
 
     public class
     MotdEventArgs : EventArgs
@@ -178,7 +178,7 @@ TwitchNet.Clients.Irc
 
     #endregion
 
-    #region Command: 421 (UnknownCommand) - Updated
+    #region Command: 421 (UnknownCommand)
 
     public class
     UnknownCommandEventArgs : IrcMessageEventArgs
@@ -218,7 +218,7 @@ TwitchNet.Clients.Irc
 
     #endregion
 
-    #region Command: JOIN - Updated
+    #region Command: JOIN
 
     public class
     JoinEventArgs : IrcMessageEventArgs
@@ -250,7 +250,7 @@ TwitchNet.Clients.Irc
 
     #endregion
 
-    #region Command: PART - Updated
+    #region Command: PART
 
     public class
     PartEventArgs : IrcMessageEventArgs
@@ -282,7 +282,7 @@ TwitchNet.Clients.Irc
 
     #endregion
 
-    #region Command: MODE - Updated
+    #region Command: MODE
 
     public class
     ChannelModeEventArgs : IrcMessageEventArgs
@@ -897,7 +897,7 @@ TwitchNet.Clients.Irc
 
     #endregion
 
-    #region Command: NOTICE - Updated
+    #region Command: NOTICE
 
     public class
     NoticeEventArgs : IrcMessageEventArgs
@@ -2230,7 +2230,7 @@ TwitchNet.Clients.Irc
     */
     #endregion
 
-    #region Helpers - Updated
+    #region Helpers
 
     public class
     DataEventArgs : EventArgs

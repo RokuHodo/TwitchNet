@@ -77,14 +77,14 @@ TwitchNet.Clients.Irc
 
         #endregion        
 
-        #region IRC command wrappers
+        #region Twicth capability requests
 
         /// <summary>
         /// <para>Adds membership state event data.</para>
         /// <para>
         /// JOIN and PART messages will be received when users join or leave rooms.
-        /// MODE messages will be received when a users gains or looses mod status.
-        /// 353 and 366 messages will be populated with current chatters in a room.
+        /// MODE messages will be received when a user gains or looses mod (operator) status.
+        /// 353 (NamReply) and 366 (EndOfNames) messages will be populated with current chatters in a room.
         /// </para>
         /// </summary>
         public void
@@ -94,7 +94,7 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// Adds IRC V3 message tags to several commands.
+        /// Adds IRC V3 tags to supported messages.
         /// </summary>
         public void
         RequestTags()
@@ -104,49 +104,21 @@ TwitchNet.Clients.Irc
 
         /// <summary>
         /// Enables custom Twitch IRC commands.
+        /// These are not the Twitch chat commands.
         /// </summary>
         public void
         RequestCommands()
         {
             Send("CAP REQ :twitch.tv/commands");
-        }
-
-        /// <summary>
-        /// Sends a direct chat message to another user.
-        /// </summary>
-        /// <param name="user_nick">The recipient's IRC nick.</param>
-        /// <param name="format">
-        /// The string to send without the CR-LF (\r\n), the CR-LF is automatically appended.
-        /// This can be a normal string and does not need to include variable formats.
-        /// </param>
-        /// <param name="arguments">Optional format variable arugments.</param>
-        /// <exception cref="ArgumentException">Thrown if the format is null, empty, or contains only whitespace.</exception>
-        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
-        public void
-        SendWhisper(string user_nick, string format, params string[] arguments)
-        {
-            ExceptionUtil.ThrowIfInvalid(user_nick, nameof(user_nick));
-            ExceptionUtil.ThrowIfInvalid(format, nameof(format));
-
-            SendPrivmsg("#jtv", "/w " + user_nick.ToLower() + " " + format, arguments);
-        }
+        }        
 
         #endregion
 
-        #region Chat command wrappers
+        #region Twich chat command wrappers
 
-        // TODO: Add these chat commands.
-
-        // /poll - requires access to a web page, no point in really adding this one
-        // /endpoll
-
-        // /block - does this still not work when done via IRC?
-        // /unblock
-        // /marker
-        // /vip
-        // /unvip
-        // /vips
-        // /vote
+        // --------------------------------
+        // General commands
+        // --------------------------------
 
         /// <summary>
         /// Change the client's display name color.
@@ -162,14 +134,14 @@ TwitchNet.Clients.Irc
         /// </returns>
         /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
         public bool
-        ChangeDisplayNameColor(string channel, DisplayNameColor color)
+        SetDisplayNameColor(string channel, DisplayNameColor color)
         {
             return SendChatCommand(channel, ChatCommand.Color, EnumUtil.GetName(color));
         }
 
         /// <summary>
-        /// <para>Change the client's display name color.</para>
-        /// <para>Requires Twitch Prime or Turbo to be used.</para>
+        /// Change the client's display name color.
+        /// Requires Twitch Prime or Twitch Turbo to be used.
         /// </summary>
         /// <param name="channel">
         /// The IRC channel to send the message in.
@@ -183,7 +155,7 @@ TwitchNet.Clients.Irc
         /// </returns>
         /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
         public bool
-        ChangeDisplayNameColor(string channel, Color color)
+        SetDisplayNameColor(string channel, Color color)
         {
             if (color.IsEmpty)
             {
@@ -209,18 +181,18 @@ TwitchNet.Clients.Irc
         /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
         /// <exception cref="FormatException">Thrown if the <paramref name="html_color"/> is not in hex (HTML) format.</exception>
         public bool
-        ChangeDisplayNameColor(string channel, string html_color)
+        SetDisplayNameColor(string channel, string html_color)
         {
             if (!html_color.IsValidHtmlColor())
             {
-                throw new FormatException(nameof(html_color) + " is not a valid HTML color name");
+                throw new FormatException(nameof(html_color) + " is not a valid HTML color string");
             }
 
             return SendChatCommand(channel, ChatCommand.Color, html_color);
         }
 
         /// <summary>
-        /// Reconnects to an IRC channel.
+        /// Disconnects from Twitch's chat servers.
         /// </summary>
         /// <param name="channel">
         /// The IRC channel to send the message in.
@@ -232,7 +204,7 @@ TwitchNet.Clients.Irc
         /// </returns>
         /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
         public bool
-        ChatDisconnect(string channel)
+        Disconnect(string channel)
         {
             return SendChatCommand(channel, ChatCommand.Disconnect);
         }
@@ -303,54 +275,12 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// Grants a user operator (moderator) status.
+        /// Prints a list of oeprators (moderators) in an IRC channel.
         /// </summary>
         /// <param name="channel">
         /// The IRC channel to send the message in.
         /// The channel must be prefixed with the appropiate '#' or ampersand.
         /// </param>
-        /// <param name="user_nick">The user to grant operator status.</param>
-        /// <returns>
-        /// Returns true if the message was sent to the IRC server.
-        /// Returns false otherwise.
-        /// </returns>
-        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
-        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
-        public bool
-        Mod(string channel, string user_nick)
-        {
-            ExceptionUtil.ThrowIfInvalidNick(user_nick);
-
-            return SendChatCommand(channel, ChatCommand.Mod, user_nick);
-        }
-
-        /// <summary>
-        /// Removes a user's operator (moderator) status.
-        /// </summary>
-        /// <param name="channel">
-        /// The IRC channel to send the message in.
-        /// The channel must be prefixed with the appropiate '#' or ampersand.
-        /// </param>
-        /// <param name="user_nick">The user to grant operator status.</param>
-        /// <returns>
-        /// Returns true if the message was sent to the IRC server.
-        /// Returns false otherwise.
-        /// </returns>
-        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
-        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
-        public bool
-        Unmod(string channel, string user_nick)
-        {
-            ExceptionUtil.ThrowIfInvalidNick(user_nick);
-
-            return SendChatCommand(channel, ChatCommand.Unmod, user_nick);
-        }
-
-        /// <summary>
-        /// <para>Prints a list of oeprators (moderators) in an IRC channel.</para>
-        /// <para>The list can be retrieved by using <see cref="OnRoomMods"/>.</para>
-        /// </summary>
-        /// <param name="channel">The IRC channel. Where to send the message.</param>
         /// <returns>
         /// Returns true if the message was sent to the IRC server.
         /// Returns false otherwise.
@@ -361,6 +291,48 @@ TwitchNet.Clients.Irc
         {
             return SendChatCommand(channel, ChatCommand.Mods);
         }
+
+        /// <summary>
+        /// Prints a list of VIP's in an IRC channel.
+        /// </summary>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        public bool
+        PrintVips(string channel)
+        {
+            return SendChatCommand(channel, ChatCommand.Vips);
+        }
+
+        /// <summary>
+        /// Sends a direct chat message to another user.
+        /// </summary>
+        /// <param name="user_nick">The recipient's IRC nick.</param>
+        /// <param name="format">
+        /// The string to send without the CR-LF (\r\n), the CR-LF is automatically appended.
+        /// This can be a normal string and does not need to include variable formats.
+        /// </param>
+        /// <param name="arguments">Optional format variable arugments.</param>
+        /// <exception cref="ArgumentException">Thrown if the format is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
+        public void
+        SendWhisper(string user_nick, string format, params string[] arguments)
+        {
+            ExceptionUtil.ThrowIfInvalid(user_nick, nameof(user_nick));
+            ExceptionUtil.ThrowIfInvalid(format, nameof(format));
+
+            SendPrivmsg("#jtv", "/w " + user_nick.ToLower() + " " + format, arguments);
+        }
+
+        // --------------------------------
+        // User moderation
+        // --------------------------------
 
         /// <summary>
         /// Bans a user.
@@ -537,6 +509,10 @@ TwitchNet.Clients.Irc
             return SendChatCommand(channel, ChatCommand.Untimeout, user_nick);
         }
 
+        // --------------------------------
+        // Room moderation
+        // --------------------------------
+
         /// <summary>
         /// Clears all chat history from an IRC channel.
         /// </summary>
@@ -576,7 +552,6 @@ TwitchNet.Clients.Irc
         {
             SendChatCommand(channel, ChatCommand.EmoteOnly);
         }
-
 
         /// <summary>
         /// Disables emote only mode in an IRC channel.
@@ -718,48 +693,6 @@ TwitchNet.Clients.Irc
         DisableFollowersOnlyMode(string channel)
         {
             SendChatCommand(channel, ChatCommand.FollowersOff);
-        }
-
-        // TODO: Change to /uniquechat and /uniquechatoff
-
-        /// <summary>
-        /// <para>Enables R9K mode in an IRC channel.</para>
-        /// <para>
-        /// Makes it so messages longer than 9 non-symbol unicode chacter messages must be unquie to be sent.
-        /// The broadcaster and moderators are exempt from this command.
-        /// </para>
-        /// </summary>
-        /// <param name="channel">
-        /// The IRC channel to send the message in.
-        /// The channel must be prefixed with the appropiate '#' or ampersand.
-        /// </param>
-        /// <returns>
-        /// Returns true if the message was sent to the IRC server.
-        /// Returns false otherwise.
-        /// </returns>
-        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
-        public void
-        EnableR9KBetaMode(string channel)
-        {
-            SendChatCommand(channel, ChatCommand.R9kBeta);
-        }
-
-        /// <summary>
-        /// Disables R9K mode in an IRC channel.
-        /// </summary>
-        /// <param name="channel">
-        /// The IRC channel to send the message in.
-        /// The channel must be prefixed with the appropiate '#' or ampersand.
-        /// </param>
-        /// <returns>
-        /// Returns true if the message was sent to the IRC server.
-        /// Returns false otherwise.
-        /// </returns>
-        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
-        public void
-        DisableR9KBetaMode(string channel)
-        {
-            SendChatCommand(channel, ChatCommand.R9kBetaOff);
         }
 
         /// <summary>
@@ -911,6 +844,50 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
+        /// <para>Enables unique chat mode in an IRC channel.</para>
+        /// <para>
+        /// Messages are checked for a minimum of 9 characters that are not symbol unicode characters and then purges repetitive chat lines beyond that.
+        /// The broadcaster and moderators are exempt from this command.
+        /// </para>
+        /// </summary>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        public void
+        EnableUniqueChatMode(string channel)
+        {
+            SendChatCommand(channel, ChatCommand.Uniquechat);
+        }
+
+        /// <summary>
+        /// Disables unique chat mode in an IRC channel.
+        /// </summary>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        public void
+        DisableUniqueChatMode(string channel)
+        {
+            SendChatCommand(channel, ChatCommand.Uniquechatoff);
+        }
+
+        // --------------------------------
+        // Editor moderation
+        // --------------------------------
+
+        /// <summary>
         /// Runs a commercial.
         /// This is apartner only command.
         /// </summary>
@@ -975,6 +952,39 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
+        /// Creates a stream marker with an optional description up to 140 characters long at the current stream timestamp.
+        /// </summary>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <param name="description">The optional marker description, up to 140 characters long.</param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">
+        /// Thrown if the IRC channel is null, empty, or contains only whitespace.
+        /// Thrown if the marker description is longer than 140 chadacters.
+        /// </exception>
+        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
+        public bool
+        CreateMarker(string channel, string description = "")
+        {
+            if (description.IsNull())
+            {
+                description = string.Empty;
+            }
+
+            if(description.Length > 140)
+            {
+                throw new ArgumentException("The marker description can only be a maximum of 140 characters long", nameof(description));
+            }
+
+            return SendChatCommand(channel, ChatCommand.Marker, description);
+        }
+
+        /// <summary>
         /// Raid another user who is streaming.
         /// </summary>
         /// <param name="channel">
@@ -1013,6 +1023,102 @@ TwitchNet.Clients.Irc
         {
             return SendChatCommand(channel, ChatCommand.Unraid);
         }
+
+        // --------------------------------
+        // Broadcaster commands
+        // --------------------------------
+
+        /// <summary>
+        /// Grants a user operator (moderator) status.
+        /// </summary>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <param name="user_nick">The user to grant operator status.</param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
+        public bool
+        Mod(string channel, string user_nick)
+        {
+            ExceptionUtil.ThrowIfInvalidNick(user_nick);
+
+            return SendChatCommand(channel, ChatCommand.Mod, user_nick);
+        }
+
+        /// <summary>
+        /// Removes a user's operator (moderator) status.
+        /// </summary>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <param name="user_nick">The user to grant operator status.</param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
+        public bool
+        Unmod(string channel, string user_nick)
+        {
+            ExceptionUtil.ThrowIfInvalidNick(user_nick);
+
+            return SendChatCommand(channel, ChatCommand.Unmod, user_nick);
+        }
+
+        /// <summary>
+        /// Grants a user VIP status.
+        /// </summary>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <param name="user_nick">The user to grant VIP status.</param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
+        public bool
+        Vip(string channel, string user_nick)
+        {
+            ExceptionUtil.ThrowIfInvalidNick(user_nick);
+
+            return SendChatCommand(channel, ChatCommand.Vip, user_nick);
+        }
+
+        /// <summary>
+        /// Removes a user's VIP status.
+        /// </summary>
+        /// <param name="channel">
+        /// The IRC channel to send the message in.
+        /// The channel must be prefixed with the appropiate '#' or ampersand.
+        /// </param>
+        /// <param name="user_nick">The user to grant operator status.</param>
+        /// <returns>
+        /// Returns true if the message was sent to the IRC server.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if the IRC channel is null, empty, or contains only whitespace.</exception>
+        /// <exception cref="FormatException">Thrown if the nick is not between 2 and 24 characters long or contians any non-alpha-numeric characters.</exception>
+        public bool
+        Unvip(string channel, string user_nick)
+        {
+            ExceptionUtil.ThrowIfInvalidNick(user_nick);
+
+            return SendChatCommand(channel, ChatCommand.Unvip, user_nick);
+        }
+
+        // --------------------------------
+        // Chat command wrapper
+        // --------------------------------
 
         /// <summary>
         /// Sends a chat command in an IRC channel.
@@ -1149,7 +1255,7 @@ TwitchNet.Clients.Irc
         #region Other
 
         /// <summary>
-        /// Unsupported chat command.
+        /// Unsupported or unknown chat command.
         /// </summary>
         [EnumMember(Value = "")]
         Other = 0,
@@ -1157,6 +1263,8 @@ TwitchNet.Clients.Irc
         #endregion
 
         #region General commands
+
+        // NOTE: (ChatCommand) - /block, /unlbock are not supported via IRC for some reason.
 
         /// <summary>
         /// <para>Changes the client's display name color.</para>
@@ -1202,6 +1310,14 @@ TwitchNet.Clients.Irc
         Mods,
 
         /// <summary>
+        /// <para>Prints a list of all the VIP's in a specific chat.</para>
+        /// <para>Command: /vips</para>
+        /// <para>Usage: /vips</para>
+        /// </summary>
+        [EnumMember(Value = "/vips")]
+        Vips,
+
+        /// <summary>
         /// <para>Sends a private message to another user.</para>
         /// <para>Command: /w {user_nick} {message}</para>
         /// </summary>
@@ -1210,7 +1326,13 @@ TwitchNet.Clients.Irc
 
         #endregion
 
-        #region User moderation commands
+        #region Moderator and Broadcaster commands
+
+        // NOTE: (ChatCommand) - /suer {nick} is not supported via IRC for some reason.
+
+        // --------------------------------
+        // User moderation
+        // --------------------------------
 
         /// <summary>
         /// <para>Bans a user in a chat.</para>
@@ -1221,12 +1343,12 @@ TwitchNet.Clients.Irc
         Ban,
 
         /// <summary>
-        /// <para>Grants a user moderator status.</para>
-        /// <para>Command: /mod</para>
-        /// <para>Usage: /mod {user_nick}</para>
+        /// <para>Unbans a user from a chat.</para>
+        /// <para>Command: /unban</para>
+        /// <para>Usage: /unban {user_nick}</para>
         /// </summary>
-        [EnumMember(Value = "/mod")]
-        Mod,
+        [EnumMember(Value = "/unban")]
+        Unban,        
 
         /// <summary>
         /// <para>Times out a user for a certain amount of time in a chat.</para>
@@ -1237,22 +1359,6 @@ TwitchNet.Clients.Irc
         Timeout,
 
         /// <summary>
-        /// <para>Unbans a user from a chat.</para>
-        /// <para>Command: /unban</para>
-        /// <para>Usage: /unban {user_nick}</para>
-        /// </summary>
-        [EnumMember(Value = "/unban")]
-        Unban,
-
-        /// <summary>
-        /// <para>MRemoves a user's moderator status.</para>
-        /// <para>Command: /unmod</para>
-        /// <para>Usage: /unmod {user_nick}</para>
-        /// </summary>
-        [EnumMember(Value = "/unmod")]
-        Unmod,
-
-        /// <summary>
         /// <para>Untimesout a user from a chat.</para>
         /// <para>Command: /untimeout</para>
         /// <para>Usage: /untimeout {user_nick}</para>
@@ -1260,9 +1366,9 @@ TwitchNet.Clients.Irc
         [EnumMember(Value = "/untimeout")]
         Untimeout,
 
-        #endregion
-
-        #region Room moderation commands
+        // --------------------------------
+        // Room moderation
+        // --------------------------------
 
         /// <summary>
         /// <para>
@@ -1320,25 +1426,6 @@ TwitchNet.Clients.Irc
 
         /// <summary>
         /// <para>
-        /// Makes it so messages longer than 9 non-symbol unicode chacter messages must be unquie to be sent.
-        /// The broadcaster and moderators are exempt from this command.
-        /// </para>
-        /// <para>Command: /r9kbeta</para>
-        /// <para>Usage: /r9kbeta</para>
-        /// </summary>
-        [EnumMember(Value = "/r9kbeta")]
-        R9kBeta,
-
-        /// <summary>
-        /// <para>Disables r9k beta mode.</para>
-        /// <para>Command: /r9kbetaoff</para>
-        /// <para>Usage: /r9kbetaoff</para>
-        /// </summary>
-        [EnumMember(Value = "/r9kbetaoff")]
-        R9kBetaOff,
-
-        /// <summary>
-        /// <para>
         /// Makes it so users can only send messages every so often (rate limiting).
         /// The broadcaster and moderators are exempt from this command.
         /// </para>
@@ -1354,7 +1441,7 @@ TwitchNet.Clients.Irc
         /// <para>Usage: /slowoff</para>
         /// </summary>
         [EnumMember(Value = "/slowoff")]
-        SlowOff,
+        SlowOff,        
 
         /// <summary>
         /// <para>
@@ -1377,11 +1464,31 @@ TwitchNet.Clients.Irc
         /// <para>Usage: /subscribersoff</para>
         /// </summary>
         [EnumMember(Value = "/subscribersoff")]
-        SubscribersOff,
+        SubscribersOff,                
+
+        /// <summary>
+        /// <para>
+        /// Disallows users from posting non-unique messages to a chat.
+        /// Messages are checked for a minimum of 9 characters that are not symbol unicode characters and then purges repetitive chat lines beyond that.
+        /// The broadcaster and moderators are exempt from this command.
+        /// </para>
+        /// <para>Command: /Uniquechat</para>
+        /// <para>Usage: /Uniquechat</para>
+        /// </summary>
+        [EnumMember(Value = "/r9kbeta")]
+        Uniquechat,
+
+        /// <summary>
+        /// <para>Disables Uniquechat mode.</para>
+        /// <para>Command: /Uniquechatoff</para>
+        /// <para>Usage: /Uniquechatoff</para>
+        /// </summary>
+        [EnumMember(Value = "/r9kbetaoff")]
+        Uniquechatoff,
 
         #endregion
 
-        #region Broadcaster and editor commands
+        #region Channel Editor and Broadcaster commands
 
         /// <summary>
         /// <para>
@@ -1408,17 +1515,6 @@ TwitchNet.Clients.Irc
 
         /// <summary>
         /// <para>
-        /// Raids another user who is streaming.
-        /// This command does not work in a chat room.
-        /// </para>
-        /// <para>Command: /raid</para>
-        /// <para>Usage: /raid {user_nick}</para>
-        /// </summary>
-        [EnumMember(Value = "/raid")]
-        Raid,
-
-        /// <summary>
-        /// <para>
         /// Stops hosting a user.
         /// This command does not work in a chat room.
         /// </para>
@@ -1429,6 +1525,25 @@ TwitchNet.Clients.Irc
         Unhost,
 
         /// <summary>
+        /// Adds a stream marker with an optional description up to 140 characters long at the current stream timestamp.
+        /// <para>Command: /marker</para>
+        /// <para>Usage: /unraid {description}</para>
+        /// </summary>
+        [EnumMember(Value = "/marker")]
+        Marker,
+
+        /// <summary>
+        /// <para>
+        /// Raids another user who is streaming.
+        /// This command does not work in a chat room.
+        /// </para>
+        /// <para>Command: /raid</para>
+        /// <para>Usage: /raid {user_nick}</para>
+        /// </summary>
+        [EnumMember(Value = "/raid")]
+        Raid,        
+
+        /// <summary>
         /// <para>
         /// Stops a raid in progress from happening.
         /// This command does not work in a chat room.
@@ -1437,9 +1552,43 @@ TwitchNet.Clients.Irc
         /// <para>Usage: /unraid</para>
         /// </summary>
         [EnumMember(Value = "/unraid")]
-        Unraid,
+        Unraid,        
 
-        // TODO: /marker 
+        #endregion
+
+        #region Broadcaster commands
+
+        /// <summary>
+        /// <para>Grants a user moderator status.</para>
+        /// <para>Command: /mod</para>
+        /// <para>Usage: /mod {user_nick}</para>
+        /// </summary>
+        [EnumMember(Value = "/mod")]
+        Mod,
+
+        /// <summary>
+        /// <para>Removes a user's moderator status.</para>
+        /// <para>Command: /unmod</para>
+        /// <para>Usage: /unmod {user_nick}</para>
+        /// </summary>
+        [EnumMember(Value = "/unmod")]
+        Unmod,
+
+        /// <summary>
+        /// <para>Grants a user VIP status.</para>
+        /// <para>Command: /vip</para>
+        /// <para>Usage: /vip {user_nick}</para>
+        /// </summary>
+        [EnumMember(Value = "/vip")]
+        Vip,
+
+        /// <summary>
+        /// <para>Removes a user's VIP status.</para>
+        /// <para>Command: /unvip</para>
+        /// <para>Usage: /unvip {user_nick}</para>
+        /// </summary>
+        [EnumMember(Value = "/unvip")]
+        Unvip,
 
         #endregion
     }

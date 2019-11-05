@@ -106,7 +106,7 @@ TwitchNet.Rest.Helix
     DataPage<data_type> : Data<data_type>, IDataPage<data_type>
     {
         /// <summary>
-        /// Contains information used when makling multi-page requests.
+        /// Contains information used when making multi-page requests.
         /// </summary>
         [JsonProperty("pagination")]
         public Pagination pagination { get; internal set; }

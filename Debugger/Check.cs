@@ -24,12 +24,14 @@ TwitchNet.Debugger
 
         IsEqualTo,
 
-        IsNotEqualTo,
+        IsNotEqualTo,        
 
         RegexIsMatch,
 
         RegexNoMatch,
 
-        Tags
+        TagsMissing,
+
+        TagsExtra,
     }
 }

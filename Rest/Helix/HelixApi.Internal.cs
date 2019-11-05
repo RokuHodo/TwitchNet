@@ -20,6 +20,8 @@ TwitchNet.Rest.Helix
         {
             internal static readonly RestClient client = GetHelixClient();
 
+            private static readonly string REGEX_PATTERN_ENTITLEMENT_CODE = "^[a-zA-Z0-9]{5}-?[a-zA-Z0-9]{5}-?[a-zA-Z0-9]{5}$";
+
             #region /analytics/extensions
 
             /// <summary>
@@ -773,7 +775,7 @@ TwitchNet.Rest.Helix
 
                 List<string> malformed_codes = new List<string>(parameters.codes.Count);
 
-                Regex regex = new Regex(RegexPatternUtil.ENTITLEMENT_CODE);
+                Regex regex = new Regex(REGEX_PATTERN_ENTITLEMENT_CODE);
                 foreach (string code in parameters.codes)
                 {
                     if (regex.IsMatch(code))
@@ -786,7 +788,7 @@ TwitchNet.Rest.Helix
 
                 if (malformed_codes.Count > 0)
                 {
-                    FormatException inner_exception = new FormatException("Values must match the regular expression: " + RegexPatternUtil.ENTITLEMENT_CODE);
+                    FormatException inner_exception = new FormatException("Values must match the regular expression: " + REGEX_PATTERN_ENTITLEMENT_CODE);
 
                     string _codes = string.Join(", ", malformed_codes);
 
@@ -851,7 +853,7 @@ TwitchNet.Rest.Helix
 
                 List<string> malformed_codes = new List<string>(parameters.codes.Count);
 
-                Regex regex = new Regex(RegexPatternUtil.ENTITLEMENT_CODE);
+                Regex regex = new Regex(REGEX_PATTERN_ENTITLEMENT_CODE);
                 foreach (string code in parameters.codes)
                 {
                     if (regex.IsMatch(code))
@@ -864,7 +866,7 @@ TwitchNet.Rest.Helix
 
                 if (malformed_codes.Count > 0)
                 {
-                    FormatException inner_exception = new FormatException("Values must match the regular expression: " + RegexPatternUtil.ENTITLEMENT_CODE);
+                    FormatException inner_exception = new FormatException("Values must match the regular expression: " + REGEX_PATTERN_ENTITLEMENT_CODE);
 
                     string _codes = string.Join(", ", malformed_codes);
 
@@ -947,7 +949,131 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            // TODO: Implement /extensions/transactions
+            #region /extensions/transactions
+
+            /// <summary>
+            /// <para>Asynchronously gets specific extension transactions or a single page of extension transactions.</para>
+            /// <para>Required Authorization: App Access Token.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific extension transactions or the single page of extension transactions.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the App Access token or Client ID is not provided, empty, or contains only white space.</exception>
+            /// <exception cref="QueryParameterException">
+            /// Thrown if the extension ID is not provided, empty, or contains only white space.
+            /// Thrown if any transaction ID is null, empty, or contains only white space, any duplicate codes are found, if provided.
+            /// Thrown if the after cursor is empty or contains only white space, if provided.
+            /// </exception>
+            /// <exception cref="QueryParameterCountException">Thrown if more than 100 transaction ID's are provided.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<DataPage<ExtensionTransaction>>>
+            GetExtensionTransactionsPageAsync(HelixInfo info, ExtensionTransactionsParameters parameters)
+            {
+                HelixResponse<DataPage<ExtensionTransaction>> response = new HelixResponse<DataPage<ExtensionTransaction>>();
+                if (!ValidateAuthorizatioHeaders(info, response, true))
+                {
+                    return response;
+                }
+
+                // Required parameter checks
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                if(!ValidateRequiredQueryParameter(nameof(parameters.extension_id), parameters.extension_id, response, info.settings))
+                {
+                    return response;
+                }
+
+                // Optional parameter checks
+                parameters.first = parameters.first.Clamp(1, 100);
+
+                if (!ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, info.settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                {
+                    return response;
+                }
+
+                RestRequest request = GetBaseRequest("extensions/transactions", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<ExtensionTransaction>> _response = await client.ExecuteAsync<DataPage<ExtensionTransaction>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<ExtensionTransaction>>(_response);
+
+                return response;
+            }
+
+            /// <summary>
+            /// <para>Asynchronously gets specific extension transactions or a complete list of extension transactions.</para>
+            /// <para>Required Authorization: App Access Token.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific extension transactions or the complete list of extension transactions.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the App Access token or Client ID is not provided, empty, or contains only white space.</exception>
+            /// <exception cref="QueryParameterException">
+            /// Thrown if the extension ID is not provided, empty, or contains only white space.
+            /// Thrown if any transaction ID is null, empty, or contains only white space, any duplicate codes are found, if provided.
+            /// Thrown if the after cursor is empty or contains only white space, if provided.
+            /// </exception>
+            /// <exception cref="QueryParameterCountException">Thrown if more than 100 transaction ID's are provided.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<DataPage<ExtensionTransaction>>>
+            GetExtensionTransactionsAsync(HelixInfo info, ExtensionTransactionsParameters parameters)
+            {
+                HelixResponse<DataPage<ExtensionTransaction>> response = new HelixResponse<DataPage<ExtensionTransaction>>();
+                if (!ValidateAuthorizatioHeaders(info, response, true))
+                {
+                    return response;
+                }
+
+                // Required parameter checks
+                if (parameters.IsNull())
+                {
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+
+                    return response;
+                }
+
+                if (!ValidateRequiredQueryParameter(nameof(parameters.extension_id), parameters.extension_id, response, info.settings))
+                {
+                    return response;
+                }
+
+                // Optional parameter checks
+                parameters.first = parameters.first.Clamp(1, 100);
+
+                if (!ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, info.settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                {
+                    return response;
+                }
+
+                RestRequest request = GetBaseRequest("extensions/transactions", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<DataPage<ExtensionTransaction>> _response = await client.TraceExecuteAsync<ExtensionTransaction, DataPage<ExtensionTransaction>>(request, HandleResponse);
+                response = new HelixResponse<DataPage<ExtensionTransaction>>(_response);
+
+                return response;
+            }
+
+            #endregion
 
             #region /games
 
@@ -1011,7 +1137,7 @@ TwitchNet.Rest.Helix
                     !ValidateOptionalQueryParameter(nameof(parameters.names), parameters.names, 100, response, info.settings))
                 {
                     return response;
-                }                
+                }         
 
                 RestRequest request = GetBaseRequest("games", Method.GET, info);
                 request.AddParameters(parameters);
@@ -4508,9 +4634,100 @@ TwitchNet.Rest.Helix
 
             #endregion
 
+            // Move to Rest.Helix.WebHooks or keep it on the same level?
             // TODO: Implement /webhook/hub
 
-            // TODO: Implement /webhook/subscriptions
+            #region /webhooks/subscriptions
+
+            /// <summary>
+            /// <para>Asynchronously gets a single page of webhook subscriptions.</para>
+            /// <para>Required Authorization: App Access Token.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of webhook subscriptions.
+            /// </returns>
+            /// <exception cref="HeaderParameterException">Thrown if the App Access token or Client ID is not provided, empty, or contains only white space.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the after cursor is empty or contains only white space, if provided.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<WebhookDataPage<WebhookSubscription>>>
+            GetWebhookSubscriptionsPageAsync(HelixInfo info, PagingParameters parameters)
+            {
+                HelixResponse<WebhookDataPage<WebhookSubscription>> response = new HelixResponse<WebhookDataPage<WebhookSubscription>>();
+                if (!ValidateAuthorizatioHeaders(info, response, true))
+                {
+                    return response;
+                }
+
+                // Optional parameter checks
+                if (!parameters.IsNull())
+                {
+                    parameters.first = parameters.first.Clamp(1, 100);
+
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                    {
+                        return response;
+                    }
+                }
+
+                RestRequest request = GetBaseRequest("webhooks/subscriptions", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<WebhookDataPage<WebhookSubscription>> _response = await client.ExecuteAsync<WebhookDataPage<WebhookSubscription>>(request, HandleResponse);
+                response = new HelixResponse<WebhookDataPage<WebhookSubscription>>(_response);
+
+                return response;
+            }
+
+            /// <summary>
+            /// <para>Asynchronously gets a complete list of webhook subscriptions.</para>
+            /// <para>Required Authorization: App Access Token.</para>
+            /// </summary>
+            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="parameters">A set of rest parameters.</param>
+            /// <returns>
+            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of webhook subscriptions.
+            /// </returns>
+            /// <exception cref="HeaderParameterException">Thrown if the App Access token or Client ID is not provided, empty, or contains only white space.</exception>
+            /// <exception cref="QueryParameterException">Thrown if the after cursor is empty or contains only white space, if provided.</exception>
+            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
+            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
+            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
+            public static async Task<IHelixResponse<WebhookDataPage<WebhookSubscription>>>
+            GetWebhookSubscriptionsAsync(HelixInfo info, PagingParameters parameters)
+            {
+                HelixResponse<WebhookDataPage<WebhookSubscription>> response = new HelixResponse<WebhookDataPage<WebhookSubscription>>();
+                if (!ValidateAuthorizatioHeaders(info, response, true))
+                {
+                    return response;
+                }
+
+                // Optional parameter checks
+                if (!parameters.IsNull())
+                {
+                    parameters.first = parameters.first.Clamp(1, 100);
+
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                    {
+                        return response;
+                    }
+                }
+
+                RestRequest request = GetBaseRequest("webhooks/subscriptions", Method.GET, info);
+                request.AddParameters(parameters);
+
+                RestResponse<WebhookDataPage<WebhookSubscription>> _response = await client.TraceExecuteAsync<WebhookSubscription, WebhookDataPage<WebhookSubscription>>(request, HandleResponse);
+                response = new HelixResponse<WebhookDataPage<WebhookSubscription>>(_response);
+
+                return response;
+            }
+
+            #endregion
 
             #region Helpers - Request Building
 

@@ -369,6 +369,34 @@ TwitchNet.Rest.Helix
 
             #endregion
 
+            #region /extensions/transactions
+
+            public static async Task<IHelixResponse<DataPage<ExtensionTransaction>>>
+            GetExtensionTransactionsPageAsync(string app_access_token, string client_id, ExtensionTransactionsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = app_access_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<ExtensionTransaction>> response = await Internal.GetExtensionTransactionsPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<DataPage<ExtensionTransaction>>>
+            GetExtensionTransactionsAsync(string app_access_token, string client_id, ExtensionTransactionsParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = app_access_token;
+                info.client_id = client_id;
+
+                IHelixResponse<DataPage<ExtensionTransaction>> response = await Internal.GetExtensionTransactionsAsync(info, parameters);
+
+                return response;
+            }
+
+            #endregion
+
             #region /games
 
             public static async Task<IHelixResponse<Data<Game>>>
@@ -1978,6 +2006,58 @@ TwitchNet.Rest.Helix
                 info.client_id      = client_id;
 
                 IHelixResponse<DataPage<Video>> response = await Internal.GetVideosAsync(info, parameters);
+
+                return response;
+            }
+
+            #endregion
+
+            #region /webhooks/subscriptions
+
+            public static async Task<IHelixResponse<WebhookDataPage<WebhookSubscription>>>
+            GetWebhookSubscriptionsPageAsync(string app_access_token, string client_id, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = app_access_token;
+                info.client_id = client_id;
+
+                IHelixResponse<WebhookDataPage<WebhookSubscription>> response = await Internal.GetWebhookSubscriptionsPageAsync(info, default);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<WebhookDataPage<WebhookSubscription>>>
+            GetWebhookSubscriptionsPageAsync(string app_access_token, string client_id, PagingParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = app_access_token;
+                info.client_id = client_id;
+
+                IHelixResponse<WebhookDataPage<WebhookSubscription>> response = await Internal.GetWebhookSubscriptionsPageAsync(info, parameters);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<WebhookDataPage<WebhookSubscription>>>
+            GetWebhookSubscriptionsAsync(string app_access_token, string client_id, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = app_access_token;
+                info.client_id = client_id;
+
+                IHelixResponse<WebhookDataPage<WebhookSubscription>> response = await Internal.GetWebhookSubscriptionsAsync(info, default);
+
+                return response;
+            }
+
+            public static async Task<IHelixResponse<WebhookDataPage<WebhookSubscription>>>
+            GetWebhookSubscriptionsAsync(string app_access_token, string client_id, PagingParameters parameters, HelixRequestSettings settings = default)
+            {
+                HelixInfo info = new HelixInfo(settings);
+                info.bearer_token = app_access_token;
+                info.client_id = client_id;
+
+                IHelixResponse<WebhookDataPage<WebhookSubscription>> response = await Internal.GetWebhookSubscriptionsAsync(info, parameters);
 
                 return response;
             }

@@ -49,7 +49,7 @@ TwitchNet.Debugger
         /// <param name="caller">The name of the field or property.</param>
         /// <param name="source">The source file of the caller.</param>
         /// <param name="line">The line of the caller.</param>
-        public ValidateMemberAttribute(Check check, object compare_to = null, [CallerMemberName] string caller = "", [CallerFilePath] string source = "", [CallerLineNumber] int line = -1)
+        public ValidateMemberAttribute(Check check = Check.None, object compare_to = null, [CallerMemberName] string caller = "", [CallerFilePath] string source = "", [CallerLineNumber] int line = -1)
         {
             this.check = check;
 
@@ -58,6 +58,8 @@ TwitchNet.Debugger
             this.caller = caller;
             this.line = line;
             this.source = source;
+
+            level = ErrorLevel.Critical | ErrorLevel.Major;
         }
 
         /// <summary>

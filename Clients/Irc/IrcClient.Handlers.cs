@@ -85,7 +85,7 @@ TwitchNet.Clients.Irc
         /// </para>
         /// <para>
         /// This occurs before the reader finishes processing the current data, before all currently raised events have finihshed, and before <see cref="OnDisconnected"/> is raised.
-        /// At this point, the state is set to <see cref="ClientState.Disconnecting"/> since the reader is still waiting for all event to finish executing.
+        /// At this point, the state is set to <see cref="ClientState.Disconnecting"/>, the entire stream buffer has been read to the end, and managed resources still need to be disposed.
         /// </para>
         /// </summary>
         public virtual event EventHandler<EventArgs>                OnSocketDisconnected;

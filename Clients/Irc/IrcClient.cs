@@ -78,21 +78,23 @@ TwitchNet.Clients.Irc
     {
         #region Fields
 
-        private bool        reading;
-        private bool        disposing;
-        private bool        disposed;
+        private volatile bool   polling;
+        private volatile bool   reading;
 
-        private ushort      _port;
-        private string      _host;
+        private bool            disposing;
+        private bool            disposed;
 
-        private Socket      socket;
-        private Stream      stream;
+        private ushort          _port;
+        private string          _host;
 
-        private Encoding    _encoding;
+        private Socket          socket;
+        private Stream          stream;
 
-        private Thread      reader_thread;
+        private Encoding        _encoding;
 
-        private Mutex       state_mutex;
+        private Thread          reader_thread;
+
+        private Mutex           state_mutex;
 
         #endregion
 
@@ -223,7 +225,7 @@ TwitchNet.Clients.Irc
 
         #endregion        
 
-        #region Connection handling
+        #region Connection and state handling
 
         /// <summary>
         /// Establish a connection to a remote host using the <see cref="ProtocolType.Tcp"/> protocol and log into the IRC server.
@@ -287,7 +289,6 @@ TwitchNet.Clients.Irc
         private void
         Login()
         {
-            ExceptionUtil.ThrowIfNull(irc_user, nameof(irc_user), Callback_InternalFailedToConnect);
             ExceptionUtil.ThrowIfInvalid(irc_user.nick, nameof(irc_user.nick), Callback_InternalFailedToConnect);
             ExceptionUtil.ThrowIfInvalid(irc_user.pass, nameof(irc_user.pass), Callback_InternalFailedToConnect);
 
@@ -374,7 +375,12 @@ TwitchNet.Clients.Irc
                 return;
             }
 
-            Quit();
+            Quit();            
+
+            while (reading)
+            {
+                Thread.Sleep(1);
+            }
 
             stream.Dispose();
             stream = null;
@@ -385,11 +391,6 @@ TwitchNet.Clients.Irc
             socket = null;
 
             OnSocketDisconnected.Raise(this, EventArgs.Empty);
-
-            while (reading)
-            {
-                Thread.Sleep(5);
-            }
 
             Dispose(!reuse_client);
 
@@ -423,7 +424,7 @@ TwitchNet.Clients.Irc
         /// When set to false, all managed resources will be freed the client will need to be re-instantiated to reconnect.
         /// </para>
         /// </param>
-        private void
+        public void
         DisconnectAsync(bool reuse_client = false)
         {
             DisconnectAsync(false, reuse_client);
@@ -450,8 +451,10 @@ TwitchNet.Clients.Irc
 
             Quit();
 
-            stream.Close();
-            stream = null;
+            while (reading)
+            {
+                Task.Delay(1);
+            }
 
             socket.Shutdown(SocketShutdown.Both);
             socket.BeginDisconnect(false, Callback_OnBeginDisconnect, Tuple.Create(force_disconnect, reuse_client));            
@@ -464,16 +467,14 @@ TwitchNet.Clients.Irc
         private void
         Callback_OnBeginDisconnect(IAsyncResult result)
         {
-            OnSocketDisconnected.Raise(this, EventArgs.Empty);
-
-            while (reading)
-            {
-                Thread.Sleep(5);
-            }
+            stream.Close();
+            stream = null;
 
             socket.EndDisconnect(result);
             socket.Close();
             socket = null;
+
+            OnSocketDisconnected.Raise(this, EventArgs.Empty);            
 
             Tuple<bool, bool> tuple = (Tuple<bool, bool>)result.AsyncState;
 
@@ -549,10 +550,6 @@ TwitchNet.Clients.Irc
             OnDisposed.Raise(this, EventArgs.Empty);
         }
 
-        #endregion
-
-        #region State handling
-
         /// <summary>
         /// Sets the client's state.
         /// </summary>
@@ -612,6 +609,14 @@ TwitchNet.Clients.Irc
             if (success)
             {
                 state = transition_state;
+                if(state == ClientState.Connecting)
+                {
+                    polling = true;
+                }
+                else if(state == ClientState.Disconnecting)
+                {
+                    polling = false;
+                }
             }
             state_mutex.ReleaseMutex();
 
@@ -902,7 +907,7 @@ TwitchNet.Clients.Irc
 
         #endregion
 
-        #region Reading and processing        
+        #region Reading
 
         /// <summary>
         /// Reads and incoming data from the IRC via a <see cref="NetworkStream"/>.
@@ -910,8 +915,6 @@ TwitchNet.Clients.Irc
         private async void
         ReadStream()
         {
-            bool        polling             = true;
-
             byte[]      buffer              = new byte[1024];
             int         buffer_index_peek   = 0;
             int         bytes_read_count    = 0;
@@ -934,10 +937,7 @@ TwitchNet.Clients.Irc
                     polling = false;
                     reading = false;
 
-                    if(state != ClientState.Disconnecting)
-                    {
-                        OnNetworkError.Raise(this, new ErrorEventArgs(exception));
-                    }
+                    OnNetworkError.Raise(this, new ErrorEventArgs(exception));
 
                     continue;
                 }
@@ -1109,8 +1109,7 @@ TwitchNet.Clients.Irc
             string message_post_prefix  = ParsePrefix(message_post_tags, ref prefix, ref server_or_nick, ref user, ref host);
             string message_post_command = ParseCommand(message_post_prefix, ref command);
 
-            middle                      = ParseParameters(message_post_command, ref trailing).ToArray();
-            parameters                  = AssembleParameters(middle, trailing);
+            parameters = ParseParameters(message_post_command, ref middle, ref trailing);
         }
 
         #endregion        
@@ -1125,34 +1124,28 @@ TwitchNet.Clients.Irc
         private string
         ParseTags(string message, ref Dictionary<string, string> tags, ref bool tags_exist)
         {
-            string message_no_tags = message;
-
-            // irc message only conmtains tags when it is preceeded with "@"
+            // IRC messages only conmtain tags when it is prefixed with "@"
             if (message[0] != '@')
             {
-                return message_no_tags;
+                return message;
             }
 
             tags_exist = true;
 
-            string all_tags = message.TextBetween('@', ' ');
-            string[] array = all_tags.Split(';');
+            string[] array = message.TextBetween('@', ' ').Split(';');
             foreach (string element in array)
             {
-                string tag = element.TextBefore('=');
-                string value = element.TextAfter('=');
-                if (!tag.IsValid())
+                string[] tag = element.Split('=');
+                if (tag.Length == 0 || !tag[0].HasContent())
                 {
                     continue;
                 }
 
-                tags[tag] = value;
+                tags[tag[0]] = tag[1];
             }
 
             // Get rid of the tags to make later parsing easier
-            message_no_tags = message.TextAfter(' ').TrimStart(' ');
-
-            return message_no_tags;
+            return message.TextAfter(' ').TrimStart(' ');
         }
 
         /// <summary>
@@ -1163,18 +1156,14 @@ TwitchNet.Clients.Irc
         public string
         ParsePrefix(string message_post_tags, ref string prefix, ref string server_or_nick, ref string user, ref string host)
         {
-            string message_post_prefix = string.Empty;
-
-            if (!message_post_tags.IsValid())
+            if (message_post_tags.Length == 0)
             {
-                return message_post_prefix;
+                return string.Empty;
             }
 
             if (message_post_tags[0] != ':')
             {
-                message_post_prefix = message_post_tags;
-
-                return message_post_prefix;
+                return message_post_tags;
             }
 
             prefix = message_post_tags.TextBetween(':', ' ');
@@ -1198,9 +1187,7 @@ TwitchNet.Clients.Irc
                 host            = prefix.TextAfter('@');
             }
 
-            message_post_prefix = message_post_tags.TextAfter(' ').TrimStart(' ');
-
-            return message_post_prefix;
+            return message_post_tags.TextAfter(' ').TrimStart(' ');
         }
 
         /// <summary>
@@ -1211,25 +1198,21 @@ TwitchNet.Clients.Irc
         private string
         ParseCommand(string message_post_prefix, ref string command)
         {
-            string message_post_command = string.Empty;
-
-            if (!message_post_prefix.IsValid())
+            if (message_post_prefix.Length == 0)
             {
-                return message_post_command;
+                return string.Empty;
             }
 
             command = message_post_prefix.TextBefore(' ');
-            if (!command.IsValid())
+            if (command.Length == 0)
             {
                 //If there's no space after the command, it's the end of the message
                 command = message_post_prefix;
-            }
-            else
-            {
-                message_post_command = message_post_prefix.TextAfter(' ').TrimStart(' ');
+
+                return string.Empty;
             }
 
-            return message_post_command;
+            return message_post_prefix.TextAfter(' ').TrimStart(' ');
         }
 
         /// <summary>
@@ -1237,65 +1220,37 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message_post_command">The irc message after the command.</param>
         /// <returns>Returns an middle array of parameters.</returns>
-        private List<string>
-        ParseParameters(string message_post_command, ref string trailing)
+        private string[]
+        ParseParameters(string message_post_command, ref string[] middle, ref string trailing)
         {
-            List<string> _middle = new List<string>();
-
-            if (!message_post_command.IsValid())
+            if(message_post_command.Length == 0)
             {
-                return _middle;
+                return new string[0];
             }
 
-            if (message_post_command[0] == ':')
+            string[] temp = message_post_command.Split(new char[] { ':' }, 2, StringSplitOptions.RemoveEmptyEntries);    
+            if(temp.Length == 0)
             {
-                string parameter = message_post_command.TextAfter(':');
+                return new string[0];
+            }
 
-                trailing = parameter;
+            string[] parameters;
+
+            middle = temp[0].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (temp.Length > 1)
+            {
+                trailing = temp[1].Trim();
+
+                parameters = new string[middle.Length + 1];
+                Array.Copy(middle, parameters, middle.Length);
+                parameters[parameters.Length - 1] = trailing;
             }
             else
             {
-                string parameter = message_post_command.TextBefore(' ');
-                if (parameter.IsValid())
-                {
-                    _middle.Add(parameter);
-
-                    message_post_command = message_post_command.TextAfter(' ').TrimStart(' ');
-
-                    List<string> temp = ParseParameters(message_post_command, ref trailing);
-                    if (temp.IsValid())
-                    {
-                        _middle.AddRange(temp);
-                    }
-                }
-                else
-                {
-                    _middle.Add(message_post_command);
-                }
+                parameters = middle;
             }
 
-            return _middle;
-        }
-
-        /// <summary>
-        /// Combines the middle and trailing into a single parameters array.
-        /// </summary>
-        /// <param name="middle">The array of middle parameters.</param>
-        /// <param name="trailing">The trailing parameter.</param>
-        /// <returns>The combined parameters array.</returns>
-        private string[]
-        AssembleParameters(string[] middle, string trailing)
-        {
-            List<string> parameters = new List<string>();
-
-            foreach (string element in middle)
-            {
-                parameters.Add(element);
-            }
-
-            parameters.Add(trailing);
-
-            return parameters.ToArray();
+            return parameters;
         }
 
         #endregion

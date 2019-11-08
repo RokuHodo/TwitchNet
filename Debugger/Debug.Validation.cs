@@ -401,7 +401,7 @@ TwitchNet.Debugger
             }
 
             IrcMessage message = GetIrcMessage(obj);
-            if (message.IsNull() || !message.tags.IsValid())
+            if (message.IsNull() || !message.tags_exist)
             {
                 return;
             }
@@ -457,7 +457,7 @@ TwitchNet.Debugger
         private static bool
         TryGetMissingTags(IrcMessage message, List<string> processed_tags_names, out string[] missing_tag_names)
         {
-            if (!message.tags.IsValid())
+            if (!message.tags_exist)
             {
                 missing_tag_names = new string[0];
 
@@ -466,20 +466,20 @@ TwitchNet.Debugger
 
             if (!processed_tags_names.IsValid())
             {
-                missing_tag_names = message.tags.Keys.ToArray();
+                missing_tag_names = message.tags.keys;
 
                 return false;
             }
 
             List<string> missing = new List<string>();
-            foreach (string key in message.tags.Keys)
+            foreach (IrcTag tag in message.tags)
             {
-                if (processed_tags_names.Contains(key))
+                if (processed_tags_names.Contains(tag.key))
                 {
                     continue;
                 }
 
-                missing.Add(key);
+                missing.Add(tag.key);
             }
 
             missing_tag_names = missing.ToArray();
@@ -490,9 +490,9 @@ TwitchNet.Debugger
         private static bool
         TryGetExtraTags(IrcMessage message, List<string> processed_tags_names, out string[] extra_tag_names)
         {
-            if (!message.tags.IsValid())
+            if (!message.tags_exist)
             {
-                extra_tag_names = message.tags.Keys.ToArray();
+                extra_tag_names = message.tags.keys;
 
                 return false;
             }
@@ -507,7 +507,7 @@ TwitchNet.Debugger
             List<string> extra = new List<string>();
             foreach (string tag in processed_tags_names)
             {
-                if (message.tags.Keys.Contains(tag))
+                if (message.tags.ContainsKey(tag))
                 {
                     continue;
                 }

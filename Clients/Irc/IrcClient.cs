@@ -1,5 +1,6 @@
 ﻿// standard namespaces
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
@@ -307,7 +308,7 @@ TwitchNet.Clients.Irc
 
             do
             {
-                Thread.Sleep(5);
+                Thread.Sleep(1);
             }
             while (!reading);
 
@@ -915,22 +916,22 @@ TwitchNet.Clients.Irc
         private async void
         ReadStream()
         {
-            byte[]      buffer              = new byte[1024];
-            int         buffer_index_peek   = 0;
-            int         bytes_read_count    = 0;
+            byte[]      buffer                  = new byte[1024];
+            int         buffer_index_peek       = 0;
+            int         buffer_bytes_read_count = 0;
 
-            List<byte>  data                = new List<byte>(buffer.Length);
+            List<byte>  data                    = new List<byte>(buffer.Length);
 
-            byte[]      message_bytes       = new byte[buffer.Length];
-            string      message_string      = string.Empty;
-            IrcMessage  message_irc         = default;
+            byte[]      message_bytes           = new byte[buffer.Length];
+            string      message_string          = string.Empty;
+            IrcMessage  message_irc             = default;
 
             reading = true;
             while (polling && !socket.IsNull() && !stream.IsNull())
             {
                 try
                 {
-                    bytes_read_count = await stream.ReadAsync(buffer, 0, buffer.Length);
+                    buffer_bytes_read_count = await stream.ReadAsync(buffer, 0, buffer.Length);
                 }
                 catch (ObjectDisposedException exception)
                 {
@@ -943,7 +944,7 @@ TwitchNet.Clients.Irc
                 }
 
                 // We reached the end of the stream and there is nothing to process
-                if (bytes_read_count == 0 && buffer.Length == 0 && data.Count == 0)
+                if (buffer_bytes_read_count == 0 && buffer.Length == 0 && data.Count == 0)
                 {
                     continue;
                 }
@@ -997,7 +998,7 @@ TwitchNet.Clients.Irc
                     }
                 }
 
-                Array.Clear(buffer, 0, bytes_read_count);
+                Array.Clear(buffer, 0, buffer_bytes_read_count);
             }
 
             reading = false;
@@ -1029,7 +1030,7 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// The optional tags prefixed to the message.
         /// </summary>
-        public readonly Dictionary<string, string>  tags;
+        public readonly IrcTags                     tags;
 
         /// <summary>
         /// An optional part of the message.
@@ -1092,7 +1093,7 @@ TwitchNet.Clients.Irc
             this.raw                    = raw;
 
             tags_exist                  = false;
-            tags                        = new Dictionary<string, string>();
+            tags                        = new IrcTags();
 
             prefix                      = string.Empty;
             server_or_nick              = string.Empty;
@@ -1122,7 +1123,7 @@ TwitchNet.Clients.Irc
         /// <param name="message">The irc message to parse.</param>
         /// <returns>Returns the irc message after the tags.</returns>
         private string
-        ParseTags(string message, ref Dictionary<string, string> tags, ref bool tags_exist)
+        ParseTags(string message, ref IrcTags tags, ref bool tags_exist)
         {
             // IRC messages only conmtain tags when it is prefixed with "@"
             if (message[0] != '@')
@@ -1131,18 +1132,7 @@ TwitchNet.Clients.Irc
             }
 
             tags_exist = true;
-
-            string[] array = message.TextBetween('@', ' ').Split(';');
-            foreach (string element in array)
-            {
-                string[] tag = element.Split('=');
-                if (tag.Length == 0 || !tag[0].HasContent())
-                {
-                    continue;
-                }
-
-                tags[tag[0]] = tag[1];
-            }
+            tags = new IrcTags(ref message);
 
             // Get rid of the tags to make later parsing easier
             return message.TextAfter(' ').TrimStart(' ');
@@ -1254,5 +1244,251 @@ TwitchNet.Clients.Irc
         }
 
         #endregion
+    }
+
+    public readonly struct
+    IrcTags : IEnumerable
+    {
+        private readonly IrcTag[] tags;
+
+        /// <summary>
+        /// The number of pased tags.
+        /// </summary>
+        public readonly int count;
+
+        /// <summary>
+        /// The parsed tag keys.
+        /// </summary>
+        public readonly string[] keys;
+
+        /// <summary>
+        /// The parsed tag values.
+        /// </summary>
+        public readonly string[] values;
+
+        public
+        IrcTags(ref string message)
+        {
+            if(message.IsNull() || message[0] != '@')
+            {
+                count = 0;
+
+                tags = new IrcTag[0];
+                keys = new string[0];
+                values = new string[0];
+
+                return;
+            }
+
+            string[] pairs = message.TextBetween('@', ' ').Split(';');
+
+            count = pairs.Length;
+
+            tags = new IrcTag[pairs.Length];
+            keys = new string[pairs.Length];
+            values = new string[pairs.Length];
+
+            // Right now the parser assumes that there will never be be a tag with an empty key.
+            // This should always be the case, but account for the possibility of it happening?
+            // Otherwise, there will be empty indecies when that happens which would be bad.
+            foreach (string pair in pairs)
+            {
+                string[] tag = pair.Split('=');
+                if (tag.Length == 0 || !tag[0].HasContent())
+                {
+                    continue;
+                }
+
+                SetValue(tag[0], tag[1]);
+            }
+        }
+
+        /// <summary>
+        /// Gets the value of a tag key.
+        /// </summary>
+        /// <param name="key">The name of the key to get.</param>
+        /// <returns>Returns the value of the tag.</returns>
+        /// <exception cref="KeyNotFoundException">Thrown if the tag key could not be found.</exception>
+        public string this[string key]
+        {
+            get
+            {
+                return GetValue(key);
+            }
+            private set
+            {
+                SetValue(key, value);
+            }
+        }
+
+        /// <summary>
+        /// Gets the value of a tag key.
+        /// </summary>
+        /// <param name="key">The name of the key to get.</param>
+        /// <returns>Returns the value of the tag.</returns>
+        /// <exception cref="KeyNotFoundException">Thrown if the tag key could not be found.</exception>
+        private string
+        GetValue(string key)
+        {
+            int index = GetIndex(key);
+            if (index < 0)
+            {
+                throw new KeyNotFoundException("The tag " + key.WrapQuotes() + " could not be found.");
+            }
+
+            return tags[index].value;
+        }
+
+        /// <summary>
+        /// Attempts to get the value of a tag key.
+        /// </summary>
+        /// <param name="key">The name of the key to get.</param>
+        /// <param name="value">
+        /// The value of the tag.
+        /// Set to an empty string if the tag key could not be found.
+        /// </param>
+        /// <returns>
+        /// Returns true of the tag key was found.
+        /// Returns false otherwise.
+        /// </returns>
+        public bool
+        TryGetValue(string key, out string value)
+        {
+            value = string.Empty;
+
+            int index = GetIndex(key);
+            if (index < 0)
+            {
+                return false;
+            }
+
+            value = tags[index].value;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Set and/or adds the value of a tag.
+        /// </summary>
+        /// <param name="key">The tag key.</param>
+        /// <param name="value">The tag value.</param>
+        /// <exception cref="ArgumentException">Thrown if the tag key is null or an empty string.</exception>
+        private void
+        SetValue(string key, string value)
+        {
+            if (key.IsNull() || key.Length == 0)
+            {
+                throw new ArgumentException("The tag key cannot be null or an empty string.");
+            }
+
+            value = value ?? string.Empty;
+
+            // First check to see if the key is overriding an existing key, just in case the IRC server messed up and sent duplicate tags.
+            int hash_code = key.GetHashCode() & 0x7FFFFFFF;
+            for (int index = 0; index < tags.Length; ++index)
+            {
+                if (hash_code == tags[index].hash_code && tags[index].key == key)
+                {
+                    tags[index] = new IrcTag(key, value, hash_code);
+                    values[index] = value;
+
+                    return;
+                }
+
+                if (tags[index].key.IsNull() || tags[index].key.Length == 0)
+                {
+                    tags[index] = new IrcTag(key, value, hash_code);
+                    keys[index] = key;
+                    values[index] = value;
+
+                    return;
+                }
+            }
+        }                
+
+        /// <summary>
+        /// Gets the index of a tag key.
+        /// This represents the order at which the tag was parsed and added.
+        /// </summary>
+        /// <param name="key">The tag key.</param>
+        /// <returns>
+        /// Returns the index of the tag key if it was found.
+        /// Returns false otherwsie.
+        /// </returns>
+        public int
+        GetIndex(string key)
+        {
+            if(count == 0 || key.IsNull() || key.Length == 0)
+            {
+                return -1;
+            }
+
+            int hash_code = key.GetHashCode() & 0x7FFFFFFF;
+            for(int index = 0; index < tags.Length; ++index)
+            {
+                if(tags[index].hash_code == hash_code && tags[index].key == key)
+                {
+                    return index;
+                }
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// Whether or not the tag key exists.
+        /// </summary>
+        /// <param name="key">The tag key.</param>
+        /// <returns>
+        /// Returns true if the tag key was found.
+        /// Returns false otherwsie.
+        /// </returns>
+        public bool
+        ContainsKey(string key)
+        {
+            return GetIndex(key) > 0;
+        }
+
+        /// <summary>
+        /// The enumerator for the <see cref="IrcTags"/>.
+        /// Enambles the use of the foreach.
+        /// </summary>
+        /// <returns>Returns the enumerator for <see cref="IrcTags"/></returns>
+        IEnumerator
+        IEnumerable.GetEnumerator()
+        {
+            foreach (IrcTag tag in tags)
+            {
+                yield return tag;
+            }
+        }
+    }
+
+    public readonly struct
+    IrcTag
+    {
+        /// <summary>
+        /// The hash code of the tag key.
+        /// </summary>
+        public readonly int hash_code;
+
+        /// <summary>
+        /// The tag key.
+        /// </summary>
+        public readonly string key;
+
+        /// <summary>
+        /// The tag value.
+        /// </summary>
+        public readonly string value;
+
+        public
+        IrcTag(string key, string value, int hash_code)
+        {
+            this.key = key;
+            this.value = value;
+
+            this.hash_code = hash_code;
+        }
     }
 }

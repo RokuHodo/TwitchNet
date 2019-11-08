@@ -57,7 +57,7 @@ TwitchNet.Clients.Irc
             tags_exist = message.tags_exist;
             if (tags_exist)
             {
-                tags = new ClearChatTags(message);
+                tags = new ClearChatTags(message.tags);
             }
 
             if (message.parameters.Length > 0)
@@ -106,13 +106,13 @@ TwitchNet.Clients.Irc
         public DateTime tmi_sent_ts { get; protected set; }
 
         public
-        ClearChatTags(in IrcMessage message)
+        ClearChatTags(in IrcTags tags)
         {
-            ban_duration    = TwitchIrcUtil.Tags.ToTimeSpanFromSeconds(message, "ban-duration");
-            ban_reason      = TwitchIrcUtil.Tags.ToString(message, "ban-reason").Replace("\\s", " ");
-            room_id         = TwitchIrcUtil.Tags.ToString(message, "room-id");
-            target_user_id  = TwitchIrcUtil.Tags.ToString(message, "target-user-id");
-            tmi_sent_ts     = TwitchIrcUtil.Tags.FromUnixEpochMilliseconds(message, "tmi-sent-ts");
+            ban_duration    = TwitchIrcUtil.Tags.ToTimeSpanFromSeconds(tags, "ban-duration");
+            ban_reason      = TwitchIrcUtil.Tags.ToString(tags, "ban-reason").Replace("\\s", " ");
+            room_id         = TwitchIrcUtil.Tags.ToString(tags, "room-id");
+            target_user_id  = TwitchIrcUtil.Tags.ToString(tags, "target-user-id");
+            tmi_sent_ts     = TwitchIrcUtil.Tags.FromUnixEpochMilliseconds(tags, "tmi-sent-ts");
         }
     }
 
@@ -141,7 +141,7 @@ TwitchNet.Clients.Irc
             tags_exist = message.tags_exist;
             if (tags_exist)
             {
-                tags = new GlobalUserStateTags(message);
+                tags = new GlobalUserStateTags(message.tags);
             }
         }
     }
@@ -198,18 +198,18 @@ TwitchNet.Clients.Irc
         public BadgeInfo[] badge_info { get; protected set; }
 
         public
-        GlobalUserStateTags(in IrcMessage message)
+        GlobalUserStateTags(in IrcTags tags)
         {
-            user_id = TwitchIrcUtil.Tags.ToString(message, "user-id");
-            display_name = TwitchIrcUtil.Tags.ToString(message, "display-name");
-            emote_sets = TwitchIrcUtil.Tags.ToStringArray(message, "emote-sets", ',');
+            user_id         = TwitchIrcUtil.Tags.ToString(tags, "user-id");
+            display_name    = TwitchIrcUtil.Tags.ToString(tags, "display-name");
+            emote_sets      = TwitchIrcUtil.Tags.ToStringArray(tags, "emote-sets", ',');
 
-            user_type = TwitchIrcUtil.Tags.ToUserType(message, "user-type");
+            user_type       = TwitchIrcUtil.Tags.ToEnum<UserType>(tags, "user-type");
 
-            color = TwitchIrcUtil.Tags.FromtHtml(message, "color");
+            color           = TwitchIrcUtil.Tags.FromtHtml(tags, "color");
 
-            badges = TwitchIrcUtil.Tags.ToBadges(message, "badges");
-            badge_info = TwitchIrcUtil.Tags.ToBadgeInfo(message, "badge-info");
+            badges          = TwitchIrcUtil.Tags.ToBadges(tags, "badges");
+            badge_info      = TwitchIrcUtil.Tags.ToBadgeInfo(tags, "badge-info");
         }
     }
 
@@ -335,7 +335,7 @@ TwitchNet.Clients.Irc
             tags_exist = message.tags_exist;
             if (tags_exist)
             {
-                tags = new RoomStateTags(message);
+                tags = new RoomStateTags(message.tags);
             }
 
             if (message.parameters.Length > 0)
@@ -411,45 +411,45 @@ TwitchNet.Clients.Irc
         public RoomStateType changed_states { get; protected set; }
 
         public
-        RoomStateTags(in IrcMessage message)
+        RoomStateTags(in IrcTags tags)
         {
-            if (TwitchIrcUtil.Tags.IsTagValid(message, "emote-only"))
+            if (tags.ContainsKey("emote-only"))
             {
-                emote_only = TwitchIrcUtil.Tags.ToBool(message, "emote-only");
+                emote_only = TwitchIrcUtil.Tags.ToBool(tags, "emote-only");
                 changed_states |= RoomStateType.EmoteOnly;
             }
 
-            if (TwitchIrcUtil.Tags.IsTagValid(message, "r9k"))
+            if (tags.ContainsKey("r9k"))
             {
-                r9k = TwitchIrcUtil.Tags.ToBool(message, "r9k");
+                r9k = TwitchIrcUtil.Tags.ToBool(tags, "r9k");
                 changed_states |= RoomStateType.R9K;
             }
 
-            if (TwitchIrcUtil.Tags.IsTagValid(message, "rituals"))
+            if (tags.ContainsKey("rituals"))
             {
-                rituals = TwitchIrcUtil.Tags.ToBool(message, "rituals");
+                rituals = TwitchIrcUtil.Tags.ToBool(tags, "rituals");
                 changed_states |= RoomStateType.Rituals;
             }
 
-            if (TwitchIrcUtil.Tags.IsTagValid(message, "subs-only"))
+            if (tags.ContainsKey("subs-only"))
             {
-                subs_only = TwitchIrcUtil.Tags.ToBool(message, "subs-only");
+                subs_only = TwitchIrcUtil.Tags.ToBool(tags, "subs-only");
                 changed_states |= RoomStateType.SubsOnly;
             }
 
-            if (TwitchIrcUtil.Tags.IsTagValid(message, "followers-only"))
+            if (tags.ContainsKey("followers-only"))
             {
-                followers_only = TwitchIrcUtil.Tags.ToInt32(message, "followers-only");
+                followers_only = TwitchIrcUtil.Tags.ToInt32(tags, "followers-only");
                 changed_states |= RoomStateType.FollowersOnly;
             }
 
-            if (TwitchIrcUtil.Tags.IsTagValid(message, "slow"))
+            if (tags.ContainsKey("slow"))
             {
-                slow = TwitchIrcUtil.Tags.ToInt32(message, "slow");
+                slow = TwitchIrcUtil.Tags.ToInt32(tags, "slow");
                 changed_states |= RoomStateType.Slow;
             }
 
-            room_id = TwitchIrcUtil.Tags.ToString(message, "room-id");
+            room_id = TwitchIrcUtil.Tags.ToString(tags, "room-id");
         }
     }
 
@@ -536,7 +536,7 @@ TwitchNet.Clients.Irc
             tags_exist = message.tags_exist;
             if (tags_exist)
             {
-                tags = new UserNoticeTags(message);
+                tags = new UserNoticeTags(message.tags);
             }
 
             if (message.parameters.Length > 0)
@@ -664,25 +664,25 @@ TwitchNet.Clients.Irc
         public UserType user_type { get; protected set; }
 
         public
-        UserNoticeBaseTags(in IrcMessage message)
+        UserNoticeBaseTags(in IrcTags tags)
         {
             // Universal tags
-            badges          = TwitchIrcUtil.Tags.ToBadges(message, "badges");
-            badge_info      = TwitchIrcUtil.Tags.ToBadgeInfo(message, "badge-info");
-            color           = TwitchIrcUtil.Tags.FromtHtml(message, "color");
-            display_name    = TwitchIrcUtil.Tags.ToString(message, "display-name");
-            emotes          = TwitchIrcUtil.Tags.ToEmotes(message, "emotes");
-            id              = TwitchIrcUtil.Tags.ToString(message, "id");
-            login           = TwitchIrcUtil.Tags.ToString(message, "login");
-            mod             = TwitchIrcUtil.Tags.ToBool(message, "mod");
-            msg_id          = TwitchIrcUtil.Tags.ToUserNoticeType(message, "msg-id");
-            room_id         = TwitchIrcUtil.Tags.ToString(message, "room-id");
-            subscriber      = TwitchIrcUtil.Tags.ToBool(message, "subscriber");
-            system_msg      = TwitchIrcUtil.Tags.ToString(message, "system-msg").Replace("\\s", " ");
-            tmi_sent_ts     = TwitchIrcUtil.Tags.FromUnixEpochMilliseconds(message, "tmi-sent-ts");
-            turbo           = TwitchIrcUtil.Tags.ToBool(message, "turbo");
-            user_id         = TwitchIrcUtil.Tags.ToString(message, "user-id");
-            user_type       = TwitchIrcUtil.Tags.ToUserType(message, "user-type");
+            badges          = TwitchIrcUtil.Tags.ToBadges(tags, "badges");
+            badge_info      = TwitchIrcUtil.Tags.ToBadgeInfo(tags, "badge-info");
+            color           = TwitchIrcUtil.Tags.FromtHtml(tags, "color");
+            display_name    = TwitchIrcUtil.Tags.ToString(tags, "display-name");
+            emotes          = TwitchIrcUtil.Tags.ToEmotes(tags, "emotes");
+            id              = TwitchIrcUtil.Tags.ToString(tags, "id");
+            login           = TwitchIrcUtil.Tags.ToString(tags, "login");
+            mod             = TwitchIrcUtil.Tags.ToBool(tags, "mod");
+            msg_id          = TwitchIrcUtil.Tags.ToEnum<UserNoticeType>(tags, "msg-id");
+            room_id         = TwitchIrcUtil.Tags.ToString(tags, "room-id");
+            subscriber      = TwitchIrcUtil.Tags.ToBool(tags, "subscriber");
+            system_msg      = TwitchIrcUtil.Tags.ToString(tags, "system-msg").Replace("\\s", " ");
+            tmi_sent_ts     = TwitchIrcUtil.Tags.FromUnixEpochMilliseconds(tags, "tmi-sent-ts");
+            turbo           = TwitchIrcUtil.Tags.ToBool(tags, "turbo");
+            user_id         = TwitchIrcUtil.Tags.ToString(tags, "user-id");
+            user_type       = TwitchIrcUtil.Tags.ToEnum<UserType>(tags, "user-type");
         }
 
         public
@@ -917,40 +917,40 @@ TwitchNet.Clients.Irc
         public int msg_param_threshold { get; protected set; } = -1;
 
         public
-        UserNoticeTags(in IrcMessage message) : base(message)
+        UserNoticeTags(in IrcTags tags) : base(tags)
         {
             // sub, resub tags
             if(msg_id == UserNoticeType.Sub || 
                msg_id == UserNoticeType.Resub)
             {
-                msg_param_cumulative_months         = TwitchIrcUtil.Tags.ToInt32(message, "msg-param-cumulative-months");
-                msg_param_should_share_streak       = TwitchIrcUtil.Tags.ToBool(message, "msg-param-should-share-streak");
-                msg_param_streak_months             = TwitchIrcUtil.Tags.ToInt32(message, "msg-param-months");
+                msg_param_cumulative_months         = TwitchIrcUtil.Tags.ToInt32(tags, "msg-param-cumulative-months");
+                msg_param_should_share_streak       = TwitchIrcUtil.Tags.ToBool(tags, "msg-param-should-share-streak");
+                msg_param_streak_months             = TwitchIrcUtil.Tags.ToInt32(tags, "msg-param-months");
             }
 
             // subgift, anonsubgift tags
             if (msg_id == UserNoticeType.SubGift ||
                 msg_id == UserNoticeType.AnonSubGift)
             {
-                msg_param_months                    = TwitchIrcUtil.Tags.ToInt32(message, "msg-param-months");
-                msg_param_recipient_display_name    = TwitchIrcUtil.Tags.ToString(message, "msg-param-recipient-display-name");
-                msg_param_recipient_id              = TwitchIrcUtil.Tags.ToString(message, "msg-param-recipient-id");
-                msg_param_recipient_user_name       = TwitchIrcUtil.Tags.ToString(message, "msg-param-recipient-user-name");
+                msg_param_months                    = TwitchIrcUtil.Tags.ToInt32(tags, "msg-param-months");
+                msg_param_recipient_display_name    = TwitchIrcUtil.Tags.ToString(tags, "msg-param-recipient-display-name");
+                msg_param_recipient_id              = TwitchIrcUtil.Tags.ToString(tags, "msg-param-recipient-id");
+                msg_param_recipient_user_name       = TwitchIrcUtil.Tags.ToString(tags, "msg-param-recipient-user-name");
             }
 
             // giftpaidupgrade tags
             if (msg_id == UserNoticeType.GiftPaidUpgrade)
             {
-                msg_param_sender_login              = TwitchIrcUtil.Tags.ToString(message, "msg-param-sender-login");
-                msg_param_sender_name               = TwitchIrcUtil.Tags.ToString(message, "msg-param-sender-name");
+                msg_param_sender_login              = TwitchIrcUtil.Tags.ToString(tags, "msg-param-sender-login");
+                msg_param_sender_name               = TwitchIrcUtil.Tags.ToString(tags, "msg-param-sender-name");
             }
 
             // giftpaidupgrade, anongiftpaidupgrade tags
             if (msg_id == UserNoticeType.GiftPaidUpgrade ||
                 msg_id == UserNoticeType.AnonGiftPaidUpgrade)
             {
-                msg_param_promo_gift_total          = TwitchIrcUtil.Tags.ToInt32(message, "msg-param-promo-gift-total");
-                msg_param_promo_name                = TwitchIrcUtil.Tags.ToString(message, "msg-param-promo-name");
+                msg_param_promo_gift_total          = TwitchIrcUtil.Tags.ToInt32(tags, "msg-param-promo-gift-total");
+                msg_param_promo_name                = TwitchIrcUtil.Tags.ToString(tags, "msg-param-promo-name");
             }
 
             // sub, resub, subgift, anonsubgift tags
@@ -959,28 +959,28 @@ TwitchNet.Clients.Irc
                 msg_id == UserNoticeType.SubGift    ||
                 msg_id == UserNoticeType.AnonSubGift)
             {
-                msg_param_sub_plan                  = TwitchIrcUtil.Tags.ToSubscriptionPlan(message, "msg-param-sub-plan");
-                msg_param_sub_plan_name             = TwitchIrcUtil.Tags.ToString(message, "msg-param-sub-plan-name");
+                msg_param_sub_plan                  = TwitchIrcUtil.Tags.ToEnum<SubscriptionTier>(tags, "msg-param-sub-plan");
+                msg_param_sub_plan_name             = TwitchIrcUtil.Tags.ToString(tags, "msg-param-sub-plan-name");
             }
 
             // raid tags
             if (msg_id == UserNoticeType.Raid)
             {
-                msg_param_viewer_count              = TwitchIrcUtil.Tags.ToInt32(message, "msg-param-viewerCount");
-                msg_param_display_name              = TwitchIrcUtil.Tags.ToString(message, "msg-param-displayName");
-                msg_param_login                     = TwitchIrcUtil.Tags.ToString(message, "msg-param-login");
+                msg_param_viewer_count              = TwitchIrcUtil.Tags.ToInt32(tags, "msg-param-viewerCount");
+                msg_param_display_name              = TwitchIrcUtil.Tags.ToString(tags, "msg-param-displayName");
+                msg_param_login                     = TwitchIrcUtil.Tags.ToString(tags, "msg-param-login");
             }
 
             // ritual tags
             if (msg_id == UserNoticeType.Ritual)
             {
-                msg_param_ritual_name = TwitchIrcUtil.Tags.ToRitualType(message, "msg-param-ritual-name");
+                msg_param_ritual_name               = TwitchIrcUtil.Tags.ToEnum<RitualType>(tags, "msg-param-ritual-name");
             }
 
             // bitsbadgetier tags
             if (msg_id == UserNoticeType.BitsBadgeTier)
             {
-                msg_param_threshold = TwitchIrcUtil.Tags.ToInt32(message, "msg-param-threshold");
+                msg_param_threshold                 = TwitchIrcUtil.Tags.ToInt32(tags, "msg-param-threshold");
             }
         }
     }
@@ -1453,7 +1453,7 @@ TwitchNet.Clients.Irc
             tags_exist = message.tags_exist;
             if (tags_exist)
             {
-                tags = new UserStateTags(message);
+                tags = new UserStateTags(message.tags);
             }
 
             if (message.parameters.Length > 0)
@@ -1521,21 +1521,21 @@ TwitchNet.Clients.Irc
         [IrcTag("badge-info")]
         public BadgeInfo[] badge_info { get; protected set; }
 
-        public UserStateTags(in IrcMessage message)
+        public UserStateTags(in IrcTags tags)
         {
-            mod = TwitchIrcUtil.Tags.ToBool(message, "mod");
+            mod             = TwitchIrcUtil.Tags.ToBool(tags, "mod");
 
-            display_name = TwitchIrcUtil.Tags.ToString(message, "display-name");
-            emote_sets = TwitchIrcUtil.Tags.ToStringArray(message, "emote-sets", ',');
+            display_name    = TwitchIrcUtil.Tags.ToString(tags, "display-name");
+            emote_sets      = TwitchIrcUtil.Tags.ToStringArray(tags, "emote-sets", ',');
 
-            user_type = TwitchIrcUtil.Tags.ToUserType(message, "user-type");
+            user_type       = TwitchIrcUtil.Tags.ToEnum<UserType>(tags, "user-type");
 
-            color = TwitchIrcUtil.Tags.FromtHtml(message, "color");
+            color           = TwitchIrcUtil.Tags.FromtHtml(tags, "color");
 
-            subscriber = TwitchIrcUtil.Tags.ToBool(message, "subscriber");
+            subscriber      = TwitchIrcUtil.Tags.ToBool(tags, "subscriber");
 
-            badges = TwitchIrcUtil.Tags.ToBadges(message, "badges");
-            badge_info = TwitchIrcUtil.Tags.ToBadgeInfo(message, "badges");
+            badges          = TwitchIrcUtil.Tags.ToBadges(tags, "badges");
+            badge_info      = TwitchIrcUtil.Tags.ToBadgeInfo(tags, "badges");
         }
     }
 
@@ -1583,7 +1583,7 @@ TwitchNet.Clients.Irc
             tags_exist = message.tags_exist;
             if (tags_exist)
             {
-                tags = new WhisperTags(message);
+                tags = new WhisperTags(message.tags);
             }
 
             sender = message.server_or_nick;
@@ -1669,22 +1669,22 @@ TwitchNet.Clients.Irc
         public Emote[] emotes { get; protected set; }
 
         public
-        WhisperTags(in IrcMessage message)
+        WhisperTags(in IrcTags tags)
         {
-            turbo = TwitchIrcUtil.Tags.ToBool(message, "turbo");
+            turbo           = TwitchIrcUtil.Tags.ToBool(tags, "turbo");
 
-            display_name = TwitchIrcUtil.Tags.ToString(message, "display-name");
-            user_id = TwitchIrcUtil.Tags.ToString(message, "user-id");
-            message_id = TwitchIrcUtil.Tags.ToString(message, "message-id");
-            thread_id = TwitchIrcUtil.Tags.ToString(message, "thread-id");
-            recipient_id = thread_id.TextAfter('_');
+            display_name    = TwitchIrcUtil.Tags.ToString(tags, "display-name");
+            user_id         = TwitchIrcUtil.Tags.ToString(tags, "user-id");
+            message_id      = TwitchIrcUtil.Tags.ToString(tags, "message-id");
+            thread_id       = TwitchIrcUtil.Tags.ToString(tags, "thread-id");
+            recipient_id    = thread_id.TextAfter('_');
 
-            user_type = TwitchIrcUtil.Tags.ToUserType(message, "user-type");
+            user_type       = TwitchIrcUtil.Tags.ToEnum<UserType>(tags, "user-type");
 
-            color = TwitchIrcUtil.Tags.FromtHtml(message, "color");
+            color           = TwitchIrcUtil.Tags.FromtHtml(tags, "color");
 
-            badges = TwitchIrcUtil.Tags.ToBadges(message, "badges");
-            emotes = TwitchIrcUtil.Tags.ToEmotes(message, "emotes");
+            badges          = TwitchIrcUtil.Tags.ToBadges(tags, "badges");
+            emotes          = TwitchIrcUtil.Tags.ToEmotes(tags, "emotes");
         }
     }
 

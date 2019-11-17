@@ -2,6 +2,13 @@
 TwitchNet.Rest.OAuth.Token
 {
     public class
+    RevokeTokenParameters
+    {
+        [QueryParameter("token")]
+        public string oauth_token { get; set; }
+    }
+
+    public class
     AppAccessTokenParameters
     {
         [QueryParameter("grant_type")]

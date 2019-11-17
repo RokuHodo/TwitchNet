@@ -39,33 +39,25 @@ TwitchNet.Rest.OAuth
         /// <param name="settings">Settings to customize how the request is handled.</param>
         /// <returns>Returns data that adheres to the <see cref="IOAuthResponse"/> interface.</returns>
         /// <exception cref="ArgumentException">Thrown if the <paramref name="oauth_token"/> or <paramref name="client_id"/> is null, empty, or only white space.</exception>
-        public static async Task<IOAuthResponse>
+        public static async Task<IRestResponse>
         RevokeTokenAsync(string client_id, string oauth_token, RequestSettings settings = default)
         {
-            if(settings.IsNull())
-            {
-                settings = RequestSettings.Default;
-            }
-
-            if(settings.error_handling_inputs == ErrorHandling.Error)
-            {
-                ExceptionUtil.ThrowIfInvalid(client_id, nameof(client_id));
-                ExceptionUtil.ThrowIfInvalid(oauth_token, nameof(oauth_token));
-            }
+            OAuth2Info info = new OAuth2Info(settings);
+            info.client_id = client_id;
+            info.oauth_token = oauth_token;
 
             RestRequest request = new RestRequest("revoke", Method.POST);
             request.AddQueryParameter("client_id", client_id);
             request.AddQueryParameter("token", oauth_token);
 
-            Tuple<IRestResponse, RestException, RateLimit> tuple = await RestUtil.ExecuteAsync(client_info, request, settings);
-
-            IOAuthResponse response = new OAuthResponse(tuple.Item1, tuple.Item2);
+            IRestResponse response = await Internal.CreateAppAccessToken(info);
 
             return response;
         }
 
         #endregion
 
+        /*
         #region /token
 
         /// <summary>

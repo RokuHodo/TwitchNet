@@ -45,6 +45,17 @@ TwitchNet.Rest.OAuth
 
             #endregion
 
+            public static async Task<IRestResponse>
+            RovokeToken(OAuth2Info info, RevokeTokenParameters parameters)
+            {
+                RestRequest request = GetBaseRequest("revoke", Method.POST, info);
+                request.AddParameters(parameters);
+
+                RestResponse response = await client.ExecuteAsync<object>(request);
+
+                return response;
+            }
+
             public static async Task<IRestResponse<AppAccessTokenData>>
 			CreateAppAccessToken(OAuth2Info info, AppAccessTokenParameters parameters)
             {

@@ -300,7 +300,6 @@ TwitchNet.Clients.Irc
                 ((SslStream)stream).AuthenticateAsClient(host);
             }
 
-
             OnSocketConnected.Raise(this, EventArgs.Empty);
 
             reader_thread = new Thread(new ThreadStart(ReadStream));
@@ -836,7 +835,6 @@ TwitchNet.Clients.Irc
 
             return true;
         }
-
 
         /// <summary>
         /// Asynchronously sends a message to the IRC server.

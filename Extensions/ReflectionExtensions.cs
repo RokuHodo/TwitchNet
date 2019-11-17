@@ -1,5 +1,6 @@
 ﻿// project namespaces
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -9,7 +10,16 @@ TwitchNet.Extensions
 {
     internal static class
     ReflectionExtensions
-    {   
+    {
+        internal static void
+        WriteBytes(this Stream stream, byte[] bytes, int bufferLength)
+        {
+            using (var src = new MemoryStream(bytes))
+            {
+                src.CopyTo(stream, bufferLength);
+            }
+        }
+
         /// <summary>
         /// Gets a type's default value.
         /// </summary>

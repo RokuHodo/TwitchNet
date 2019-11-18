@@ -32,7 +32,7 @@ TwitchNet.Clients.PubSub
         private bool disposing;
         private bool disposed;
 
-        private readonly Uri PUB_SUB_URI = new Uri("wss://pubsub-edge.twitch.tv");
+        private readonly Uri PUB_SUB_URI;
 
         private Mutex state_mutex;
 
@@ -46,13 +46,17 @@ TwitchNet.Clients.PubSub
         public
         PubSubClient()
         {
-            state_mutex = new Mutex();            
-            SetState(ClientState.Disconnected);
-
             reading = false;
             disposing = false;
 
             disposed = false;
+
+            WebSocket.RegisterPrefixes();
+
+            PUB_SUB_URI = new Uri("wss://pubsub-edge.twitch.tv");
+
+            state_mutex = new Mutex();            
+            SetState(ClientState.Disconnected);            
         }
 
         #region Connection and state handling
@@ -65,18 +69,15 @@ TwitchNet.Clients.PubSub
                 return;
             }
 
-            WebSocket.RegisterPrefixes();
-
-            //stream = new TcpClient(PUB_SUB_URI.DnsSafeHost, PUB_SUB_URI.Port).GetStream();
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(PUB_SUB_URI.Host, PUB_SUB_URI.Port);
 
-            //stream = new NetworkStream(socket);
-            stream = new TcpClient(PUB_SUB_URI.DnsSafeHost, PUB_SUB_URI.Port).GetStream();
+            stream = new NetworkStream(socket);
+
             if (PUB_SUB_URI.Port == 443)
             {
-                SslStream ssl_stream = new SslStream(stream, false);
-                ssl_stream.AuthenticateAsClient(PUB_SUB_URI.DnsSafeHost, new X509CertificateCollection(), SslProtocols.Default, false);
+                SslStream ssl_stream = new SslStream(stream, false, Callback_CertificateValidation, Callback_CertificateSelection);
+                ssl_stream.AuthenticateAsClient(PUB_SUB_URI.DnsSafeHost, null, SslProtocols.Default, false);
 
                 stream = ssl_stream;
             }
@@ -84,6 +85,9 @@ TwitchNet.Clients.PubSub
             HttpWebRequest request = WebRequest.Create(PUB_SUB_URI) as HttpWebRequest;
 
             HttpWebResponse response = (HttpWebResponse)request.GetResponseAsync().Result;
+
+            stream = response.GetResponseStream();
+
             Debug.WriteLine((int)response.StatusCode + ": " + response.StatusDescription);
             foreach(string header in response.Headers.AllKeys)
             {
@@ -95,6 +99,19 @@ TwitchNet.Clients.PubSub
             reader_thread.Start();
 
             SetState(ClientState.Connected);            
+        }
+
+        private static bool
+        Callback_CertificateValidation(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+        {
+            return true;
+        }
+
+        private static X509Certificate
+        Callback_CertificateSelection(object sender, string target_host, X509CertificateCollection client_certificates, X509Certificate server_certificate, string[] acceptable_issuers)
+        {
+            return null;
+
         }
 
         public void
@@ -121,10 +138,12 @@ TwitchNet.Clients.PubSub
             // If the client is already in the process of disconnecting, this will effectively do nothing.
             // ForceDisconnectAsync().Wait();
 
+            /*
             if (!socket.IsNull())
             {
                 socket.Dispose();
             }
+            */
 
             // This is the last step before the client fully disconnects, it's safe to call this here. 
             SetState(ClientState.Disconnected, true);
@@ -300,7 +319,7 @@ TwitchNet.Clients.PubSub
             return true;
         }
 
-        private bool
+        public bool
         Send(Opcode opcode, Stream stream)
         {
             long length = stream.Length;
@@ -309,7 +328,7 @@ TwitchNet.Clients.PubSub
                 return Send(Fin.Final, opcode, new byte[0]);
             }
 
-            int fragment_length = 1016;
+            int fragment_length = 1024;
             byte[] buffer = length < fragment_length ? new byte[length] : new byte[fragment_length];
 
             // ---------------------------------------------
@@ -361,7 +380,7 @@ TwitchNet.Clients.PubSub
             return true;
         }
 
-        private bool
+        public bool
         Send(Fin fin, Opcode opcode, byte[] data)
         {
             if (state != ClientState.Connected)
@@ -371,10 +390,10 @@ TwitchNet.Clients.PubSub
 
             WebSocketFrame frame = new WebSocketFrame(fin, opcode, data);
 
-            return Send(frame.ToByteArray());
+            return Send(frame.ToNetworkByteArray());
         }
 
-        private bool
+        public bool
         Send(byte[] bytes)
         {
             stream.Write(bytes, 0, bytes.Length);
@@ -391,79 +410,140 @@ TwitchNet.Clients.PubSub
         private async void
         ReadStream()
         {
-            byte[] buffer = new byte[1024];
-            int buffer_index_peek = 0;
+
             int buffer_bytes_read_count = 0;
 
-            List<byte> data = new List<byte>(buffer.Length);
+            // Header
+            byte[] buffer_header = new byte[2];
 
-            byte[] message_bytes = new byte[buffer.Length];
-            string message_string = string.Empty;
+            Fin fin;
+            RSV rsv_1;
+            RSV rsv_2;
+            RSV rsv_3;
+            Opcode opcode;
+            Mask mask;
+            byte length_payload;
+
+            // Extended payload
+            int length_payload_extended_byte_count = 0;
+            byte[] buffer_extended_payload_length = new byte[0];
+
+            // mask key
+            byte[] buffer_mask_key = new byte[0];
+
+            // data
+            ulong data_length = 0;
+            byte[] buffer_data = new byte[0];
+            string data_string = string.Empty;
 
             reading = true;
             while (polling && !socket.IsNull() && !stream.IsNull())
             {
-                try
-                {
-                    buffer_bytes_read_count = await stream.ReadAsync(buffer, 0, buffer.Length);
-                }
-                catch (ObjectDisposedException exception)
-                {
-                    polling = false;
-                    reading = false;
+                // NOTE: This entire routine is one giant hack-fest. 
+                //       This assumes that an entire message is sent with every frame, only does the most basic checking, and is in a very non-user-friendly format.
+                //       All of this was to just get things working and off the ground. Now it's time to do everything properly.
 
-                    // OnNetworkError.Raise(this, new ErrorEventArgs(exception));
+                // ---------------------------------------------
+                // Header Decoding
+                // ---------------------------------------------
 
-                    continue;
-                }
-
-                // We reached the end of the stream and there is nothing to process
-                if (buffer_bytes_read_count == 0 && buffer.Length == 0 && data.Count == 0)
+                buffer_bytes_read_count = await stream.ReadAsync(buffer_header, 0, buffer_header.Length);
+                if(buffer_bytes_read_count != buffer_header.Length)
                 {
                     continue;
                 }
 
-                for (int index = 0; index < buffer.Length; ++index)
+                fin             = (buffer_header[0] & 0x80) == 0x80 ? Fin.Final : Fin.Fragment;
+                rsv_1           = (buffer_header[0] & 0x40) == 0x40 ? RSV.On : RSV.Off;
+                rsv_2           = (buffer_header[0] & 0x20) == 0x20 ? RSV.On : RSV.Off;
+                rsv_3           = (buffer_header[0] & 0x10) == 0x10 ? RSV.On : RSV.Off;
+                opcode          = (Opcode)(buffer_header[0] & 0x0f);
+                mask            = (buffer_header[1] & 0x80) == 0x80 ? Mask.On : Mask.Off;
+                length_payload  = (byte)(buffer_header[1] & 0x7f);
+
+                // ---------------------------------------------
+                // Extended Payload Length Decoding
+                // ---------------------------------------------
+
+                if (length_payload < 126)
                 {
-                    if (buffer[index] == 0x0)
+                    buffer_extended_payload_length = new byte[0];
+                }
+                else
+                {
+                    length_payload_extended_byte_count = length_payload == 126 ? 2 : 8;
+                    buffer_extended_payload_length = new byte[length_payload_extended_byte_count];
+
+                    buffer_bytes_read_count = await stream.ReadAsync(buffer_extended_payload_length, 0, buffer_extended_payload_length.Length);
+                    if (buffer_bytes_read_count != buffer_extended_payload_length.Length)
                     {
                         continue;
                     }
+                }
 
-                    // 0x0D = '\r', 0x0A = '\n', 
-                    if (buffer[index] == 0x0D || buffer[index] == 0x0A)
+                // ---------------------------------------------
+                // Mask Key Decoding
+                // ---------------------------------------------
+
+                if (mask == Mask.Off)
+                {
+                    buffer_mask_key = new byte[0];
+                }
+                else
+                {
+                    buffer_mask_key = new byte[4];
+
+                    buffer_bytes_read_count = await stream.ReadAsync(buffer_mask_key, 0, buffer_mask_key.Length);
+                    if (buffer_bytes_read_count != buffer_mask_key.Length)
                     {
-                        // Any instance of buffer[1023] == '\r' from the previous read and buffer[0] == '\n' from this read will be caught here.
-                        // The list of data to be encoded will empty, so nothing will actually be encoded.
-                        message_bytes = data.ToArray();
-                        if (message_bytes.Length == 0)
-                        {
-                            continue;
-                        }
-
-                        message_string = Encoding.UTF8.GetString(message_bytes, 0, message_bytes.Length);
-                        Debug.WriteLine(message_string);
-
-                        // OnDataReceived.Raise(this, new DataEventArgs(message_bytes, message_string));
-
-                        data.Clear();
-
-                        buffer_index_peek = index + 1;
-                        if (buffer[index] == 0x0D && buffer_index_peek < buffer.Length)
-                        {
-                            if (buffer[buffer_index_peek] == 0x0A)
-                            {
-                                index++;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        data.Add(buffer[index]);
+                        continue;
                     }
                 }
 
-                Array.Clear(buffer, 0, buffer_bytes_read_count);
+                // ---------------------------------------------
+                // Data Decoding
+                // ---------------------------------------------
+
+                if (length_payload < 126)
+                {
+                    data_length = length_payload;
+                }
+                else if (length_payload == 126)
+                {
+                    data_length = buffer_extended_payload_length.ToUint16FromBigEndian();
+                }
+                else
+                {
+                    data_length = buffer_extended_payload_length.ToUint64FromBigEndian();
+                }
+
+                if (data_length == 0)
+                {
+                    buffer_data = new byte[0];
+
+                    continue;
+                }
+
+                buffer_data = new byte[data_length];
+
+                // Read the entire payload at once for now.
+                // Read in increments of 1024 bytes later on.
+                buffer_bytes_read_count = await stream.ReadAsync(buffer_data, 0, buffer_data.Length);
+                if (buffer_bytes_read_count != buffer_data.Length)
+                {
+                    continue;
+                }
+
+                if (mask == Mask.On)
+                {
+                    for (long index = 0; index < buffer_data.LongLength; ++index)
+                    {
+                        buffer_data[index] = (byte)(buffer_data[index] ^ buffer_mask_key[index % 4]);
+                    }
+                }
+
+                data_string = Encoding.UTF8.GetString(buffer_data);
+                Debug.WriteLine(data_string);
             }
 
             reading = false;
@@ -471,8 +551,6 @@ TwitchNet.Clients.PubSub
 
         #endregion
     }
-
-    // Send(Opcode.Text, new MemoryStream(bytes));
 
     public class
     ListenTopic
@@ -523,7 +601,7 @@ TwitchNet.Clients.PubSub
         public readonly Mask mask;
         public readonly byte[] mask_key;
 
-        public readonly long length;
+        public readonly ulong length;
         public readonly byte length_payload;
         public readonly byte[] length_payload_extended;
 
@@ -540,7 +618,7 @@ TwitchNet.Clients.PubSub
 
             this.opcode = opcode;
 
-            length = data.LongLength;
+            length = (ulong)data.LongLength;
             if (length < 126)
             {
                 length_payload = (byte)length;
@@ -549,12 +627,12 @@ TwitchNet.Clients.PubSub
             else if (length <= ushort.MaxValue)
             {
                 length_payload = 126;
-                length_payload_extended = BitConverter.GetBytes((ushort)length);
+                length_payload_extended = ((ushort)length).ToBigEndianByteArray();
             }
             else
             {
                 length_payload = 127;
-                length_payload_extended = BitConverter.GetBytes(length);
+                length_payload_extended = length.ToBigEndianByteArray();
             }
 
             if (use_mask)
@@ -579,12 +657,12 @@ TwitchNet.Clients.PubSub
             return key;
         }
 
-        private void
+        public void
         MaskData(byte[] key)
         {
             //byte[] result = new byte[data.Length];
 
-            for (long index = 0; index < length; ++index)
+            for (ulong index = 0; index < length; ++index)
             {
                 data[index] = (byte)(data[index] ^ key[index % 4]);
             }
@@ -593,7 +671,7 @@ TwitchNet.Clients.PubSub
         }
 
         public byte[]
-        ToByteArray()
+        ToNetworkByteArray()
         {
             MemoryStream buffer = new MemoryStream();
 
@@ -605,7 +683,7 @@ TwitchNet.Clients.PubSub
             header = (header << 1) + (int)mask;
             header = (header << 7) + (int)length_payload;
 
-            buffer.Write(BitConverter.GetBytes((ushort)header), 0, 2);
+            buffer.Write(((ushort)header).ToBigEndianByteArray(), 0, 2);
 
             if (length_payload > 125)
             {

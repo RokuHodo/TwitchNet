@@ -20,6 +20,54 @@ TwitchNet.Extensions
             }
         }
 
+        public static byte[]
+        ToBigEndianByteArray(this ushort value)
+        {
+            byte[] bytes = BitConverter.GetBytes(value);
+
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bytes);
+            }
+
+            return bytes;
+        }
+
+        public static ushort
+        ToUint16FromBigEndian(this byte[] bytes)
+        {
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bytes);
+            }
+
+            return BitConverter.ToUInt16(bytes, 0);
+        }
+
+        public static ulong
+        ToUint64FromBigEndian(this byte[] bytes)
+        {
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bytes);
+            }
+
+            return BitConverter.ToUInt64(bytes, 0);
+        }
+
+        public static byte[]
+        ToBigEndianByteArray(this ulong value)
+        {
+            byte[] bytes = BitConverter.GetBytes(value);
+
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bytes);
+            }
+
+            return bytes;
+        }
+
         /// <summary>
         /// Gets a type's default value.
         /// </summary>

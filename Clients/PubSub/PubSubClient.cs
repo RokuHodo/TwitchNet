@@ -32,38 +32,56 @@ TwitchNet.Clients.PubSub
         private bool disposing;
         private bool disposed;
 
-        private readonly Uri PUB_SUB_URI;
+        private readonly string UUID;
 
-        private Mutex state_mutex;
+        private readonly Uri PUB_SUB_URI;
 
         private Stream stream;
         private Socket socket;
+
+        private Mutex state_mutex;
 
         private Thread reader_thread;
 
         public ClientState state { get; private set; }
 
+        public PubSubSettings settings { get; set; }
+
         public
         PubSubClient()
         {
+            polling = false;
             reading = false;
-            disposing = false;
 
+            disposing = false;
             disposed = false;
 
-            WebSocket.RegisterPrefixes();
+            UUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
             PUB_SUB_URI = new Uri("wss://pubsub-edge.twitch.tv");
 
+            settings = new PubSubSettings();
+
+            WebSocket.RegisterPrefixes();
+
+            // TODO: The idle state of the client must be 'Connecting' according to the spec.
+            //       This requires some modification to logic determining if state can be changed, but for now keep it as 'Disconnected' so things work until we cross that bridge..
             state_mutex = new Mutex();            
             SetState(ClientState.Disconnected);            
         }
 
-        #region Connection and state handling
+        #region Connection and Connection Validation
 
         public void
         Connect()
         {
+            if (settings.connect_retry_count > settings.connect_retry_count_limit)
+            {
+                WebSocketNetworkException exception = new WebSocketNetworkException(NetworkError.RetyConnectLimitReached, "The maximum amount of failed connection attempts has been reached. Limit: " + settings.connect_retry_count_limit);
+
+                return;
+            }
+
             if (!SetState(ClientState.Connecting))
             {
                 return;
@@ -73,7 +91,6 @@ TwitchNet.Clients.PubSub
             socket.Connect(PUB_SUB_URI.Host, PUB_SUB_URI.Port);
 
             stream = new NetworkStream(socket);
-
             if (PUB_SUB_URI.Port == 443)
             {
                 SslStream ssl_stream = new SslStream(stream, false, Callback_CertificateValidation, Callback_CertificateSelection);
@@ -82,18 +99,28 @@ TwitchNet.Clients.PubSub
                 stream = ssl_stream;
             }
 
-            HttpWebRequest request = WebRequest.Create(PUB_SUB_URI) as HttpWebRequest;
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(PUB_SUB_URI);
+            if (!ValidateHandShakeRequest(request))
+            {
+                CallBack_FailedToConnect();
 
-            HttpWebResponse response = (HttpWebResponse)request.GetResponseAsync().Result;
+                return;
+            }
+
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            if (!ValidateHandShakeResponse(request, response, UUID))
+            {
+                response.Close();
+                response.Dispose();
+
+                CallBack_FailedToConnect();
+
+                return;
+            }
+
+            settings.connect_retry_count = 0;
 
             stream = response.GetResponseStream();
-
-            Debug.WriteLine((int)response.StatusCode + ": " + response.StatusDescription);
-            foreach(string header in response.Headers.AllKeys)
-            {
-                Debug.WriteLine(header + ": " + response.Headers[header]);
-            }
-            Debug.WriteLine();
 
             reader_thread = new Thread(new ThreadStart(ReadStream));
             reader_thread.Start();
@@ -112,6 +139,133 @@ TwitchNet.Clients.PubSub
         {
             return null;
 
+        }
+
+        private void
+        CallBack_FailedToConnect()
+        {
+            stream.Dispose();
+            stream = null;
+
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Disconnect(false);
+            socket.Close();
+            socket = null;
+
+            SetState(ClientState.Disconnected, true);
+
+            if(settings.failed_to_connect_handling == Handling.Retry)
+            {
+                ++settings.connect_retry_count;
+                settings.WaitConnectionDelay();
+
+                Connect();
+            }
+        }
+
+        private bool
+        ValidateHandShakeRequest(HttpWebRequest request)
+        {
+            // These checks really shouldn't be needed, but just double check to make sure Microsoft didn't mess up.
+            if (request.ProtocolVersion.Major < 1 || request.ProtocolVersion.Minor < 1)
+            {
+                WebSocketNetworkException exception = new WebSocketNetworkException(NetworkError.Hanshake_RequestProtocolVersion, "The handshake request protocol version must be at least HTTP 1.1.");
+
+                return false;
+            }
+
+            string header_upgrade = request.Headers["Upgrade"];
+            if (!header_upgrade.HasContent() || header_upgrade != "websocket")
+            {
+                WebSocketNetworkException exception = new WebSocketNetworkException(NetworkError.Hanshake_RequestHeader, "The handshake request did not contain the header \"Upgrade\", or the header was not set to \"websocket\".");
+
+                return false;
+            }
+
+            string header_connection = request.Headers["Connection"];
+            if (!header_connection.HasContent() || header_connection != "Upgrade")
+            {
+                WebSocketNetworkException exception = new WebSocketNetworkException(NetworkError.Hanshake_RequestHeader, "The handshake request did not contain the header \"Connection\", or the header was not set to \"Upgrade\".");
+
+                return false;
+            }
+
+            string header_web_socket_key = request.Headers["Sec-WebSocket-Key"];
+            if (!header_web_socket_key.HasContent())
+            {
+                WebSocketNetworkException exception = new WebSocketNetworkException(NetworkError.Hanshake_RequestHeader, "The handshake request did not contain the header \"Sec-WebSocket-Key\", or the header was empty or contianed only white space.");
+
+                return false;
+            }
+
+            string header_web_socket_version = request.Headers["Sec-WebSocket-Version"];
+            if (!header_web_socket_version.HasContent() || header_web_socket_version != "13")
+            {
+                WebSocketNetworkException exception = new WebSocketNetworkException(NetworkError.Hanshake_RequestHeader, "The handshake request did not contain the header \"Sec-WebSocket-Version\", or the header was not set to \"13\".");
+
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool
+        ValidateHandShakeResponse(HttpWebRequest request, HttpWebResponse response, string uuid)
+        {
+            if (response.StatusCode != HttpStatusCode.SwitchingProtocols)
+            {
+                WebSocketNetworkException exception = new WebSocketNetworkException(NetworkError.Hanshake_ResponseStatusCode, "The handshake response status code from " + PUB_SUB_URI.Host + " was not equal to \"101 - Switching Protocols\".");
+
+                return false;
+            }
+
+            if (response.ProtocolVersion.Major < 1 || response.ProtocolVersion.Minor < 1)
+            {
+                WebSocketNetworkException exception = new WebSocketNetworkException(NetworkError.Hanshake_ResponseProtocolVersion, "The handshake response protocol version must be at least HTTP 1.1.");
+
+                return false;
+            }
+
+            string server_key = response.Headers["Sec-WebSocket-Accept"];
+            if (!server_key.HasContent())
+            {
+                WebSocketNetworkException exception = new WebSocketNetworkException(NetworkError.Hanshake_ResponseHeader, "The handshake response from " + PUB_SUB_URI.Host + " did not contain the header \"Sec-WebSocket-Accept\", or the header was empty or contianed only white space.");
+
+                return false;
+            }
+
+            string client_key = request.Headers["Sec-WebSocket-Key"];
+            string server_key_expected = CreateServerResponseKey(client_key, uuid);
+            if (server_key != server_key_expected)
+            {
+                WebSocketNetworkException exception = new WebSocketNetworkException(NetworkError.Hanshake_ResponseHeader, "The handshake response header \"Sec-WebSocket-Accept\" did not matach the expected value: " + server_key_expected);
+
+                return false;
+            }
+
+            string header_web_socket_version = response.Headers["Sec-WebSocket-Version"];
+            if (!header_web_socket_version.IsNull() &&(!header_web_socket_version.HasContent() || header_web_socket_version != "13"))
+            {
+                WebSocketNetworkException exception = new WebSocketNetworkException(NetworkError.Hanshake_ResponseHeader, "The handshake response from " + PUB_SUB_URI.Host + " included the header \"Sec-WebSocket-Version\" and was not set to \"13\".");
+
+                return false;
+            }
+
+            return true;
+        }
+
+        private string
+        CreateServerResponseKey(string client_key, string uuid)
+        {
+            StringBuilder buffer = new StringBuilder(client_key, 64);
+            buffer.Append(uuid);
+
+            SHA1 client_key_sha_1 = new SHA1CryptoServiceProvider();
+
+            byte[] server_key_bytes = Encoding.UTF8.GetBytes(buffer.ToString());
+            server_key_bytes = client_key_sha_1.ComputeHash(server_key_bytes, 0, server_key_bytes.Length);
+
+            return Convert.ToBase64String(server_key_bytes);
         }
 
         public void
@@ -157,6 +311,10 @@ TwitchNet.Clients.PubSub
             disposed = true;
             // OnDisposed.Raise(this, EventArgs.Empty);
         }
+
+        #endregion
+
+        #region State Handling
 
         /// <summary>
         /// Sets the client's state.
@@ -306,6 +464,8 @@ TwitchNet.Clients.PubSub
 
         #endregion
 
+        #region Writing
+
         public bool
         Send(string message)
         {
@@ -401,6 +561,8 @@ TwitchNet.Clients.PubSub
 
             return true;
         }
+
+        #endregion
 
         #region Reading
 
@@ -552,6 +714,8 @@ TwitchNet.Clients.PubSub
         #endregion
     }
 
+    #region Data Structures
+
     public class
     ListenTopic
     {
@@ -660,14 +824,10 @@ TwitchNet.Clients.PubSub
         public void
         MaskData(byte[] key)
         {
-            //byte[] result = new byte[data.Length];
-
             for (ulong index = 0; index < length; ++index)
             {
                 data[index] = (byte)(data[index] ^ key[index % 4]);
             }
-
-            //return result;
         }
 
         public byte[]
@@ -754,5 +914,95 @@ TwitchNet.Clients.PubSub
         Off = 0x0,
 
         On = 0x1
-    }    
+    }   
+    
+    public class
+    PubSubSettings
+    {
+        private int[] connect_retry_delay_seconds;
+
+        internal int connect_retry_count;
+        internal int connect_retry_count_limit;
+
+        public Handling failed_to_connect_handling;
+
+        public PubSubSettings()
+        {
+            connect_retry_delay_seconds = new int[] { 1, 2, 4, 8, 16, 32, 64, 120 };
+
+            connect_retry_count = 0;
+            connect_retry_count_limit = connect_retry_delay_seconds.Length;
+
+            failed_to_connect_handling = Handling.Retry;
+        }
+
+        internal void
+        WaitConnectionDelay()
+        {
+            if (connect_retry_count < 1)
+            {
+                return;
+            }
+
+            connect_retry_count = connect_retry_count.ClampMax(connect_retry_count_limit);
+
+            Thread.Sleep(connect_retry_delay_seconds[connect_retry_count - 1] * 1000);
+        }
+
+        internal async Task
+        WaitConnectionDelayAsync()
+        {
+            if (connect_retry_count < 1)
+            {
+                return;
+            }
+
+            connect_retry_count = connect_retry_count.ClampMax(connect_retry_count_limit);
+
+            await Task.Delay(connect_retry_delay_seconds[connect_retry_count - 1] * 1000);
+        }
+    }
+
+    #endregion
+
+    #region Errors and Erro Handling
+
+    public enum
+    Handling
+    {
+        Retry = 0,
+
+        Return,
+    }
+
+    public enum
+    NetworkError
+    {
+        None = 0,
+
+        Hanshake_RequestProtocolVersion,
+
+        Hanshake_RequestHeader,
+
+        Hanshake_ResponseStatusCode,
+
+        Hanshake_ResponseProtocolVersion,
+
+        Hanshake_ResponseHeader,
+
+        RetyConnectLimitReached
+    }
+
+    public class
+    WebSocketNetworkException : Exception
+    {
+        public NetworkError error;
+
+        public WebSocketNetworkException(NetworkError error, string message) : base(message)
+        {
+            this.error = error;
+        }
+    }
+
+    #endregion
 }

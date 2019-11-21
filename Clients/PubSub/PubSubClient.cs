@@ -505,7 +505,7 @@ TwitchNet.Clients.PubSub
             {
                 case WebSocketState.Connecting: Debug.WriteLine("Cannot disconnect from " + PUB_SUB_URI.Host + ": currently connecting");   return false;
                 case WebSocketState.Closing:    Debug.WriteLine("Cannot disconnect from " + PUB_SUB_URI.Host + ": already connecting");     return false;
-                case WebSocketState.Closed:      Debug.WriteLine("Cannot disconnect from " + PUB_SUB_URI.Host + ": already disconnected");   return false;
+                case WebSocketState.Closed:     Debug.WriteLine("Cannot disconnect from " + PUB_SUB_URI.Host + ": already disconnected");   return false;
             }
 
             return true;
@@ -537,7 +537,7 @@ TwitchNet.Clients.PubSub
                 return Send(Fin.Final, opcode, new byte[0]);
             }
 
-            int fragment_length = 1024;
+            int fragment_length = settings.frame_fragment_length_write;
             byte[] buffer = length < fragment_length ? new byte[length] : new byte[fragment_length];
 
             // ---------------------------------------------
@@ -556,8 +556,8 @@ TwitchNet.Clients.PubSub
             Fin fin = Fin.Fragment;
 
             // Figure out how many fragments needs to be sent
-            long fragments_count = (buffer.Length / fragment_length);
-            int remainder = buffer.Length % fragment_length;
+            long fragments_count = (buffer.LongLength / fragment_length);
+            long remainder = buffer.LongLength % fragment_length;
             if(remainder > 0)
             {
                 ++fragments_count;
@@ -615,15 +615,9 @@ TwitchNet.Clients.PubSub
 
         #region Reading
 
-        /// <summary>
-        /// Reads and incoming data from the IRC via a <see cref="NetworkStream"/>.
-        /// </summary>
         private async void
         ReadStream()
         {
-
-            int buffer_bytes_read_count = 0;
-
             // Header
             byte[] buffer_header = new byte[2];
 
@@ -647,6 +641,8 @@ TwitchNet.Clients.PubSub
             byte[] buffer_data = new byte[0];
             string data_string = string.Empty;
 
+            Tuple<bool, int> read_result;
+
             reading = true;
             while (polling && !socket.IsNull() && !stream.IsNull())
             {
@@ -658,8 +654,8 @@ TwitchNet.Clients.PubSub
                 // Header Decoding
                 // ---------------------------------------------
 
-                buffer_bytes_read_count = await stream.ReadAsync(buffer_header, 0, buffer_header.Length);
-                if(buffer_bytes_read_count != buffer_header.Length)
+                read_result = await ReadStreamAsync(stream, buffer_header);
+                if(!read_result.Item1)
                 {
                     continue;
                 }
@@ -685,8 +681,8 @@ TwitchNet.Clients.PubSub
                     length_payload_extended_byte_count = length_payload == 126 ? 2 : 8;
                     buffer_extended_payload_length = new byte[length_payload_extended_byte_count];
 
-                    buffer_bytes_read_count = await stream.ReadAsync(buffer_extended_payload_length, 0, buffer_extended_payload_length.Length);
-                    if (buffer_bytes_read_count != buffer_extended_payload_length.Length)
+                    read_result = await ReadStreamAsync(stream, buffer_extended_payload_length);
+                    if (!read_result.Item1)
                     {
                         continue;
                     }
@@ -704,8 +700,8 @@ TwitchNet.Clients.PubSub
                 {
                     buffer_mask_key = new byte[4];
 
-                    buffer_bytes_read_count = await stream.ReadAsync(buffer_mask_key, 0, buffer_mask_key.Length);
-                    if (buffer_bytes_read_count != buffer_mask_key.Length)
+                    read_result = await ReadStreamAsync(stream, buffer_mask_key);
+                    if (!read_result.Item1)
                     {
                         continue;
                     }
@@ -737,14 +733,47 @@ TwitchNet.Clients.PubSub
 
                 buffer_data = new byte[data_length];
 
-                // Read the entire payload at once for now.
-                // Read in increments of 1024 bytes later on.
-                buffer_bytes_read_count = await stream.ReadAsync(buffer_data, 0, buffer_data.Length);
-                if (buffer_bytes_read_count != buffer_data.Length)
+                int fragment_length = settings.frame_fragment_length_read;
+                if (buffer_data.LongLength <= fragment_length)
                 {
-                    continue;
+                    read_result = await ReadStreamAsync(stream, buffer_data);
+                    if (!read_result.Item1)
+                    {
+                        continue;
+                    }
                 }
+                else
+                {
+                    long fragments_count = (buffer_data.LongLength / fragment_length);
+                    if (buffer_data.LongLength % fragment_length > 0)
+                    {
+                        ++fragments_count;
+                    }
 
+                    bool success = false;
+
+                    int offset = 0;
+                    for (long index = 0; index < fragments_count; ++index)
+                    {
+                        read_result = await ReadStreamAsync(stream, buffer_data, offset, fragment_length);
+                        if (!read_result.Item1)
+                        {
+                            break;
+                        }
+
+                        offset += fragment_length;
+
+                        int temp = buffer_data.Length - offset;
+                        fragment_length = temp < fragment_length ? temp : fragment_length;
+                    }
+
+                    if (!success)
+                    {
+                        continue;
+                    }
+                }                
+
+                // TODO: Since this is a client, it should *never* receieve masked data from the server. Throw an error and disconnect if this is ever true.
                 if (mask == Mask.On)
                 {
                     for (long index = 0; index < buffer_data.LongLength; ++index)
@@ -758,6 +787,49 @@ TwitchNet.Clients.PubSub
             }
 
             reading = false;
+        }
+
+        private async Task<Tuple<bool, int>>
+        ReadStreamAsync(Stream stream, byte[] buffer)
+        {
+            return await ReadStreamAsync(stream, buffer, 0, buffer.Length);
+        }
+
+        private async Task<Tuple<bool, int>>
+        ReadStreamAsync(Stream stream, byte[] buffer, int offset, int count)
+        {
+            int buffer_bytes_read_count = 0;
+
+            try
+            {
+                buffer_bytes_read_count = await stream.ReadAsync(buffer, offset, count);
+            }
+            catch (ObjectDisposedException exception)
+            {
+                if (state != WebSocketState.Closing)
+                {
+                    _settings.SetNetworkError(new WebSocketNetworkException(NetworkError.Stream_Disposed, "The stream was disposed while attempting to read data.", exception));
+                }
+
+                return new Tuple<bool, int>(false, 0);
+            }
+
+            if (buffer_bytes_read_count == 0) 
+            {
+                _settings.SetNetworkError(new WebSocketNetworkException(NetworkError.Stream_ZeroBytesRead, "Zero bytes were ready from the buffer instead of the expected " + buffer.Length + " bytes. It is highly recommended to reconnect to the web socket."));
+
+                return new Tuple<bool, int>(false, 0);
+            }
+
+            // This normally isn't inherantly an error, but for a web socket it's bad if the correct number of bytes isn't read.
+            if (buffer_bytes_read_count != count)
+            {
+                _settings.SetNetworkError(new WebSocketNetworkException(NetworkError.Stream_BytesReadCount, buffer_bytes_read_count + " bytes were ready from the buffer instead of the expected " + buffer.Length + " bytes."));
+
+                return new Tuple<bool, int>(false, buffer_bytes_read_count);
+            }
+
+            return new Tuple<bool, int>(true, buffer_bytes_read_count);
         }
 
         #endregion
@@ -990,6 +1062,9 @@ TwitchNet.Clients.PubSub
     public interface
     IPubSubSettings
     {
+        int frame_fragment_length_read { get; set; }
+        int frame_fragment_length_write { get; set; }
+
         RetryHandling handling_failed_to_connect { get; set; }
         ErrorHandling handling_network_error { get; set; }
     }
@@ -1002,11 +1077,17 @@ TwitchNet.Clients.PubSub
         internal int connect_retry_count;
         internal int connect_retry_count_limit;
 
+        public int frame_fragment_length_read { get; set; }
+        public int frame_fragment_length_write { get; set; }
+
         public RetryHandling handling_failed_to_connect { get; set; }
         public ErrorHandling handling_network_error { get; set; }
 
         public PubSubSettings()
         {
+            frame_fragment_length_read = 1024;
+            frame_fragment_length_write = 1024;
+
             connect_retry_delay_seconds = new int[] { 1, 2, 4, 8, 16, 32, 64, 120 };
 
             connect_retry_count = 0;
@@ -1077,6 +1158,12 @@ TwitchNet.Clients.PubSub
     NetworkError
     {
         None = 0,
+
+        Stream_Disposed,
+
+        Stream_ZeroBytesRead,
+
+        Stream_BytesReadCount,
 
         Hanshake_RequestProtocolVersion,
 

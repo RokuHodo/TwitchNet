@@ -64,7 +64,7 @@ TwitchNet.Clients.Irc
         /// </para>
         /// <para>
         /// This occurs before the client logs into the IRC server and before <see cref="OnConnected"/> is raised.
-        /// At this point, the state is set to <see cref="ClientState.Connecting"/> since the client is not yet logged into the IRC.
+        /// At this point, the state is set to <see cref="IrcState.Connecting"/> since the client is not yet logged into the IRC.
         /// </para>
         /// </summary>
         public virtual event EventHandler<EventArgs>                OnSocketConnected;
@@ -74,7 +74,7 @@ TwitchNet.Clients.Irc
         /// Raised when a message is received with the command 001, RPL_WELCOME.
         /// Signifies that the <see cref="IrcClient"/> has successfully registered and connected to the IRC server.
         /// </para>
-        /// <para>At this point, the state is set to <see cref="ClientState.Connected"/>.</para>
+        /// <para>At this point, the state is set to <see cref="IrcState.Connected"/>.</para>
         /// </summary>
         public virtual event EventHandler<NumericReplyEventArgs>    OnConnected;
 
@@ -85,7 +85,7 @@ TwitchNet.Clients.Irc
         /// </para>
         /// <para>
         /// This occurs before the reader finishes processing the current data, before all currently raised events have finihshed, and before <see cref="OnDisconnected"/> is raised.
-        /// At this point, the state is set to <see cref="ClientState.Disconnecting"/>, the entire stream buffer has been read to the end, and managed resources still need to be disposed.
+        /// At this point, the state is set to <see cref="IrcState.Disconnecting"/>, the entire stream buffer has been read to the end, and managed resources still need to be disposed.
         /// </para>
         /// </summary>
         public virtual event EventHandler<EventArgs>                OnSocketDisconnected;
@@ -95,7 +95,7 @@ TwitchNet.Clients.Irc
         /// Raised when the <see cref="IrcClient"/> disconnects from the IRC server.
         /// This is only raised when a client has chosen to manually disconnect.
         /// </para>
-        /// <para>At this point, the state is set to <see cref="ClientState.Disconnected"/>.</para>
+        /// <para>At this point, the state is set to <see cref="IrcState.Disconnected"/>.</para>
         /// </summary>
         public virtual event EventHandler<EventArgs>                OnDisconnected;
 
@@ -449,7 +449,7 @@ TwitchNet.Clients.Irc
         protected virtual void
         Handle_001_Welcome(in IrcMessage message)
         {
-            SetState(ClientState.Connected);
+            SetState(IrcState.Connected);
 
             OnConnected.Raise(this, new NumericReplyEventArgs(message));
         }

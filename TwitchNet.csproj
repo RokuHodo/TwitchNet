@@ -96,7 +96,6 @@
     <Compile Include="Rest\RestResponse.cs" />
     <Compile Include="Rest\Exceptions.cs" />
     <Compile Include="Rest\OAuth\Token\RefreshTokenParameters.cs" />
-    <Compile Include="Clients\ClientState.cs" />
     <Compile Include="SubscriptionTier.cs" />
     <Compile Include="BroadcasterLanguage.cs" />
     <Compile Include="Clients\Irc\TwitchIrcClient.EventArgs.cs" />

@@ -74,6 +74,30 @@ TwitchNet.Clients.Irc
         }
     }
 
+    public enum
+    IrcState
+    {
+        /// <summary>
+        /// The client is disconnected.        
+        /// </summary>
+        Disconnected = 0,
+
+        /// <summary>
+        /// The client is currently disconnecting.
+        /// </summary>
+        Disconnecting = 1,
+
+        /// <summary>
+        /// The client is connected.
+        /// </summary>
+        Connected = 2,
+
+        /// <summary>
+        /// The client is currently connecting.
+        /// </summary>
+        Connecting = 3,
+    }
+
     public partial class
     IrcClient : IDisposable
     {
@@ -143,7 +167,7 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// The current state of the IRC client.
         /// </summary>
-        public ClientState state    { get; private set; }
+        public IrcState state    { get; private set; }
 
         /// <summary>
         /// <para>Determines whether or not to automatically respond to a PING with a PONG.</para>
@@ -195,7 +219,7 @@ TwitchNet.Clients.Irc
         IrcClient()
         {
             state_mutex = new Mutex();
-            SetState(ClientState.Disconnected);
+            SetState(IrcState.Disconnected);
 
             reading     = false;
             disposing   = false;
@@ -236,7 +260,7 @@ TwitchNet.Clients.Irc
         public void
         Connect()
         {
-            if (!SetState(ClientState.Connecting))
+            if (!SetState(IrcState.Connecting))
             {
                 return;
             }
@@ -258,7 +282,7 @@ TwitchNet.Clients.Irc
         public void
         ConnectAsync()
         {
-            if (!SetState(ClientState.Connecting))
+            if (!SetState(IrcState.Connecting))
             {
                 return;
             }
@@ -370,7 +394,7 @@ TwitchNet.Clients.Irc
         public void
         Disconnect(bool force_disconnect, bool reuse_client = false)
         {
-            if (!SetState(ClientState.Disconnecting, force_disconnect))
+            if (!SetState(IrcState.Disconnecting, force_disconnect))
             {
                 return;
             }
@@ -394,7 +418,7 @@ TwitchNet.Clients.Irc
 
             Dispose(!reuse_client);
 
-            SetState(ClientState.Disconnected);
+            SetState(IrcState.Disconnected);
             OnDisconnected.Raise(this, EventArgs.Empty);
         }
 
@@ -444,7 +468,7 @@ TwitchNet.Clients.Irc
         public void
         DisconnectAsync(bool force_disconnect, bool reuse_client = false)
         {
-            if (!SetState(ClientState.Disconnecting, force_disconnect))
+            if (!SetState(IrcState.Disconnecting, force_disconnect))
             {
                 return;
             }
@@ -479,7 +503,7 @@ TwitchNet.Clients.Irc
             Tuple<bool, bool> tuple = (Tuple<bool, bool>)result.AsyncState;
 
             Dispose(!tuple.Item2);
-            SetState(ClientState.Disconnected, tuple.Item1);
+            SetState(IrcState.Disconnected, tuple.Item1);
 
             OnDisconnected.Raise(this, EventArgs.Empty);
         }
@@ -538,7 +562,7 @@ TwitchNet.Clients.Irc
             }
 
             // This is the last step before the client fully disconnects, it's safe to call this here. 
-            SetState(ClientState.Disconnected, true);
+            SetState(IrcState.Disconnected, true);
 
             if (!state_mutex.IsNull())
             {
@@ -560,7 +584,7 @@ TwitchNet.Clients.Irc
         /// Returns false otherwise.
         /// </returns>
         private bool
-        SetState(ClientState transition_state, bool override_state = false)
+        SetState(IrcState transition_state, bool override_state = false)
         {
             bool success = false;
 
@@ -574,7 +598,7 @@ TwitchNet.Clients.Irc
                 // The only time the mutex is null is when the client is disposed.
                 // In that case we are 100% guaranteed to be disconnected so it's safe to set the state without the mutex.
                 // And because the mutext is disposed and we can't even use it, duh.
-                state = ClientState.Disconnected;
+                state = IrcState.Disconnected;
 
                 return success;
             }
@@ -585,20 +609,20 @@ TwitchNet.Clients.Irc
             {
                 switch (transition_state)
                 {
-                    case ClientState.Connecting:
+                    case IrcState.Connecting:
                     {
                         success = CanConnect();
                     }
                     break;
 
-                    case ClientState.Disconnecting:
+                    case IrcState.Disconnecting:
                     {
                         success = CanDisconnect();
                     }
                     break;
 
-                    case ClientState.Connected:
-                    case ClientState.Disconnected:
+                    case IrcState.Connected:
+                    case IrcState.Disconnected:
                     {
                         success = true;
                     }
@@ -609,11 +633,11 @@ TwitchNet.Clients.Irc
             if (success)
             {
                 state = transition_state;
-                if(state == ClientState.Connecting)
+                if(state == IrcState.Connecting)
                 {
                     polling = true;
                 }
-                else if(state == ClientState.Disconnecting)
+                else if(state == IrcState.Disconnecting)
                 {
                     polling = false;
                 }
@@ -633,25 +657,25 @@ TwitchNet.Clients.Irc
 
             switch (state)
             {
-                case ClientState.Connected:
+                case IrcState.Connected:
                 {
                     Debug.WriteLine("Cannot connect to " + host + ": already connected");
                 }
                 break;
 
-                case ClientState.Connecting:
+                case IrcState.Connecting:
                 {
                     Debug.WriteLine("Cannot connect to " + host + ": currently connecting");
                 }
                 break;
 
-                case ClientState.Disconnecting:
+                case IrcState.Disconnecting:
                 {
                     Debug.WriteLine("Cannot connect to " + host + ": currently disconnecting");
                 }
                 break;
 
-                case ClientState.Disconnected:
+                case IrcState.Disconnected:
                 {
                     result = true;
                 }
@@ -671,25 +695,25 @@ TwitchNet.Clients.Irc
 
             switch (state)
             {
-                case ClientState.Connecting:
+                case IrcState.Connecting:
                 {
                         Debug.WriteLine("Cannot disconnect from " + host + ": currently connecting");
                 }
                 break;
 
-                case ClientState.Disconnecting:
+                case IrcState.Disconnecting:
                 {
                         Debug.WriteLine("Cannot disconnect from " + host + ": already connecting");
                 }
                 break;
 
-                case ClientState.Disconnected:
+                case IrcState.Disconnected:
                 {
                         Debug.WriteLine("Cannot disconnect from " + host + ": already disconnected");
                 }
                 break;
 
-                case ClientState.Connected:
+                case IrcState.Connected:
                 {
                     result = true;
                 }

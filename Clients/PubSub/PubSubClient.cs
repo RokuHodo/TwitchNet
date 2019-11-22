@@ -162,91 +162,75 @@ TwitchNet.Clients.PubSub
             reader_thread = new Thread(new ThreadStart(ReadStream));
             reader_thread.Start();
 
-            SetState(WebSocketState.Open);            
-        }
-
-        private static bool
-        Callback_CertificateValidation(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
-        {
-            return true;
-        }
-
-        private static X509Certificate
-        Callback_CertificateSelection(object sender, string target_host, X509CertificateCollection client_certificates, X509Certificate server_certificate, string[] acceptable_issuers)
-        {
-            return null;
-        }
-
-        private void
-        CallBack_FailedToConnect(WebSocketNetworkException exception)
-        {
-            stream.Close();
-            stream.Dispose();
-            stream = null;
-
-            socket.Shutdown(SocketShutdown.Both);
-            socket.Disconnect(false);
-            socket.Close();
-            socket = null;
-
-            SetState(WebSocketState.Connecting, false);
-
-            if(settings.handling_failed_to_connect == RetryHandling.Retry)
-            {
-                ++_settings.connect_retry_count;
-                if (_settings.connect_retry_count > _settings.connect_retry_count_limit)
-                {
-                    // No further clean up needed since all other managed resources have been freed (except the state mutex).
-                    OverrideState(WebSocketState.Closed);
-
-                    _settings.SetNetworkError(new WebSocketNetworkException(NetworkError.RetryConnectLimitReached, "The maximum amount of failed connection attempts has been reached. Limit: " + _settings.connect_retry_count_limit, exception));
-                }
-                else
-                {
-                    _settings.WaitConnectionDelay();
-                    Connect();
-                }
-            }
-            else
-            {
-                OverrideState(WebSocketState.Closed);
-
-                _settings.SetNetworkError(exception);
-            }
+            SetState(WebSocketState.Open);  
+            
+            // TODO: OnOpen
         }
 
         public void
-        Close(bool force_disconnect, bool reuse_client = false)
+        ConnectAsync()
         {
-            if (!SetState(WebSocketState.Closing, force_disconnect))
+            if (_settings.connect_retry_count > _settings.connect_retry_count_limit)
             {
                 return;
             }
 
-            WebSocketFrame frame = WebSocketFrame.CreateCloseFrame();
-            Send(frame.EncodeData());
-
-            stream.Close();
-
-            while (reading)
+            if (!SetState(WebSocketState.Connecting, true))
             {
-                Thread.Sleep(1);
+                return;
             }
 
-            stream.Dispose();
-            stream = null;
+            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            socket.BeginConnect(PUB_SUB_URI.DnsSafeHost, PUB_SUB_URI.Port, Callback_OnBeginConnect, null);
+        }
 
-            socket.Shutdown(SocketShutdown.Both);
-            socket.Disconnect(false);
-            socket.Close();
-            socket = null;
+        private async void
+        Callback_OnBeginConnect(IAsyncResult result)
+        {
+            socket.EndConnect(result);
 
-            // OnSocketDisconnected.Raise(this, EventArgs.Empty);
+            stream = new NetworkStream(socket);
+            if (PUB_SUB_URI.Port == 443)
+            {
+                SslStream ssl_stream = new SslStream(stream, false, Callback_CertificateValidation, Callback_CertificateSelection);
+                ssl_stream.AuthenticateAsClient(PUB_SUB_URI.DnsSafeHost, null, SslProtocols.Default, false);
 
-            Dispose(!reuse_client);
+                stream = ssl_stream;
+            }
 
-            SetState(WebSocketState.Closed);
-            // OnDisconnected.Raise(this, EventArgs.Empty);
+            WebSocketNetworkException exception;
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(PUB_SUB_URI);
+            if (!ValidateHandShakeRequest(request, out exception))
+            {
+                socket.Shutdown(SocketShutdown.Both);
+                socket.BeginDisconnect(false, CallBack_FailedToConnectAsync, exception);
+
+                return;
+            }
+
+            HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
+            if (!ValidateHandShakeResponse(request, response, UUID, out exception))
+            {
+                response.Close();
+                response.Dispose();
+
+                socket.Shutdown(SocketShutdown.Both);
+                socket.BeginDisconnect(false, CallBack_FailedToConnectAsync, exception);
+
+                return;
+            }
+
+            _settings.connect_retry_count = 0;
+
+            stream = response.GetResponseStream();
+
+            reader_thread = new Thread(new ThreadStart(ReadStream));
+            reader_thread.Start();
+
+            // TODO: OnOpen
+
+            SetState(WebSocketState.Open);
         }
 
         private bool
@@ -358,6 +342,132 @@ TwitchNet.Clients.PubSub
             return Convert.ToBase64String(server_key_bytes);
         }
 
+        private static bool
+        Callback_CertificateValidation(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+        {
+            return true;
+        }
+
+        private static X509Certificate
+        Callback_CertificateSelection(object sender, string target_host, X509CertificateCollection client_certificates, X509Certificate server_certificate, string[] acceptable_issuers)
+        {
+            return null;
+        }
+
+        private void
+        CallBack_FailedToConnect(WebSocketNetworkException exception)
+        {
+            stream.Close();
+            stream.Dispose();
+            stream = null;
+
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Disconnect(false);
+            socket.Close();
+            socket = null;
+
+            SetState(WebSocketState.Connecting, false);
+
+            if (settings.handling_failed_to_connect == RetryHandling.Retry)
+            {
+                ++_settings.connect_retry_count;
+                if (_settings.connect_retry_count > _settings.connect_retry_count_limit)
+                {
+                    // No further clean up needed since all other managed resources have been freed (except the state mutex).
+                    OverrideState(WebSocketState.Closed);
+
+                    _settings.SetNetworkError(new WebSocketNetworkException(NetworkError.RetryConnectLimitReached, "The maximum amount of failed connection attempts has been reached. Limit: " + _settings.connect_retry_count_limit, exception));
+                }
+                else
+                {
+                    _settings.WaitConnectionDelay();
+                    Connect();
+                }
+            }
+            else
+            {
+                OverrideState(WebSocketState.Closed);
+
+                _settings.SetNetworkError(exception);
+            }
+        }
+
+        private async void
+        CallBack_FailedToConnectAsync(IAsyncResult result)
+        {
+            WebSocketNetworkException exception = (WebSocketNetworkException)result.AsyncState;
+
+            stream.Close();
+            stream.Dispose();
+            stream = null;
+
+            socket.EndDisconnect(result);
+            socket.Close();
+            socket = null;
+
+            SetState(WebSocketState.Connecting, false);
+
+            if (settings.handling_failed_to_connect == RetryHandling.Retry)
+            {
+                ++_settings.connect_retry_count;
+                if (_settings.connect_retry_count > _settings.connect_retry_count_limit)
+                {
+                    // No further clean up needed since all other managed resources have been freed (except the state mutex).
+                    OverrideState(WebSocketState.Closed);
+
+                    _settings.SetNetworkError(new WebSocketNetworkException(NetworkError.RetryConnectLimitReached, "The maximum amount of failed connection attempts has been reached. Limit: " + _settings.connect_retry_count_limit, exception));
+                }
+                else
+                {
+                    await _settings.WaitConnectionDelayAsync();
+                    ConnectAsync();
+                }
+            }
+            else
+            {
+                OverrideState(WebSocketState.Closed);
+
+                _settings.SetNetworkError(exception);
+            }
+        }
+
+        public void
+        ForceClose()
+        {
+            Close(true);
+        }
+
+        public void
+        Close(bool force_disconnect = false)
+        {
+            if (!SetState(WebSocketState.Closing, force_disconnect))
+            {
+                return;
+            }
+
+            WebSocketFrame frame = WebSocketFrame.CreateCloseFrame();
+            Send(frame.EncodeFrame());
+
+            stream.Close();
+
+            while (reading)
+            {
+                Thread.Sleep(1);
+            }
+
+            stream.Dispose();
+            stream = null;
+
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Disconnect(false);
+            socket.Close();
+            socket = null;
+
+            SetState(WebSocketState.Closed);
+
+            // TODO: OnClosed
+        }
+
         public void
         Dispose()
         {
@@ -378,19 +488,7 @@ TwitchNet.Clients.PubSub
 
             Debug.WriteLine("Disposing");
 
-            // If we're disposing we're disconnecting, period. Make sure this is always true.
-            // If the client is already in the process of disconnecting, this will effectively do nothing.
-            // ForceDisconnectAsync().Wait();
-
-            /*
-            if (!socket.IsNull())
-            {
-                socket.Dispose();
-            }
-            */
-            
-            // This is the last step before the client fully disconnects, it's safe to call this here. 
-            OverrideState(WebSocketState.Closed);
+            ForceClose();
 
             if (!state_mutex.IsNull())
             {
@@ -399,7 +497,10 @@ TwitchNet.Clients.PubSub
             }
 
             disposed = true;
-            // OnDisposed.Raise(this, EventArgs.Empty);
+
+            Debug.WriteLine("Disposed");
+
+            // TODO: OnDisposed
         }
 
         #endregion
@@ -523,6 +624,7 @@ TwitchNet.Clients.PubSub
 
             Send(Opcode.Text, new MemoryStream(bytes));
 
+            // TODO: OnFrameSent
             // OnDataSent.Raise(this, new DataEventArgs(bytes, message));
 
             return true;
@@ -531,20 +633,20 @@ TwitchNet.Clients.PubSub
         public bool
         Send(Opcode opcode, Stream stream)
         {
-            long length = stream.Length;
-            if (length == 0)
+            ulong buffer_length = (ulong)stream.Length;
+            if (buffer_length == 0)
             {
                 return Send(Fin.Final, opcode, new byte[0]);
             }
 
-            int fragment_length = settings.frame_fragment_length_write;
-            byte[] buffer = length < fragment_length ? new byte[length] : new byte[fragment_length];
+            ulong fragment_length = (ulong)settings.frame_fragment_length_write;
+            byte[] buffer = buffer_length < fragment_length ? new byte[buffer_length] : new byte[fragment_length];
 
             // ---------------------------------------------
             // The entire message can be sent as one message
             // ---------------------------------------------
 
-            if (buffer.Length <= fragment_length)
+            if (buffer_length <= fragment_length)
             {
                 return stream.Read(buffer, 0, buffer.Length) == buffer.Length && Send(Fin.Final, opcode, buffer);
             }
@@ -556,15 +658,15 @@ TwitchNet.Clients.PubSub
             Fin fin = Fin.Fragment;
 
             // Figure out how many fragments needs to be sent
-            long fragments_count = (buffer.LongLength / fragment_length);
-            long remainder = buffer.LongLength % fragment_length;
+            ulong fragments_count = buffer_length / fragment_length;
+            ulong remainder = buffer_length % fragment_length;
             if(remainder > 0)
             {
                 ++fragments_count;
             }
 
             int buffer_bytes_read_count = 0;
-            for (int index = 0; index < fragments_count; ++index)
+            for (ulong index = 0; index < fragments_count; ++index)
             {
                 if (index != 0)
                 {
@@ -599,7 +701,7 @@ TwitchNet.Clients.PubSub
 
             WebSocketFrame frame = new WebSocketFrame(fin, opcode, data);
 
-            return Send(frame.EncodeData());
+            return Send(frame.encoded);
         }
 
         public bool
@@ -618,175 +720,187 @@ TwitchNet.Clients.PubSub
         private async void
         ReadStream()
         {
-            // Header
+            reading = true;
+
             byte[] buffer_header = new byte[2];
 
-            Fin fin;
-            RSV rsv_1;
-            RSV rsv_2;
-            RSV rsv_3;
-            Opcode opcode;
-            Mask mask;
-            byte length_payload;
+            string buffer_string = string.Empty;
 
-            // Extended payload
-            int length_payload_extended_byte_count = 0;
-            byte[] buffer_extended_payload_length = new byte[0];
+            WebSocketFrame frame;
+            Tuple<bool, WebSocketFrame> result;
 
-            // mask key
-            byte[] buffer_mask_key = new byte[0];
+            List<byte> buffer = new List<byte>(settings.frame_fragment_length_read);
 
-            // data
-            ulong data_length = 0;
-            byte[] buffer_data = new byte[0];
-            string data_string = string.Empty;
-
-            Tuple<bool, int> read_result;
-
-            reading = true;
             while (polling && !socket.IsNull() && !stream.IsNull())
             {
-                // NOTE: This entire routine is one giant hack-fest. 
-                //       This assumes that an entire message is sent with every frame, only does the most basic checking, and is in a very non-user-friendly format.
-                //       All of this was to just get things working and off the ground. Now it's time to do everything properly.
+                Array.Clear(buffer_header, 0, buffer_header.Length);
 
-                // ---------------------------------------------
-                // Header Decoding
-                // ---------------------------------------------
-
-                read_result = await ReadStreamAsync(stream, buffer_header);
-                if(!read_result.Item1)
+                result = await ReadFrameAsync(stream, buffer_header);
+                if (!result.Item1)
                 {
                     continue;
                 }
 
-                fin             = (buffer_header[0] & 0x80) == 0x80 ? Fin.Final : Fin.Fragment;
-                rsv_1           = (buffer_header[0] & 0x40) == 0x40 ? RSV.On : RSV.Off;
-                rsv_2           = (buffer_header[0] & 0x20) == 0x20 ? RSV.On : RSV.Off;
-                rsv_3           = (buffer_header[0] & 0x10) == 0x10 ? RSV.On : RSV.Off;
-                opcode          = (Opcode)(buffer_header[0] & 0x0f);
-                mask            = (buffer_header[1] & 0x80) == 0x80 ? Mask.On : Mask.Off;
-                length_payload  = (byte)(buffer_header[1] & 0x7f);
+                // TODO: OnFrameReceived
 
-                // ---------------------------------------------
-                // Extended Payload Length Decoding
-                // ---------------------------------------------
+                frame = result.Item2;
 
-                if (length_payload < 126)
+                if (frame.length_data > 0)
                 {
-                    buffer_extended_payload_length = new byte[0];
-                }
-                else
-                {
-                    length_payload_extended_byte_count = length_payload == 126 ? 2 : 8;
-                    buffer_extended_payload_length = new byte[length_payload_extended_byte_count];
-
-                    read_result = await ReadStreamAsync(stream, buffer_extended_payload_length);
-                    if (!read_result.Item1)
-                    {
-                        continue;
-                    }
+                    buffer.AddRange(frame.data);
                 }
 
-                // ---------------------------------------------
-                // Mask Key Decoding
-                // ---------------------------------------------
-
-                if (mask == Mask.Off)
+                if (frame.fin == Fin.Final)
                 {
-                    buffer_mask_key = new byte[0];
-                }
-                else
-                {
-                    buffer_mask_key = new byte[4];
 
-                    read_result = await ReadStreamAsync(stream, buffer_mask_key);
-                    if (!read_result.Item1)
-                    {
-                        continue;
-                    }
-                }
+                    buffer_string = Encoding.UTF8.GetString(buffer.ToArray());
+                    Debug.WriteLine(buffer_string);
 
-                // ---------------------------------------------
-                // Data Decoding
-                // ---------------------------------------------
+                    // TODO: OnMessage
 
-                if (length_payload < 126)
-                {
-                    data_length = length_payload;
-                }
-                else if (length_payload == 126)
-                {
-                    data_length = buffer_extended_payload_length.ToUint16FromBigEndian();
-                }
-                else
-                {
-                    data_length = buffer_extended_payload_length.ToUint64FromBigEndian();
-                }
-
-                if (data_length == 0)
-                {
-                    buffer_data = new byte[0];
-
-                    continue;
-                }
-
-                buffer_data = new byte[data_length];
-
-                int fragment_length = settings.frame_fragment_length_read;
-                if (buffer_data.LongLength <= fragment_length)
-                {
-                    read_result = await ReadStreamAsync(stream, buffer_data);
-                    if (!read_result.Item1)
-                    {
-                        continue;
-                    }
-                }
-                else
-                {
-                    long fragments_count = (buffer_data.LongLength / fragment_length);
-                    if (buffer_data.LongLength % fragment_length > 0)
-                    {
-                        ++fragments_count;
-                    }
-
-                    bool success = false;
-
-                    int offset = 0;
-                    for (long index = 0; index < fragments_count; ++index)
-                    {
-                        read_result = await ReadStreamAsync(stream, buffer_data, offset, fragment_length);
-                        if (!read_result.Item1)
-                        {
-                            break;
-                        }
-
-                        offset += fragment_length;
-
-                        int temp = buffer_data.Length - offset;
-                        fragment_length = temp < fragment_length ? temp : fragment_length;
-                    }
-
-                    if (!success)
-                    {
-                        continue;
-                    }
+                    buffer.Clear();
                 }                
-
-                // TODO: Since this is a client, it should *never* receieve masked data from the server. Throw an error and disconnect if this is ever true.
-                if (mask == Mask.On)
-                {
-                    for (long index = 0; index < buffer_data.LongLength; ++index)
-                    {
-                        buffer_data[index] = (byte)(buffer_data[index] ^ buffer_mask_key[index % 4]);
-                    }
-                }
-
-                data_string = Encoding.UTF8.GetString(buffer_data);
-                Debug.WriteLine(data_string);
             }
 
             reading = false;
+        }
+
+        private async Task<Tuple<bool, WebSocketFrame>>
+        ReadFrameAsync(Stream stream, byte[] buffer_header)
+        {
+            Tuple<bool, int> result_read;
+            Tuple<bool, WebSocketFrame> result_frame_fail = Tuple.Create(false, default(WebSocketFrame));
+
+            WebSocketFrame frame = new WebSocketFrame();
+
+            // ---------------------------------------------
+            // Header Decoding
+            // ---------------------------------------------
+
+            result_read = await ReadStreamAsync(stream, buffer_header);
+            if (!result_read.Item1)
+            {
+                return result_frame_fail;
+            }
+
+            frame.fin = (buffer_header[0] & 0x80) == 0x80 ? Fin.Final : Fin.Fragment;
+
+            frame.rsv_1 = (buffer_header[0] & 0x40) == 0x40 ? RSV.On : RSV.Off;
+            frame.rsv_2 = (buffer_header[0] & 0x20) == 0x20 ? RSV.On : RSV.Off;
+            frame.rsv_3 = (buffer_header[0] & 0x10) == 0x10 ? RSV.On : RSV.Off;
+
+            frame.opcode = (Opcode)(buffer_header[0] & 0x0f);
+
+            frame.mask = (buffer_header[1] & 0x80) == 0x80 ? Mask.On : Mask.Off;
+
+            frame.length_payload = (byte)(buffer_header[1] & 0x7f);
+
+            // ---------------------------------------------
+            // Extended Payload Length Decoding
+            // ---------------------------------------------
+
+            if (frame.length_payload < 126)
+            {
+                frame.length_payload_extended = new byte[0];
+            }
+            else
+            {
+                int length_payload_extended_count = frame.length_payload == 126 ? 2 : 8;
+                frame.length_payload_extended = new byte[length_payload_extended_count];
+
+                result_read = await ReadStreamAsync(stream, frame.length_payload_extended);
+                if (!result_read.Item1)
+                {
+                    return result_frame_fail;
+                }
+            }
+
+            // ---------------------------------------------
+            // Mask Key Decoding
+            // ---------------------------------------------
+
+            if (frame.mask == Mask.Off)
+            {
+                frame.mask_key = new byte[0];
+            }
+            else
+            {
+                frame.mask_key = new byte[4];
+
+                result_read = await ReadStreamAsync(stream, frame.mask_key);
+                if (!result_read.Item1)
+                {
+                    return result_frame_fail;
+                }
+            }
+
+            // ---------------------------------------------
+            // Data Decoding
+            // ---------------------------------------------
+
+            if (frame.length_payload < 126)
+            {
+                frame.length_data = frame.length_payload;
+            }
+            else if (frame.length_payload == 126)
+            {
+                frame.length_data = frame.length_payload_extended.ToUint16FromBigEndian();
+            }
+            else
+            {
+                frame.length_data = frame.length_payload_extended.ToUint64FromBigEndian();
+            }
+
+            // Not an error, just an empty frame
+            if (frame.length_data == 0)
+            {
+                frame.data = new byte[0];
+
+                return Tuple.Create(true, frame);
+            }
+
+            frame.data = new byte[frame.length_data];
+
+            int fragment_length = settings.frame_fragment_length_read;
+            if (frame.length_data <= (ulong)fragment_length)
+            {
+                result_read = await ReadStreamAsync(stream, frame.data);
+                if (!result_read.Item1)
+                {
+                    return result_frame_fail;
+                }
+            }
+            else
+            {
+                ulong fragments_count = (frame.length_data / (ulong)fragment_length);
+                if (frame.length_data % (ulong)fragment_length > 0)
+                {
+                    ++fragments_count;
+                }
+
+                int offset = 0;
+                for (ulong index = 0; index < fragments_count; ++index)
+                {
+                    result_read = await ReadStreamAsync(stream, frame.data, offset, fragment_length);
+                    if (!result_read.Item1)
+                    {
+                        return result_frame_fail;
+                    }
+
+                    offset += fragment_length;
+
+                    int temp = frame.data.Length - offset;
+                    fragment_length = temp < fragment_length ? temp : fragment_length;
+                }
+            }
+
+            // TODO: Since this is a client, it should *never* receieve masked data from the server. Throw an error and disconnect if this is ever true.
+            if (frame.mask == Mask.On)
+            {
+                frame.MaskData(frame.mask_key);
+            }
+
+            return Tuple.Create(true, frame);
         }
 
         private async Task<Tuple<bool, int>>
@@ -870,30 +984,33 @@ TwitchNet.Clients.PubSub
         }
     }
 
-    public readonly struct
+    public struct
     WebSocketFrame
     {
-        public readonly byte[] data;
+        public Fin fin;
 
-        public readonly Fin fin;
+        public RSV rsv_1;
+        public RSV rsv_2;
+        public RSV rsv_3;
 
-        public readonly RSV rsv_1;
-        public readonly RSV rsv_2;
-        public readonly RSV rsv_3;
+        public Opcode opcode;
 
-        public readonly Opcode opcode;
+        public Mask mask;
 
-        public readonly Mask mask;
-        public readonly byte[] mask_key;
+        public ulong length_data;
+        public byte length_payload;
+        public byte[] length_payload_extended;
 
-        public readonly ulong length;
-        public readonly byte length_payload;
-        public readonly byte[] length_payload_extended;
+        public byte[] mask_key;
+
+        public byte[] data;
+        public byte[] encoded;
 
         public
         WebSocketFrame(Fin fin, Opcode opcode, byte[] data, bool use_mask = true)
         {
             this.data = data;
+            encoded = new byte[0];
 
             this.fin = fin;
 
@@ -903,21 +1020,21 @@ TwitchNet.Clients.PubSub
 
             this.opcode = opcode;
 
-            length = (ulong)data.LongLength;
-            if (length < 126)
+            length_data = (ulong)data.LongLength;
+            if (length_data < 126)
             {
-                length_payload = (byte)length;
+                length_payload = (byte)length_data;
                 length_payload_extended = new byte[0];
             }
-            else if (length <= ushort.MaxValue)
+            else if (length_data <= ushort.MaxValue)
             {
                 length_payload = 126;
-                length_payload_extended = ((ushort)length).ToBigEndianByteArray();
+                length_payload_extended = ((ushort)length_data).ToBigEndianByteArray();
             }
             else
             {
                 length_payload = 127;
-                length_payload_extended = length.ToBigEndianByteArray();
+                length_payload_extended = length_data.ToBigEndianByteArray();
             }
 
             if (use_mask)
@@ -931,6 +1048,8 @@ TwitchNet.Clients.PubSub
                 mask = Mask.Off;
                 mask_key = new byte[0];
             }
+
+            encoded = EncodeFrame();
         }
 
         private static byte[]
@@ -945,10 +1064,29 @@ TwitchNet.Clients.PubSub
         public void
         MaskData(byte[] key)
         {
-            for (ulong index = 0; index < length; ++index)
+            if (key.Length == 0 || length_data == 0)
+            {
+                return;
+            }
+
+            for (ulong index = 0; index < length_data; ++index)
             {
                 data[index] = (byte)(data[index] ^ key[index % 4]);
             }
+        }
+
+        public void
+        UnmaskData(byte[] key)
+        {
+            if (mask == Mask.Off)
+            {
+                return;
+            }
+
+            mask = Mask.Off;
+
+            MaskData(data);
+            mask_key = new byte[0];
         }
 
         public static WebSocketFrame
@@ -974,7 +1112,7 @@ TwitchNet.Clients.PubSub
         }
 
         public byte[]
-        EncodeData()
+        EncodeFrame()
         {
             MemoryStream buffer = new MemoryStream();
 
@@ -1125,6 +1263,8 @@ TwitchNet.Clients.PubSub
         internal void
         SetNetworkError(WebSocketNetworkException exception)
         {
+            // TODO: OnNetworkError
+
             if (handling_network_error == ErrorHandling.Return)
             {
                 return;

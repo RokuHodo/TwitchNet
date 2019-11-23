@@ -33,6 +33,24 @@ TwitchNet.Extensions
             return bytes;
         }
 
+        public static type[]
+        Slice<type>(this type[] array, int start_index)
+        {
+            int length = array.Length - start_index;
+
+            return Slice(array, start_index, length);
+        }
+
+        public static type[]
+        Slice<type>(this type[] array, int start_index, int length)
+        {
+            type[] _array = new type[length];
+
+            Array.Copy(array, start_index, _array, 0, length);
+
+            return _array;
+        }
+
         public static ushort
         ToUint16FromBigEndian(this byte[] bytes)
         {

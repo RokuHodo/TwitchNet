@@ -22,32 +22,8 @@ using Newtonsoft.Json;
 
 namespace
 TwitchNet.Clients.PubSub
-{
-    public enum
-    WebSocketState
-    {
-        /// <summary>
-        /// The client is either connecting or has just been instantiated and is in its idle state.
-        /// </summary>
-        Connecting = 0,
-
-        /// <summary>
-        /// The client is connected.
-        /// </summary>
-        Open = 1,
-
-        /// <summary>
-        /// The client is currently disconnecting.
-        /// </summary>
-        Closing = 2,
-
-        /// <summary>
-        /// The client is disconnected.        
-        /// </summary>
-        Closed = 3,
-    }
-
-    public class
+{   
+    public partial class
     PubSubClient : IDisposable
     {
         private volatile bool polling;
@@ -71,7 +47,6 @@ TwitchNet.Clients.PubSub
         private Thread reader_thread;
 
         public WebSocketState state { get; private set; }
-
 
         public IPubSubSettings settings
         {
@@ -105,6 +80,8 @@ TwitchNet.Clients.PubSub
             _settings = new PubSubSettings();
 
             WebSocket.RegisterPrefixes();
+
+            ResetMessageHandlers();
         }
 
         #region Connection and Connection Validation
@@ -162,9 +139,9 @@ TwitchNet.Clients.PubSub
             reader_thread = new Thread(new ThreadStart(ReadStream));
             reader_thread.Start();
 
-            SetState(WebSocketState.Open);  
-            
-            // TODO: OnOpen
+            SetState(WebSocketState.Open);
+
+            OnOpen.Raise(this, EventArgs.Empty);
         }
 
         public void
@@ -228,9 +205,9 @@ TwitchNet.Clients.PubSub
             reader_thread = new Thread(new ThreadStart(ReadStream));
             reader_thread.Start();
 
-            // TODO: OnOpen
-
             SetState(WebSocketState.Open);
+
+            OnOpen.Raise(this, EventArgs.Empty);
         }
 
         private bool
@@ -376,7 +353,7 @@ TwitchNet.Clients.PubSub
                     // No further clean up needed since all other managed resources have been freed (except the state mutex).
                     OverrideState(WebSocketState.Closed);
 
-                    _settings.SetNetworkError(new WebSocketNetworkException(NetworkError.RetryConnectLimitReached, "The maximum amount of failed connection attempts has been reached. Limit: " + _settings.connect_retry_count_limit, exception));
+                    SetNetworkError(new WebSocketNetworkException(NetworkError.RetryConnectLimitReached, "The maximum amount of failed connection attempts has been reached. Limit: " + _settings.connect_retry_count_limit, exception));
                 }
                 else
                 {
@@ -388,7 +365,7 @@ TwitchNet.Clients.PubSub
             {
                 OverrideState(WebSocketState.Closed);
 
-                _settings.SetNetworkError(exception);
+                SetNetworkError(exception);
             }
         }
 
@@ -415,7 +392,7 @@ TwitchNet.Clients.PubSub
                     // No further clean up needed since all other managed resources have been freed (except the state mutex).
                     OverrideState(WebSocketState.Closed);
 
-                    _settings.SetNetworkError(new WebSocketNetworkException(NetworkError.RetryConnectLimitReached, "The maximum amount of failed connection attempts has been reached. Limit: " + _settings.connect_retry_count_limit, exception));
+                    SetNetworkError(new WebSocketNetworkException(NetworkError.RetryConnectLimitReached, "The maximum amount of failed connection attempts has been reached. Limit: " + _settings.connect_retry_count_limit, exception));
                 }
                 else
                 {
@@ -427,7 +404,7 @@ TwitchNet.Clients.PubSub
             {
                 OverrideState(WebSocketState.Closed);
 
-                _settings.SetNetworkError(exception);
+                SetNetworkError(exception);
             }
         }
 
@@ -440,13 +417,22 @@ TwitchNet.Clients.PubSub
         public void
         Close(bool force_disconnect = false)
         {
+            Close(FrameSource.Client, true);
+        }
+
+        private void
+        Close(FrameSource source, bool force_disconnect, WebSocketFrame frame = default)
+        {
             if (!SetState(WebSocketState.Closing, force_disconnect))
             {
                 return;
             }
 
-            WebSocketFrame frame = WebSocketFrame.CreateCloseFrame();
-            Send(frame.EncodeFrame());
+            if (source == FrameSource.Client)
+            {
+                frame = WebSocketFrame.CreateCloseFrame();
+                Send(frame.EncodeFrame());
+            }
 
             stream.Close();
 
@@ -463,9 +449,61 @@ TwitchNet.Clients.PubSub
             socket.Close();
             socket = null;
 
-            SetState(WebSocketState.Closed);
+            SetState(WebSocketState.Closed, force_disconnect);
+            OnClose.Raise(this, new CloseEventArgs(DateTime.Now, frame, source));
+        }
 
-            // TODO: OnClosed
+        public void
+        ForceCloseAsync()
+        {
+            CloseAsync(true);
+        }
+
+        public void
+        CloseAsync(bool force_disconnect = false)
+        {
+            Close(FrameSource.Client, true);
+        }
+
+        private async void
+        CloseAsync(FrameSource source, bool force_disconnect, WebSocketFrame frame = default)
+        {
+            if (!SetState(WebSocketState.Closing, force_disconnect))
+            {
+                return;
+            }
+
+            if (source == FrameSource.Client)
+            {
+                frame = WebSocketFrame.CreateCloseFrame();
+                await SendAsync(frame.EncodeFrame());
+            }
+
+            stream.Close();
+
+            while (reading)
+            {
+                await Task.Delay(1);
+            }
+
+            socket.Shutdown(SocketShutdown.Both);
+            socket.BeginDisconnect(false, Callback_OnBeginDisconnect, Tuple.Create(source, force_disconnect, frame));
+        }
+
+        private void
+        Callback_OnBeginDisconnect(IAsyncResult result)
+        {
+            Tuple<FrameSource, bool, WebSocketFrame> _result = (Tuple<FrameSource, bool, WebSocketFrame>)result.AsyncState;
+            
+            stream.Dispose();
+            stream = null;
+
+            socket.EndDisconnect(result);
+            socket.Close();
+            socket = null;
+
+            SetState(WebSocketState.Closed, _result.Item2);
+            OnClose.Raise(this, new CloseEventArgs(DateTime.Now, _result.Item3, _result.Item1));
         }
 
         public void
@@ -500,12 +538,36 @@ TwitchNet.Clients.PubSub
 
             Debug.WriteLine("Disposed");
 
-            // TODO: OnDisposed
+            OnDisposed.Raise(this, EventArgs.Empty);
         }
 
         #endregion
 
         #region State Handling
+
+        public enum
+        WebSocketState
+        {
+            /// <summary>
+            /// The client is either connecting or has just been instantiated and is in its idle state.
+            /// </summary>
+            Connecting = 0,
+
+            /// <summary>
+            /// The client is connected.
+            /// </summary>
+            Open = 1,
+
+            /// <summary>
+            /// The client is currently disconnecting.
+            /// </summary>
+            Closing = 2,
+
+            /// <summary>
+            /// The client is disconnected.        
+            /// </summary>
+            Closed = 3,
+        }
 
         private bool
         OverrideState(WebSocketState state)
@@ -546,7 +608,7 @@ TwitchNet.Clients.PubSub
                     case WebSocketState.Connecting: success = CanConnect();                         break;
                     case WebSocketState.Closing:    success = CanDisconnect();                      break;
                     case WebSocketState.Open:       success = state == WebSocketState.Connecting;   break;
-                    case WebSocketState.Closed:      success = state == WebSocketState.Closing;      break;
+                    case WebSocketState.Closed:     success = state == WebSocketState.Closing;      break;
                 }
             }
 
@@ -622,12 +684,16 @@ TwitchNet.Clients.PubSub
             message = message.Trim();
             byte[] bytes = Encoding.UTF8.GetBytes(message);
 
-            Send(Opcode.Text, new MemoryStream(bytes));
+            return Send(Opcode.Text, new MemoryStream(bytes));;
+        }
 
-            // TODO: OnFrameSent
-            // OnDataSent.Raise(this, new DataEventArgs(bytes, message));
+        public async Task<bool>
+        SendAsync(string message)
+        {
+            message = message.Trim();
+            byte[] bytes = Encoding.UTF8.GetBytes(message);
 
-            return true;
+            return await SendAsync(Opcode.Text, new MemoryStream(bytes));
         }
 
         public bool
@@ -691,6 +757,67 @@ TwitchNet.Clients.PubSub
             return true;
         }
 
+        public async Task<bool>
+        SendAsync(Opcode opcode, Stream stream)
+        {
+            ulong buffer_length = (ulong)stream.Length;
+            if (buffer_length == 0)
+            {
+                return await SendAsync(Fin.Final, opcode, new byte[0]);
+            }
+
+            ulong fragment_length = (ulong)settings.frame_fragment_length_write;
+            byte[] buffer = buffer_length < fragment_length ? new byte[buffer_length] : new byte[fragment_length];
+
+            // ---------------------------------------------
+            // The entire message can be sent as one message
+            // ---------------------------------------------
+
+            if (buffer_length <= fragment_length)
+            {
+                return stream.Read(buffer, 0, buffer.Length) == buffer.Length && await SendAsync(Fin.Final, opcode, buffer);
+            }
+
+            // ---------------------------------------------
+            // The message needs to sent in fragments
+            // ---------------------------------------------
+
+            Fin fin = Fin.Fragment;
+
+            // Figure out how many fragments needs to be sent
+            ulong fragments_count = buffer_length / fragment_length;
+            ulong remainder = buffer_length % fragment_length;
+            if (remainder > 0)
+            {
+                ++fragments_count;
+            }
+
+            int buffer_bytes_read_count = 0;
+            for (ulong index = 0; index < fragments_count; ++index)
+            {
+                if (index != 0)
+                {
+                    opcode = Opcode.Continuation;
+                }
+
+                if (index == fragments_count - 1)
+                {
+                    fin = Fin.Final;
+                    buffer = new byte[remainder];
+                }
+
+                buffer_bytes_read_count = stream.Read(buffer, 0, buffer.Length);
+                if (buffer_bytes_read_count != buffer.Length || !await SendAsync(fin, opcode, buffer))
+                {
+                    return false;
+                }
+
+                Array.Clear(buffer, 0, buffer_bytes_read_count);
+            }
+
+            return true;
+        }
+
         public bool
         Send(Fin fin, Opcode opcode, byte[] data)
         {
@@ -699,15 +826,51 @@ TwitchNet.Clients.PubSub
                 return false;
             }
 
-            WebSocketFrame frame = new WebSocketFrame(fin, opcode, data);
+            PayloadData payload = new PayloadData(data);
+            WebSocketFrame frame = new WebSocketFrame(fin, opcode, payload);
 
-            return Send(frame.encoded);
+            bool sent = Send(frame.encoded);
+            if (sent)
+            {
+                OnFrameSent.Raise(this, new FrameEventArgs(DateTime.Now, frame));
+            }
+
+            return sent;
+        }
+
+        public async Task<bool>
+        SendAsync(Fin fin, Opcode opcode, byte[] data)
+        {
+            if (state != WebSocketState.Open)
+            {
+                return false;
+            }
+
+            PayloadData payload = new PayloadData(data);
+            WebSocketFrame frame = new WebSocketFrame(fin, opcode, payload);
+
+            bool sent = await SendAsync(frame.encoded);
+            if (sent)
+            {
+                OnFrameSent.Raise(this, new FrameEventArgs(DateTime.Now, frame));
+            }
+
+            return sent;
         }
 
         public bool
         Send(byte[] bytes)
         {
             stream.Write(bytes, 0, bytes.Length);
+            stream.Flush();
+
+            return true;
+        }
+
+        public async Task<bool>
+        SendAsync(byte[] bytes)
+        {
+            await stream.WriteAsync(bytes, 0, bytes.Length);
             stream.Flush();
 
             return true;
@@ -722,43 +885,50 @@ TwitchNet.Clients.PubSub
         {
             reading = true;
 
-            byte[] buffer_header = new byte[2];
+            Opcode opcode;
 
-            string buffer_string = string.Empty;
-
+            DateTime time;
             WebSocketFrame frame;
-            Tuple<bool, WebSocketFrame> result;
+            List<WebSocketFrame> frames = new List<WebSocketFrame>();
 
-            List<byte> buffer = new List<byte>(settings.frame_fragment_length_read);
+            byte[] buffer_frame_header = new byte[2];
+            List<byte> buffer_message_data = new List<byte>(settings.frame_fragment_length_read);
+            string message = string.Empty;
+
+            Tuple<bool, WebSocketFrame> result;
 
             while (polling && !socket.IsNull() && !stream.IsNull())
             {
-                Array.Clear(buffer_header, 0, buffer_header.Length);
+                Array.Clear(buffer_frame_header, 0, buffer_frame_header.Length);
 
-                result = await ReadFrameAsync(stream, buffer_header);
+                result = await ReadFrameAsync(stream, buffer_frame_header);
                 if (!result.Item1)
                 {
                     continue;
                 }
 
-                // TODO: OnFrameReceived
-
+                time = DateTime.Now;
                 frame = result.Item2;
+                frames.Add(frame);
 
-                if (frame.length_data > 0)
+                OnFrameReceived.Raise(this, new FrameEventArgs(time, frame));
+
+                if (frame.payload.length > 0)
                 {
-                    buffer.AddRange(frame.data);
+                    buffer_message_data.AddRange(frame.payload.data);
                 }
 
                 if (frame.fin == Fin.Final)
                 {
+                    opcode = frames[0].opcode;
 
-                    buffer_string = Encoding.UTF8.GetString(buffer.ToArray());
-                    Debug.WriteLine(buffer_string);
+                    MessageEventArgs args = new MessageEventArgs(time, frames.ToArray(), opcode, buffer_message_data.ToArray());
+                    OnMessage.Raise(this, args);
 
-                    // TODO: OnMessage
+                    RunHandler(opcode, args);
 
-                    buffer.Clear();
+                    frames.Clear();
+                    buffer_message_data.Clear();
                 }                
             }
 
@@ -768,7 +938,7 @@ TwitchNet.Clients.PubSub
         private async Task<Tuple<bool, WebSocketFrame>>
         ReadFrameAsync(Stream stream, byte[] buffer_header)
         {
-            Tuple<bool, int> result_read;
+            bool result_read = false;
             Tuple<bool, WebSocketFrame> result_frame_fail = Tuple.Create(false, default(WebSocketFrame));
 
             WebSocketFrame frame = new WebSocketFrame();
@@ -778,7 +948,7 @@ TwitchNet.Clients.PubSub
             // ---------------------------------------------
 
             result_read = await ReadStreamAsync(stream, buffer_header);
-            if (!result_read.Item1)
+            if (!result_read)
             {
                 return result_frame_fail;
             }
@@ -809,7 +979,7 @@ TwitchNet.Clients.PubSub
                 frame.length_payload_extended = new byte[length_payload_extended_count];
 
                 result_read = await ReadStreamAsync(stream, frame.length_payload_extended);
-                if (!result_read.Item1)
+                if (!result_read)
                 {
                     return result_frame_fail;
                 }
@@ -828,7 +998,7 @@ TwitchNet.Clients.PubSub
                 frame.mask_key = new byte[4];
 
                 result_read = await ReadStreamAsync(stream, frame.mask_key);
-                if (!result_read.Item1)
+                if (!result_read)
                 {
                     return result_frame_fail;
                 }
@@ -838,42 +1008,44 @@ TwitchNet.Clients.PubSub
             // Data Decoding
             // ---------------------------------------------
 
+            PayloadData payload = new PayloadData();
+
             if (frame.length_payload < 126)
             {
-                frame.length_data = frame.length_payload;
+                payload.length = frame.length_payload;
             }
             else if (frame.length_payload == 126)
             {
-                frame.length_data = frame.length_payload_extended.ToUint16FromBigEndian();
+                payload.length = frame.length_payload_extended.ToUint16FromBigEndian();
             }
             else
             {
-                frame.length_data = frame.length_payload_extended.ToUint64FromBigEndian();
+                payload.length = frame.length_payload_extended.ToUint64FromBigEndian();
             }
 
             // Not an error, just an empty frame
-            if (frame.length_data == 0)
+            if (payload.length == 0)
             {
-                frame.data = new byte[0];
+                frame.payload = PayloadData.Empty;
 
                 return Tuple.Create(true, frame);
             }
 
-            frame.data = new byte[frame.length_data];
+            payload.data = new byte[payload.length];
 
             int fragment_length = settings.frame_fragment_length_read;
-            if (frame.length_data <= (ulong)fragment_length)
+            if (payload.length <= (ulong)fragment_length)
             {
-                result_read = await ReadStreamAsync(stream, frame.data);
-                if (!result_read.Item1)
+                result_read = await ReadStreamAsync(stream, payload.data);
+                if (!result_read)
                 {
                     return result_frame_fail;
                 }
             }
             else
             {
-                ulong fragments_count = (frame.length_data / (ulong)fragment_length);
-                if (frame.length_data % (ulong)fragment_length > 0)
+                ulong fragments_count = (payload.length / (ulong)fragment_length);
+                if (payload.length % (ulong)fragment_length > 0)
                 {
                     ++fragments_count;
                 }
@@ -881,15 +1053,15 @@ TwitchNet.Clients.PubSub
                 int offset = 0;
                 for (ulong index = 0; index < fragments_count; ++index)
                 {
-                    result_read = await ReadStreamAsync(stream, frame.data, offset, fragment_length);
-                    if (!result_read.Item1)
+                    result_read = await ReadStreamAsync(stream, payload.data, offset, fragment_length);
+                    if (!result_read)
                     {
                         return result_frame_fail;
                     }
 
                     offset += fragment_length;
 
-                    int temp = frame.data.Length - offset;
+                    int temp = payload.data.Length - offset;
                     fragment_length = temp < fragment_length ? temp : fragment_length;
                 }
             }
@@ -897,19 +1069,21 @@ TwitchNet.Clients.PubSub
             // TODO: Since this is a client, it should *never* receieve masked data from the server. Throw an error and disconnect if this is ever true.
             if (frame.mask == Mask.On)
             {
-                frame.MaskData(frame.mask_key);
+                payload.Mask(frame.mask_key);
             }
+
+            frame.payload = payload;
 
             return Tuple.Create(true, frame);
         }
 
-        private async Task<Tuple<bool, int>>
+        private async Task<bool>
         ReadStreamAsync(Stream stream, byte[] buffer)
         {
             return await ReadStreamAsync(stream, buffer, 0, buffer.Length);
         }
 
-        private async Task<Tuple<bool, int>>
+        private async Task<bool>
         ReadStreamAsync(Stream stream, byte[] buffer, int offset, int count)
         {
             int buffer_bytes_read_count = 0;
@@ -922,67 +1096,51 @@ TwitchNet.Clients.PubSub
             {
                 if (state != WebSocketState.Closing)
                 {
-                    _settings.SetNetworkError(new WebSocketNetworkException(NetworkError.Stream_Disposed, "The stream was disposed while attempting to read data.", exception));
+                    SetNetworkError(new WebSocketNetworkException(NetworkError.Stream_Disposed, "The stream was disposed while attempting to read data.", exception));
                 }
 
-                return new Tuple<bool, int>(false, 0);
+                return false;
             }
 
             if (buffer_bytes_read_count == 0) 
             {
-                _settings.SetNetworkError(new WebSocketNetworkException(NetworkError.Stream_ZeroBytesRead, "Zero bytes were ready from the buffer instead of the expected " + buffer.Length + " bytes. It is highly recommended to reconnect to the web socket."));
+                SetNetworkError(new WebSocketNetworkException(NetworkError.Stream_ZeroBytesRead, "Zero bytes were ready from the buffer instead of the expected " + buffer.Length + " bytes. It is highly recommended to reconnect to the web socket."));
 
-                return new Tuple<bool, int>(false, 0);
+                return false;
             }
 
             // This normally isn't inherantly an error, but for a web socket it's bad if the correct number of bytes isn't read.
             if (buffer_bytes_read_count != count)
             {
-                _settings.SetNetworkError(new WebSocketNetworkException(NetworkError.Stream_BytesReadCount, buffer_bytes_read_count + " bytes were ready from the buffer instead of the expected " + buffer.Length + " bytes."));
+                SetNetworkError(new WebSocketNetworkException(NetworkError.Stream_BytesReadCount, buffer_bytes_read_count + " bytes were ready from the buffer instead of the expected " + buffer.Length + " bytes."));
 
-                return new Tuple<bool, int>(false, buffer_bytes_read_count);
+                return false;
             }
 
-            return new Tuple<bool, int>(true, buffer_bytes_read_count);
+            return true;
+        }
+
+        #endregion
+
+        #region Error Handling
+
+        private void
+        SetNetworkError(WebSocketNetworkException exception)
+        {
+            OnNetworkError.Raise(this, new NetworkErrorEventArgs(DateTime.Now, exception));
+
+            if (_settings.handling_network_error == ErrorHandling.Return)
+            {
+                return;
+            }
+
+            throw exception;
         }
 
         #endregion
     }
 
-    #region Data Structures
-
-    public class
-    ListenTopic
-    {
-        [JsonProperty("type")]
-        public string type;
-
-        [JsonProperty("nonce")]
-        public string nonce;
-
-        [JsonProperty("data")]
-        public TopicData data;
-
-        public ListenTopic()
-        {
-            data = new TopicData();
-        }
-    }
-
-    public class
-    TopicData
-    {
-        [JsonProperty("topics")]
-        public List<string> topics;
-
-        [JsonProperty("auth_token")]
-        public string auth_token;
-
-        public TopicData()
-        {
-            topics = new List<string>();
-        }
-    }
+    #region Web Socket Data Structures
 
     public struct
     WebSocketFrame
@@ -996,20 +1154,20 @@ TwitchNet.Clients.PubSub
         public Opcode opcode;
 
         public Mask mask;
-
-        public ulong length_data;
+        
         public byte length_payload;
         public byte[] length_payload_extended;
 
         public byte[] mask_key;
 
-        public byte[] data;
+        public PayloadData payload;
+
         public byte[] encoded;
 
         public
-        WebSocketFrame(Fin fin, Opcode opcode, byte[] data, bool use_mask = true)
+        WebSocketFrame(Fin fin, Opcode opcode, in PayloadData payload, bool use_mask = true)
         {
-            this.data = data;
+            this.payload = payload;
             encoded = new byte[0];
 
             this.fin = fin;
@@ -1020,28 +1178,27 @@ TwitchNet.Clients.PubSub
 
             this.opcode = opcode;
 
-            length_data = (ulong)data.LongLength;
-            if (length_data < 126)
+            if (payload.length < 126)
             {
-                length_payload = (byte)length_data;
+                length_payload = (byte)payload.length;
                 length_payload_extended = new byte[0];
             }
-            else if (length_data <= ushort.MaxValue)
+            else if (payload.length <= ushort.MaxValue)
             {
                 length_payload = 126;
-                length_payload_extended = ((ushort)length_data).ToBigEndianByteArray();
+                length_payload_extended = ((ushort)payload.length).ToBigEndianByteArray();
             }
             else
             {
                 length_payload = 127;
-                length_payload_extended = length_data.ToBigEndianByteArray();
+                length_payload_extended = payload.length.ToBigEndianByteArray();
             }
 
             if (use_mask)
             {
                 mask = Mask.On;
                 mask_key = CreateMaskingKey();
-                MaskData(mask_key);
+                payload.Mask(mask_key);
             }
             else
             {
@@ -1061,54 +1218,22 @@ TwitchNet.Clients.PubSub
             return key;
         }
 
-        public void
-        MaskData(byte[] key)
+        public static WebSocketFrame
+        CreateCloseFrame()
         {
-            if (key.Length == 0 || length_data == 0)
-            {
-                return;
-            }
-
-            for (ulong index = 0; index < length_data; ++index)
-            {
-                data[index] = (byte)(data[index] ^ key[index % 4]);
-            }
-        }
-
-        public void
-        UnmaskData(byte[] key)
-        {
-            if (mask == Mask.Off)
-            {
-                return;
-            }
-
-            mask = Mask.Off;
-
-            MaskData(data);
-            mask_key = new byte[0];
+            return new WebSocketFrame(Fin.Final, Opcode.Close, PayloadData.Empty);
         }
 
         public static WebSocketFrame
-        CreateCloseFrame(string reason = "")
+        CreateCloseFrame(CloseStatusCode status_code, string reason = "")
         {
-            return CreateCloseFrame(1005, reason);
-        }
-
-        public static WebSocketFrame
-        CreateCloseFrame(ushort code, string reason = "")
-        {
-            byte[] data = code.ToBigEndianByteArray();
-            if (!reason.HasContent())
+            if (status_code == CloseStatusCode.Other || status_code == CloseStatusCode.None || status_code == CloseStatusCode.Abnormal)
             {
-                return new WebSocketFrame(Fin.Final, Opcode.Close, data);
+                return CreateCloseFrame();
             }
 
-            List<byte> _data = new List<byte>(data.Length + reason.Length);
-            _data.AddRange(data);
-            _data.AddRange(Encoding.UTF8.GetBytes(reason));
-
-            return new WebSocketFrame(Fin.Final, Opcode.Close, _data.ToArray());
+            PayloadData payload = new PayloadData(status_code, reason);
+            return new WebSocketFrame(Fin.Final, Opcode.Close, payload);
         }
 
         public byte[]
@@ -1141,19 +1266,107 @@ TwitchNet.Clients.PubSub
 
             if (length_payload > 0)
             {
-                if (length_payload < 127)
-                {
-                    buffer.Write(data, 0, data.Length);
-                }
-                else
-                {
-                    buffer.WriteBytes(data, 1024);
-                }
+                buffer.Write(payload.data, 0, payload.data.Length);
             }
 
             buffer.Close();
 
             return buffer.ToArray();
+        }
+    }
+
+    public struct
+    PayloadData
+    {
+        public static readonly PayloadData Empty;
+
+        public CloseStatusCode close_status_code;
+
+        public string close_reason;
+
+        public byte[] data;
+
+        public ulong length;
+
+        static
+        PayloadData()
+        {
+            Empty = new PayloadData(new byte[0]);
+        }
+
+        public
+        PayloadData(byte[] data)
+        {
+            close_status_code = CloseStatusCode.Other;
+            close_reason = string.Empty;
+
+            this.data = data;
+
+            length = (ulong)data.LongLength;
+        }
+
+        public
+        PayloadData(CloseStatusCode status_code, string reason)
+        {
+            close_status_code = CloseStatusCode.Other;
+            close_reason = reason;
+
+            data = new byte[2];
+            length = (ulong)data.LongLength;
+
+            if (!reason.HasContent())
+            {
+                byte[] data_code = ((ushort)status_code).ToBigEndianByteArray();
+                byte[] data_reason = Encoding.UTF8.GetBytes(reason);
+
+                data = new byte[data_code.LongLength + data_reason.LongLength];
+
+                int index = 0;
+                foreach(byte element in data_code)
+                {
+                    data[index] = element;
+                    ++index;
+                }
+
+                foreach (byte element in data_code)
+                {
+                    data[index] = element;
+                    ++index;
+                }
+            }
+            else
+            {
+                data = ((ushort)status_code).ToBigEndianByteArray();
+                length = (ulong)data.LongLength;
+            }
+        }
+
+        public void
+        Mask(byte[] key)
+        {
+            if (key.Length == 0 || length == 0)
+            {
+                return;
+            }
+
+            for (ulong index = 0; index < length; ++index)
+            {
+                data[index] = (byte)(data[index] ^ key[index % 4]);
+            }
+        }
+
+        public void
+        Unmask(ref Mask mask, ref byte[] key)
+        {
+            if (mask == PubSub.Mask.Off)
+            {
+                return;
+            }
+
+            mask = PubSub.Mask.Off;
+
+            Mask(data);
+            key = new byte[0];
         }
     }
 
@@ -1195,8 +1408,40 @@ TwitchNet.Clients.PubSub
         Off = 0x0,
 
         On = 0x1
-    }   
-    
+    }
+
+    public enum
+    CloseStatusCode : ushort
+    {
+        Other = 0,
+
+        Normal = 1000,
+
+        Away = 1001,
+
+        ProtocolError = 1002,
+
+        UnsupportedData = 1003,
+
+        Reserved = 1004,
+
+        None = 1005,
+
+        Abnormal = 1006,
+
+        InvalidData = 1007,
+
+        PolicyViolation = 1008,
+
+        TooBig = 1009,
+
+        ExtensionsExpected = 1010,
+
+        UnexpectedError = 1011,
+
+        TlsHandshakeFailure = 1015
+    }
+
     public interface
     IPubSubSettings
     {
@@ -1232,6 +1477,7 @@ TwitchNet.Clients.PubSub
             connect_retry_count_limit = connect_retry_delay_seconds.Length;
 
             handling_failed_to_connect = RetryHandling.Retry;
+            handling_network_error = ErrorHandling.Error;
         }
 
         public void
@@ -1259,24 +1505,48 @@ TwitchNet.Clients.PubSub
 
             await Task.Delay(connect_retry_delay_seconds[connect_retry_count - 1] * 1000);
         }
+    }
 
-        internal void
-        SetNetworkError(WebSocketNetworkException exception)
+    #endregion
+
+    #region PubSub Data Structures
+
+    public class
+    ListenTopic
+    {
+        [JsonProperty("type")]
+        public string type;
+
+        [JsonProperty("nonce")]
+        public string nonce;
+
+        [JsonProperty("data")]
+        public TopicData data;
+
+        public ListenTopic()
         {
-            // TODO: OnNetworkError
+            data = new TopicData();
+        }
+    }
 
-            if (handling_network_error == ErrorHandling.Return)
-            {
-                return;
-            }
+    public class
+    TopicData
+    {
+        [JsonProperty("topics")]
+        public List<string> topics;
 
-            throw exception;
+        [JsonProperty("auth_token")]
+        public string auth_token;
+
+        public TopicData()
+        {
+            topics = new List<string>();
         }
     }
 
     #endregion
 
-    #region Errors and Erro Handling
+    #region Error Types
 
     public enum
     RetryHandling

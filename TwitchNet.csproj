@@ -50,8 +50,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Clients\Irc\TwitchIrcUtil.cs" />
-    <Compile Include="Clients\PubSub\PubSubClient.Events.cs" />
     <Compile Include="Clients\PubSub\PubSubClient.cs" />
+    <Compile Include="Clients\PubSub\WebSocketClient.Handlers.cs" />
+    <Compile Include="Clients\PubSub\WebSocketClient.Events.cs" />
+    <Compile Include="Clients\PubSub\WebSocketClient.cs" />
     <Compile Include="Debugger\Check.cs" />
     <Compile Include="Debugger\DebugLevel.cs" />
     <Compile Include="Debugger\ErrorLevel.cs" />

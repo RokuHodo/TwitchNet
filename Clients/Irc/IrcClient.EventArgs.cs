@@ -875,7 +875,7 @@ TwitchNet.Clients.Irc
         /// <summary>
         /// <para>The index in the message where the last emote character is located.</para>
         /// <para>Set to -1 if the index could not be parsed.</para>
-        /// </summary>
+        /// </summary>\
         [ValidateMember(Check.IsNotEqualTo, -1)]
         public int index_end { get; protected set; }
 

@@ -1,9 +1,13 @@
 ﻿// standard namespaces
 using System;
+using System.Drawing;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Timers;
+using System.Threading.Tasks;
 
 // project namespaces
+using TwitchNet.Debugger;
 using TwitchNet.Extensions;
 using TwitchNet.Helpers.Json;
 using TwitchNet.Utilities;
@@ -14,14 +18,97 @@ using Newtonsoft.Json;
 namespace
 TwitchNet.Clients.PubSub
 {   
-    public class
+    public partial class
     PubSubClient : WebSocketClient, IDisposable
     {
+        private Timer timer_ping;
+
+        public Random timer_ping_jitter;
+
         public
         PubSubClient() : base()
         {
             URI = new Uri("wss://pubsub-edge.twitch.tv");
+
+            timer_ping = new Timer(10 * 60 * 1000);
+            timer_ping.Elapsed += Callback_TimerPing_OnElapsed;
+
+            Guid guid = Guid.NewGuid();
+            timer_ping_jitter = new Random(guid.GetHashCode());
+
+            OnOpen += Callback_OnOpen;
+            OnMessageText += CallBack_OnMessageText;
         }
+
+        private void
+        Callback_OnOpen(object sender, WebSocketEventArgs e)
+        {
+            Debug.WriteLine("Timers started.");
+            timer_ping.Start();
+        }
+
+        private void
+        CallBack_OnMessageText(object sender, MessageTextEventArgs e)
+        {
+            PubSubType check = JsonConvert.DeserializeObject<PubSubType>(e.message);
+            switch (check.type)
+            {
+                case PubSubMessageType.Pong:        OnPupSubPong.Raise(this, new PubSubTypeEventArgs(e, check.type));       break;
+                case PubSubMessageType.Reconnect:   OnPupSubReconnect.Raise(this, new PubSubTypeEventArgs(e, check.type));  break;
+                case PubSubMessageType.Response:    OnPupSubResponse.Raise(this, new PubSubResponseEventArgs(e));           break;
+                case PubSubMessageType.Message:     ProcessPubSubMessage(e);                                                break;
+            }
+        }
+
+        public sealed override void
+        Dispose()
+        {
+            Dispose(true, Callback_Disposed);
+        }
+
+        private void
+        Callback_Disposed()
+        {
+            if (!timer_ping.IsNull())
+            {
+                timer_ping.Stop();
+                timer_ping.Dispose();
+                timer_ping = null;
+            }
+        }
+
+        private async void
+        Callback_TimerPing_OnElapsed(object sender, ElapsedEventArgs e)
+        {
+            int jitter = timer_ping_jitter.Next(-100, 100);
+            await Task.Delay(jitter);
+
+            timer_ping.Dispose();
+
+            Ping();
+        }
+
+        private void
+        ProcessPubSubMessage(MessageTextEventArgs args)
+        {
+            PubSubMessageEventArgs args_pub_sub = new PubSubMessageEventArgs(args);
+            OnPupSubMessage.Raise(this, args_pub_sub);
+
+            string _topic = args_pub_sub.message.data.topic.TextBefore('.');
+            if (!EnumUtil.TryParse(_topic, out PubsubTopic topic))
+            {
+                // TODO: OnPubSubUnsupportedTopic
+
+                return;
+            }
+
+            switch (topic)
+            {
+                case PubsubTopic.Whispers: OnPupSubMessageWhisper.Raise(this, new PubSubWhisperEventArgs(args_pub_sub, args)); break;
+            }
+        }
+
+        #region Writing
 
         public bool
         Ping()
@@ -32,9 +119,67 @@ TwitchNet.Clients.PubSub
         }
 
         public bool
-        Listen(ListenPayload payload)
+        Listen(string oauth_token, string topic, string nonce = "")
         {
-            if (!ValidateListenPayload(payload, PubSubMessageType.Listen))
+            ListenUnlistenPayload payload = new ListenUnlistenPayload();
+            payload.type = PubSubMessageType.Listen;
+            payload.nonce = nonce;
+            payload.data.auth_token = oauth_token;
+            payload.data.topics.Add(topic);
+
+            return SendListenUnlistenPayload(payload);
+        }
+
+        public bool
+        Listen(string oauth_token, string[] topics, string nonce = "")
+        {
+            if (topics.IsNull())
+            {
+                return false;
+            }
+
+            ListenUnlistenPayload payload = new ListenUnlistenPayload();
+            payload.type = PubSubMessageType.Listen;
+            payload.nonce = nonce;
+            payload.data.auth_token = oauth_token;
+            payload.data.topics.AddRange(topics);
+
+            return SendListenUnlistenPayload(payload);
+        }
+
+        public bool
+        Unlisten(string oauth_token, string topic, string nonce = "")
+        {
+            ListenUnlistenPayload payload = new ListenUnlistenPayload();
+            payload.type = PubSubMessageType.Unlisten;
+            payload.nonce = nonce;
+            payload.data.auth_token = oauth_token;
+            payload.data.topics.Add(topic);
+
+            return SendListenUnlistenPayload(payload);
+        }
+
+        public bool
+        Unlisten(string oauth_token, string[] topics, string nonce = "")
+        {
+            if (topics.IsNull())
+            {
+                return false;
+            }
+
+            ListenUnlistenPayload payload = new ListenUnlistenPayload();
+            payload.type = PubSubMessageType.Unlisten;
+            payload.nonce = nonce;
+            payload.data.auth_token = oauth_token;
+            payload.data.topics.AddRange(topics);
+
+            return SendListenUnlistenPayload(payload);
+        }
+
+        public bool
+        SendListenUnlistenPayload(ListenUnlistenPayload payload)
+        {
+            if (!ValidateListenUnlistenPayload(payload))
             {
                 return false;
             }
@@ -44,99 +189,41 @@ TwitchNet.Clients.PubSub
             return Send(_payload);
         }
 
-        public bool
-        Listen(ListenPayload[] payloads)
-        {
-            if (!payloads.IsValid())
-            {
-                return false;
-            }
-
-            foreach (ListenPayload payload in payloads)
-            {
-                if (!Listen(payload))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        public bool
-        Listen(PubsubTopic topic, string oauth_token, string nonce, params string[] args)
-        {
-            if (args.IsNull())
-            {
-                return false;
-            }
-
-            string _topic = EnumUtil.GetName(topic) + '.' + string.Join(".", args);
-
-            ListenPayload payload = new ListenPayload();
-            payload.type = PubSubMessageType.Listen;
-            payload.nonce = nonce;
-            payload.data.auth_token = oauth_token;
-            payload.data.topics.Add(_topic);
-
-            return Listen(payload);
-        }
-
         private bool
-        ValidateListenArguments(PubsubTopic topic, string oauth_token, params string[] args)
-        {
-            if (!args.IsValid())
-            {
-                // Error
-
-                return false;
-            }
-
-            if (!oauth_token.HasContent())
-            {
-                // Error, can't be null, empty, or contain only whitespace
-
-                return false;
-            }
-
-            return true;
-        }
-
-        private bool
-        ValidateListenPayload(ListenPayload payload, PubSubMessageType expected_type = PubSubMessageType.Other)
+        ValidateListenUnlistenPayload(ListenUnlistenPayload payload)
         {
             if (payload.IsNull())
             {
+                // Error, payload is null
+
                 return false;
             }
 
-            if(expected_type == PubSubMessageType.Other)
+            if (payload.type != PubSubMessageType.Listen && payload.type != PubSubMessageType.Unlisten)
             {
-                if (payload.type != PubSubMessageType.Listen && payload.type == PubSubMessageType.Unlisten)
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                if (payload.type != expected_type)
-                {
-                    return false;
-                }
+                // Error, type mismatch
+
+                return false;
             }
 
             if (payload.data.IsNull())
             {
+                // Error, data is null
+
                 return false;
             }
 
             if (!payload.data.auth_token.HasContent())
             {
+                // Error, no authorization provided
+
                 return false;
             }
 
             if (!payload.data.topics.IsValid())
             {
+                // Error, no topics provided
+
                 return false;
             }
 
@@ -145,13 +232,15 @@ TwitchNet.Clients.PubSub
             {
                 if (!payload.data.topics[index].HasContent())
                 {
+                    // Error, empty topic
+
                     return false;
                 }
 
                 topic = payload.data.topics[index].Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
                 if (!EnumUtil.TryParse(topic[0], out PubsubTopic _topic))
                 {
-                    // Failed to parse the string into a topic
+                    // Error, failed to parse the string into a topic
 
                     return false;
                 }
@@ -188,12 +277,247 @@ TwitchNet.Clients.PubSub
 
             return true;
         }
+
+        #endregion
     }
 
     #region Data Structures
 
     public class
-    ListenPayload
+    PubSubType
+    {
+        [JsonProperty("type")]
+        public PubSubMessageType type { get; set; }
+    }
+
+    public class
+    PubSubResponse
+    {
+        [JsonProperty("type")]
+        public PubSubMessageType type { get; set; }
+
+        [JsonProperty("error")]
+        public string error { get; set; }
+
+        [JsonProperty("nonce")]
+        public string nonce { get; set; }
+    }
+
+    public class
+    PubSubMessage
+    {
+        [JsonProperty("type")]
+        public PubSubMessageType type { get; set; }
+
+        [JsonProperty("data")]
+        public PubSubMessageData data { get; set; }
+    }
+
+    public class
+    PubSubMessageData
+    {
+        [JsonProperty("topic")]
+        public string topic { get; set; }
+
+        [JsonProperty("message")]
+        public string message { get; set; }
+    }
+
+    public class
+    PubSubWhisper
+    {
+        /// <summary>
+        /// The whisper type.
+        /// </summary>
+        [JsonProperty("type")]
+        public string type { get; set; }
+
+        /// <summary>
+        /// The whisper data in an escaped string form.
+        /// </summary>
+        [JsonProperty("data")]
+        public string data { get; set; }
+
+        /// <summary>
+        /// The whisper data.
+        /// </summary>
+        [JsonProperty("data_object")]
+        PubSubWhisperDataObject data_object { get; set; }
+    }
+
+    public class
+    PubSubWhisperDataObject
+    {
+        /// <summary>
+        /// The whisper ID.
+        /// </summary>
+        [JsonProperty("message_id")]
+        public string message_id { get; set; }
+
+        /// <summary>
+        /// The total number of whispers sent between each user.
+        /// </summary>
+        [JsonProperty("id")]
+        public string id { get; set; }
+
+        /// <summary>
+        /// The user ID of the sender and the user ID of the recipient concatenated with an underscore.
+        /// </summary>
+        [JsonProperty("thread_id")]
+        public string thread_id { get; set; }
+
+        /// <summary>
+        /// The whisper message that was sent.
+        /// </summary>
+        [JsonProperty("body")]
+        public string body { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [JsonProperty("sent_ts")]
+        public ulong sent_ts { get; set; }
+
+        /// <summary>
+        /// The sender's user ID.
+        /// </summary>
+        [JsonProperty("from_id")]
+        public string from_id { get; set; }
+
+        /// <summary>
+        /// The sender's user information.
+        /// </summary>
+        [JsonProperty("tags")]
+        public PubSubWhisperTags tags { get; set; }
+
+        /// <summary>
+        /// The recipient's user information.
+        /// </summary>
+        [JsonProperty("recipient")]
+        public PubSubRecipient recipient { get; set; }
+
+        /// <summary>
+        /// A unique string generated by Twitch to identify the PubSub payload.
+        /// </summary>
+        [JsonProperty("nonce")]
+        public string nonce { get; set; }
+    }
+
+    public class
+    PubSubWhisperTags
+    {
+        /// <summary>
+        /// The sender's login name.
+        /// </summary>
+        [JsonProperty("login")]
+        public string login { get; set; }
+
+        /// <summary>
+        /// <para>The sender's display name.</para>
+        /// <para>Set to an empty string if the user never explicitly set their display name.</para>
+        /// </summary>
+        [JsonProperty("display_name")]
+        public string display_name { get; set; }
+
+        /// <summary>
+        /// <para>The sender's display name color.</para>
+        /// <para>Set to <see cref="Color.Empty"/> if the user never explicitly set their display name color.</para>
+        /// </summary>
+        [JsonProperty("color")]
+        public Color color { get; set; }
+
+        /// <summary>
+        /// The emotes that were used in the body of the whisper.
+        /// <para>Set to an empty list of the user didn't use any emotes.</para>
+        /// </summary>
+        [JsonProperty("emotes")]
+        public List<PubSubEmote> emotes { get; set; }
+
+        /// <summary>
+        /// <para>The sender's badges.</para>
+        /// <para>Set to an empty list of the user has no badges.</para>
+        /// </summary>
+        [JsonProperty("badges")]
+        public List<PubSubBadge> badges { get; set; }
+    }
+
+    public class
+    PubSubEmote
+    {
+        /// <summary>
+        /// The emote ID.
+        /// </summary>
+        [JsonProperty("id")]
+        public string id { get; set; }
+
+        /// <summary>
+        /// The index in the message where the first emote character is located.
+        /// </summary>
+        [JsonProperty("start")]
+        public int start { get; set; }
+
+        /// <summary>
+        /// The index in the message where the last emote character is located.
+        /// </summary>
+        [JsonProperty("end")]
+        public int end { get; set; }
+    }
+
+    public class
+    PubSubBadge
+    {
+        /// <summary>
+        /// The badge ID.
+        /// </summary>
+        [JsonProperty("id")]
+        public string id { get; set; }
+
+        /// <summary>
+        /// The badge version.
+        /// </summary>
+        [JsonProperty("version")]
+        public int version { get; set; }
+    }
+
+    public class
+    PubSubRecipient
+    {
+        /// <summary>
+        /// The user ID of the recipient.
+        /// </summary>
+        [JsonProperty("id")]
+        public string id { get; set; }
+
+        /// <summary>
+        /// The recipient's login name.
+        /// </summary>
+        [JsonProperty("username")]
+        public string username { get; set; }
+
+        /// <summary>
+        /// <para>The recipient's display name.</para>
+        /// <para>Set to an empty string if the user never explicitly set their display name.</para>
+        /// </summary>
+        [JsonProperty("display_name")]
+        public string display_name { get; set; }
+
+        /// <summary>
+        /// <para>The recipient's display name color.</para>
+        /// <para>Set to <see cref="Color.Empty"/> if the user never explicitly set their display name color.</para>
+        /// </summary>
+        [JsonProperty("color")]
+        public Color color { get; set; }
+
+        /// <summary>
+        /// <para>The recipient's profile image.</para>
+        /// <para>Set to null if the user never uploaded a profile image.</para>
+        /// </summary>
+        [JsonProperty("profile_image")]
+        public string profile_image { get; set; }
+    }
+
+    public class
+    ListenUnlistenPayload
     {
         [JsonProperty("type")]
         public PubSubMessageType type;
@@ -202,16 +526,16 @@ TwitchNet.Clients.PubSub
         public string nonce;
 
         [JsonProperty("data")]
-        public ListenPayloadData data;
+        public ListenUnlistenPayloadData data;
 
-        public ListenPayload()
+        public ListenUnlistenPayload()
         {
-            data = new ListenPayloadData();
+            data = new ListenUnlistenPayloadData();
         }
     }
 
     public class
-    ListenPayloadData
+    ListenUnlistenPayloadData
     {
         [JsonProperty("topics")]
         public List<string> topics;
@@ -219,7 +543,7 @@ TwitchNet.Clients.PubSub
         [JsonProperty("auth_token")]
         public string auth_token;
 
-        public ListenPayloadData()
+        public ListenUnlistenPayloadData()
         {
             topics = new List<string>();
         }
@@ -229,7 +553,7 @@ TwitchNet.Clients.PubSub
     public enum
     PubSubMessageType
     {
-        [EnumMember(Value = "")]
+        [EnumMember(Value = "Other")]
         Other = 0,
 
         [EnumMember(Value = "MESSAGE")]
@@ -257,7 +581,7 @@ TwitchNet.Clients.PubSub
     public enum
     PubsubTopic
     {
-        [EnumMember(Value = "")]
+        [EnumMember(Value = "Other")]
         Other = 0,
 
         [EnumMember(Value = "channel-bits-events-v1")]

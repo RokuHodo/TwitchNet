@@ -35,14 +35,22 @@ TwitchNet.Clients.PubSub
 
         public Uri uri { get; }
 
-        public string nonce { get; }
+        public string id { get; }
 
         public
-        WebSocketEventArgs(in DateTime time, Uri uri, string nonce = "")
+        WebSocketEventArgs(in DateTime time, Uri uri, string id = "")
         {
             this.time = time;
             this.uri = uri;
-            this.nonce = nonce;
+            this.id = id;
+        }
+
+        public
+        WebSocketEventArgs(WebSocketEventArgs agrs)
+        {
+            time = agrs.time;
+            uri = agrs.uri;
+            id = agrs.id;
         }
     }
 
@@ -52,7 +60,7 @@ TwitchNet.Clients.PubSub
         public WebSocketFrame frame { get; }
 
         public
-        FrameEventArgs(in DateTime time, Uri uri, in WebSocketFrame frame, string nonce = "") : base(time, uri, nonce)
+        FrameEventArgs(in DateTime time, Uri uri, in WebSocketFrame frame, string id = "") : base(time, uri, id)
         {
             this.frame = frame;
         }
@@ -66,7 +74,7 @@ TwitchNet.Clients.PubSub
         public string reason { get; }
 
         public
-        FrameCloseEventArgs(in DateTime time, Uri uri, in WebSocketFrame frame, string nonce = "") : base(time, uri, frame, nonce)
+        FrameCloseEventArgs(in DateTime time, Uri uri, in WebSocketFrame frame, string id = "") : base(time, uri, frame, id)
         {
             status_code = frame.payload.close_status_code;
             reason = frame.payload.close_reason;
@@ -85,7 +93,7 @@ TwitchNet.Clients.PubSub
         public string message { get; }
 
         public
-        MessageTextEventArgs(in DateTime time, Uri uri, in WebSocketFrame[] frames, Opcode opcode, in byte[] data, string message, string nonce = "") : base(time, uri, nonce)
+        MessageTextEventArgs(in DateTime time, Uri uri, in WebSocketFrame[] frames, Opcode opcode, in byte[] data, string message, string id = "") : base(time, uri, id)
         {
             this.frames = frames;
             this.opcode = opcode;
@@ -100,7 +108,7 @@ TwitchNet.Clients.PubSub
         public FrameSource source { get; }
 
         public
-        CloseEventArgs(in DateTime time, Uri uri, in WebSocketFrame frame, FrameSource source, string nonce = "") : base(time, uri, frame, nonce)
+        CloseEventArgs(in DateTime time, Uri uri, in WebSocketFrame frame, FrameSource source, string id = "") : base(time, uri, frame, id)
         {
             this.source = source;
         }
@@ -112,7 +120,7 @@ TwitchNet.Clients.PubSub
         public WebSocketException exception { get; }
 
         public
-        WebSocketErrorEventArgs(in DateTime time, Uri uri, WebSocketException exception, string nonce = "") : base(time, uri, nonce)
+        WebSocketErrorEventArgs(in DateTime time, Uri uri, WebSocketException exception, string id = "") : base(time, uri, id)
         {
             this.exception = exception;
         }
@@ -124,7 +132,7 @@ TwitchNet.Clients.PubSub
         public WebSocketNetworkException exception { get; }
 
         public
-        WebSocketNetworkErrorEventArgs(in DateTime time, Uri uri, WebSocketNetworkException exception, string nonce = "") : base(time, uri, nonce)
+        WebSocketNetworkErrorEventArgs(in DateTime time, Uri uri, WebSocketNetworkException exception, string id = "") : base(time, uri, id)
         {
             this.exception = exception;
         }

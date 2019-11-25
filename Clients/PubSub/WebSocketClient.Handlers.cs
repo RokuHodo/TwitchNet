@@ -82,7 +82,7 @@ TwitchNet.Clients.PubSub
             string message = Encoding.UTF8.GetString(buffer);
             Debug.WriteLine(message);
 
-            OnMessageText.Raise(this, new MessageTextEventArgs(time, URI, frames, opcode, buffer, message, nonce));
+            OnMessageText.Raise(this, new MessageTextEventArgs(time, URI, frames, opcode, buffer, message, id));
         }
 
         private void
@@ -104,7 +104,7 @@ TwitchNet.Clients.PubSub
             frames[0].payload.close_status_code = (CloseStatusCode)status_code;
             frames[0].payload.close_reason = reason;
 
-            OnFrameClose.Raise(this, new FrameCloseEventArgs(time, URI, frames[0], nonce));
+            OnFrameClose.Raise(this, new FrameCloseEventArgs(time, URI, frames[0], id));
 
             Close(FrameSource.Server, true, frames[0]);
         }
@@ -112,13 +112,13 @@ TwitchNet.Clients.PubSub
         private void
         MessageHandler_Ping(in DateTime time, in WebSocketFrame[] frames, Opcode opcode, in byte[] buffer)
         {
-            OnFramePing.Raise(this, new FrameEventArgs(time, URI, frames[0], nonce));
+            OnFramePing.Raise(this, new FrameEventArgs(time, URI, frames[0], id));
         }
 
         private void
         MessageHandler_Pong(in DateTime time, in WebSocketFrame[] frames, Opcode opcode, in byte[] buffer)
         {
-            OnFramePong.Raise(this, new FrameEventArgs(time, URI, frames[0], nonce));
+            OnFramePong.Raise(this, new FrameEventArgs(time, URI, frames[0], id));
         }
     }
 }

@@ -23,12 +23,12 @@ TwitchNet.Clients.PubSub
     public partial class
     WebSocketClient : IDisposable
     {
-        private volatile bool polling;
-        private volatile bool reading;
-        private volatile bool handshake_initiated;
+        protected volatile bool polling;
+        protected volatile bool reading;
+        protected volatile bool handshake_initiated;
 
-        private bool disposing;
-        private bool disposed;
+        protected bool disposing;
+        protected bool disposed;
 
         private readonly string UUID;
 
@@ -43,7 +43,7 @@ TwitchNet.Clients.PubSub
 
         protected Uri URI;
 
-        public string nonce { get; set; }
+        public string id { get; set; }
 
         public WebSocketState state { get; private set; }
 
@@ -60,7 +60,7 @@ TwitchNet.Clients.PubSub
         }
 
         public
-        WebSocketClient(string nonce = "")
+        WebSocketClient(string id = "")
         {
             state_mutex = new Mutex();
             SetState(WebSocketState.Connecting);
@@ -72,7 +72,7 @@ TwitchNet.Clients.PubSub
             disposing = false;
             disposed = false;
 
-            this.nonce = nonce ?? string.Empty;
+            this.id = id ?? string.Empty;
 
             UUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
@@ -84,7 +84,7 @@ TwitchNet.Clients.PubSub
         }
 
         public
-        WebSocketClient(Uri uri, string nonce = "") : this(nonce)
+        WebSocketClient(Uri uri, string id = "") : this(id)
         {
             URI = uri;
         }
@@ -146,7 +146,7 @@ TwitchNet.Clients.PubSub
 
             SetState(WebSocketState.Open);
 
-            OnOpen.Raise(this, new WebSocketEventArgs(DateTime.Now, URI, nonce));
+            OnOpen.Raise(this, new WebSocketEventArgs(DateTime.Now, URI, id));
         }
 
         public void
@@ -212,7 +212,7 @@ TwitchNet.Clients.PubSub
 
             SetState(WebSocketState.Open);
 
-            OnOpen.Raise(this, new WebSocketEventArgs(DateTime.Now, URI, nonce));
+            OnOpen.Raise(this, new WebSocketEventArgs(DateTime.Now, URI, id));
         }
 
         private bool
@@ -455,7 +455,7 @@ TwitchNet.Clients.PubSub
             socket = null;
 
             SetState(WebSocketState.Closed, force_disconnect);
-            OnClose.Raise(this, new CloseEventArgs(DateTime.Now, URI, frame, source, nonce));
+            OnClose.Raise(this, new CloseEventArgs(DateTime.Now, URI, frame, source, id));
         }
 
         public void
@@ -508,17 +508,17 @@ TwitchNet.Clients.PubSub
             socket = null;
 
             SetState(WebSocketState.Closed, _result.Item2);
-            OnClose.Raise(this, new CloseEventArgs(DateTime.Now, URI, _result.Item3, _result.Item1, nonce));
+            OnClose.Raise(this, new CloseEventArgs(DateTime.Now, URI, _result.Item3, _result.Item1, id));
         }
 
-        public void
+        public virtual void
         Dispose()
         {
             Dispose(true);
         }
 
-        private void
-        Dispose(bool dispose)
+        protected void
+        Dispose(bool dispose, Action intenral_callback = null)
         {
             if (disposing || !dispose || disposed)
             {
@@ -540,6 +540,11 @@ TwitchNet.Clients.PubSub
             }
 
             disposed = true;
+
+            if (!intenral_callback.IsNull())
+            {
+                intenral_callback();
+            }
 
             Debug.WriteLine("Disposed");
 
@@ -939,7 +944,7 @@ TwitchNet.Clients.PubSub
                 time = DateTime.Now;
 
                 frame = result.Item2;
-                OnFrame.Raise(this, new FrameEventArgs(time, URI, frame, nonce));
+                OnFrame.Raise(this, new FrameEventArgs(time, URI, frame, id));
 
                 // A control frame was either sent by itself or injected in the middle of a fragment.
                 // Process the control frame *immediately*.
@@ -1169,7 +1174,7 @@ TwitchNet.Clients.PubSub
         private void
         SetError(WebSocketException exception)
         {
-            OnError.Raise(this, new WebSocketErrorEventArgs(DateTime.Now, URI, exception, nonce));
+            OnError.Raise(this, new WebSocketErrorEventArgs(DateTime.Now, URI, exception, id));
 
             if (_settings.handling_error == ErrorHandling.Return)
             {
@@ -1182,7 +1187,7 @@ TwitchNet.Clients.PubSub
         private void
         SetNetworkError(WebSocketNetworkException exception)
         {
-            OnNetworkError.Raise(this, new WebSocketNetworkErrorEventArgs(DateTime.Now, URI, exception, nonce));
+            OnNetworkError.Raise(this, new WebSocketNetworkErrorEventArgs(DateTime.Now, URI, exception, id));
 
             if (_settings.handling_network_error == ErrorHandling.Return)
             {

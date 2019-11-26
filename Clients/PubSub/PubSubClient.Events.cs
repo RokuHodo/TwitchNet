@@ -10,16 +10,21 @@ TwitchNet.Clients.PubSub
     public partial class
     PubSubClient : WebSocketClient, IDisposable
     {
-        public event EventHandler<PubSubTypeEventArgs>      OnPupSubPong;
+        public event EventHandler<PubSubTypeEventArgs>              OnPupSubUnsupportedType;
 
-        public event EventHandler<PubSubTypeEventArgs>      OnPupSubReconnect;
+        public event EventHandler<PubSubTypeEventArgs>              OnPupSubPong;
 
-        public event EventHandler<PubSubResponseEventArgs>  OnPupSubResponse;
+        public event EventHandler<PubSubTypeEventArgs>              OnPupSubReconnect;
 
-        public event EventHandler<PubSubMessageEventArgs>   OnPupSubMessage;
+        public event EventHandler<PubSubResponseEventArgs>          OnPupSubResponse;
 
-        public event EventHandler<PubSubWhisperEventArgs>   OnPupSubMessageWhisper;
+        public event EventHandler<PubSubMessageEventArgs>           OnPupSubUnsupportedTopic;
 
+        public event EventHandler<PubSubMessageEventArgs>           OnPupSubMessage;
+
+        public event EventHandler<PubSubWhisperEventArgs>           OnPupSubWhisper;
+
+        public event EventHandler<PubSubModeratorActionsEventArgs>  OnPupSubModeratorAction;
     }
 
     public class
@@ -56,6 +61,12 @@ TwitchNet.Clients.PubSub
         {
             message = JsonConvert.DeserializeObject<PubSubMessage>(args.message);
         }
+
+        public
+        PubSubMessageEventArgs(PubSubMessageEventArgs args) : base(args.time, args.uri, args.web_socket_id)
+        {
+            message = args.message;
+        }
     }
 
     public class
@@ -64,9 +75,21 @@ TwitchNet.Clients.PubSub
         public PubSubWhisper whisper { get; }
 
         public
-        PubSubWhisperEventArgs(PubSubMessageEventArgs args_pub_sub, MessageTextEventArgs args) : base(args)
+        PubSubWhisperEventArgs(PubSubMessageEventArgs args) : base(args)
         {
-            whisper = JsonConvert.DeserializeObject<PubSubWhisper>(args_pub_sub.message.data.message);
+            whisper = JsonConvert.DeserializeObject<PubSubWhisper>(args.message.data.message);
+        }
+    }
+
+    public class
+    PubSubModeratorActionsEventArgs : PubSubMessageEventArgs
+    {
+        public ModeratorAction action { get; }
+
+        public
+        PubSubModeratorActionsEventArgs(PubSubMessageEventArgs args) : base(args)
+        {
+            action = JsonConvert.DeserializeObject<ModeratorAction>(args.message.data.message);
         }
     }
 }

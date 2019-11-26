@@ -80,7 +80,7 @@ TwitchNet.Clients.PubSub
 
             WebSocket.RegisterPrefixes();
 
-            ResetMessageHandlers();
+            ResetWebSocketHandlers();
         }
 
         public
@@ -944,7 +944,7 @@ TwitchNet.Clients.PubSub
                 time = DateTime.Now;
 
                 frame = result.Item2;
-                OnFrame.Raise(this, new FrameEventArgs(time, URI, frame, id));
+                OnWebSocketFrame.Raise(this, new FrameEventArgs(time, URI, frame, id));
 
                 // A control frame was either sent by itself or injected in the middle of a fragment.
                 // Process the control frame *immediately*.

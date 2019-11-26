@@ -13,15 +13,15 @@ TwitchNet.Clients.PubSub
 
         public virtual event EventHandler<EventArgs>                        OnDisposed;
 
-        public virtual event EventHandler<FrameEventArgs>                   OnFrame;
+        public virtual event EventHandler<FrameEventArgs>                   OnWebSocketFrame;
 
-        public virtual event EventHandler<FrameEventArgs>                   OnFrameClose;
+        public virtual event EventHandler<FrameEventArgs>                   OnWebsocketFrameClose;
 
-        public virtual event EventHandler<FrameEventArgs>                   OnFramePing;
+        public virtual event EventHandler<FrameEventArgs>                   OnWebSocketFramePing;
 
-        public virtual event EventHandler<FrameEventArgs>                   OnFramePong;
+        public virtual event EventHandler<FrameEventArgs>                   OnWebSocketFramePong;
 
-        public virtual event EventHandler<MessageTextEventArgs>             OnMessageText;
+        public virtual event EventHandler<MessageTextEventArgs>             OnWebSocketText;
 
         public virtual event EventHandler<WebSocketErrorEventArgs>          OnError;
 
@@ -35,14 +35,14 @@ TwitchNet.Clients.PubSub
 
         public Uri uri { get; }
 
-        public string id { get; }
+        public string web_socket_id { get; }
 
         public
-        WebSocketEventArgs(in DateTime time, Uri uri, string id = "")
+        WebSocketEventArgs(in DateTime time, Uri uri, string web_socket_id = "")
         {
             this.time = time;
             this.uri = uri;
-            this.id = id;
+            this.web_socket_id = web_socket_id;
         }
 
         public
@@ -50,7 +50,7 @@ TwitchNet.Clients.PubSub
         {
             time = agrs.time;
             uri = agrs.uri;
-            id = agrs.id;
+            web_socket_id = agrs.web_socket_id;
         }
     }
 

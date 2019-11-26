@@ -14,79 +14,79 @@ TwitchNet.Clients.PubSub
     public partial class
     WebSocketClient : IDisposable
     {
-        public delegate void MessageHandler(in DateTime time, in WebSocketFrame[] frames, Opcode opcode, in byte[] buffer);
+        public delegate void WebSocketHandlerOpcode(in DateTime time, in WebSocketFrame[] frames, Opcode opcode, in byte[] buffer);
 
-        Dictionary<Opcode, MessageHandler> handlers = new Dictionary<Opcode, MessageHandler>();
+        private Dictionary<Opcode, WebSocketHandlerOpcode> handlers_web_socket_opcode;
 
         public void
-        ResetMessageHandlers()
+        ResetWebSocketHandlers()
         {
-            handlers = new Dictionary<Opcode, MessageHandler>();
+            handlers_web_socket_opcode = new Dictionary<Opcode, WebSocketHandlerOpcode>();
 
-            SetMessageHandler(Opcode.Text,  MessageHandler_Text);
-            SetMessageHandler(Opcode.Close, MessageHandler_Close);
-            SetMessageHandler(Opcode.Ping,  MessageHandler_Ping);
-            SetMessageHandler(Opcode.Pong,  MessageHandler_Pong);
+            SetWebSocketHandler(Opcode.Text,    WebSocketHandler_Text);
+            SetWebSocketHandler(Opcode.Close,   WebSocketHandler_Close);
+            SetWebSocketHandler(Opcode.Ping,    WebSocketHandler_Ping);
+            SetWebSocketHandler(Opcode.Pong,    WebSocketHandler_Pong);
         }
 
         public bool
-        SetMessageHandler(Opcode opcode, MessageHandler handler)
+        SetWebSocketHandler(Opcode opcode, WebSocketHandlerOpcode handler)
         {
             ExceptionUtil.ThrowIfNull(handler, nameof(handler));
 
-            if (handlers.IsNull())
+            if (handlers_web_socket_opcode.IsNull())
             {
                 return false;
             }
 
-            handlers[opcode] = handler;
+            handlers_web_socket_opcode[opcode] = handler;
 
             return true;
         }
 
         public bool
-        RemoveMessageHandler(Opcode opcode)
+        RemoveWebSocketHandler(Opcode opcode)
         {
-            if (handlers.IsNull())
+            if (handlers_web_socket_opcode.IsNull())
             {
                 return true;
             }
 
-            if (!handlers.ContainsKey(opcode))
+            if (!handlers_web_socket_opcode.ContainsKey(opcode))
             {
                 return false;
             }
 
-            return handlers.Remove(opcode);
+            return handlers_web_socket_opcode.Remove(opcode);
         }
 
         private void
         RunMessageHandler(Opcode opcode, in DateTime time, in WebSocketFrame[] frames, in byte[] buffer)
         {
-            if (handlers.IsNull())
+            if (handlers_web_socket_opcode.IsNull())
             {
                 return;
             }
 
-            if (!handlers.ContainsKey(opcode))
+            if (!handlers_web_socket_opcode.ContainsKey(opcode))
             {
                 return;
             }
 
-            handlers[opcode](time, frames, opcode, buffer);
+            handlers_web_socket_opcode[opcode](time, frames, opcode, buffer);
         }
 
         private void
-        MessageHandler_Text(in DateTime time, in WebSocketFrame[] frames, Opcode opcode, in byte[] buffer)
+        WebSocketHandler_Text(in DateTime time, in WebSocketFrame[] frames, Opcode opcode, in byte[] buffer)
         {
             string message = Encoding.UTF8.GetString(buffer);
             Debug.WriteLine(message);
 
-            OnMessageText.Raise(this, new MessageTextEventArgs(time, URI, frames, opcode, buffer, message, id));
+            OnWebSocketText.Raise(this, new MessageTextEventArgs(time, URI, frames, opcode, buffer, message, id));
         }
 
         private void
-        MessageHandler_Close(in DateTime time, in WebSocketFrame[] frames, Opcode opcode, in byte[] buffer)
+        WebSocketHandler_Close(in DateTime time, in WebSocketFrame[] frames, Opcode opcode, in byte[] buffer)
         {
             ushort status_code = 0;
             string reason = string.Empty;
@@ -104,21 +104,21 @@ TwitchNet.Clients.PubSub
             frames[0].payload.close_status_code = (CloseStatusCode)status_code;
             frames[0].payload.close_reason = reason;
 
-            OnFrameClose.Raise(this, new FrameCloseEventArgs(time, URI, frames[0], id));
+            OnWebsocketFrameClose.Raise(this, new FrameCloseEventArgs(time, URI, frames[0], id));
 
             Close(FrameSource.Server, true, frames[0]);
         }
 
         private void
-        MessageHandler_Ping(in DateTime time, in WebSocketFrame[] frames, Opcode opcode, in byte[] buffer)
+        WebSocketHandler_Ping(in DateTime time, in WebSocketFrame[] frames, Opcode opcode, in byte[] buffer)
         {
-            OnFramePing.Raise(this, new FrameEventArgs(time, URI, frames[0], id));
+            OnWebSocketFramePing.Raise(this, new FrameEventArgs(time, URI, frames[0], id));
         }
 
         private void
-        MessageHandler_Pong(in DateTime time, in WebSocketFrame[] frames, Opcode opcode, in byte[] buffer)
+        WebSocketHandler_Pong(in DateTime time, in WebSocketFrame[] frames, Opcode opcode, in byte[] buffer)
         {
-            OnFramePong.Raise(this, new FrameEventArgs(time, URI, frames[0], id));
+            OnWebSocketFramePong.Raise(this, new FrameEventArgs(time, URI, frames[0], id));
         }
     }
 }

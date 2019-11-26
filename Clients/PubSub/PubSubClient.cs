@@ -23,7 +23,7 @@ TwitchNet.Clients.PubSub
     {
         private Timer timer_ping;
 
-        public Random timer_ping_jitter;
+        private Random timer_ping_jitter;
 
         public
         PubSubClient() : base()
@@ -37,7 +37,9 @@ TwitchNet.Clients.PubSub
             timer_ping_jitter = new Random(guid.GetHashCode());
 
             OnOpen += Callback_OnOpen;
-            OnMessageText += CallBack_OnMessageText;
+            OnWebSocketText += CallBack_OnWebSocketText;
+
+            ResetPubSubHandlers();
         }
 
         private void
@@ -48,16 +50,10 @@ TwitchNet.Clients.PubSub
         }
 
         private void
-        CallBack_OnMessageText(object sender, MessageTextEventArgs e)
+        CallBack_OnWebSocketText(object sender, MessageTextEventArgs e)
         {
             PubSubType check = JsonConvert.DeserializeObject<PubSubType>(e.message);
-            switch (check.type)
-            {
-                case PubSubMessageType.Pong:        OnPupSubPong.Raise(this, new PubSubTypeEventArgs(e, check.type));       break;
-                case PubSubMessageType.Reconnect:   OnPupSubReconnect.Raise(this, new PubSubTypeEventArgs(e, check.type));  break;
-                case PubSubMessageType.Response:    OnPupSubResponse.Raise(this, new PubSubResponseEventArgs(e));           break;
-                case PubSubMessageType.Message:     ProcessPubSubMessage(e);                                                break;
-            }
+            RunPubSubHandler(check.type, e);
         }
 
         public sealed override void
@@ -88,26 +84,6 @@ TwitchNet.Clients.PubSub
             Ping();
         }
 
-        private void
-        ProcessPubSubMessage(MessageTextEventArgs args)
-        {
-            PubSubMessageEventArgs args_pub_sub = new PubSubMessageEventArgs(args);
-            OnPupSubMessage.Raise(this, args_pub_sub);
-
-            string _topic = args_pub_sub.message.data.topic.TextBefore('.');
-            if (!EnumUtil.TryParse(_topic, out PubsubTopic topic))
-            {
-                // TODO: OnPubSubUnsupportedTopic
-
-                return;
-            }
-
-            switch (topic)
-            {
-                case PubsubTopic.Whispers: OnPupSubMessageWhisper.Raise(this, new PubSubWhisperEventArgs(args_pub_sub, args)); break;
-            }
-        }
-
         #region Writing
 
         public bool
@@ -127,7 +103,7 @@ TwitchNet.Clients.PubSub
             payload.data.auth_token = oauth_token;
             payload.data.topics.Add(topic);
 
-            return SendListenUnlistenPayload(payload);
+            return SendListenUnlisten(payload);
         }
 
         public bool
@@ -144,7 +120,7 @@ TwitchNet.Clients.PubSub
             payload.data.auth_token = oauth_token;
             payload.data.topics.AddRange(topics);
 
-            return SendListenUnlistenPayload(payload);
+            return SendListenUnlisten(payload);
         }
 
         public bool
@@ -156,7 +132,7 @@ TwitchNet.Clients.PubSub
             payload.data.auth_token = oauth_token;
             payload.data.topics.Add(topic);
 
-            return SendListenUnlistenPayload(payload);
+            return SendListenUnlisten(payload);
         }
 
         public bool
@@ -173,11 +149,11 @@ TwitchNet.Clients.PubSub
             payload.data.auth_token = oauth_token;
             payload.data.topics.AddRange(topics);
 
-            return SendListenUnlistenPayload(payload);
+            return SendListenUnlisten(payload);
         }
 
         public bool
-        SendListenUnlistenPayload(ListenUnlistenPayload payload)
+        SendListenUnlisten(ListenUnlistenPayload payload)
         {
             if (!ValidateListenUnlistenPayload(payload))
             {
@@ -238,14 +214,14 @@ TwitchNet.Clients.PubSub
                 }
 
                 topic = payload.data.topics[index].Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
-                if (!EnumUtil.TryParse(topic[0], out PubsubTopic _topic))
+                if (!EnumUtil.TryParse(topic[0], out PubSubTopic _topic))
                 {
                     // Error, failed to parse the string into a topic
 
                     return false;
                 }
 
-                if(topic.Length == 1)
+                if (topic.Length == 1)
                 {
                     // Error, no arguments provided
 
@@ -253,21 +229,12 @@ TwitchNet.Clients.PubSub
                 }
                 else if (topic.Length > 2)
                 {
-                    if (_topic == PubsubTopic.ModeratorActions && topic.Length != 3)
-                    {
-                        // Error, expected 2 arguments
+                    // Error, expected 1 arguments
 
-                        return false;
-                    }
-                    else
-                    {
-                        // Error, expected only 1 argument
-
-                        return false;
-                    }
+                    return false;
                 }
 
-                if (!topic[1].HasContent() || (_topic == PubsubTopic.ModeratorActions && !topic[2].HasContent()))
+                if (!topic[1].HasContent())
                 {
                     // Error, can't be null, empty, or contain only whitespace
 
@@ -322,6 +289,33 @@ TwitchNet.Clients.PubSub
         [JsonProperty("message")]
         public string message { get; set; }
     }
+
+    public enum
+    PubSubTopic
+    {
+        [EnumMember(Value = "Other")]
+        Other = 0,
+
+        [EnumMember(Value = "channel-bits-events-v1")]
+        Bits,
+
+        [EnumMember(Value = "channel-bits-events-v2")]
+        BitsV2,
+
+        [EnumMember(Value = "channel-bits-badge-unlocks")]
+        BitsBadge,
+
+        [EnumMember(Value = "chat_moderator_actions")]
+        ModeratorActions,
+
+        [EnumMember(Value = "channel-subscribe-events-v1")]
+        Subscriptions,
+
+        [EnumMember(Value = "whispers")]
+        Whispers,
+    }
+
+    #region Topic: whispers.{user-id}
 
     public class
     PubSubWhisper
@@ -516,6 +510,163 @@ TwitchNet.Clients.PubSub
         public string profile_image { get; set; }
     }
 
+    #endregion
+
+    #region Topic: chat_moderator_actions.{user-id}
+
+    public class
+    ModeratorAction
+    {
+        [JsonProperty("data")]
+        public ModeratorActionData data { get; set; }
+    }
+
+    public class
+    ModeratorActionData
+    {
+        [JsonProperty("type")]
+        public ModerationActionType type { get; set; }
+
+        /// <summary>
+        /// The moderation action that was performed, e.g., ban, unban, etc.
+        /// </summary>
+        [JsonProperty("moderation_action")]
+        public ModerationAction moderation_action { get; set; }
+
+        /// <summary>
+        /// <para>
+        /// The moderation action arguments used. The tpyical arguments are as follows (arguments in {brackets} are optional and may not be included):
+        /// </para>
+        /// <para>Ban: target_user_login, reason {optional}.</para>
+        /// <para>Unban: target_user_login.</para>
+        /// <para>Timeout: target_user_login, duration, {reason}.</para>
+        /// <para>Untimeout: target_user_login.</para>
+        /// </summary>
+        [JsonProperty("args")]
+        public List<string> args { get; set; }
+
+        /// <summary>
+        /// The ID of the user who performed the action.
+        /// </summary>
+        [JsonProperty("created_by")]
+        public string created_by { get; set; }
+
+        /// <summary>
+        /// The login of the user who performed the action.
+        /// </summary>
+        [JsonProperty("created_by_user_id")]
+        public string created_by_user_id { get; set; }
+
+        /// <summary>
+        /// The action message ID.
+        /// </summary>
+        [JsonProperty("msg_id")]
+        public string msg_id { get; set; }
+
+        /// <summary>
+        /// The ID of the user that the action was performed on.
+        /// </summary>
+        [JsonProperty("target_user_id")]
+        public string target_user_id { get; set; }
+
+        /// <summary>
+        /// The login of the user that the action was performed on.
+        /// </summary>
+        [JsonProperty("target_user_login")]
+        public string target_user_login { get; set; }
+    }
+
+    [JsonConverter(typeof(EnumConverter))]
+    public enum
+    ModerationActionType
+    {
+        /// <summary>
+        /// Unknown moderation type.
+        /// </summary>
+        [EnumMember(Value = "Other")]
+        Other = 0,
+
+        /// <summary>
+        /// The user that performed the moderation action is the broadcaster.
+        /// </summary>
+        [EnumMember(Value = "chat_login_moderation")]
+        ChatLoginModeration,
+
+        /// <summary>
+        /// The user that performed the moderation action is a moderator.
+        /// </summary>
+        [EnumMember(Value = "chat_channel_moderation")]
+        ChatChannelModeration,
+    }
+
+    [JsonConverter(typeof(EnumConverter))]
+    public enum
+    ModerationAction
+    {
+        /// <summary>
+        /// Unknown moderation action.
+        /// </summary>
+        [EnumMember(Value = "Other")]
+        Other = 0,
+
+        /// <summary>
+        /// A user was banned.
+        /// </summary>
+        [EnumMember(Value = "ban")]
+        Ban,
+
+        /// <summary>
+        /// A user was unbanned.
+        /// </summary>
+        [EnumMember(Value = "unban")]
+        Unban,
+
+        /// <summary>
+        /// A user was timed out.
+        /// </summary>
+        [EnumMember(Value = "timeout")]
+        Timeout,
+
+        /// <summary>
+        /// A user was untimed out.
+        /// </summary>
+        [EnumMember(Value = "untimeout")]
+        Untimeout
+    }
+
+    #endregion
+
+    #region Message Type: Listen/Unlisten
+
+    [JsonConverter(typeof(EnumConverter))]
+    public enum
+    PubSubMessageType
+    {
+        [EnumMember(Value = "Other")]
+        Other = 0,
+
+        [EnumMember(Value = "MESSAGE")]
+        Message,
+
+        [EnumMember(Value = "RESPONSE")]
+        Response,
+
+        [EnumMember(Value = "LISTEN")]
+        Listen,
+
+        [EnumMember(Value = "UNLISTEN")]
+        Unlisten,
+
+        [EnumMember(Value = "PING")]
+        Ping,
+
+        [EnumMember(Value = "PONG")]
+        Pong,
+
+        [EnumMember(Value = "RECONNECT")]
+        Reconnect,
+    }
+
     public class
     ListenUnlistenPayload
     {
@@ -549,65 +700,7 @@ TwitchNet.Clients.PubSub
         }
     }
 
-    [JsonConverter(typeof(EnumConverter))]
-    public enum
-    PubSubMessageType
-    {
-        [EnumMember(Value = "Other")]
-        Other = 0,
-
-        [EnumMember(Value = "MESSAGE")]
-        Message,
-
-        [EnumMember(Value = "RESPONSE")]
-        Response,
-
-        [EnumMember(Value = "LISTEN")]
-        Listen,
-
-        [EnumMember(Value = "UNLISTEN")]
-        Unlisten,
-
-        [EnumMember(Value = "PING")]
-        Ping,
-
-        [EnumMember(Value = "PONG")]
-        Pong,
-
-        [EnumMember(Value = "RECONNECT")]
-        Reconnect,
-    }
-
-    public enum
-    PubsubTopic
-    {
-        [EnumMember(Value = "Other")]
-        Other = 0,
-
-        [EnumMember(Value = "channel-bits-events-v1")]
-        Bits,
-
-        [EnumMember(Value = "channel-bits-events-v2")]
-        BitsV2,
-
-        [EnumMember(Value = "channel-bits-badge-unlocks")]
-        BitsBadge,
-
-        [EnumMember(Value = "chat_moderator_actions")]
-        ModeratorActions,
-
-        [EnumMember(Value = "channel-subscribe-events-v1")]
-        Subscriptions,
-
-        [EnumMember(Value = "whispers")]
-        Whispers,
-    }
-
-    public enum
-    PubSubClientError
-    {
-        Listen_ArgumentCountMismatch
-    }
+    #endregion
 
     #endregion
 }

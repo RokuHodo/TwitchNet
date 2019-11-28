@@ -7,9 +7,9 @@ TwitchNet.Clients.PubSub
     public partial class
     WebSocketClient : IDisposable
     {
-        public virtual event EventHandler<WebSocketEventArgs>               OnOpen;
+        public virtual event EventHandler<WebSocketEventArgs>               OnOpened;
 
-        public virtual event EventHandler<CloseEventArgs>                   OnClose;
+        public virtual event EventHandler<CloseEventArgs>                   OnClosed;
 
         public virtual event EventHandler<EventArgs>                        OnDisposed;
 
@@ -23,7 +23,7 @@ TwitchNet.Clients.PubSub
 
         public virtual event EventHandler<MessageTextEventArgs>             OnWebSocketText;
 
-        public virtual event EventHandler<WebSocketErrorEventArgs>          OnError;
+        public virtual event EventHandler<WebSocketErrorEventArgs>          OnWebSocketError;
 
         public virtual event EventHandler<WebSocketNetworkErrorEventArgs>   OnNetworkError;
     }

@@ -20,7 +20,7 @@ TwitchNet.Rest.OAuth.Token
         public int expires_in { get; internal set; }
 
         [JsonProperty("scope")]
-        public IList<Scopes> scope { get; internal set; }
+        public IList<HelixScopes> scope { get; internal set; }
 
         // TODO: Enum?
         [JsonProperty("token_type")]

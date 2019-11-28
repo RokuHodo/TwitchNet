@@ -339,7 +339,7 @@ TwitchNet.Rest.Helix
 
         public HelixRequestSettings settings;
 
-        public Scopes required_scopes;
+        public HelixScopes required_scopes;
 
         public HelixInfo(HelixRequestSettings settings)
         {
@@ -380,7 +380,7 @@ TwitchNet.Rest.Helix
         /// If specified when making a request that does not require authentication, the available scopes are ignored.
         /// </para>
         /// </summary>
-        public Scopes available_scopes { get; set; }
+        public HelixScopes available_scopes { get; set; }
 
         public HelixRequestSettings()
         {
@@ -388,7 +388,7 @@ TwitchNet.Rest.Helix
             error_handling_inputs = ErrorHandling.Error;
             error_handling_missing_scopes = ErrorHandling.Error;
 
-            available_scopes = Scopes.Other;
+            available_scopes = HelixScopes.Other;
         }
 
         /// <summary>
@@ -400,7 +400,7 @@ TwitchNet.Rest.Helix
             error_handling_inputs = ErrorHandling.Error;
             error_handling_missing_scopes = ErrorHandling.Error;
 
-            available_scopes = Scopes.Other;
+            available_scopes = HelixScopes.Other;
 
             base.Reset();
         }

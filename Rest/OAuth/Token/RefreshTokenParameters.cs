@@ -14,6 +14,6 @@ TwitchNet.Rest.OAuth.Token
         /// The entire set or sub-set of scopes assigned to the original token grant.
         /// </summary>
         [QueryParameter("scope", typeof(SpaceDelineatedQueryConverter))]
-        public virtual Scopes scopes        { get; set; }
+        public virtual HelixScopes scopes        { get; set; }
     }
 }

@@ -15,6 +15,6 @@ TwitchNet.Rest.OAuth.Token
         public GrantType grant_type { get; set; }
 
         [QueryParameter("scope", typeof(SpaceDelineatedQueryConverter))]
-        public Scopes? scope { get; set; }
+        public HelixScopes? scope { get; set; }
     }
 }

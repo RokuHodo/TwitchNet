@@ -26,7 +26,7 @@ TwitchNet.Rest.Helix
 
             /// <summary>
             /// <para>Asynchronously gets a specific extension analytic report, or a single page of extension analytic reports.</para>
-            /// <para>Required Scope: <see cref="Scopes.AnalyticsReadExtensions"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.AnalyticsReadExtensions"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -44,14 +44,14 @@ TwitchNet.Rest.Helix
             /// Thrown if started_at or ended at are provided without the other.
             /// Thrown if started_at or ended_at is later than <see cref="DateTime.UtcNow"/>, or started_at is later than ended_at, if provided.
             /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.AnalyticsReadExtensions"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.AnalyticsReadExtensions"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
             GetExtensionAnalyticsPageAsync(HelixInfo info, ExtensionAnalyticsParameters parameters)
             {
-                info.required_scopes = Scopes.AnalyticsReadExtensions;
+                info.required_scopes = HelixScopes.AnalyticsReadExtensions;
 
                 HelixResponse<DataPage<ExtensionAnalytics>> response = new HelixResponse<DataPage<ExtensionAnalytics>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -121,7 +121,7 @@ TwitchNet.Rest.Helix
 
             /// <summary>
             /// <para>Asynchronously gets a specific extension analytic report, or a complete list of extension analytic reports.</para>
-            /// <para>Required Scope: <see cref="Scopes.AnalyticsReadExtensions"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.AnalyticsReadExtensions"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -139,14 +139,14 @@ TwitchNet.Rest.Helix
             /// Thrown if started_at or ended at are provided without the other.
             /// Thrown if started_at or ended_at is later than <see cref="DateTime.UtcNow"/>, or started_at is later than ended_at, if provided.
             /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.AnalyticsReadExtensions"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.AnalyticsReadExtensions"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
             GetExtensionAnalyticsAsync(HelixInfo info, ExtensionAnalyticsParameters parameters)
             {
-                info.required_scopes = Scopes.AnalyticsReadExtensions;
+                info.required_scopes = HelixScopes.AnalyticsReadExtensions;
 
                 HelixResponse<DataPage<ExtensionAnalytics>> response = new HelixResponse<DataPage<ExtensionAnalytics>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -218,7 +218,7 @@ TwitchNet.Rest.Helix
 
             /// <summary>
             /// <para>Asynchronously gets a specific game analytic report, or a single page of game analytic reports.</para>
-            /// <para>Required Scope: <see cref="Scopes.AnalyticsReadGames"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.AnalyticsReadGames"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -236,14 +236,14 @@ TwitchNet.Rest.Helix
             /// Thrown if started_at or ended at are provided without the other.
             /// Thrown if started_at or ended_at is later than <see cref="DateTime.UtcNow"/>, or started_at is later than ended_at, if provided.
             /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.AnalyticsReadGames"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.AnalyticsReadGames"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
             GetGameAnalyticsPageAsync(HelixInfo info, GameAnalyticsParameters parameters)
             {
-                info.required_scopes = Scopes.AnalyticsReadGames;
+                info.required_scopes = HelixScopes.AnalyticsReadGames;
 
                 HelixResponse<DataPage<GameAnalytics>> response = new HelixResponse<DataPage<GameAnalytics>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -311,7 +311,7 @@ TwitchNet.Rest.Helix
 
             /// <summary>
             /// <para>Asynchronously gets a specific game analytic report, or a complete list of game analytic reports.</para>
-            /// <para>Required Scope: <see cref="Scopes.AnalyticsReadGames"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.AnalyticsReadGames"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -329,14 +329,14 @@ TwitchNet.Rest.Helix
             /// Thrown if started_at or ended at are provided without the other.
             /// Thrown if started_at or ended_at is later than <see cref="DateTime.UtcNow"/>, or started_at is later than ended_at, if provided.
             /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.AnalyticsReadGames"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.AnalyticsReadGames"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
             GetGameAnalyticsAsync(HelixInfo info, GameAnalyticsParameters parameters)
             {
-                info.required_scopes = Scopes.AnalyticsReadGames;
+                info.required_scopes = HelixScopes.AnalyticsReadGames;
 
                 HelixResponse<DataPage<GameAnalytics>> response = new HelixResponse<DataPage<GameAnalytics>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -411,7 +411,7 @@ TwitchNet.Rest.Helix
             /// Asynchronously gets a ranked list of bits leaderboard information for a user.
             /// The user is implicitly specified by the provided Bearer token.
             /// </para>
-            /// <para>Required Scope: <see cref="Scopes.BitsRead"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.BitsRead"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -427,14 +427,14 @@ TwitchNet.Rest.Helix
             /// Thrown if the user ID is empty or contains only white space, if provided.
             /// Thrown if started_at is later than <see cref="DateTime.Now"/>, if provided.
             /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.BitsRead"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.BitsRead"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<BitsLeaderboardData<BitsUser>>>
             GetBitsLeaderboardAsync(HelixInfo info, BitsLeaderboardParameters parameters)
             {
-                info.required_scopes = Scopes.BitsRead;
+                info.required_scopes = HelixScopes.BitsRead;
 
                 HelixResponse<BitsLeaderboardData<BitsUser>> response = new HelixResponse<BitsLeaderboardData<BitsUser>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -475,7 +475,7 @@ TwitchNet.Rest.Helix
 
             /// <summary>
             /// <para>Asynchronously creates a clip.</para>
-            /// <para>Required Scope: <see cref="Scopes.ClipsEdit"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.ClipsEdit"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -489,14 +489,14 @@ TwitchNet.Rest.Helix
             /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is not provided, empty, or contains only white space.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ClipsEdit"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ClipsEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<CreatedClip>>>
             CreateClipAsync(HelixInfo info, CreateClipParameters parameters)
             {
-                info.required_scopes = Scopes.ClipsEdit;
+                info.required_scopes = HelixScopes.ClipsEdit;
 
                 HelixResponse<Data<CreatedClip>> response = new HelixResponse<Data<CreatedClip>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -1276,7 +1276,7 @@ TwitchNet.Rest.Helix
 
             /// <summary>
             /// <para>Asynchronously gets specific banned users or a single page of banned users for a given broadcaster.</para>
-            /// <para>Required Scope: <see cref="Scopes.ModerationRead"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -1296,14 +1296,14 @@ TwitchNet.Rest.Helix
             /// Thrown if both after and before cursors are provided.
             /// </exception>
             /// <exception cref="QueryParameterCountException">Thrown if more than 100 user ID's are provided.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ModerationRead"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ModerationRead"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<BannedUser>>>
             GetBannedUsersPageAsync(HelixInfo info, BannedUsersParameters parameters)
             {
-                info.required_scopes = Scopes.ModerationRead;
+                info.required_scopes = HelixScopes.ModerationRead;
 
                 HelixResponse<DataPage<BannedUser>> response = new HelixResponse<DataPage<BannedUser>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -1346,7 +1346,7 @@ TwitchNet.Rest.Helix
 
             /// <summary>
             /// <para>Asynchronously gets specific banned users or a complete list of banned users for a given broadcaster.</para>
-            /// <para>Required Scope: <see cref="Scopes.ModerationRead"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -1366,7 +1366,7 @@ TwitchNet.Rest.Helix
             /// Thrown if both after and before cursors are provided.
             /// </exception>
             /// <exception cref="QueryParameterCountException">Thrown if more than 100 user ID's are provided.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ModerationRead"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ModerationRead"/> scope.</exception>
             /// <exception cref="NotSupportedException">
             /// Thrown if a before cursor is provided.
             /// This is a temporary error and will be removed once Twitch fixes reverse pagination.
@@ -1377,7 +1377,7 @@ TwitchNet.Rest.Helix
             public static async Task<IHelixResponse<DataPage<BannedUser>>>
             GetBannedUsersAsync(HelixInfo info, BannedUsersParameters parameters)
             {
-                info.required_scopes = Scopes.ModerationRead;
+                info.required_scopes = HelixScopes.ModerationRead;
 
                 HelixResponse<DataPage<BannedUser>> response = new HelixResponse<DataPage<BannedUser>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -1428,7 +1428,7 @@ TwitchNet.Rest.Helix
 
             /// <summary>
             /// <para>Asynchronously checks to see if a user is banned by a broadcaster.</para>
-            /// <para>Required Scope: <see cref="Scopes.ModerationRead"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="broadcaster_id">The ID of the broadcaster.</param>
@@ -1481,7 +1481,7 @@ TwitchNet.Rest.Helix
             /// Asynchronously gets a specific banned event or a single page of banned events.
             /// A banned event occurs when a user is banned or unbanned.
             /// </para>
-            /// <para>Required Scope: <see cref="Scopes.ModerationRead"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -1502,14 +1502,14 @@ TwitchNet.Rest.Helix
             /// Thrown if the after cursor is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterCountException">Thrown if more than 100 user ID's are provided.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ModerationRead"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ModerationRead"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<BannedEvent>>>
             GetBannedEventsPageAsync(HelixInfo info, BannedEventsParameters parameters)
             {
-                info.required_scopes = Scopes.ModerationRead;
+                info.required_scopes = HelixScopes.ModerationRead;
 
                 HelixResponse<DataPage<BannedEvent>> response = new HelixResponse<DataPage<BannedEvent>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -1563,7 +1563,7 @@ TwitchNet.Rest.Helix
             /// Asynchronously gets a specific banned event or complete list of banned events.
             /// A banned event occurs when a user is banned or unbanned.
             /// </para>
-            /// <para>Required Scope: <see cref="Scopes.ModerationRead"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -1584,14 +1584,14 @@ TwitchNet.Rest.Helix
             /// Thrown if the after cursor is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterCountException">Thrown if more than 100 user ID's are provided.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ModerationRead"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ModerationRead"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<BannedEvent>>>
             GetBannedEventsAsync(HelixInfo info, BannedEventsParameters parameters)
             {
-                info.required_scopes = Scopes.ModerationRead;
+                info.required_scopes = HelixScopes.ModerationRead;
 
                 HelixResponse<DataPage<BannedEvent>> response = new HelixResponse<DataPage<BannedEvent>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -1646,7 +1646,7 @@ TwitchNet.Rest.Helix
 
             /// <summary>
             /// <para>Asynchronously checks to see of a chat message meets the AutoMod requirements to be posted in chat.</para>
-            /// <para>Required Scope: <see cref="Scopes.ModerationRead"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -1668,14 +1668,14 @@ TwitchNet.Rest.Helix
             /// Thrown if any AutoMod user ID is not provided, empty, or contains only white space.
             /// </exception>
             /// <exception cref="BodyParameterCountException">Thrown if none or more than 100 AutoMod messages are provided.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ModerationRead"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ModerationRead"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<AutoModMessageStatus>>>
             CheckAutoModMessageStatus(HelixInfo info, AutoModMessageStatusParameters parameters)
             {
-                info.required_scopes = Scopes.ModerationRead;
+                info.required_scopes = HelixScopes.ModerationRead;
 
                 HelixResponse<Data<AutoModMessageStatus>> response = new HelixResponse<Data<AutoModMessageStatus>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -1833,7 +1833,7 @@ TwitchNet.Rest.Helix
 
             /// <summary>
             /// <para>Asynchronously gets specific moderators or a single page of moderators users for a given broadcaster.</para>
-            /// <para>Required Scope: <see cref="Scopes.ModerationRead"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -1852,14 +1852,14 @@ TwitchNet.Rest.Helix
             /// Thrown if the after or before cursor is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterCountException">Thrown if more than 100 user ID's are provided.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ModerationRead"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ModerationRead"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Moderator>>>
             GetModeratorsPageAsync(HelixInfo info, ModeratorsParameters parameters)
             {
-                info.required_scopes = Scopes.ModerationRead;
+                info.required_scopes = HelixScopes.ModerationRead;
 
                 HelixResponse<DataPage<Moderator>> response = new HelixResponse<DataPage<Moderator>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -1900,7 +1900,7 @@ TwitchNet.Rest.Helix
 
             /// <summary>
             /// <para>Asynchronously gets specific moderators or a complete list of moderators for a given broadcaster.</para>
-            /// <para>Required Scope: <see cref="Scopes.ModerationRead"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -1919,14 +1919,14 @@ TwitchNet.Rest.Helix
             /// Thrown if the after or before cursor is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterCountException">Thrown if more than 100 user ID's are provided.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ModerationRead"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ModerationRead"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Moderator>>>
             GetModeratorsAsync(HelixInfo info, ModeratorsParameters parameters)
             {
-                info.required_scopes = Scopes.ModerationRead;
+                info.required_scopes = HelixScopes.ModerationRead;
 
                 HelixResponse<DataPage<Moderator>> response = new HelixResponse<DataPage<Moderator>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -2019,7 +2019,7 @@ TwitchNet.Rest.Helix
             /// Asynchronously gets a specific moderator event or a single page of moderator events.
             /// A modewrator event occurs when a user gains or loses moderator (OP) status.
             /// </para>
-            /// <para>Required Scope: <see cref="Scopes.ModerationRead"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -2040,14 +2040,14 @@ TwitchNet.Rest.Helix
             /// Thrown if the after cursor is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterCountException">Thrown if more than 100 user ID's are provided.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ModerationRead"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ModerationRead"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<ModeratorEvent>>>
             GetModeratorEventsPageAsync(HelixInfo info, ModeratorEventsParameters parameters)
             {
-                info.required_scopes = Scopes.ModerationRead;
+                info.required_scopes = HelixScopes.ModerationRead;
 
                 HelixResponse<DataPage<ModeratorEvent>> response = new HelixResponse<DataPage<ModeratorEvent>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -2101,7 +2101,7 @@ TwitchNet.Rest.Helix
             /// Asynchronously gets a specific moderator event or complete list of moderator events.
             /// A modewrator event occurs when a user gains or loses moderator (OP) status.
             /// </para>
-            /// <para>Required Scope: <see cref="Scopes.ModerationRead"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -2122,14 +2122,14 @@ TwitchNet.Rest.Helix
             /// Thrown if the after cursor is empty or contains only white space, if provided.
             /// </exception>
             /// <exception cref="QueryParameterCountException">Thrown if more than 100 user ID's are provided.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ModerationRead"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ModerationRead"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<ModeratorEvent>>>
             GetModeratorEventsAsync(HelixInfo info, ModeratorEventsParameters parameters)
             {
-                info.required_scopes = Scopes.ModerationRead;
+                info.required_scopes = HelixScopes.ModerationRead;
 
                 HelixResponse<DataPage<ModeratorEvent>> response = new HelixResponse<DataPage<ModeratorEvent>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -2415,7 +2415,7 @@ TwitchNet.Rest.Helix
             /// Asynchronously creates a stream marker (an arbitray time spamp) in a stream specified by the provided user ID.
             /// Stream markers can be created by the person streaming or any of their editors.
             /// </para>
-            /// <para>Required Scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.UserEditBroadcast"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -2432,14 +2432,14 @@ TwitchNet.Rest.Helix
             /// Thrown if the user ID not provided, empty, or contains only white space.
             /// Thrown if the description is empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserEditBroadcast"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.UserEditBroadcast"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<CreatedStreamMarker>>>
             CreateStreamMarkerAsync(HelixInfo info, CreateStreamMarkerParameters parameters)
             {
-                info.required_scopes = Scopes.UserEditBroadcast;
+                info.required_scopes = HelixScopes.UserEditBroadcast;
 
                 HelixResponse<DataPage<CreatedStreamMarker>> response = new HelixResponse<DataPage<CreatedStreamMarker>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -2477,7 +2477,7 @@ TwitchNet.Rest.Helix
 
             /// <summary>
             /// <para>Asynchronously gets a single page of stream markers (arbitray time spamps) for a user or a specific video.</para>
-            /// <para>Required Scope: <see cref="Scopes.UserReadBroadcast"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.UserReadBroadcast"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -2495,14 +2495,14 @@ TwitchNet.Rest.Helix
             /// Thrown if the user ID or video ID is empty or contains only white space, if provided.
             /// Thrown if the after cursor is empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserReadBroadcast"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.UserReadBroadcast"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<StreamMarkers>>>
             GetStreamMarkersPageAsync(HelixInfo info, StreamMarkersParameters parameters)
             {
-                info.required_scopes = Scopes.UserReadBroadcast;
+                info.required_scopes = HelixScopes.UserReadBroadcast;
 
                 HelixResponse<DataPage<StreamMarkers>> response = new HelixResponse<DataPage<StreamMarkers>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -2552,7 +2552,7 @@ TwitchNet.Rest.Helix
 
             /// <summary>
             /// <para>Asynchronously gets a complete list of stream markers (arbitray time spamps) for a user or a specific video.</para>
-            /// <para>Required Scope: <see cref="Scopes.UserReadBroadcast"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.UserReadBroadcast"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -2570,14 +2570,14 @@ TwitchNet.Rest.Helix
             /// Thrown if the user ID or video ID is empty or contains only white space, if provided.
             /// Thrown if the after cursor is empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserReadBroadcast"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.UserReadBroadcast"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<StreamMarkers>>>
             GetStreamMarkersAsync(HelixInfo info, StreamMarkersParameters parameters)
             {
-                info.required_scopes = Scopes.UserReadBroadcast;
+                info.required_scopes = HelixScopes.UserReadBroadcast;
 
                 HelixResponse<DataPage<StreamMarkers>> response = new HelixResponse<DataPage<StreamMarkers>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -2827,7 +2827,7 @@ TwitchNet.Rest.Helix
             /// The automatic tags that Twitch sets are not affected and cannot be added/removed.
             /// The set stream tags expire after 72 hours of being applied, or 72 hours after a stream goes offline if the stream was live during the initial 72 hour expriation window.
             /// </para>
-            /// <para>Required scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
+            /// <para>Required scope: <see cref="HelixScopes.UserEditBroadcast"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -2843,14 +2843,14 @@ TwitchNet.Rest.Helix
             /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="BodyParameterException">Thrown if any tag ID is null, empty, or contains only white space or any duplicate tag ID's are found.</exception>
             /// <exception cref="BodyParameterCountException">Thrown if more than 5 total tag ID's are provided.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserEditBroadcast"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.UserEditBroadcast"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse>
             SetStreamsTagsAsync(HelixInfo info, SetStreamsTagsParameters parameters)
             {
-                info.required_scopes = Scopes.UserEditBroadcast;
+                info.required_scopes = HelixScopes.UserEditBroadcast;
 
                 HelixResponse<Data<StreamTag>> response = new HelixResponse<Data<StreamTag>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -2891,7 +2891,7 @@ TwitchNet.Rest.Helix
             /// <para>
             /// The automatic tags that Twitch sets are not affected and cannot be removed.
             /// </para>
-            /// <para>Required scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
+            /// <para>Required scope: <see cref="HelixScopes.UserEditBroadcast"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">
@@ -2908,14 +2908,14 @@ TwitchNet.Rest.Helix
             /// </exception>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is not provided, empty, or contains only white space.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserEditBroadcast"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.UserEditBroadcast"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse>
             RemoveStreamsTagsAsync(HelixInfo info, SetStreamsTagsParameters parameters)
             {
-                info.required_scopes = Scopes.UserEditBroadcast;
+                info.required_scopes = HelixScopes.UserEditBroadcast;
 
                 HelixResponse<Data<StreamTag>> response = new HelixResponse<Data<StreamTag>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -2954,7 +2954,7 @@ TwitchNet.Rest.Helix
 
             /// <summary>
             /// <para>Asynchronously gets a single page of a broadcaster's subscribers list.</para>
-            /// <para>Required Scope: <see cref="Scopes.ChannelReadSubscriptions"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.ChannelReadSubscriptions"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -2971,14 +2971,14 @@ TwitchNet.Rest.Helix
             /// Thrown if the broadcaster ID is not provided, empty, or contains only white space.
             /// Thrown if the after cursor is empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ChannelReadSubscriptions"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ChannelReadSubscriptions"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Subscription>>>
             GetBroadcasterSubscribersPageAsync(HelixInfo info, SubscriptionParameters parameters)
             {
-                info.required_scopes = Scopes.ChannelReadSubscriptions;
+                info.required_scopes = HelixScopes.ChannelReadSubscriptions;
 
                 HelixResponse<DataPage<Subscription>> response = new HelixResponse<DataPage<Subscription>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -3018,7 +3018,7 @@ TwitchNet.Rest.Helix
 
             /// <summary>
             /// <para>Asynchronously gets a broadcaster's complete subscriber list.</para>
-            /// <para>Required Scope: <see cref="Scopes.ChannelReadSubscriptions"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.ChannelReadSubscriptions"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -3035,14 +3035,14 @@ TwitchNet.Rest.Helix
             /// Thrown if the broadcaster ID is not provided, empty, or contains only white space.
             /// Thrown if the after cursor is empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ChannelReadSubscriptions"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ChannelReadSubscriptions"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Subscription>>>
             GetBroadcasterSubscribersAsync(HelixInfo info, SubscriptionParameters parameters)
             {
-                info.required_scopes = Scopes.ChannelReadSubscriptions;
+                info.required_scopes = HelixScopes.ChannelReadSubscriptions;
 
                 HelixResponse<DataPage<Subscription>> response = new HelixResponse<DataPage<Subscription>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -3086,7 +3086,7 @@ TwitchNet.Rest.Helix
             /// If a user is subscribed to the broadcater, the subscription information for that user is returned in the response.
             /// If a user is not subscribed to the broadcater, that user is omitted from the response.
             /// </para>
-            /// <para>Required Scope: <see cref="Scopes.ChannelReadSubscriptions"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.ChannelReadSubscriptions"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -3110,14 +3110,14 @@ TwitchNet.Rest.Helix
             /// Thrown if any user ID is null, empty, or contains only white space or any duplicate user ID's are found.
             /// </exception>
             /// <exception cref="QueryParameterCountException">Thrown if none or more than 100 total user ID's are provided.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ChannelReadSubscriptions"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ChannelReadSubscriptions"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<Subscription>>>
             GetSubscriptionRelationshipAsync(HelixInfo info, SubscriptionRelationshipParameters parameters)
             {
-                info.required_scopes = Scopes.ChannelReadSubscriptions;
+                info.required_scopes = HelixScopes.ChannelReadSubscriptions;
 
                 HelixResponse<Data<Subscription>> response = new HelixResponse<Data<Subscription>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -3150,7 +3150,7 @@ TwitchNet.Rest.Helix
 
             /// <summary>
             /// <para>Asynchronously checks to see if the from_id user is following the to_id user.</para>
-            /// <para>Required Scope: <see cref="Scopes.ChannelReadSubscriptions"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.ChannelReadSubscriptions"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="broadcaster_id">The user ID of the broadcaster.</param>
@@ -3205,7 +3205,7 @@ TwitchNet.Rest.Helix
             /// Asynchronously gets a specific subscription event or a single page of subscription events over the last 5 days.
             /// A subscription event occurs when a user subscribed, unsubscribes, or send a notification message in chat.
             /// </para>
-            /// <para>Required Scope: <see cref="Scopes.ChannelReadSubscriptions"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.ChannelReadSubscriptions"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -3225,14 +3225,14 @@ TwitchNet.Rest.Helix
             /// Thrown if the user ID is empty or contains only white space, if provided.
             /// Thrown if the after cursor is empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ChannelReadSubscriptions"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ChannelReadSubscriptions"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<SubscriptionEvent>>>
             GetSubscriptionEventsPageAsync(HelixInfo info, SubscriptionEventsParameters parameters)
             {
-                info.required_scopes = Scopes.ChannelReadSubscriptions;
+                info.required_scopes = HelixScopes.ChannelReadSubscriptions;
 
                 HelixResponse<DataPage<SubscriptionEvent>> response = new HelixResponse<DataPage<SubscriptionEvent>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -3292,7 +3292,7 @@ TwitchNet.Rest.Helix
             /// Asynchronously gets a specific subscription event or a complete list of subscription events.
             /// A subscription event occurs when a user subscribed, unsubscribes, or send a notification message in chat.
             /// </para>
-            /// <para>Required Scope: <see cref="Scopes.ChannelReadSubscriptions"/>.</para>
+            /// <para>Required Scope: <see cref="HelixScopes.ChannelReadSubscriptions"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -3309,14 +3309,14 @@ TwitchNet.Rest.Helix
             /// Thrown if the user ID is empty or contains only white space, if provided.
             /// Thrown if the after cursor is empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.ChannelReadSubscriptions"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ChannelReadSubscriptions"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<SubscriptionEvent>>>
             GetSubscriptionEventsAsync(HelixInfo info, SubscriptionEventsParameters parameters)
             {
-                info.required_scopes = Scopes.ChannelReadSubscriptions;
+                info.required_scopes = HelixScopes.ChannelReadSubscriptions;
 
                 HelixResponse<DataPage<SubscriptionEvent>> response = new HelixResponse<DataPage<SubscriptionEvent>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -3502,7 +3502,7 @@ TwitchNet.Rest.Helix
             /// <summary>
             /// <para>Asynchronously gets a list of users.</para>
             /// <para>
-            /// Optional scope: <see cref="Scopes.UserReadEmail"/>.
+            /// Optional scope: <see cref="HelixScopes.UserReadEmail"/>.
             /// If a Bearer token is provided provided, the email of the associated user is included in the response.
             /// </para>
             /// </summary>
@@ -3586,7 +3586,7 @@ TwitchNet.Rest.Helix
             /// Asynchronously sets the description of a user. 
             /// The user is implicitly specified by the provided Bearer token.
             /// </para>
-            /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
+            /// <para>Required scope: <see cref="HelixScopes.UserEdit"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="description">The text to set the user's description to.</param>
@@ -3598,7 +3598,7 @@ TwitchNet.Rest.Helix
             /// Thrown if the Bearer token is not provided, empty, or contains only white space.
             /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.UserEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
@@ -3618,7 +3618,7 @@ TwitchNet.Rest.Helix
             /// Asynchronously sets the description of a user.
             /// The user is implicitly specified by the provided Bearer token.
             /// </para>
-            /// <para>Required scope: <see cref="Scopes.UserEdit"/>.</para>
+            /// <para>Required scope: <see cref="HelixScopes.UserEdit"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
@@ -3631,14 +3631,14 @@ TwitchNet.Rest.Helix
             /// Thrown if the Bearer token is not provided, empty, or contains only white space.
             /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserEdit"/> scope.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.UserEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<User>>>
             SetUserDescriptionAsync(HelixInfo info, DescriptionParameters parameters)
             {
-                info.required_scopes = Scopes.UserEdit;
+                info.required_scopes = HelixScopes.UserEdit;
 
                 HelixResponse<Data<User>> response = new HelixResponse<Data<User>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -3678,7 +3678,7 @@ TwitchNet.Rest.Helix
             /// Asynchronously gets a list of extensions a user has active.
             /// The user is implicitly specified by the provided Bearer token.
             /// </para>
-            /// <para>Optional scopes: <see cref="Scopes.UserReadBroadcast"/> or <see cref="Scopes.UserEditBroadcast"/>.</para>
+            /// <para>Optional scopes: <see cref="HelixScopes.UserReadBroadcast"/> or <see cref="HelixScopes.UserEditBroadcast"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">
@@ -3738,7 +3738,7 @@ TwitchNet.Rest.Helix
             /// Asynchronously updates a user's active extensions.
             /// The user is implicitly specified by the provided Bearer token.
             /// </para>
-            /// <para>Required scope: <see cref="Scopes.UserEditBroadcast"/>.</para>
+            /// <para>Required scope: <see cref="HelixScopes.UserEditBroadcast"/>.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">
@@ -3764,14 +3764,14 @@ TwitchNet.Rest.Helix
             /// Thrown if either (x, y) coordinate for an active supported component extension slot exceeds the range (0, 0) to (8000, 5000).
             /// </exception>
             /// <exception cref="DuplicateExtensionException">Thrown if an extension ID is found in more then one active supported slot across all extension types.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserEditBroadcast"/> scope</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.UserEditBroadcast"/> scope</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<ActiveExtensions>>
             UpdateUserActiveExtensionsAsync(HelixInfo info, UpdateExtensionsParameters parameters)
             {
-                info.required_scopes = Scopes.UserEditBroadcast;
+                info.required_scopes = HelixScopes.UserEditBroadcast;
 
                 HelixResponse<ActiveExtensions> response = new HelixResponse<ActiveExtensions>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -4003,7 +4003,7 @@ TwitchNet.Rest.Helix
             /// Asynchronously gets a complete list of extensions a user has installed, activated or deactivated.
             /// The user is implicitly specified by the provided Bearer token.
             /// </para>
-            /// <para>Required Scope: <see cref="Scopes.UserReadBroadcast"/></para>
+            /// <para>Required Scope: <see cref="HelixScopes.UserReadBroadcast"/></para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <returns>
@@ -4014,14 +4014,14 @@ TwitchNet.Rest.Helix
             /// Thrown if the Bearer token is not provided, empty, or contains only white space.
             /// Thrown if the Client ID is empty or contains only white space, if provided.
             /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="Scopes.UserReadBroadcast"/> scope</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.UserReadBroadcast"/> scope</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<Extension>>>
             GetUserExtensionsAsync(HelixInfo info)
             {
-                info.required_scopes = Scopes.UserReadBroadcast;
+                info.required_scopes = HelixScopes.UserReadBroadcast;
 
                 HelixResponse<Data<Extension>> response = new HelixResponse<Data<Extension>>();
                 if (!ValidateAuthorizatioHeaders(info, response))
@@ -4798,7 +4798,7 @@ TwitchNet.Rest.Helix
                     // Bearer token was not provided.
                     if (is_null_bearer)
                     {
-                        Scopes[] missing_scopes = EnumUtil.GetFlagValues<Scopes>(info.required_scopes);
+                        HelixScopes[] missing_scopes = EnumUtil.GetFlagValues<HelixScopes>(info.required_scopes);
                         AvailableScopesException inner_exception = new AvailableScopesException("One or more scopes are required for authentication.", missing_scopes);
 
                         response.SetInputError(new HeaderParameterException("A Bearer token must be provided to authenticate the request. See the inner exception for the list of required scopes.", nameof(info.bearer_token), inner_exception), info.settings);
@@ -4806,10 +4806,10 @@ TwitchNet.Rest.Helix
                         return false;
                     }
                     // Available scopes have been specified.
-                    else if (info.settings.available_scopes != Scopes.Other)
+                    else if (info.settings.available_scopes != HelixScopes.Other)
                     {
-                        Scopes[] available_scopes = EnumUtil.GetFlagValues<Scopes>(info.settings.available_scopes);
-                        foreach (Scopes scope in available_scopes)
+                        HelixScopes[] available_scopes = EnumUtil.GetFlagValues<HelixScopes>(info.settings.available_scopes);
+                        foreach (HelixScopes scope in available_scopes)
                         {
                             if ((scope & info.required_scopes) == scope)
                             {
@@ -4819,7 +4819,7 @@ TwitchNet.Rest.Helix
 
                         if (info.required_scopes != 0)
                         {
-                            Scopes[] missing_scopes = EnumUtil.GetFlagValues<Scopes>(info.required_scopes);
+                            HelixScopes[] missing_scopes = EnumUtil.GetFlagValues<HelixScopes>(info.required_scopes);
                             response.SetScopesError(new AvailableScopesException("One or more scopes are missing from the provided available scopes associated with the Bearer token.", missing_scopes), info.settings);
 
                             return false;

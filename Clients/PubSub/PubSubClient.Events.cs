@@ -25,6 +25,12 @@ TwitchNet.Clients.PubSub
         public event EventHandler<PubSubWhisperEventArgs>           OnPupSubWhisper;
 
         public event EventHandler<PubSubModeratorActionsEventArgs>  OnPupSubModeratorAction;
+
+        public event EventHandler<PubSubBitsEventArgs>              OnPupSubBits;
+
+        public event EventHandler<PubSubBitsBadgeEventArgs>         OnPupSubBitsBadge;
+
+        public event EventHandler<PubSubSubscriptionEventArgs>      OnPupSubSubscription;
     }
 
     public class
@@ -90,6 +96,42 @@ TwitchNet.Clients.PubSub
         PubSubModeratorActionsEventArgs(PubSubMessageEventArgs args) : base(args)
         {
             action = JsonConvert.DeserializeObject<ModeratorAction>(args.message.data.message);
+        }
+    }
+
+    public class
+    PubSubBitsEventArgs : PubSubMessageEventArgs
+    {
+        public PubSubBits bits { get; }
+
+        public
+        PubSubBitsEventArgs(PubSubMessageEventArgs args) : base(args)
+        {
+            bits = JsonConvert.DeserializeObject<PubSubBits>(args.message.data.message);
+        }
+    }
+
+    public class
+    PubSubBitsBadgeEventArgs : PubSubMessageEventArgs
+    {
+        public PubSubBitsBadge bits_badge { get; }
+
+        public
+        PubSubBitsBadgeEventArgs(PubSubMessageEventArgs args) : base(args)
+        {
+            bits_badge = JsonConvert.DeserializeObject<PubSubBitsBadge>(args.message.data.message);
+        }
+    }
+
+    public class
+    PubSubSubscriptionEventArgs : PubSubMessageEventArgs
+    {
+        public PubSubSubscription subscription { get; }
+
+        public
+        PubSubSubscriptionEventArgs(PubSubMessageEventArgs args) : base(args)
+        {
+            subscription = JsonConvert.DeserializeObject<PubSubSubscription>(args.message.data.message);
         }
     }
 }

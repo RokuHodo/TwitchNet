@@ -16,6 +16,6 @@ namespace TwitchNet.Rest.OAuth.Validate
         public string   user_id     { get; protected set; }
 
         [JsonProperty("scopes")]
-        public Scopes[] scopes      { get; protected set; }
+        public HelixScopes[] scopes      { get; protected set; }
     }
 }

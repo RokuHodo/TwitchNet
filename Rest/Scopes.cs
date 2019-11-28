@@ -13,7 +13,7 @@ namespace TwitchNet.Rest
     [Flags]
     [JsonConverter(typeof(EnumConverter))]
     public enum
-    Scopes
+    HelixScopes
     {
         /// <summary>
         /// Unsupported scope.

@@ -509,12 +509,8 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// <para>Force disconnects and frees all managed resources. The client will need to be re-instantiated to reconnect.</para>
-        /// <para>
-        /// Calling this method directly is not recommended.
-        /// Call <see cref="Disconnect(bool)"/> or <see cref="DisconnectAsync(bool)"/> to safely disconnect and dispose all resources.
-        /// If this method is called, it should only be done after disconnecting from the IRC server.
-        /// </para>
+        /// Force disconnects and frees all managed resources. The client will need to be re-instantiated to reconnect.
+        /// This method should only be calle dafter disconnecting from the IRC server.
         /// </summary>
         public void
         Dispose()

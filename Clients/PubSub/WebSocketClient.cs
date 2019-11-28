@@ -39,25 +39,13 @@ TwitchNet.Clients.PubSub
 
         private Thread reader_thread;
 
-        protected WebSocketSettings _settings;
-
         protected Uri URI;
 
         public string id { get; set; }
 
         public WebSocketState state { get; private set; }
 
-        public IWebSocketSettings settings
-        {
-            get
-            {
-                return _settings;
-            }
-            set
-            {
-                value = settings;
-            }
-        }
+        public WebSocketSettings settings { get; set; }
 
         public
         WebSocketClient(string id = "")
@@ -76,7 +64,7 @@ TwitchNet.Clients.PubSub
 
             UUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-            _settings = new WebSocketSettings();
+            settings = new WebSocketSettings();
 
             WebSocket.RegisterPrefixes();
 
@@ -94,7 +82,7 @@ TwitchNet.Clients.PubSub
         public void
         Connect()
         {
-            if (_settings.connect_retry_count > _settings.connect_retry_count_limit)
+            if (settings.connect_retry_count > settings.connect_retry_count_limit)
             {
                 return;
             }
@@ -137,7 +125,7 @@ TwitchNet.Clients.PubSub
                 return;
             }
 
-            _settings.connect_retry_count = 0;
+            settings.connect_retry_count = 0;
 
             stream = response.GetResponseStream();
 
@@ -146,13 +134,13 @@ TwitchNet.Clients.PubSub
 
             SetState(WebSocketState.Open);
 
-            OnOpen.Raise(this, new WebSocketEventArgs(DateTime.Now, URI, id));
+            OnOpened.Raise(this, new WebSocketEventArgs(DateTime.Now, URI, id));
         }
 
         public void
         ConnectAsync()
         {
-            if (_settings.connect_retry_count > _settings.connect_retry_count_limit)
+            if (settings.connect_retry_count > settings.connect_retry_count_limit)
             {
                 return;
             }
@@ -203,7 +191,7 @@ TwitchNet.Clients.PubSub
                 return;
             }
 
-            _settings.connect_retry_count = 0;
+            settings.connect_retry_count = 0;
 
             stream = response.GetResponseStream();
 
@@ -212,7 +200,7 @@ TwitchNet.Clients.PubSub
 
             SetState(WebSocketState.Open);
 
-            OnOpen.Raise(this, new WebSocketEventArgs(DateTime.Now, URI, id));
+            OnOpened.Raise(this, new WebSocketEventArgs(DateTime.Now, URI, id));
         }
 
         private bool
@@ -352,17 +340,17 @@ TwitchNet.Clients.PubSub
 
             if (settings.handling_failed_to_connect == RetryHandling.Retry)
             {
-                ++_settings.connect_retry_count;
-                if (_settings.connect_retry_count > _settings.connect_retry_count_limit)
+                ++settings.connect_retry_count;
+                if (settings.connect_retry_count > settings.connect_retry_count_limit)
                 {
                     // No further clean up needed since all other managed resources have been freed (except the state mutex).
                     OverrideState(WebSocketState.Closed);
 
-                    SetNetworkError(new WebSocketNetworkException(WebSocketNetworkError.RetryConnectLimitReached, "The maximum amount of failed connection attempts has been reached. Limit: " + _settings.connect_retry_count_limit, exception));
+                    SetNetworkError(new WebSocketNetworkException(WebSocketNetworkError.RetryConnectLimitReached, "The maximum amount of failed connection attempts has been reached. Limit: " + settings.connect_retry_count_limit, exception));
                 }
                 else
                 {
-                    _settings.WaitConnectionDelay();
+                    settings.WaitConnectionDelay();
                     Connect();
                 }
             }
@@ -391,17 +379,17 @@ TwitchNet.Clients.PubSub
 
             if (settings.handling_failed_to_connect == RetryHandling.Retry)
             {
-                ++_settings.connect_retry_count;
-                if (_settings.connect_retry_count > _settings.connect_retry_count_limit)
+                ++settings.connect_retry_count;
+                if (settings.connect_retry_count > settings.connect_retry_count_limit)
                 {
                     // No further clean up needed since all other managed resources have been freed (except the state mutex).
                     OverrideState(WebSocketState.Closed);
 
-                    SetNetworkError(new WebSocketNetworkException(WebSocketNetworkError.RetryConnectLimitReached, "The maximum amount of failed connection attempts has been reached. Limit: " + _settings.connect_retry_count_limit, exception));
+                    SetNetworkError(new WebSocketNetworkException(WebSocketNetworkError.RetryConnectLimitReached, "The maximum amount of failed connection attempts has been reached. Limit: " + settings.connect_retry_count_limit, exception));
                 }
                 else
                 {
-                    await _settings.WaitConnectionDelayAsync();
+                    await settings.WaitConnectionDelayAsync();
                     ConnectAsync();
                 }
             }
@@ -455,7 +443,7 @@ TwitchNet.Clients.PubSub
             socket = null;
 
             SetState(WebSocketState.Closed, force_disconnect);
-            OnClose.Raise(this, new CloseEventArgs(DateTime.Now, URI, frame, source, id));
+            OnClosed.Raise(this, new CloseEventArgs(DateTime.Now, URI, frame, source, id));
         }
 
         public void
@@ -508,7 +496,7 @@ TwitchNet.Clients.PubSub
             socket = null;
 
             SetState(WebSocketState.Closed, _result.Item2);
-            OnClose.Raise(this, new CloseEventArgs(DateTime.Now, URI, _result.Item3, _result.Item1, id));
+            OnClosed.Raise(this, new CloseEventArgs(DateTime.Now, URI, _result.Item3, _result.Item1, id));
         }
 
         public virtual void
@@ -1174,9 +1162,9 @@ TwitchNet.Clients.PubSub
         private void
         SetError(WebSocketException exception)
         {
-            OnError.Raise(this, new WebSocketErrorEventArgs(DateTime.Now, URI, exception, id));
+            OnWebSocketError.Raise(this, new WebSocketErrorEventArgs(DateTime.Now, URI, exception, id));
 
-            if (_settings.handling_error == ErrorHandling.Return)
+            if (settings.handling_error == ErrorHandling.Return)
             {
                 return;
             }
@@ -1189,7 +1177,7 @@ TwitchNet.Clients.PubSub
         {
             OnNetworkError.Raise(this, new WebSocketNetworkErrorEventArgs(DateTime.Now, URI, exception, id));
 
-            if (_settings.handling_network_error == ErrorHandling.Return)
+            if (settings.handling_network_error == ErrorHandling.Return)
             {
                 return;
             }
@@ -1560,6 +1548,8 @@ TwitchNet.Clients.PubSub
         int frame_fragment_length_read { get; set; }
         int frame_fragment_length_write { get; set; }
 
+        int connect_retry_count_limit { get; set; }
+
         RetryHandling handling_failed_to_connect { get; set; }
         ErrorHandling handling_network_error { get; set; }
         ErrorHandling handling_error { get; set; }
@@ -1571,7 +1561,7 @@ TwitchNet.Clients.PubSub
         private int[] connect_retry_delay_seconds;
 
         internal int connect_retry_count;
-        internal int connect_retry_count_limit;
+        public int connect_retry_count_limit { get; set; }
 
         public int frame_fragment_length_read { get; set; }
         public int frame_fragment_length_write { get; set; }

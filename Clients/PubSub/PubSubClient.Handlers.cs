@@ -12,12 +12,26 @@ TwitchNet.Clients.PubSub
     public partial class
     PubSubClient : WebSocketClient, IDisposable
     {
-        public delegate void PubSubHandlerType(PubSubMessageType type, MessageTextEventArgs args);
-        public delegate void PubSubHandlerTopic(PubSubTopic topic, PubSubMessageEventArgs args);
-
         private Dictionary<PubSubMessageType, PubSubHandlerType> handlers_pub_sub_type;
         private Dictionary<PubSubTopic, PubSubHandlerTopic> handlers_pub_sub_topic;
 
+        /// <summary>
+        /// The function signature for the <see cref="PubSubMessageType"/> handlers.
+        /// </summary>
+        /// <param name="type">The PubSub message type.</param>
+        /// <param name="args">The text event arguments from the WebSocket</param>
+        public delegate void PubSubHandlerType(PubSubMessageType type, MessageTextEventArgs args);
+
+        /// <summary>
+        /// The function signature for the <see cref="PubSubTopic"/> handlers.
+        /// </summary>
+        /// <param name="topic">The event data type.</param>
+        /// <param name="args">The message event arguments from the PubSub server.</param>
+        public delegate void PubSubHandlerTopic(PubSubTopic topic, PubSubMessageEventArgs args);
+
+        /// <summary>
+        /// Resets the <see cref="PubSubMessageType"/> and <see cref="PubSubTopic"/> PubSub handlers.
+        /// </summary>
         public void
         ResetPubSubHandlers()
         {
@@ -31,10 +45,24 @@ TwitchNet.Clients.PubSub
             SetPubSubHandler(PubSubMessageType.Message,     PubSubHandler_Type_Message);
 
             SetPubSubHandler(PubSubTopic.Other,             PubSubHandler_Topic_Unsupported);
-            SetPubSubHandler(PubSubTopic.Whispers,          PubSubHandler_Topic_Whispers);
             SetPubSubHandler(PubSubTopic.ModeratorActions,  PubSubHandler_Topic_ModeratorActions);
+            SetPubSubHandler(PubSubTopic.Bits,              PubSubHandler_Topic_Bits);
+            SetPubSubHandler(PubSubTopic.BitsV2,            PubSubHandler_Topic_Bits);
+            SetPubSubHandler(PubSubTopic.BitsBadge,         PubSubHandler_Topic_BitsBadge);
+            SetPubSubHandler(PubSubTopic.Subscriptions,     PubSubHandler_Topic_Subscription);
+            SetPubSubHandler(PubSubTopic.Whispers,          PubSubHandler_Topic_Whispers);
         }
 
+        /// <summary>
+        /// Set a <see cref="PubSubMessageType"/> message handler.
+        /// </summary>
+        /// <param name="type">The PubSub message type.</param>
+        /// <param name="handler">The message handler</param>
+        /// <returns>
+        /// Returns true if the handler was successfully set.
+        /// Returns false if the handler is null.
+        /// Returns false otherwise.
+        /// </returns>
         public bool
         SetPubSubHandler(PubSubMessageType type, PubSubHandlerType handler)
         {
@@ -50,21 +78,15 @@ TwitchNet.Clients.PubSub
             return true;
         }
 
-        public bool
-        SetPubSubHandler(PubSubTopic topic, PubSubHandlerTopic handler)
-        {
-            ExceptionUtil.ThrowIfNull(handler, nameof(handler));
-
-            if (handlers_pub_sub_topic.IsNull())
-            {
-                return false;
-            }
-
-            handlers_pub_sub_topic[topic] = handler;
-
-            return true;
-        }
-
+        /// <summary>
+        /// Removes a <see cref="PubSubMessageType"/> message handler.
+        /// </summary>
+        /// <param name="type">The PubSub message type.</param>
+        /// <returns>
+        /// Returns true if the handler was successfully removed.
+        /// Returns false if no handler exists for the specified type.
+        /// Returns false otherwise.
+        /// </returns>
         public bool
         RemovePubSubHandler(PubSubMessageType type)
         {
@@ -81,22 +103,6 @@ TwitchNet.Clients.PubSub
             return handlers_pub_sub_type.Remove(type);
         }
 
-        public bool
-        RemovePubSubHandler(PubSubTopic topic)
-        {
-            if (handlers_pub_sub_topic.IsNull())
-            {
-                return true;
-            }
-
-            if (!handlers_pub_sub_topic.ContainsKey(topic))
-            {
-                return false;
-            }
-
-            return handlers_pub_sub_topic.Remove(topic);
-        }
-
         private void
         RunPubSubHandler(PubSubMessageType type, MessageTextEventArgs args)
         {
@@ -111,6 +117,56 @@ TwitchNet.Clients.PubSub
             }
 
             handlers_pub_sub_type[type](type, args);
+        }
+
+        /// <summary>
+        /// Set a <see cref="PubSubMessageType"/> message handler.
+        /// </summary>
+        /// <param name="topic">The event data type.</param>
+        /// <param name="handler">The message handler</param>
+        /// <returns>
+        /// Returns true if the handler was successfully set.
+        /// Returns false if the handler is null.
+        /// Returns false otherwise.
+        /// </returns>
+        public bool
+        SetPubSubHandler(PubSubTopic topic, PubSubHandlerTopic handler)
+        {
+            ExceptionUtil.ThrowIfNull(handler, nameof(handler));
+
+            if (handlers_pub_sub_topic.IsNull())
+            {
+                return false;
+            }
+
+            handlers_pub_sub_topic[topic] = handler;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Removes a <see cref="PubSubMessageType"/> message handler.
+        /// </summary>
+        /// <param name="topic">The event data type.</param>
+        /// <returns>
+        /// Returns true if the handler was successfully removed.
+        /// Returns false if no handler exists for the specified type.
+        /// Returns false otherwise.
+        /// </returns>
+        public bool
+        RemovePubSubHandler(PubSubTopic topic)
+        {
+            if (handlers_pub_sub_topic.IsNull())
+            {
+                return true;
+            }
+
+            if (!handlers_pub_sub_topic.ContainsKey(topic))
+            {
+                return false;
+            }
+
+            return handlers_pub_sub_topic.Remove(topic);
         }
 
         private void
@@ -181,6 +237,24 @@ TwitchNet.Clients.PubSub
         PubSubHandler_Topic_ModeratorActions(PubSubTopic type, PubSubMessageEventArgs args)
         {
             OnPupSubModeratorAction.Raise(this, new PubSubModeratorActionsEventArgs(args));
+        }
+
+        private void
+        PubSubHandler_Topic_Bits(PubSubTopic type, PubSubMessageEventArgs args)
+        {
+            OnPupSubBits.Raise(this, new PubSubBitsEventArgs(args));
+        }
+
+        private void
+        PubSubHandler_Topic_BitsBadge(PubSubTopic type, PubSubMessageEventArgs args)
+        {
+            OnPupSubBitsBadge.Raise(this, new PubSubBitsBadgeEventArgs(args));
+        }
+
+        private void
+        PubSubHandler_Topic_Subscription(PubSubTopic type, PubSubMessageEventArgs args)
+        {
+            OnPupSubSubscription.Raise(this, new PubSubSubscriptionEventArgs(args));
         }
     }
 }

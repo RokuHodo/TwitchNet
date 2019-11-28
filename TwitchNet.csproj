@@ -61,7 +61,7 @@
     <Compile Include="Debugger\ErrorLevel.cs" />
     <Compile Include="Debugger\TimeStamp.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
-    <Compile Include="Helpers\Json\EnumConverter.cs" />
+    <Compile Include="Helpers\Json\Converters.cs" />
     <Compile Include="Helpers\Json\ISerializer.cs" />
     <Compile Include="Helpers\Json\IDeserializer.cs" />
     <Compile Include="Helpers\Json\JsonSerializer.cs" />
@@ -112,7 +112,6 @@
     <Compile Include="Extensions\ReflectionExtensions.cs" />
     <Compile Include="Extensions\ValidationExtensions.cs" />
     <Compile Include="Helpers\Json\JsonDeserializer.cs" />
-    <Compile Include="Helpers\Json\VideoDurationConverter.cs" />
     <Compile Include="Rest\Helix\Users.cs" />
     <Compile Include="Rest\Helix\Videos.cs" />
     <Compile Include="Debugger\ValidateTagAttribute.cs" />

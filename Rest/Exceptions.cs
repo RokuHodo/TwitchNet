@@ -52,16 +52,16 @@ namespace TwitchNet.Rest
     public class
     AvailableScopesException : Exception
     {
-        public Scopes[] missing_scopes { get; private set; }
+        public HelixScopes[] missing_scopes { get; private set; }
 
-        public AvailableScopesException(Scopes[] scopes)
+        public AvailableScopesException(HelixScopes[] scopes)
         {
-            missing_scopes = scopes.IsValid() ? scopes : new Scopes[0];
+            missing_scopes = scopes.IsValid() ? scopes : new HelixScopes[0];
         }
 
-        public AvailableScopesException(string message, Scopes[] scopes) : base(message)
+        public AvailableScopesException(string message, HelixScopes[] scopes) : base(message)
         {
-            missing_scopes = scopes.IsValid() ? scopes : new Scopes[0];
+            missing_scopes = scopes.IsValid() ? scopes : new HelixScopes[0];
         }
     }
 

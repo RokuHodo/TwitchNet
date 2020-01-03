@@ -39,8 +39,7 @@ TwitchNet.Clients.PubSub
             timer_ping_jitter = new Random(guid.GetHashCode());
 
             settings = new PubSubSettings();
-            // This is needed to synchronize the two settings. DO NOT REMOVE.
-            base.settings = settings;
+            base.settings = settings;   // This is needed to synchronize the two settings. DO NOT REMOVE.
 
             OnOpened        += Callback_OnOpen;
             OnClosed        += Callback_OnClosed;
@@ -118,106 +117,407 @@ TwitchNet.Clients.PubSub
             return Send("{\"type\": \"PING\"}");
         }
 
-        public bool
-        ListenBits(string oauth_token, string user_id, string nonce = "")
-        {
-            return SendListenOrUnlisten(new ListenUnlistenPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.BITS, user_id)));
-        }
-
-        public bool
-        ListenBitsV2(string oauth_token, string user_id, string nonce = "")
-        {
-            return SendListenOrUnlisten(new ListenUnlistenPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.BITS_V2, user_id)));
-        }
-
-        public bool
-        ListenBitsBadge(string oauth_token, string user_id, string nonce = "")
-        {
-            return SendListenOrUnlisten(new ListenUnlistenPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.BITS_BADGE, user_id)));
-        }
-
-        public bool
-        ListenModeratorActions(string oauth_token, string user_id, string nonce = "")
-        {
-            return SendListenOrUnlisten(new ListenUnlistenPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.MODERATOR_ACTIONS, user_id)));
-        }
-
-        public bool
-        ListenSubscriptions(string oauth_token, string user_id, string nonce = "")
-        {
-            return SendListenOrUnlisten(new ListenUnlistenPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.SUBSCRIPTIONS, user_id)));
-        }
-
-        public bool
-        ListenWhispers(string oauth_token, string user_id, string nonce = "")
-        {
-            return SendListenOrUnlisten(new ListenUnlistenPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.WHISPERS, user_id)));
-        }
-
+        /// <summary>
+        /// <para>
+        /// Listens to a PubSub topic.
+        /// If the topic has already been listened to, it is silently ignored.
+        /// </para>
+        /// <para>
+        /// Required Scope: Varies.
+        /// See <see cref="PubSubScopes"/> to see what topic(s) each scope applies to.
+        /// </para>
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="topic">The topic to listen to.</param>
+        /// <param name="nonce">A random and unique string used to identify the response with the request.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload OAuth token or the topic is null, empty, or contained only whitespace.
+        /// Thrown if the payload topic could not be parsed into one of the supported <see cref="PubSubTopic"/>'s.
+        /// Thrown if the payload topic contained no user ID, more than one user ID, or the user ID was null, empty, or contains only whitesapce
+        /// </exception>
         public bool
         Listen(string oauth_token, string topic, string nonce = "")
         {
-            return SendListenOrUnlisten(new ListenUnlistenPayload(PubSubMessageType.Listen, oauth_token, topic, nonce));
+            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, topic, nonce));
         }
 
-        public bool
-        Listen(string oauth_token, string[] topics, string nonce = "")
-        {
-            return SendListenOrUnlisten(new ListenUnlistenPayload(PubSubMessageType.Listen, oauth_token, topics, nonce));
-        }
-
-        public bool
-        UnlistenBits(string oauth_token, string user_id, string nonce = "")
-        {
-            return SendListenOrUnlisten(new ListenUnlistenPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.BITS, user_id)));
-        }
-
-        public bool
-        UnlistenBitsV2(string oauth_token, string user_id, string nonce = "")
-        {
-            return SendListenOrUnlisten(new ListenUnlistenPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.BITS_V2, user_id)));
-        }
-
-        public bool
-        UnlistenBitsBadge(string oauth_token, string user_id, string nonce = "")
-        {
-            return SendListenOrUnlisten(new ListenUnlistenPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.BITS_BADGE, user_id)));
-        }
-
-        public bool
-        UnlistenModeratorActions(string oauth_token, string user_id, string nonce = "")
-        {
-            return SendListenOrUnlisten(new ListenUnlistenPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.MODERATOR_ACTIONS, user_id)));
-        }
-
-        public bool
-        UnlistenSubscriptions(string oauth_token, string user_id, string nonce = "")
-        {
-            return SendListenOrUnlisten(new ListenUnlistenPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.SUBSCRIPTIONS, user_id)));
-        }
-
-        public bool
-        UnlistenWhispers(string oauth_token, string user_id, string nonce = "")
-        {
-            return SendListenOrUnlisten(new ListenUnlistenPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.WHISPERS, user_id)));
-        }
-
+        /// <summary>
+        /// Unlistens from a PubSub topic.
+        /// If the topic hasn't been previously listened to, it is silently ignored.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="topic">The topic to unlisten to.</param>
+        /// <param name="nonce">A random and unique string used to identify the response with the request.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload OAuth token or the topic is null, empty, or contained only whitespace.
+        /// Thrown if the payload topic could not be parsed into one of the supported <see cref="PubSubTopic"/>'s.
+        /// Thrown if the payload topic contained no user ID, more than one user ID, or the user ID was null, empty, or contains only whitesapce
+        /// </exception>
         public bool
         Unlisten(string oauth_token, string topic, string nonce = "")
         {
-            return SendListenOrUnlisten(new ListenUnlistenPayload(PubSubMessageType.Unlisten, oauth_token, topic, nonce));
+            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, topic, nonce));
         }
 
+        /// <summary>
+        /// <para>
+        /// Listens to a list of PubSub topics.
+        /// If a topic has already been listened to, it is silently ignored.
+        /// </para>
+        /// <para>
+        /// Required Scope: Varies.
+        /// See <see cref="PubSubScopes"/> to see what topic(s) each scope applies to.
+        /// </para>
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="topics">The topics to listen to.</param>
+        /// <param name="nonce">A random and unique string used to identify the response with the request.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload OAuth token or any topic is null, empty, or contained only whitespace.
+        /// Thrown if any payload topic could not be parsed into one of the supported <see cref="PubSubTopic"/>'s.
+        /// Thrown if any payload topic contained no user ID, more than one user ID, or the user ID was null, empty, or contains only whitesapce
+        /// </exception>
+        public bool
+        Listen(string oauth_token, string[] topics, string nonce = "")
+        {
+            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, topics, nonce));
+        }
+
+        /// <summary>
+        /// Unlistens from a list of PubSub topics.
+        /// If a topic hasn't been previously listened to, it is silently ignored.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="topics">The topics to unlisten to.</param>
+        /// <param name="nonce">A random and unique string used to identify the response with the request.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload OAuth token or any topic is null, empty, or contained only whitespace.
+        /// Thrown if any payload topic could not be parsed into one of the supported <see cref="PubSubTopic"/>'s.
+        /// Thrown if any payload topic contained no user ID, more than one user ID, or the user ID was null, empty, or contains only whitesapce
+        /// </exception>
         public bool
         Unlisten(string oauth_token, string[] topics, string nonce = "")
         {
-            return SendListenOrUnlisten(new ListenUnlistenPayload(PubSubMessageType.Unlisten, oauth_token, topics, nonce));
+            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, topics, nonce));
         }
 
+        /// <summary>
+        /// <para>
+        /// Listens to a PubSub bits topic.
+        /// Receieve a payload when anyone cheers in the provided user's chat.
+        /// If the topic has already been listened to, it is silently ignored.
+        /// </para>
+        /// <para>Required Scope: <see cref="PubSubScopes.BitsRead"/>.</para>
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="user_id">The user ID associated with the request.</param>
+        /// <param name="nonce">A random and unique string used to identify the response with the request.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload OAuth token is null, empty, or contained only whitespace.
+        /// Thrown if more than one user ID was provided, or the user ID was null, empty, or contains only whitesapce.
+        /// </exception>
         public bool
-        SendListenOrUnlisten(ListenUnlistenPayload payload)
+        ListenBits(string oauth_token, string user_id, string nonce = "")
         {
-            if (!ValidateListenOrUnlistenPayload(payload))
+            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.BITS, user_id)));
+        }
+
+        /// <summary>
+        /// Unlistens from a PubSub bits topic.
+        /// If the topic hasn't been previously listened to, it is silently ignored.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="user_id">The user ID associated with the request.</param>
+        /// <param name="nonce">A random and unique string used to identify the response with the request.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload OAuth token is null, empty, or contained only whitespace.
+        /// Thrown if more than one user ID was provided, or the user ID was null, empty, or contains only whitesapce.
+        /// </exception>
+        public bool
+        UnlistenBits(string oauth_token, string user_id, string nonce = "")
+        {
+            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.BITS, user_id)));
+        }
+
+        /// <summary>
+        /// <para>
+        /// Listens to a PubSub bits v2 topic.
+        /// Receieve a payload when anyone cheers in the provided user's chat.
+        /// If the topic has already been listened to, it is silently ignored.
+        /// </para>
+        /// <para>Required Scope: <see cref="PubSubScopes.BitsRead"/>.</para>
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="user_id">The user ID associated with the request.</param>
+        /// <param name="nonce">A random and unique string used to identify the response with the request.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload OAuth token is null, empty, or contained only whitespace.
+        /// Thrown if more than one user ID was provided, or the user ID was null, empty, or contains only whitesapce.
+        /// </exception>
+        public bool
+        ListenBitsV2(string oauth_token, string user_id, string nonce = "")
+        {
+            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.BITS_V2, user_id)));
+        }
+
+        /// <summary>
+        /// Unlistens from a PubSub bits v2 topic.
+        /// If the topic hasn't been previously listened to, it is silently ignored.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="user_id">The user ID associated with the request.</param>
+        /// <param name="nonce">A random and unique string used to identify the response with the request.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload OAuth token is null, empty, or contained only whitespace.
+        /// Thrown if more than one user ID was provided, or the user ID was null, empty, or contains only whitesapce.
+        /// </exception>
+        public bool
+        UnlistenBitsV2(string oauth_token, string user_id, string nonce = "")
+        {
+            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.BITS_V2, user_id)));
+        }
+
+        /// <summary>
+        /// <para>
+        /// Listens to a PubSub bits badge topic.
+        /// Receieve a payload when anyone who cheered in the provided user's chat earns a new Bits badge and chooses to share the notification.
+        /// If the topic has already been listened to, it is silently ignored.
+        /// </para>
+        /// <para>Required Scope: <see cref="PubSubScopes.BitsRead"/>.</para>
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="user_id">The user ID associated with the request.</param>
+        /// <param name="nonce">A random and unique string used to identify the response with the request.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload OAuth token is null, empty, or contained only whitespace.
+        /// Thrown if more than one user ID was provided, or the user ID was null, empty, or contains only whitesapce.
+        /// </exception>
+        public bool
+        ListenBitsBadge(string oauth_token, string user_id, string nonce = "")
+        {
+            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.BITS_BADGE, user_id)));
+        }
+
+        /// <summary>
+        /// Unlistens from a PubSub bits badge topic.
+        /// If the topic hasn't been previously listened to, it is silently ignored.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="user_id">The user ID associated with the request.</param>
+        /// <param name="nonce">A random and unique string used to identify the response with the request.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload OAuth token is null, empty, or contained only whitespace.
+        /// Thrown if more than one user ID was provided, or the user ID was null, empty, or contains only whitesapce.
+        /// </exception>
+        public bool
+        UnlistenBitsBadge(string oauth_token, string user_id, string nonce = "")
+        {
+            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.BITS_BADGE, user_id)));
+        }
+
+        /// <summary>
+        /// <para>
+        /// Listens to a PubSub moderator action topic.
+        /// Receieve a payload when any moderator bans, unbans, timeouts, or untimeouts someone in the provided user's chat.
+        /// The moderator who performed the action is identified.
+        /// If the topic has already been listened to, it is silently ignored.
+        /// </para>
+        /// <para>Required Scope: <see cref="PubSubScopes.ChannelModerate"/>.</para>
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="user_id">The user ID associated with the request.</param>
+        /// <param name="nonce">A random and unique string used to identify the response with the request.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload OAuth token is null, empty, or contained only whitespace.
+        /// Thrown if more than one user ID was provided, or the user ID was null, empty, or contains only whitesapce.
+        /// </exception>
+        public bool
+        ListenModeratorActions(string oauth_token, string user_id, string nonce = "")
+        {
+            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.MODERATOR_ACTIONS, user_id)));
+        }
+
+        /// <summary>
+        /// Unlistens from a PubSub moderator action topic.
+        /// If the topic hasn't been previously listened to, it is silently ignored.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="user_id">The user ID associated with the request.</param>
+        /// <param name="nonce">A random and unique string used to identify the response with the request.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload OAuth token is null, empty, or contained only whitespace.
+        /// Thrown if more than one user ID was provided, or the user ID was null, empty, or contains only whitesapce.
+        /// </exception>
+        public bool
+        UnlistenModeratorActions(string oauth_token, string user_id, string nonce = "")
+        {
+            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.MODERATOR_ACTIONS, user_id)));
+        }
+
+        /// <summary>
+        /// <para>
+        /// Listens to a PubSub subscription topic.
+        /// Receieve a payload when someone subscribes, resubscribes, or is gifted a subscription to the provided user.
+        /// If the topic has already been listened to, it is silently ignored.
+        /// </para>
+        /// <para>Required Scope: <see cref="PubSubScopes.ChannelSubscriptions"/>.</para>
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="user_id">The user ID associated with the request.</param>
+        /// <param name="nonce">A random and unique string used to identify the response with the request.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload OAuth token is null, empty, or contained only whitespace.
+        /// Thrown if more than one user ID was provided, or the user ID was null, empty, or contains only whitesapce.
+        /// </exception>
+        public bool
+        ListenSubscriptions(string oauth_token, string user_id, string nonce = "")
+        {
+            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.SUBSCRIPTIONS, user_id)));
+        }
+
+        /// <summary>
+        /// Unlistens from a PubSub subscription topic.
+        /// If the topic hasn't been previously listened to, it is silently ignored.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="user_id">The user ID associated with the request.</param>
+        /// <param name="nonce">A random and unique string used to identify the response with the request.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload OAuth token is null, empty, or contained only whitespace.
+        /// Thrown if more than one user ID was provided, or the user ID was null, empty, or contains only whitesapce.
+        /// </exception>
+        public bool
+        UnlistenSubscriptions(string oauth_token, string user_id, string nonce = "")
+        {
+            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.SUBSCRIPTIONS, user_id)));
+        }
+
+        /// <summary>
+        /// <para>
+        /// Listens to a PubSub whisper topic.
+        /// Receieve a payload when anyone sends a whisper to the provided user.
+        /// If the topic has already been listened to, it is silently ignored.
+        /// </para>
+        /// <para>Required Scope: <see cref="PubSubScopes.WhispersRead"/>.</para>
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="user_id">The user ID associated with the request.</param>
+        /// <param name="nonce">A random and unique string used to identify the response with the request.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload OAuth token is null, empty, or contained only whitespace.
+        /// Thrown if more than one user ID was provided, or the user ID was null, empty, or contains only whitesapce.
+        /// </exception>
+        public bool
+        ListenWhispers(string oauth_token, string user_id, string nonce = "")
+        {
+            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.WHISPERS, user_id)));
+        }
+
+        /// <summary>
+        /// Unlistens from a PubSub whisper topic.
+        /// If the topic hasn't been previously listened to, it is silently ignored.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="user_id">The user ID associated with the request.</param>
+        /// <param name="nonce">A random and unique string used to identify the response with the request.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload OAuth token is null, empty, or contained only whitespace.
+        /// Thrown if more than one user ID was provided, or the user ID was null, empty, or contains only whitesapce.
+        /// </exception>
+        public bool
+        UnlistenWhispers(string oauth_token, string user_id, string nonce = "")
+        {
+            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.WHISPERS, user_id)));
+        }
+
+        /// <summary>
+        /// LISTEN/UNLISTEN to/from a list of PubSub topics.
+        /// If a topic has already been listened to, it is silently ignored.
+        /// If the topic hasn't been previously listened to, it is silently ignored.
+        /// </summary>
+        /// <param name="payload">The payload data to send to the PubSub websocket.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubException">
+        /// Thrown if the payload or payload data is null.
+        /// Thrown if the list of payload topis is null or empty.
+        /// </exception>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload type is not <see cref="PubSubMessageType.Listen"/> or <see cref="PubSubMessageType.Unlisten"/>.
+        /// Thrown if the payload OAuth token any topic is null, empty, or contained only whitespace.
+        /// Thrown if any payload topic could not be parsed into one of the supported <see cref="PubSubTopic"/>'s.
+        /// Thrown if any payload topic contained no user ID, more than one user ID, or the user ID was null, empty, or contains only whitesapce
+        /// </exception>
+        public bool
+        Send(PubSubSendPayload payload)
+        {
+            if (!ValidateSendPayload(payload))
             {
                 return false;
             }
@@ -226,19 +526,19 @@ TwitchNet.Clients.PubSub
         }
 
         private bool
-        ValidateListenOrUnlistenPayload(ListenUnlistenPayload payload)
+        ValidateSendPayload(PubSubSendPayload payload)
         {
             if (payload.IsNull())
             {
                 ArgumentNullException inner_exception = new ArgumentNullException(nameof(payload));
-                SetError(new PubSubException(PubSubInternalError.Payload_Null, "The payload data cannot be null.", inner_exception));
+                SetError(new PubSubException(PubSubClientError.SendPayload_Null, "The payload data cannot be null.", inner_exception));
 
                 return false;
             }
 
             if (payload.type != PubSubMessageType.Listen && payload.type != PubSubMessageType.Unlisten)
             {
-                SetError(new PubSubArgumentException(PubSubInternalError.Payload_Type, "The payload type must either be 'Listen' or 'Unlisten'.", nameof(payload.type)));
+                SetError(new PubSubArgumentException(PubSubClientError.SendPayload_Type, "The payload type must either be 'Listen' or 'Unlisten'.", nameof(payload.type)));
 
                 return false;
             }
@@ -246,21 +546,22 @@ TwitchNet.Clients.PubSub
             if (payload.data.IsNull())
             {
                 ArgumentNullException inner_exception = new ArgumentNullException(nameof(payload.data));
-                SetError(new PubSubException(PubSubInternalError.Payload_Data_Null, "The payload data cannot be null.", inner_exception));
+                SetError(new PubSubException(PubSubClientError.SendPayload_Data_Null, "The payload data cannot be null.", inner_exception));
 
                 return false;
             }
 
+            // TODO: Check against an (optional) list of provided scopes against the required scope(s).
             if (!payload.data.auth_token.HasContent())
             {
-                SetError(new PubSubArgumentException(PubSubInternalError.Payload_OAuthToken_NoContent, "The OAuth token cannot be null, empty, or contain only whitesapce.", nameof(payload.data.auth_token)));
+                SetError(new PubSubArgumentException(PubSubClientError.SendPayload_OAuthToken_NoContent, "The OAuth token cannot be null, empty, or contain only whitesapce.", nameof(payload.data.auth_token)));
 
                 return false;
             }
 
             if (!payload.data.topics.IsValid())
             {
-                SetError(new PubSubException(PubSubInternalError.Payload_Topics_Empty, "The payload topics was null or an empty list."));
+                SetError(new PubSubException(PubSubClientError.SendPayload_Topics_Empty, "The payload topics was null or an empty list."));
 
                 return false;
             }
@@ -270,7 +571,7 @@ TwitchNet.Clients.PubSub
             {
                 if (!payload.data.topics[index].HasContent())
                 {
-                    SetError(new PubSubArgumentException(PubSubInternalError.Payload_Topic_NoContent, "The payload topic cannot be null, empty, or contain only whitespace."));
+                    SetError(new PubSubArgumentException(PubSubClientError.SendPayload_Topic_NoContent, "The payload topic cannot be null, empty, or contain only whitespace."));
 
                     return false;
                 }
@@ -278,27 +579,27 @@ TwitchNet.Clients.PubSub
                 topic = payload.data.topics[index].Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
                 if (!EnumUtil.TryParse(topic[0], out PubSubTopic _topic))
                 {
-                    SetError(new PubSubArgumentException(PubSubInternalError.Payload_Topic_Malformed, "The payload topic, " + payload.data.topics[index].WrapQuotes() + ", did not match any supported root topic.", nameof(topic)));
+                    SetError(new PubSubArgumentException(PubSubClientError.SendPayload_Topic_Malformed, "The payload topic, " + payload.data.topics[index].WrapQuotes() + ", did not match any supported root topic.", nameof(topic)));
 
                     return false;
                 }
 
                 if (topic.Length == 1)
                 {
-                    SetError(new PubSubArgumentException(PubSubInternalError.Payload_Topic_Arguments, "No user ID was provided in the topic, " + payload.data.topics[index].WrapQuotes(), nameof(topic)));
+                    SetError(new PubSubArgumentException(PubSubClientError.SendPayload_Topic_Arguments, "No user ID was provided in the topic, " + payload.data.topics[index].WrapQuotes(), nameof(topic)));
 
                     return false;
                 }
                 else if (topic.Length > 2)
                 {
-                    SetError(new PubSubArgumentException(PubSubInternalError.Payload_Topic_Arguments, "Only one user ID can be provided in the topic, " + topic[0].WrapQuotes(), nameof(topic)));
+                    SetError(new PubSubArgumentException(PubSubClientError.SendPayload_Topic_Arguments, "Only one user ID can be provided in the topic, " + topic[index].WrapQuotes(), nameof(topic)));
 
                     return false;
                 }
 
                 if (!topic[1].HasContent())
                 {
-                    SetError(new PubSubArgumentException(PubSubInternalError.Payload_Topic_Arguments, "The topic user ID cannot be null, empty, or contain only whitespace.", nameof(topic)));
+                    SetError(new PubSubArgumentException(PubSubClientError.SendPayload_Topic_Arguments, "The topic user ID cannot be null, empty, or contain only whitespace.", nameof(topic)));
 
                     return false;
                 }
@@ -311,7 +612,7 @@ TwitchNet.Clients.PubSub
         SetError<type>(type exception)
         where type : Exception, IPubSubException
         {
-            if(settings.handling_pubsub_internal_error == ErrorHandling.Return)
+            if(settings.handling_pubsub_client_error == ErrorHandling.Return)
             {
                 return;
             }
@@ -330,66 +631,67 @@ TwitchNet.Clients.PubSub
         /// <summary>
         /// How to handle intenral errors encountered within the library.
         /// </summary>
-        ErrorHandling handling_pubsub_internal_error { get; set; }
+        ErrorHandling handling_pubsub_client_error { get; set; }
     }
 
-    public class
+    public sealed class
     PubSubSettings : WebSocketSettings, IPubSbSettings
     {
         /// <summary>
         /// How to handle intenral errors encountered within the library.
         /// </summary>
-        public ErrorHandling handling_pubsub_internal_error { get; set; }
+        public ErrorHandling handling_pubsub_client_error { get; set; }
 
         public
         PubSubSettings()
         {
-            handling_pubsub_internal_error = ErrorHandling.Error;
+            handling_pubsub_client_error = ErrorHandling.Error;
         }
     }
 
     public enum
-    PubSubInternalError
+    PubSubClientError
     {
         /// <summary>
-        /// The LISTEN/UNLISTEN payload is null.
+        /// Null payload was attempted to be sent to the PubSub websocket.
         /// </summary>
-        Payload_Null,
+        SendPayload_Null,
 
         /// <summary>
-        /// The payload type is not set to <see cref="PubSubMessageType.Listen"/> or <see cref="PubSubMessageType.Unlisten"/>.
+        /// The send payload type is not set to <see cref="PubSubMessageType.Listen"/> or <see cref="PubSubMessageType.Unlisten"/>.
         /// </summary>
-        Payload_Type,
+        SendPayload_Type,
 
         /// <summary>
-        /// The LISTEN/UNLISTEN payload data is null.
+        /// Null LISTEN/UNLISTEN payload data was attempted to be sent to the PubSub websocket.
         /// </summary>
-        Payload_Data_Null,
+        SendPayload_Data_Null,
 
         /// <summary>
-        /// The LISTEN/UNLISTEN payload OAuth token is null, empty, or contains only whitesapce.
+        /// The OAuth token in the send payload data is null, empty, or contains only whitesapce.
         /// </summary>
-        Payload_OAuthToken_NoContent,
+        SendPayload_OAuthToken_NoContent,
 
         /// <summary>
-        /// The LISTEN/UNLISTEN payload topics is null or empty.
+        /// The list of topics in the send payload data is null or an empty.
         /// </summary>
-        Payload_Topics_Empty,
+        SendPayload_Topics_Empty,
 
         /// <summary>
-        /// A LISTEN/UNLISTEN payload topic is null, empty, or contains only whitesapce.
+        /// One or more topic in the send payload data contained only whitespace.
         /// </summary>
-        Payload_Topic_NoContent,
+        SendPayload_Topic_NoContent,
 
         /// <summary>
-        /// A LISTEN/UNLISTEN payload topic could not be parsed into one of the supported <see cref="PubSubTopic"/>'s.
+        /// One or more topic in the send payload data could not be parsed into one of the supported <see cref="PubSubTopic"/>'s.
+        /// Consider using one of the templates provided in <see cref="TopicFormat"/>.
         /// </summary>
-        Payload_Topic_Malformed,
+        SendPayload_Topic_Malformed,
 
         /// <summary>
-        /// A LISTEN/UNLISTEN payload topic contained no user ID, more than one user ID, or the user ID was null, empty, or contains only whitesapce.
+        /// One or more topic in the send payload data contained no user ID, more than one user ID, or the user ID was null, empty, or contains only whitesapce.
         /// </summary>
-        Payload_Topic_Arguments
+        SendPayload_Topic_Arguments
     }
 
     public interface
@@ -398,7 +700,7 @@ TwitchNet.Clients.PubSub
         /// <summary>
         /// The LISTEN/UNLISTEN payload request format error that was encountered.
         /// </summary>
-        PubSubInternalError error { get; }
+        PubSubClientError error { get; }
     }
 
     public class
@@ -407,12 +709,12 @@ TwitchNet.Clients.PubSub
         /// <summary>
         /// The LISTEN/UNLISTEN payload request format error that was encountered.
         /// </summary>
-        public PubSubInternalError error { get; }
+        public PubSubClientError error { get; }
 
         /// <param name="error">The LISTEN/UNLISTEN payload request format error that was encountered.</param>
         /// <param name="message">The error message.</param>
         public
-        PubSubArgumentException(PubSubInternalError error, string message) : base(message)
+        PubSubArgumentException(PubSubClientError error, string message) : base(message)
         {
             this.error = error;
         }
@@ -421,7 +723,7 @@ TwitchNet.Clients.PubSub
         /// <param name="message">The error message.</param>
         /// <param name="param_name">The name of the parameter that was formatted wrong.</param>
         public
-        PubSubArgumentException(PubSubInternalError error, string message, string param_name) : base(message, param_name)
+        PubSubArgumentException(PubSubClientError error, string message, string param_name) : base(message, param_name)
         {
             this.error = error;
         }
@@ -430,7 +732,7 @@ TwitchNet.Clients.PubSub
         /// <param name="message">The error message.</param>
         /// <param name="inner_exception">The secondary error that occured.</param>
         public
-        PubSubArgumentException(PubSubInternalError error, string message, Exception inner_exception) : base(message, inner_exception)
+        PubSubArgumentException(PubSubClientError error, string message, Exception inner_exception) : base(message, inner_exception)
         {
             this.error = error;
         }
@@ -440,7 +742,7 @@ TwitchNet.Clients.PubSub
         /// <param name="param_name">The name of the parameter that was formatted wrong.</param>
         /// <param name="inner_exception">The secondary error that occured.</param>
         public
-        PubSubArgumentException(PubSubInternalError error, string message, string param_name, Exception inner_exception) : base(message, param_name, inner_exception)
+        PubSubArgumentException(PubSubClientError error, string message, string param_name, Exception inner_exception) : base(message, param_name, inner_exception)
         {
             this.error = error;
         }
@@ -449,12 +751,12 @@ TwitchNet.Clients.PubSub
     public class
     PubSubException : Exception, IPubSubException
     {
-        public PubSubInternalError error { get; }
+        public PubSubClientError error { get; }
 
         /// <param name="error">The LISTEN/UNLISTEN payload request format error that was encountered.</param>
         /// <param name="message">The error message.</param>
         public
-        PubSubException(PubSubInternalError error, string message) : base(message)
+        PubSubException(PubSubClientError error, string message) : base(message)
         {
             this.error = error;
         }
@@ -463,7 +765,7 @@ TwitchNet.Clients.PubSub
         /// <param name="message">The error message.</param>
         /// <param name="inner_exception">The secondary error that occured.</param>
         public
-        PubSubException(PubSubInternalError error, string message, Exception inner_exception) : base(message, inner_exception)
+        PubSubException(PubSubClientError error, string message, Exception inner_exception) : base(message, inner_exception)
         {
             this.error = error;
         }
@@ -745,7 +1047,7 @@ TwitchNet.Clients.PubSub
     }
 
     public class
-    ListenUnlistenPayload
+    PubSubSendPayload
     {
         /// <summary>
         /// The type of message being sent to the PubSub server.
@@ -763,12 +1065,12 @@ TwitchNet.Clients.PubSub
         /// The request data to be sent to the PubSub servers.
         /// </summary>
         [JsonProperty("data")]
-        public ListenUnlistenPayloadData data;
+        public PubSubSendPayloadData data;
 
         public
-        ListenUnlistenPayload()
+        PubSubSendPayload()
         {
-            data = new ListenUnlistenPayloadData();
+            data = new PubSubSendPayloadData();
         }
 
         /// <param name="type">
@@ -779,12 +1081,12 @@ TwitchNet.Clients.PubSub
         /// <param name="topic">The formatted topic to be requested.</param>
         /// <param name="nonce">Random and unique string provided by the client to identify the response with the appropriate request.</param>
         public
-        ListenUnlistenPayload(PubSubMessageType type, string oauth_token, string topic, string nonce = "")
+        PubSubSendPayload(PubSubMessageType type, string oauth_token, string topic, string nonce = "")
         {
             this.type = type;
             this.nonce = nonce;
 
-            data = new ListenUnlistenPayloadData();
+            data = new PubSubSendPayloadData();
             data.auth_token = oauth_token;
             data.topics.Add(topic);
         }
@@ -797,12 +1099,12 @@ TwitchNet.Clients.PubSub
         /// <param name="topic">The formatted topics to be requested.</param>
         /// <param name="nonce">Random and unique string provided by the client to identify the response with the appropriate request.</param>
         public
-        ListenUnlistenPayload(PubSubMessageType type, string oauth_token, string[] topics, string nonce = "")
+        PubSubSendPayload(PubSubMessageType type, string oauth_token, string[] topics, string nonce = "")
         {
             this.type = type;
             this.nonce = nonce;
 
-            data = new ListenUnlistenPayloadData();
+            data = new PubSubSendPayloadData();
             data.auth_token = oauth_token;
 
             if (topics.IsNull())
@@ -815,7 +1117,7 @@ TwitchNet.Clients.PubSub
     }
 
     public class
-    ListenUnlistenPayloadData
+    PubSubSendPayloadData
     {
         /// <summary>
         /// The topics to LISTEN or UNISTEN to.
@@ -830,7 +1132,7 @@ TwitchNet.Clients.PubSub
         public string auth_token;
 
         public
-        ListenUnlistenPayloadData()
+        PubSubSendPayloadData()
         {
             topics = new List<string>();
         }

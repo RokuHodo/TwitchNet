@@ -38,19 +38,20 @@ TwitchNet.Clients.PubSub
             handlers_pub_sub_type = new Dictionary<PubSubMessageType, PubSubHandlerType>();
             handlers_pub_sub_topic = new Dictionary<PubSubTopic, PubSubHandlerTopic>();
 
-            SetPubSubHandler(PubSubMessageType.Other,       PubSubHandler_Type_Unsupported);
+            SetPubSubHandler(PubSubMessageType.Message,     PubSubHandler_Type_Message);
             SetPubSubHandler(PubSubMessageType.Pong,        PubSubHandler_Type_Pong);
             SetPubSubHandler(PubSubMessageType.Reconnect,   PubSubHandler_Type_Reconnect);
             SetPubSubHandler(PubSubMessageType.Response,    PubSubHandler_Type_Response);
-            SetPubSubHandler(PubSubMessageType.Message,     PubSubHandler_Type_Message);
+            SetPubSubHandler(PubSubMessageType.Other,       PubSubHandler_Type_Unsupported);
 
-            SetPubSubHandler(PubSubTopic.Other,             PubSubHandler_Topic_Unsupported);
             SetPubSubHandler(PubSubTopic.ModeratorActions,  PubSubHandler_Topic_ModeratorActions);
             SetPubSubHandler(PubSubTopic.Bits,              PubSubHandler_Topic_Bits);
             SetPubSubHandler(PubSubTopic.BitsV2,            PubSubHandler_Topic_Bits);
             SetPubSubHandler(PubSubTopic.BitsBadge,         PubSubHandler_Topic_BitsBadge);
+            SetPubSubHandler(PubSubTopic.ChannelPoints,     PubSubHandler_Topic_ChannelPoints);
             SetPubSubHandler(PubSubTopic.Subscriptions,     PubSubHandler_Topic_Subscription);
             SetPubSubHandler(PubSubTopic.Whispers,          PubSubHandler_Topic_Whispers);
+            SetPubSubHandler(PubSubTopic.Other,             PubSubHandler_Topic_Unsupported);
         }
 
         /// <summary>
@@ -186,9 +187,15 @@ TwitchNet.Clients.PubSub
         }
 
         private void
-        PubSubHandler_Type_Unsupported(PubSubMessageType type, MessageTextEventArgs args)
+        PubSubHandler_Type_Message(PubSubMessageType type, MessageTextEventArgs args)
         {
-            OnPupSubUnsupportedType.Raise(this, new PubSubTypeEventArgs(args, type));
+            PubSubMessageEventArgs args_pub_sub = new PubSubMessageEventArgs(args);
+            OnPupSubMessage.Raise(this, args_pub_sub);
+
+            string _topic = args_pub_sub.message.data.topic.TextBefore('.');
+            EnumUtil.TryParse(_topic, out PubSubTopic topic);
+
+            RunPubSubHandler(topic, args_pub_sub);
         }
 
         private void
@@ -210,27 +217,9 @@ TwitchNet.Clients.PubSub
         }
 
         private void
-        PubSubHandler_Type_Message(PubSubMessageType type, MessageTextEventArgs args)
+        PubSubHandler_Type_Unsupported(PubSubMessageType type, MessageTextEventArgs args)
         {
-            PubSubMessageEventArgs args_pub_sub = new PubSubMessageEventArgs(args);
-            OnPupSubMessage.Raise(this, args_pub_sub);
-
-            string _topic = args_pub_sub.message.data.topic.TextBefore('.');
-            EnumUtil.TryParse(_topic, out PubSubTopic topic);
-
-            RunPubSubHandler(topic, args_pub_sub);
-        }
-
-        private void
-        PubSubHandler_Topic_Unsupported(PubSubTopic type, PubSubMessageEventArgs args)
-        {
-            OnPupSubUnsupportedTopic.Raise(this, new PubSubMessageEventArgs(args));
-        }
-
-        private void
-        PubSubHandler_Topic_Whispers(PubSubTopic type, PubSubMessageEventArgs args)
-        {
-            OnPupSubWhisper.Raise(this, new PubSubWhisperEventArgs(args));
+            OnPupSubUnsupportedType.Raise(this, new PubSubTypeEventArgs(args, type));
         }
 
         private void
@@ -252,9 +241,27 @@ TwitchNet.Clients.PubSub
         }
 
         private void
+        PubSubHandler_Topic_ChannelPoints(PubSubTopic type, PubSubMessageEventArgs args)
+        {
+            OnPupSubChannelPoints.Raise(this, new PubSubChannelPointsEventArgs(args));
+        }
+
+        private void
         PubSubHandler_Topic_Subscription(PubSubTopic type, PubSubMessageEventArgs args)
         {
             OnPupSubSubscription.Raise(this, new PubSubSubscriptionEventArgs(args));
+        }
+
+        private void
+        PubSubHandler_Topic_Whispers(PubSubTopic type, PubSubMessageEventArgs args)
+        {
+            OnPupSubWhisper.Raise(this, new PubSubWhisperEventArgs(args));
+        }
+
+        private void
+        PubSubHandler_Topic_Unsupported(PubSubTopic type, PubSubMessageEventArgs args)
+        {
+            OnPupSubUnsupportedTopic.Raise(this, new PubSubMessageEventArgs(args));
         }
     }
 }

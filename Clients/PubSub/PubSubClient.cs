@@ -39,7 +39,8 @@ TwitchNet.Clients.PubSub
             timer_ping_jitter = new Random(guid.GetHashCode());
 
             settings = new PubSubSettings();
-            base.settings = settings;   // This is needed to synchronize the two settings. DO NOT REMOVE.
+            // IMPORTANT: This is needed to synchronize the settings. DO NOT REMOVE.
+            base.settings = settings;   
 
             OnOpened        += Callback_OnOpen;
             OnClosed        += Callback_OnClosed;
@@ -82,6 +83,8 @@ TwitchNet.Clients.PubSub
 
         #endregion
 
+        #region Managed Resource Handling
+
         /// <summary>
         /// Force disconnects and frees all managed resources. The client will need to be re-instantiated to reconnect.
         /// This method should only be calle dafter disconnecting from the PubSub server.
@@ -102,6 +105,8 @@ TwitchNet.Clients.PubSub
                 timer_ping = null;
             }
         }
+
+        #endregion
 
         #region Writing
 
@@ -219,6 +224,53 @@ TwitchNet.Clients.PubSub
 
         /// <summary>
         /// <para>
+        /// Listens to a PubSub moderator action topic.
+        /// Receieve a payload when any moderator bans, unbans, timeouts, or untimeouts someone in the provided user's chat.
+        /// The moderator who performed the action is identified.
+        /// If the topic has already been listened to, it is silently ignored.
+        /// </para>
+        /// <para>Required Scope: <see cref="PubSubScopes.ChannelModerate"/>.</para>
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="user_id">The user ID associated with the request.</param>
+        /// <param name="nonce">A random and unique string used to identify the response with the request.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload OAuth token is null, empty, or contained only whitespace.
+        /// Thrown if more than one user ID was provided, or the user ID was null, empty, or contains only whitesapce.
+        /// </exception>
+        public bool
+        ListenModeratorActions(string oauth_token, string user_id, string nonce = "")
+        {
+            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.MODERATOR_ACTIONS, user_id), nonce));
+        }
+
+        /// <summary>
+        /// Unlistens from a PubSub moderator action topic.
+        /// If the topic hasn't been previously listened to, it is silently ignored.
+        /// </summary>
+        /// <param name="oauth_token">The OAuth token to authorize the request.</param>
+        /// <param name="user_id">The user ID associated with the request.</param>
+        /// <param name="nonce">A random and unique string used to identify the response with the request.</param>
+        /// <returns>
+        /// Returns true if the payload was successfully sent to the PubSub websocket.
+        /// Returns false otherwise.
+        /// </returns>
+        /// <exception cref="PubSubArgumentException">
+        /// Thrown if the payload OAuth token is null, empty, or contained only whitespace.
+        /// Thrown if more than one user ID was provided, or the user ID was null, empty, or contains only whitesapce.
+        /// </exception>
+        public bool
+        UnlistenModeratorActions(string oauth_token, string user_id, string nonce = "")
+        {
+            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.MODERATOR_ACTIONS, user_id), nonce));
+        }
+
+        /// <summary>
+        /// <para>
         /// Listens to a PubSub bits topic.
         /// Receieve a payload when anyone cheers in the provided user's chat.
         /// If the topic has already been listened to, it is silently ignored.
@@ -239,7 +291,7 @@ TwitchNet.Clients.PubSub
         public bool
         ListenBits(string oauth_token, string user_id, string nonce = "")
         {
-            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.BITS, user_id)));
+            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.BITS, user_id), nonce));
         }
 
         /// <summary>
@@ -260,7 +312,7 @@ TwitchNet.Clients.PubSub
         public bool
         UnlistenBits(string oauth_token, string user_id, string nonce = "")
         {
-            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.BITS, user_id)));
+            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.BITS, user_id), nonce));
         }
 
         /// <summary>
@@ -285,7 +337,7 @@ TwitchNet.Clients.PubSub
         public bool
         ListenBitsV2(string oauth_token, string user_id, string nonce = "")
         {
-            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.BITS_V2, user_id)));
+            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.BITS_V2, user_id), nonce));
         }
 
         /// <summary>
@@ -306,7 +358,7 @@ TwitchNet.Clients.PubSub
         public bool
         UnlistenBitsV2(string oauth_token, string user_id, string nonce = "")
         {
-            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.BITS_V2, user_id)));
+            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.BITS_V2, user_id), nonce));
         }
 
         /// <summary>
@@ -331,7 +383,7 @@ TwitchNet.Clients.PubSub
         public bool
         ListenBitsBadge(string oauth_token, string user_id, string nonce = "")
         {
-            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.BITS_BADGE, user_id)));
+            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.BITS_BADGE, user_id), nonce));
         }
 
         /// <summary>
@@ -352,17 +404,17 @@ TwitchNet.Clients.PubSub
         public bool
         UnlistenBitsBadge(string oauth_token, string user_id, string nonce = "")
         {
-            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.BITS_BADGE, user_id)));
+            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.BITS_BADGE, user_id), nonce));
         }
 
         /// <summary>
         /// <para>
-        /// Listens to a PubSub moderator action topic.
-        /// Receieve a payload when any moderator bans, unbans, timeouts, or untimeouts someone in the provided user's chat.
-        /// The moderator who performed the action is identified.
+        /// Listens to a PubSub channel points topic.
+        /// Receieve a payload when anyone redeems a custom channel point reward in the provided user's chat.
+        /// Payloads are not sent when a user redeems standard/built-in rewards, i.e., "Highlight My Message".
         /// If the topic has already been listened to, it is silently ignored.
         /// </para>
-        /// <para>Required Scope: <see cref="PubSubScopes.ChannelModerate"/>.</para>
+        /// <para>Required Scope: <see cref="PubSubScopes.BitsRead"/>.</para>
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
         /// <param name="user_id">The user ID associated with the request.</param>
@@ -376,13 +428,13 @@ TwitchNet.Clients.PubSub
         /// Thrown if more than one user ID was provided, or the user ID was null, empty, or contains only whitesapce.
         /// </exception>
         public bool
-        ListenModeratorActions(string oauth_token, string user_id, string nonce = "")
+        ListenChannelPoints(string oauth_token, string user_id, string nonce = "")
         {
-            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.MODERATOR_ACTIONS, user_id)));
+            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.CHANNEL_POINTS, user_id), nonce));
         }
 
         /// <summary>
-        /// Unlistens from a PubSub moderator action topic.
+        /// Unlistens from a PubSub channel points topic.
         /// If the topic hasn't been previously listened to, it is silently ignored.
         /// </summary>
         /// <param name="oauth_token">The OAuth token to authorize the request.</param>
@@ -397,15 +449,15 @@ TwitchNet.Clients.PubSub
         /// Thrown if more than one user ID was provided, or the user ID was null, empty, or contains only whitesapce.
         /// </exception>
         public bool
-        UnlistenModeratorActions(string oauth_token, string user_id, string nonce = "")
+        UnlistenChannelPoints(string oauth_token, string user_id, string nonce = "")
         {
-            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.MODERATOR_ACTIONS, user_id)));
+            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.CHANNEL_POINTS, user_id), nonce));
         }
 
         /// <summary>
         /// <para>
         /// Listens to a PubSub subscription topic.
-        /// Receieve a payload when someone subscribes, resubscribes, or is gifted a subscription to the provided user.
+        /// Receieve a payload when someone 
         /// If the topic has already been listened to, it is silently ignored.
         /// </para>
         /// <para>Required Scope: <see cref="PubSubScopes.ChannelSubscriptions"/>.</para>
@@ -424,7 +476,7 @@ TwitchNet.Clients.PubSub
         public bool
         ListenSubscriptions(string oauth_token, string user_id, string nonce = "")
         {
-            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.SUBSCRIPTIONS, user_id)));
+            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.SUBSCRIPTIONS, user_id), nonce));
         }
 
         /// <summary>
@@ -445,7 +497,7 @@ TwitchNet.Clients.PubSub
         public bool
         UnlistenSubscriptions(string oauth_token, string user_id, string nonce = "")
         {
-            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.SUBSCRIPTIONS, user_id)));
+            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.SUBSCRIPTIONS, user_id), nonce));
         }
 
         /// <summary>
@@ -470,7 +522,7 @@ TwitchNet.Clients.PubSub
         public bool
         ListenWhispers(string oauth_token, string user_id, string nonce = "")
         {
-            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.WHISPERS, user_id)));
+            return Send(new PubSubSendPayload(PubSubMessageType.Listen, oauth_token, string.Format(TopicFormat.WHISPERS, user_id), nonce));
         }
 
         /// <summary>
@@ -491,7 +543,7 @@ TwitchNet.Clients.PubSub
         public bool
         UnlistenWhispers(string oauth_token, string user_id, string nonce = "")
         {
-            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.WHISPERS, user_id)));
+            return Send(new PubSubSendPayload(PubSubMessageType.Unlisten, oauth_token, string.Format(TopicFormat.WHISPERS, user_id), nonce));
         }
 
         /// <summary>
@@ -551,7 +603,7 @@ TwitchNet.Clients.PubSub
                 return false;
             }
 
-            // TODO: Check against an (optional) list of provided scopes against the required scope(s).
+            // TODO: Check against an (optional) list of provided scopes against the required scope(s) for each topic.
             if (!payload.data.auth_token.HasContent())
             {
                 SetError(new PubSubArgumentException(PubSubClientError.SendPayload_OAuthToken_NoContent, "The OAuth token cannot be null, empty, or contain only whitesapce.", nameof(payload.data.auth_token)));
@@ -619,9 +671,9 @@ TwitchNet.Clients.PubSub
 
             throw exception;
         }
-    }
 
-    #endregion
+        #endregion
+    }
 
     #region Settings and Errors
 
@@ -773,7 +825,9 @@ TwitchNet.Clients.PubSub
 
     #endregion
 
-    #region General Structures
+    #region Data Structures
+
+    #region General Enums and Formats
 
     [Flags]
     public enum
@@ -795,17 +849,24 @@ TwitchNet.Clients.PubSub
 
         /// <summary>
         /// <para>channel_subscriptions</para>
+        /// <para>Required for the <see cref="PubSubTopic.ChannelPoints"/> topic.</para>
+        /// </summary>
+        [EnumMember(Value = "channel:read:redemptions")]
+        ChannelReadRedemptions = 1 << 2,
+
+        /// <summary>
+        /// <para>channel_subscriptions</para>
         /// <para>Required for the <see cref="PubSubTopic.Subscriptions"/> topic.</para>
         /// </summary>
         [EnumMember(Value = "channel_subscriptions")]
-        ChannelSubscriptions = 1 << 2,
+        ChannelSubscriptions = 1 << 3,
 
         /// <summary>
         /// <para>channel_subscriptions</para>
         /// <para>Required for the <see cref="PubSubTopic.Whispers"/> topic.</para>
         /// </summary>
         [EnumMember(Value = "whispers:read")]
-        WhispersRead = 1 << 3,
+        WhispersRead = 1 << 4,
     }
 
     [JsonConverter(typeof(EnumConverter))]
@@ -899,6 +960,13 @@ TwitchNet.Clients.PubSub
         BitsBadge,
 
         /// <summary>
+        /// <para>channel-points-channel-v1</para>
+        /// <para>Required Scope: <see cref="PubSubScopes.ChannelReadRedemptions"/></para>
+        /// </summary>
+        [EnumMember(Value = "channel-points-channel-v1")]
+        ChannelPoints,
+
+        /// <summary>
         /// <para>chat_moderator_actions</para>
         /// <para>Required Scope: <see cref="PubSubScopes.ChannelModerate"/></para>
         /// </summary>
@@ -937,6 +1005,11 @@ TwitchNet.Clients.PubSub
         /// channel-bits-badge-unlocks.{0}
         /// </summary>
         public static readonly string BITS_BADGE = "channel-bits-badge-unlocks.{0}";
+
+        /// <summary>
+        /// channel-points-channel-v1.{0}
+        /// </summary>
+        public static readonly string CHANNEL_POINTS = "channel-points-channel-v1.{0}";
 
         /// <summary>
         /// chat_moderator_actions.{0}
@@ -979,7 +1052,7 @@ TwitchNet.Clients.PubSub
 
     #endregion
 
-    #region Type: RESPONSE, MESSAGE, LISTEN, UNLISTEN
+    #region General Message Payloads
 
     public class
     PubSubType
@@ -989,29 +1062,6 @@ TwitchNet.Clients.PubSub
         /// </summary>
         [JsonProperty("type")]
         public PubSubMessageType type { get; set; }
-    }
-
-    public class
-    PubSubResponse
-    {
-        /// <summary>
-        /// The message type received from the PubSub server.
-        /// </summary>
-        [JsonProperty("type")]
-        public PubSubMessageType type { get; set; }
-
-        /// <summary>
-        /// <para>An error that is associated with the PubSub request, if any.</para>
-        /// <para>Set to an empty string if there is no error.</para>
-        /// </summary>
-        [JsonProperty("error")]
-        public string error { get; set; }
-
-        /// <summary>
-        /// Random and unique string provided by the client to identify the response with the appropriate request.
-        /// </summary>
-        [JsonProperty("nonce")]
-        public string nonce { get; set; }
     }
 
     public class
@@ -1044,6 +1094,29 @@ TwitchNet.Clients.PubSub
         /// </summary>
         [JsonProperty("message")]
         public string message { get; set; }
+    }
+
+    public class
+    PubSubResponse
+    {
+        /// <summary>
+        /// The message type received from the PubSub server.
+        /// </summary>
+        [JsonProperty("type")]
+        public PubSubMessageType type { get; set; }
+
+        /// <summary>
+        /// <para>An error that is associated with the PubSub request, if any.</para>
+        /// <para>Set to an empty string if there is no error.</para>
+        /// </summary>
+        [JsonProperty("error")]
+        public string error { get; set; }
+
+        /// <summary>
+        /// Random and unique string provided by the client to identify the response with the appropriate request.
+        /// </summary>
+        [JsonProperty("nonce")]
+        public string nonce { get; set; }
     }
 
     public class
@@ -1145,6 +1218,9 @@ TwitchNet.Clients.PubSub
     public class
     ModeratorAction
     {
+        /// <summary>
+        /// The moderation action payload.
+        /// </summary>
         [JsonProperty("data")]
         public ModeratorActionData data { get; protected set; }
     }
@@ -1152,6 +1228,9 @@ TwitchNet.Clients.PubSub
     public class
     ModeratorActionData
     {
+        /// <summary>
+        /// The type of user that performed the moderator action.
+        /// </summary>
         [JsonProperty("type")]
         public ModerationActionType type { get; protected set; }
 
@@ -1382,7 +1461,7 @@ TwitchNet.Clients.PubSub
         /// <summary>
         /// Uknown bits context.
         /// </summary>
-        [EnumMember(Value = "ther")]
+        [EnumMember(Value = "other")]
         Other = 0,
 
         /// <summary>
@@ -1441,6 +1520,281 @@ TwitchNet.Clients.PubSub
         /// </summary>
         [JsonProperty("time")]
         public DateTime time { get; protected set; }
+    }
+
+    #endregion
+
+    #region Topic: channel-points-channel-v1
+
+    public class
+    PubSubChannelPoints
+    {
+        /// <summary>
+        /// The type of channel point action that occured.
+        /// </summary>
+        [JsonProperty("type")]
+        public ChannelPointsType type { get; protected set; }
+
+        /// <summary>
+        /// The channel points payload.
+        /// </summary>
+        [JsonProperty("data")]
+        public ChannelPointsData data { get; protected set; }
+    }
+
+    public class
+    ChannelPointsData
+    {
+        /// <summary>
+        /// The time the PubSub payload was sent.
+        /// </summary>
+        [JsonProperty("timestamp")]
+        public DateTime timestamp { get; protected set; }
+
+        /// <summary>
+        /// The data associated with the redemption that occured.
+        /// </summary>
+        [JsonProperty("redemption")]
+        public ChannelPointsRedemption redemption { get; protected set; }
+    }
+
+    public class
+    ChannelPointsRedemption
+    {
+        /// <summary>
+        /// The redemption ID.
+        /// </summary>
+        [JsonProperty("id")]
+        public string id { get; protected set; }
+
+        /// <summary>
+        /// The user who redeemed the reward.
+        /// </summary>
+        [JsonProperty("user")]
+        public RedemptionUser user { get; protected set; }
+
+        /// <summary>
+        /// The ID of the user where the reward was redeemed.
+        /// </summary>
+        [JsonProperty("channel_id")]
+        public string channel_id { get; protected set; }
+
+        /// <summary>
+        /// The time the reward was redeemed.
+        /// </summary>
+        [JsonProperty("redeemed_at")]
+        public DateTime redeemed_at { get; protected set; }
+
+        /// <summary>
+        /// The reward that was redeemed.
+        /// </summary>
+        [JsonProperty("reward")]
+        public ChannelPointsReward reward { get; protected set; }
+
+        /// <summary>
+        /// <para>The input that was sent with the redemption.</para>
+        /// <para>Set to an ampty string if no input was provided.</para>
+        /// </summary>
+        [JsonProperty("user_input")]
+        public string user_input { get; protected set; }
+
+        /// <summary>
+        /// <para>Whether or not the redemption was fulfilled.</para>
+        /// <para>Set to <see cref="ChannelPointsStatus.Unfulfilled"/> on initial redemption if the reward has not been set to skip the reward queue.</para>
+        /// </summary>
+        [JsonProperty("status")]
+        public ChannelPointsStatus status { get; protected set; }
+    }
+
+    public class
+    RedemptionUser
+    {
+        /// <summary>
+        /// The ID of the user redeemed the reward.
+        /// </summary>
+        [JsonProperty("id")]
+        public string id { get; protected set; }
+
+        /// <summary>
+        /// The login name of the user redeemed the reward.
+        /// </summary>
+        [JsonProperty("login")]
+        public string login { get; protected set; }
+
+        /// <summary>
+        /// <para>The display name of the user redeemed the reward.</para>
+        /// <para>Set to an empty string if the user never explicitly set their display name.</para>
+        /// </summary>
+        [JsonProperty("display_name")]
+        public string display_name { get; protected set; }
+    }
+
+    public class
+    ChannelPointsReward
+    {
+        /// <summary>
+        /// The reward ID.
+        /// </summary>
+        [JsonProperty("id")]
+        public string id { get; protected set; }
+
+        // TODO: Verify this property description.
+        /// <summary>
+        /// The ID of the user where the reward was redeemed.
+        /// </summary>
+        [JsonProperty("channel_id")]
+        public string channel_id { get; protected set; }
+
+        /// <summary>
+        /// The name of the reward.
+        /// </summary>
+        [JsonProperty("title")]
+        public string title { get; protected set; }
+
+        /// <summary>
+        /// The reward's description or flavor text.
+        /// </summary>
+        [JsonProperty("prompt")]
+        public string prompt { get; protected set; }
+
+        /// <summary>
+        /// The amount of points needed to redeem the reward.
+        /// </summary>
+        [JsonProperty("cost")]
+        public int cost { get; protected set; }
+
+        /// <summary>
+        /// Whether or not a user must input information to redeem the reward.
+        /// </summary>
+        [JsonProperty("is_user_input_required")]
+        public bool is_user_input_required { get; protected set; }
+
+        /// <summary>
+        /// Whether or not the reward is only available to subscribers.
+        /// </summary>
+        [JsonProperty("is_sub_only")]
+        public bool is_sub_only { get; protected set; }
+
+        /// <summary>
+        /// <para>The reward's thumbnail URL's.</para>
+        /// <para>Set to null if no custom thumbnail has been uploaded.</para>
+        /// </summary>
+        [JsonProperty("image")]
+        public ChannelPointImage image { get; protected set; }
+
+        /// <summary>
+        /// The reward's default thumbnail URL's.
+        /// </summary>
+        [JsonProperty("default_image")]
+        public ChannelPointImage default_image { get; protected set; }
+
+        /// <summary>
+        /// The background fill color of the reward button.
+        /// </summary>
+        [JsonProperty("background_color")]
+        public Color background_color { get; protected set; }
+
+        /// <summary>
+        /// Whether or not the reward is snabled and can be redeemed.
+        /// </summary>
+        [JsonProperty("is_enabled")]
+        public bool is_enabled { get; protected set; }
+
+        // TODO: Verify this property description.
+        /// <summary>
+        /// Whether or not the reward queue is paused.
+        /// </summary>
+        [JsonProperty("is_paused")]
+        public bool is_paused { get; protected set; }
+
+        /// <summary>
+        /// Whether or not this reward can still be redeemed/honored if there is a maximum on the number of redemptions per stream.
+        /// </summary>
+        [JsonProperty("is_in_stock")]
+        public bool is_in_stock { get; protected set; }
+
+        /// <summary>
+        /// The maximum number of times this reward can be redeemed.
+        /// </summary>
+        [JsonProperty("max_per_stream")]
+        public RewardMax max_per_stream { get; protected set; }
+
+        [JsonProperty("should_redemptions_skip_request_queue")]
+        public bool should_redemptions_skip_request_queue { get; protected set; }
+    }
+
+    public class
+    RewardMax
+    {
+        /// <summary>
+        /// Whether or not there is a limit to how many times a rewward can be redeemed per stream.
+        /// </summary>
+        [JsonProperty("is_enabled")]
+        public bool is_enabled { get; protected set; }
+
+        /// <summary>
+        /// <para>The maximum amount of times on the reward can be redeemed per stream.</para>
+        /// <para>Set to 0 if there is no limit.</para>
+        /// </summary>
+        [JsonProperty("max_per_stream")]
+        public int max_per_stream { get; protected set; }
+    }
+
+    public class
+    ChannelPointImage
+    {
+        /// <summary>
+        /// The URL to the reaward's standard size thumbnail, 28px x 28px.
+        /// </summary>
+        [JsonProperty("url_1x")]
+        public string url_1x { get; protected set; }
+
+        /// <summary>
+        /// The URL to the reaward's medium size thumbnail, 58px x 58px.
+        /// </summary>
+        [JsonProperty("url_2x")]
+        public string url_2x { get; protected set; }
+
+        /// <summary>
+        /// The URL to the reaward's large size thumbnail, 112px x 112px.
+        /// </summary>
+        [JsonProperty("url_4x")]
+        public string url_4x { get; protected set; }
+    }
+
+    [JsonConverter(typeof(EnumConverter))]
+    public enum
+    ChannelPointsType
+    {
+        /// <summary>
+        /// Uknown bits context.
+        /// </summary>
+        [EnumMember(Value = "other")]
+        Other = 0,
+
+        /// <summary>
+        /// A user redeemed a channel point reward.
+        /// </summary>
+        [EnumMember(Value = "reward-redeemed")]
+        RewardRedeemed
+    }
+
+    [JsonConverter(typeof(EnumConverter))]
+    public enum
+    ChannelPointsStatus
+    {
+        /// <summary>
+        /// <para>The reward redemption has not been fulfilled.</para>
+        /// <para>This is the default state when a reward has been redeemed unless the reward has been set to skip the reward queue.</para>
+        /// </summary>
+        [EnumMember(Value = "UNFULFILLED")]
+        Unfulfilled = 0,
+
+        /// <summary>
+        /// The reward redemption has been fulfilled.
+        /// </summary>
+        [EnumMember(Value = "FULFILLED")]
+        Fulfilled
     }
 
     #endregion
@@ -1800,6 +2154,8 @@ TwitchNet.Clients.PubSub
         [JsonProperty("profile_image")]
         public string profile_image { get; protected set; }
     }
+
+    #endregion
 
     #endregion
 }

@@ -22,6 +22,14 @@ namespace TwitchNet.Rest
         PUT,
     }
 
+    public enum
+    RequestedPages
+    {
+        Single = 0,
+
+        All
+    }
+
     public class
     RestRequest : IDisposable
     {
@@ -30,6 +38,8 @@ namespace TwitchNet.Rest
         public string endpoint;
 
         public Method method { get; set; }
+
+        public RequestedPages pages { get; set; }
 
         public List<QueryParameter> query_parameters { get; private set; }
 

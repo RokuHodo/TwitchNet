@@ -24,8 +24,6 @@ TwitchNet.Clients.PubSub
         public virtual event EventHandler<MessageTextEventArgs>             OnWebSocketText;
 
         public virtual event EventHandler<WebSocketErrorEventArgs>          OnWebSocketError;
-
-        public virtual event EventHandler<WebSocketNetworkErrorEventArgs>   OnNetworkError;
     }
 
     public class
@@ -69,7 +67,7 @@ TwitchNet.Clients.PubSub
     public class
     FrameCloseEventArgs : FrameEventArgs
     {
-        public CloseStatusCode status_code { get; }
+        public WebSocketStatusCode status_code { get; }
 
         public string reason { get; }
 
@@ -121,18 +119,6 @@ TwitchNet.Clients.PubSub
 
         public
         WebSocketErrorEventArgs(in DateTime time, Uri uri, WebSocketException exception, string id = "") : base(time, uri, id)
-        {
-            this.exception = exception;
-        }
-    }
-
-    public class
-    WebSocketNetworkErrorEventArgs : WebSocketEventArgs
-    {
-        public WebSocketNetworkException exception { get; }
-
-        public
-        WebSocketNetworkErrorEventArgs(in DateTime time, Uri uri, WebSocketNetworkException exception, string id = "") : base(time, uri, id)
         {
             this.exception = exception;
         }

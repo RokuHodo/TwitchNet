@@ -10,317 +10,96 @@ TwitchNet.Rest.Helix
         public static class
         OAuth
         {
-            #region /analytics/extensions
+            #region /analytics/extensions - DONE
 
             public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
-            GetExtensionAnalyticsPageAsync(string bearer_token, HelixRequestSettings settings = default)
+            GetExtensionAnalyticsPageAsync(HelixAuthorization authorization, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<ExtensionAnalytics>> response = await Internal.GetExtensionAnalyticsPageAsync(info, default);
-
-                return response;
+                return await Internal.GetExtensionAnalyticsAsync(RequestedPages.Single, authorization, default, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
-            GetExtensionAnalyticsPageAsync(string bearer_token, ExtensionAnalyticsParameters parameters, HelixRequestSettings settings = default)
+            GetExtensionAnalyticsPageAsync(HelixAuthorization authorization, ExtensionAnalyticsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<ExtensionAnalytics>> response = await Internal.GetExtensionAnalyticsPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetExtensionAnalyticsAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
-            GetExtensionAnalyticsPageAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
+            GetExtensionAnalyticsAsync(HelixAuthorization authorization, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<ExtensionAnalytics>> analytics = await Internal.GetExtensionAnalyticsPageAsync(info, default);
-
-                return analytics;
+                return await Internal.GetExtensionAnalyticsAsync(RequestedPages.All, authorization, default, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
-            GetExtensionAnalyticsPageAsync(string bearer_token, string client_id, ExtensionAnalyticsParameters parameters, HelixRequestSettings settings = default)
+            GetExtensionAnalyticsAsync(HelixAuthorization authorization, ExtensionAnalyticsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<ExtensionAnalytics>> analytics = await Internal.GetExtensionAnalyticsPageAsync(info, parameters);
-
-                return analytics;
-            }
-
-            public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
-            GetExtensionAnalyticsAsync(string bearer_token, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<ExtensionAnalytics>> response = await Internal.GetExtensionAnalyticsAsync(info, default);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
-            GetExtensionAnalyticsAsync(string bearer_token, ExtensionAnalyticsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<ExtensionAnalytics>> response = await Internal.GetExtensionAnalyticsAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
-            GetExtensionAnalyticsAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<ExtensionAnalytics>> analytics = await Internal.GetExtensionAnalyticsAsync(info, default);
-
-                return analytics;
-            }
-
-            public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
-            GetExtensionAnalyticsAsync(string bearer_token, string client_id, ExtensionAnalyticsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<ExtensionAnalytics>> analytics = await Internal.GetExtensionAnalyticsAsync(info, parameters);
-
-                return analytics;
+                return await Internal.GetExtensionAnalyticsAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             #endregion
 
-            #region /analytics/games
+            #region /analytics/games - DONE
 
             public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
-            GetGameAnalyticsPageAsync(string bearer_token, HelixRequestSettings settings = default)
+            GetGameAnalyticsPageAsync(HelixAuthorization authorization, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<GameAnalytics>> response = await Internal.GetGameAnalyticsPageAsync(info, default);
-
-                return response;
+                return await Internal.GetGameAnalyticsAsync(RequestedPages.Single, authorization, default, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
-            GetGameAnalyticsPageAsync(string bearer_token, GameAnalyticsParameters parameters, HelixRequestSettings settings = default)
+            GetGameAnalyticsPageAsync(HelixAuthorization authorization, GameAnalyticsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<GameAnalytics>> response = await Internal.GetGameAnalyticsPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetGameAnalyticsAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
-            GetGameAnalyticsPageAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
+            GetGameAnalyticsAsync(HelixAuthorization authorization, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<GameAnalytics>> analytics = await Internal.GetGameAnalyticsPageAsync(info, default);
-
-                return analytics;
+                return await Internal.GetGameAnalyticsAsync(RequestedPages.All, authorization, default, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
-            GetGameAnalyticsPageAsync(string bearer_token, string client_id, GameAnalyticsParameters parameters, HelixRequestSettings settings = default)
+            GetGameAnalyticsAsync(HelixAuthorization authorization, GameAnalyticsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<GameAnalytics>> analytics = await Internal.GetGameAnalyticsPageAsync(info, parameters);
-
-                return analytics;
-            }
-
-            public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
-            GetGameAnalyticsAsync(string bearer_token, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<GameAnalytics>> response = await Internal.GetGameAnalyticsAsync(info, default);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
-            GetGameAnalyticsAsync(string bearer_token, GameAnalyticsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<GameAnalytics>> response = await Internal.GetGameAnalyticsAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
-            GetGameAnalyticsAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<GameAnalytics>> analytics = await Internal.GetGameAnalyticsAsync(info, default);
-
-                return analytics;
-            }
-
-            public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
-            GetGameAnalyticsAsync(string bearer_token, string client_id, GameAnalyticsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<GameAnalytics>> analytics = await Internal.GetGameAnalyticsAsync(info, parameters);
-
-                return analytics;
+                return await Internal.GetGameAnalyticsAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             #endregion
 
-            #region /bits/leaderboard
+            #region /bits/leaderboard - DONE
 
             public static async Task<IHelixResponse<BitsLeaderboardData<BitsUser>>>
-            GetBitsLeaderboardAsync(string bearer_token, HelixRequestSettings settings = default)
+            GetBitsLeaderboardAsync(HelixAuthorization authorization, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<BitsLeaderboardData<BitsUser>> response = await Internal.GetBitsLeaderboardAsync(info, default);
-
-                return response;
+                return await Internal.GetBitsLeaderboardAsync(authorization, default, settings);
             }
 
             public static async Task<IHelixResponse<BitsLeaderboardData<BitsUser>>>
-            GetBitsLeaderboardAsync(string bearer_token, BitsLeaderboardParameters parameters, HelixRequestSettings settings = default)
+            GetBitsLeaderboardAsync(HelixAuthorization authorization, BitsLeaderboardParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<BitsLeaderboardData<BitsUser>> response = await Internal.GetBitsLeaderboardAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<BitsLeaderboardData<BitsUser>>>
-            GetBitsLeaderboardAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<BitsLeaderboardData<BitsUser>> response = await Internal.GetBitsLeaderboardAsync(info, default);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<BitsLeaderboardData<BitsUser>>>
-            GetBitsLeaderboardAsync(string bearer_token, string client_id, BitsLeaderboardParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-                info.client_id      = client_id;
-
-                IHelixResponse<BitsLeaderboardData<BitsUser>> response = await Internal.GetBitsLeaderboardAsync(info, parameters);
-
-                return response;
+                return await Internal.GetBitsLeaderboardAsync(authorization, parameters, settings);
             }
 
             #endregion
 
-            #region /clips
+            #region /clips - DONE
 
             public static async Task<IHelixResponse<Data<CreatedClip>>>
-            CreateClipAsync(string bearer_token, CreateClipParameters parameters, HelixRequestSettings settings = default)
+            CreateClipAsync(HelixAuthorization authorization, CreateClipParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<Data<CreatedClip>> response = await Internal.CreateClipAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<Data<CreatedClip>>>
-            CreateClipAsync(string bearer_token, string client_id, CreateClipParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-                info.client_id      = client_id;
-
-                IHelixResponse<Data<CreatedClip>> response = await Internal.CreateClipAsync(info, parameters);
-
-                return response;
+                return await Internal.CreateClipAsync(authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<Clip>>>
-            GetClipsPageAsync(string bearer_token, ClipsParameters parameters, HelixRequestSettings settings = default)
+            GetClipsPageAsync(HelixAuthorization authorization, ClipsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<Clip>> response = await Internal.GetClipsPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetClipsAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<Clip>>>
-            GetClipsPageAsync(string bearer_token, string client_id, ClipsParameters parameters, HelixRequestSettings settings = default)
+            GetClipsAsync(HelixAuthorization authorization, ClipsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<Clip>> response = await Internal.GetClipsPageAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<Clip>>>
-            GetClipsAsync(string bearer_token, ClipsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-
-                IHelixResponse<DataPage<Clip>> response = await Internal.GetClipsAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<Clip>>>
-            GetClipsAsync(string bearer_token, string client_id, ClipsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id  = client_id;
-
-                IHelixResponse<DataPage<Clip>> response = await Internal.GetClipsAsync(info, parameters);
-
-                return response;
+                return await Internal.GetClipsAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             #endregion
@@ -328,27 +107,15 @@ TwitchNet.Rest.Helix
             #region /entitlements/codes
 
             public static async Task<IHelixResponse<Data<CodeStatus>>>
-            GetEntitlementCodeStatusAsync(string app_access_token, string client_id, EntitlementsCodeParameters parameters, HelixRequestSettings settings = default)
+            GetEntitlementCodeStatusAsync(HelixAuthorization authorization, EntitlementsCodeParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = app_access_token;
-                info.client_id = client_id;
-
-                IHelixResponse<Data<CodeStatus>> response = await Internal.GetEntitlementCodeStatusAsync(info, parameters);
-
-                return response;
+                return await Internal.GetEntitlementCodeStatusAsync(authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<Data<CodeStatus>>>
-            RedeemEntitlementCodeStatusAsync(string app_access_token, string client_id, EntitlementsCodeParameters parameters, HelixRequestSettings settings = default)
+            RedeemEntitlementCodeStatusAsync(HelixAuthorization authorization, EntitlementsCodeParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = app_access_token;
-                info.client_id = client_id;
-
-                IHelixResponse<Data<CodeStatus>> response = await Internal.RedeemEntitlementCodeStatusAsync(info, parameters);
-
-                return response;
+                return await Internal.RedeemEntitlementCodeStatusAsync(authorization, parameters, settings);
             }
 
             #endregion
@@ -356,15 +123,9 @@ TwitchNet.Rest.Helix
             #region /entitlements/upload
 
             public static async Task<IHelixResponse<Data<EntitlementUploadUrl>>>
-            CreateEntitlementGrantsUploadUrlAsync(string app_access_token, string client_id, EntitlementsUploadParameters parameters, HelixRequestSettings settings = default)
+            CreateEntitlementGrantsUploadUrlAsync(HelixAuthorization authorization, EntitlementsUploadParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = app_access_token;
-                info.client_id      = client_id;
-
-                IHelixResponse<Data<EntitlementUploadUrl>> response = await Internal.CreateEntitlementGrantsUploadUrlAsync(info, parameters);
-
-                return response;
+                return await Internal.CreateEntitlementGrantsUploadUrlAsync(authorization, parameters, settings);
             }
 
             #endregion
@@ -372,27 +133,15 @@ TwitchNet.Rest.Helix
             #region /extensions/transactions
 
             public static async Task<IHelixResponse<DataPage<ExtensionTransaction>>>
-            GetExtensionTransactionsPageAsync(string app_access_token, string client_id, ExtensionTransactionsParameters parameters, HelixRequestSettings settings = default)
+            GetExtensionTransactionsPageAsync(HelixAuthorization authorization, ExtensionTransactionsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = app_access_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<ExtensionTransaction>> response = await Internal.GetExtensionTransactionsPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetExtensionTransactionsAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<ExtensionTransaction>>>
-            GetExtensionTransactionsAsync(string app_access_token, string client_id, ExtensionTransactionsParameters parameters, HelixRequestSettings settings = default)
+            GetExtensionTransactionsAsync(HelixAuthorization authorization, ExtensionTransactionsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = app_access_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<ExtensionTransaction>> response = await Internal.GetExtensionTransactionsAsync(info, parameters);
-
-                return response;
+                return await Internal.GetExtensionTransactionsAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             #endregion
@@ -400,26 +149,9 @@ TwitchNet.Rest.Helix
             #region /games
 
             public static async Task<IHelixResponse<Data<Game>>>
-            GetGamesAsync(string bearer_token, GamesParameters parameters, HelixRequestSettings settings = default)
+            GetGamesAsync(HelixAuthorization authorization, GamesParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-
-                IHelixResponse<Data<Game>> response = await Internal.GetGamesAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<Data<Game>>>
-            GetGamesAsync(string bearer_token, string client_id, GamesParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-                info.client_id      = client_id;
-
-                IHelixResponse<Data<Game>> response = await Internal.GetGamesAsync(info, parameters);
-
-                return response;
+                return await Internal.GetGamesAsync(authorization, parameters, settings);
             }
 
             #endregion
@@ -427,103 +159,27 @@ TwitchNet.Rest.Helix
             #region /games/top
 
             public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesPageAsync(string bearer_token, HelixRequestSettings settings = default)
+            GetTopGamesPageAsync(HelixAuthorization authorization, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-
-                TopGamesParameters parameters = new TopGamesParameters();
-
-                IHelixResponse<DataPage<Game>> response = await Internal.GetTopGamesPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetTopGamesAsync(RequestedPages.Single, authorization, default, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesPageAsync(string bearer_token, TopGamesParameters parameters, HelixRequestSettings settings = default)
+            GetTopGamesPageAsync(HelixAuthorization authorization, TopGamesParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-
-                IHelixResponse<DataPage<Game>> response = await Internal.GetTopGamesPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetTopGamesAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesPageAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
+            GetTopGamesAsync(HelixAuthorization authorization, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-                info.client_id      = client_id;
-
-                TopGamesParameters parameters = new TopGamesParameters();
-
-                IHelixResponse<DataPage<Game>> response = await Internal.GetTopGamesPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetTopGamesAsync(RequestedPages.All, authorization, default, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesPageAsync(string bearer_token, string client_id, TopGamesParameters parameters, HelixRequestSettings settings = default)
+            GetTopGamesAsync(HelixAuthorization authorization, TopGamesParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-                info.client_id      = client_id;
-
-                IHelixResponse<DataPage<Game>> top_games = await Internal.GetTopGamesPageAsync(info, parameters);
-
-                return top_games;
-            }
-
-            public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesAsync(string bearer_token, HelixRequestSettings settings = default)
-            {
-                HelixInfo request_info = new HelixInfo(settings);
-                request_info.bearer_token   = bearer_token;
-
-                TopGamesParameters parameters = new TopGamesParameters();
-
-                IHelixResponse<DataPage<Game>> response = await Internal.GetTopGamesAsync(request_info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesAsync(string bearer_token, TopGamesParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-
-                IHelixResponse<DataPage<Game>> response = await Internal.GetTopGamesAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-                info.client_id      = client_id;
-
-                TopGamesParameters parameters = new TopGamesParameters();
-
-                IHelixResponse<DataPage<Game>> response = await Internal.GetTopGamesAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesAsync(string bearer_token, string client_id, TopGamesParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo request_info = new HelixInfo(settings);
-                request_info.bearer_token   = bearer_token;
-                request_info.client_id      = client_id;
-
-                IHelixResponse<DataPage<Game>> response = await Internal.GetTopGamesAsync(request_info, parameters);
-
-                return response;
+                return await Internal.GetTopGamesAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             #endregion
@@ -531,72 +187,21 @@ TwitchNet.Rest.Helix
             #region /moderation/banned
 
             public static async Task<IHelixResponse<DataPage<BannedUser>>>
-            GetBannedUsersPageAsync(string bearer_token, BannedUsersParameters parameters, HelixRequestSettings settings = default)
+            GetBannedUsersPageAsync(HelixAuthorization authorization, BannedUsersParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<BannedUser>> response = await Internal.GetBannedUsersPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetBannedUsersAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<BannedUser>>>
-            GetBannedUsersPageAsync(string bearer_token, string client_id, BannedUsersParameters parameters, HelixRequestSettings settings = default)
+            GetBannedUsersAsync(HelixAuthorization authorization, BannedUsersParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<BannedUser>> response = await Internal.GetBannedUsersPageAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<BannedUser>>>
-            GetBannedUsersAsync(string bearer_token, BannedUsersParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<BannedUser>> response = await Internal.GetBannedUsersAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<BannedUser>>>
-            GetBannedUsersAsync(string bearer_token, string client_id, BannedUsersParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<BannedUser>> response = await Internal.GetBannedUsersAsync(info, parameters);
-
-                return response;
+                return await Internal.GetBannedUsersAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<bool>>
-            IsUserBannedAsync(string bearer_token, string broadcaster_id, string user_id, HelixRequestSettings settings = default)
+            IsUserBannedAsync(HelixAuthorization authorization, string broadcaster_id, string user_id, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<bool> response = await Internal.IsUserBannedAsync(info, broadcaster_id, user_id);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<bool>>
-            IsUserBannedAsync(string bearer_token, string client_id, string broadcaster_id, string user_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<bool> response = await Internal.IsUserBannedAsync(info, broadcaster_id, user_id);
-
-                return response;
+                return await Internal.IsUserBannedAsync(authorization, broadcaster_id, user_id, settings);
             }
 
             #endregion
@@ -604,49 +209,15 @@ TwitchNet.Rest.Helix
             #region /moderation/banned/events
 
             public static async Task<IHelixResponse<DataPage<BannedEvent>>>
-            GetBannedEventsPageAsync(string bearer_token, BannedEventsParameters parameters, HelixRequestSettings settings = default)
+            GetBannedEventsPageAsync(HelixAuthorization authorization, BannedEventsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<BannedEvent>> response = await Internal.GetBannedEventsPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetBannedEventsAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<BannedEvent>>>
-            GetBannedEventsPageAsync(string bearer_token, string client_id, BannedEventsParameters parameters, HelixRequestSettings settings = default)
+            GetBannedEventsAsync(HelixAuthorization authorization, BannedEventsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<BannedEvent>> response = await Internal.GetBannedEventsPageAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<BannedEvent>>>
-            GetBannedEventsAsync(string bearer_token, BannedEventsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<BannedEvent>> response = await Internal.GetBannedEventsAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<BannedEvent>>>
-            GetBannedEventsAsync(string bearer_token, string client_id, BannedEventsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<BannedEvent>> response = await Internal.GetBannedEventsPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetBannedEventsAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             #endregion
@@ -654,26 +225,9 @@ TwitchNet.Rest.Helix
             #region /moderation/enforcements/status
 
             public static async Task<IHelixResponse<Data<AutoModMessageStatus>>>
-            CheckAutoModMessageStatus(string bearer_token, AutoModMessageStatusParameters parameters, HelixRequestSettings settings = default)
+            CheckAutoModMessageStatus(HelixAuthorization authorization, AutoModMessageStatusParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<Data<AutoModMessageStatus>> response = await Internal.CheckAutoModMessageStatus(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<Data<AutoModMessageStatus>>>
-            CheckAutoModMessageStatus(string bearer_token, string client_id, AutoModMessageStatusParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<Data<AutoModMessageStatus>> response = await Internal.CheckAutoModMessageStatus(info, parameters);
-
-                return response;
+                return await Internal.CheckAutoModMessageStatus(authorization, parameters, settings);
             }
 
             #endregion
@@ -681,72 +235,21 @@ TwitchNet.Rest.Helix
             #region /moderation/moderators
 
             public static async Task<IHelixResponse<DataPage<Moderator>>>
-            GetModeratorsPageAsync(string bearer_token, ModeratorsParameters parameters, HelixRequestSettings settings = default)
+            GetModeratorsPageAsync(HelixAuthorization authorization, ModeratorsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<Moderator>> response = await Internal.GetModeratorsPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetModeratorsAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<Moderator>>>
-            GetModeratorsPageAsync(string bearer_token, string client_id, ModeratorsParameters parameters, HelixRequestSettings settings = default)
+            GetModeratorsAsync(HelixAuthorization authorization, ModeratorsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<Moderator>> response = await Internal.GetModeratorsPageAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<Moderator>>>
-            GetModeratorsAsync(string bearer_token, ModeratorsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<Moderator>> response = await Internal.GetModeratorsAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<Moderator>>>
-            GetModeratorsAsync(string bearer_token, string client_id, ModeratorsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<Moderator>> response = await Internal.GetModeratorsAsync(info, parameters);
-
-                return response;
+                return await Internal.GetModeratorsAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<bool>>
-            IsUserModeratorAsync(string bearer_token, string broadcaster_id, string user_id, HelixRequestSettings settings = default)
+            IsUserModeratorAsync(HelixAuthorization authorization, string broadcaster_id, string user_id, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<bool> response = await Internal.IsUserModeratorAsync(info, broadcaster_id, user_id);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<bool>>
-            IsUserModeratorAsync(string bearer_token, string client_id, string broadcaster_id, string user_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<bool> response = await Internal.IsUserModeratorAsync(info, broadcaster_id, user_id);
-
-                return response;
+                return await Internal.IsUserModeratorAsync(authorization, broadcaster_id, user_id, settings);
             }
 
             #endregion
@@ -754,49 +257,15 @@ TwitchNet.Rest.Helix
             #region /moderation/moderators/events
 
             public static async Task<IHelixResponse<DataPage<ModeratorEvent>>>
-            GetModeratorEventsPageAsync(string bearer_token, ModeratorEventsParameters parameters, HelixRequestSettings settings = default)
+            GetModeratorEventsPageAsync(HelixAuthorization authorization, ModeratorEventsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<ModeratorEvent>> response = await Internal.GetModeratorEventsPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetModeratorEventsAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<ModeratorEvent>>>
-            GetModeratorEventsPageAsync(string bearer_token, string client_id, ModeratorEventsParameters parameters, HelixRequestSettings settings = default)
+            GetModeratorEventsAsync(HelixAuthorization authorization, ModeratorEventsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<ModeratorEvent>> response = await Internal.GetModeratorEventsPageAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<ModeratorEvent>>>
-            GetModeratorEventsAsync(string bearer_token, ModeratorEventsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<ModeratorEvent>> response = await Internal.GetModeratorEventsAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<ModeratorEvent>>>
-            GetModeratorEventsAsync(string bearer_token, string client_id, ModeratorEventsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<ModeratorEvent>> response = await Internal.GetModeratorEventsAsync(info, parameters);
-
-                return response;
+                return await Internal.GetModeratorEventsAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             #endregion
@@ -804,141 +273,39 @@ TwitchNet.Rest.Helix
             #region /streams
 
             public static async Task<IHelixResponse<DataPage<Stream>>>
-            GetStreamsPageAsync(string bearer_token, HelixRequestSettings settings = default)
+            GetStreamsPageAsync(HelixAuthorization authorization, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-
-                IHelixResponse<DataPage<Stream>> response = await Internal.GetStreamsPageAsync(info, default);
-
-                return response;
+                return await Internal.GetStreamsAsync(RequestedPages.Single, authorization, default, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<Stream>>>
-            GetStreamsPageAsync(string bearer_token, StreamsParameters parameters, HelixRequestSettings settings = default)
+            GetStreamsPageAsync(HelixAuthorization authorization, StreamsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-
-                IHelixResponse<DataPage<Stream>> response = await Internal.GetStreamsPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetStreamsAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<Stream>>>
-            GetStreamsPageAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
+            GetStreamsAsync(HelixAuthorization authorization, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-                info.client_id      = client_id;
-
-                IHelixResponse<DataPage<Stream>> response = await Internal.GetStreamsPageAsync(info, default);
-
-                return response;
+                return await Internal.GetStreamsAsync(RequestedPages.All, authorization, default, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<Stream>>>
-            GetStreamsPageAsync(string bearer_token,string client_id, StreamsParameters parameters, HelixRequestSettings settings = default)
+            GetStreamsAsync(HelixAuthorization authorization, StreamsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-                info.client_id      = client_id;
-
-                IHelixResponse<DataPage<Stream>> response = await Internal.GetStreamsPageAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<Stream>>>
-            GetStreamsAsync(string bearer_token, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<Stream>> response = await Internal.GetStreamsAsync(info, default);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<Stream>>>
-            GetStreamsAsync(string bearer_token, StreamsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<Stream>> response = await Internal.GetStreamsAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<Stream>>>
-            GetStreamsAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<Stream>> response = await Internal.GetStreamsAsync(info, default);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<Stream>>>
-            GetStreamsAsync(string bearer_token, string client_id, StreamsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<Stream>> response = await Internal.GetStreamsAsync(info, parameters);
-
-                return response;
+                return await Internal.GetStreamsAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<bool>>
-            IsStreamLiveByUserIDAsync(string bearer_token, string user_id, HelixRequestSettings settings = default)
+            IsStreamLiveAsync_UserID(HelixAuthorization authorization, string user_id, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<bool> is_live = await Internal.IsStreamLiveByUserIDAsync(info, user_id);
-
-                return is_live;
+                return await Internal.IsStreamLiveAsync_UserID(authorization, user_id, settings);
             }
 
             public static async Task<IHelixResponse<bool>>
-            IsStreamLiveByUserIDAsync(string bearer_token, string client_id, string user_id, HelixRequestSettings settings = default)
+            IsStreamLiveAsync_Login(HelixAuthorization authorization, string user_login, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<bool> response = await Internal.IsStreamLiveByUserIDAsync(info, user_id);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<bool>>
-            IsStreamLiveByUserLoginAsync(string bearer_token, string user_login, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<bool> is_live = await Internal.IsStreamLiveByUserLoginAsync(info, user_login);
-
-                return is_live;
-            }
-
-            public static async Task<IHelixResponse<bool>>
-            IsStreamLiveByUserLoginAsync(string bearer_token, string client_id, string user_login, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<bool> response = await Internal.IsStreamLiveByUserLoginAsync(info, user_login);
-
-                return response;
+                return await Internal.IsStreamLiveAsync_Login(authorization, user_login, settings);
             }
 
             #endregion
@@ -946,168 +313,21 @@ TwitchNet.Rest.Helix
             #region /streams/markers
 
             public static async Task<IHelixResponse<DataPage<CreatedStreamMarker>>>
-            CreateStreamMarkerAsync(string bearer_token, CreateStreamMarkerParameters parameters, HelixRequestSettings settings = default)
+            CreateStreamMarkerAsync(HelixAuthorization authorization, CreateStreamMarkerParameters parameters,  HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<CreatedStreamMarker>> response = await Internal.CreateStreamMarkerAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<CreatedStreamMarker>>>
-            CreateStreamMarkerAsync(string bearer_token, string client_id, CreateStreamMarkerParameters parameters,  HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<CreatedStreamMarker>> response = await Internal.CreateStreamMarkerAsync(info, parameters);
-
-                return response;
+                return await Internal.CreateStreamMarkerAsync(authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<StreamMarkers>>>
-            GetStreamMarkersPageAsync(string bearer_token, StreamMarkersParameters parameters, HelixRequestSettings settings = default)
+            GetStreamMarkersPageAsync(HelixAuthorization authorization, StreamMarkersParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<StreamMarkers>> response = await Internal.GetStreamMarkersPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetStreamMarkersAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<StreamMarkers>>>
-            GetStreamMarkersPageAsync(string bearer_token, string client_id, StreamMarkersParameters parameters, HelixRequestSettings settings = default)
+            GetStreamMarkersAsync(HelixAuthorization authorization, StreamMarkersParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<StreamMarkers>> response = await Internal.GetStreamMarkersPageAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<StreamMarkers>>>
-            GetStreamMarkersAsync(string bearer_token, StreamMarkersParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<StreamMarkers>> response = await Internal.GetStreamMarkersAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<StreamMarkers>>>
-            GetStreamMarkersAsync(string bearer_token, string client_id, StreamMarkersParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<StreamMarkers>> response = await Internal.GetStreamMarkersAsync(info, parameters);
-
-                return response;
-            }
-
-            #endregion
-
-            #region /streams/metadata
-
-            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
-            GetStreamsMetadataPageAsync(string bearer_token, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-
-                IHelixResponse<DataPage<StreamMetadata>> response = await Internal.GetStreamsMetadataPageAsync(info, default);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
-            GetStreamsMetadataPageAsync(string bearer_token, StreamsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-
-                IHelixResponse<DataPage<StreamMetadata>> response = await Internal.GetStreamsMetadataPageAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
-            GetStreamsMetadataPageAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-                info.client_id      = client_id;
-
-                IHelixResponse<DataPage<StreamMetadata>> response = await Internal.GetStreamsMetadataPageAsync(info, default);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
-            GetStreamsMetadataPageAsync(string bearer_token, string client_id, StreamsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-                info.client_id      = client_id;
-
-                IHelixResponse<DataPage<StreamMetadata>> response = await Internal.GetStreamsMetadataPageAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
-            GetStreamsMetadataAsync(string bearer_token, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-
-                IHelixResponse<DataPage<StreamMetadata>> response = await Internal.GetStreamsMetadataAsync(info, default);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
-            GetStreamsMetadataAsync(string bearer_token, StreamsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-
-                IHelixResponse<DataPage<StreamMetadata>> response = await Internal.GetStreamsMetadataAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
-            GetStreamsMetadataAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-                info.client_id      = client_id;
-
-                IHelixResponse<DataPage<StreamMetadata>> response = await Internal.GetStreamsMetadataAsync(info, default);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
-            GetStreamsMetadataAsync(string bearer_token, string client_id, StreamsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-                info.client_id      = client_id;
-
-                IHelixResponse<DataPage<StreamMetadata>> response = await Internal.GetStreamsMetadataAsync(info, parameters);
-
-                return response;
+                return await Internal.GetStreamMarkersAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             #endregion
@@ -1115,130 +335,39 @@ TwitchNet.Rest.Helix
             #region /streams/tags
 
             public static async Task<IHelixResponse<Data<StreamTag>>>
-            GetStreamsTagsAsync(string bearer_token, string broadcaster_id, HelixRequestSettings settings = default)
+            GetStreamsTagsAsync(HelixAuthorization authorization, string broadcaster_id, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
                 StreamsTagsParameters parameters = new StreamsTagsParameters();
                 parameters.broadcaster_id = broadcaster_id;
 
-                IHelixResponse<Data<StreamTag>> response = await Internal.GetStreamsTagsAsync(info, parameters);
-
-                return response;
+                return await Internal.GetSetStreamTagsAsync(authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<Data<StreamTag>>>
-            GetStreamsTagsAsync(string bearer_token, StreamsTagsParameters parameters, HelixRequestSettings settings = default)
+            GetStreamsTagsAsync(HelixAuthorization authorization, StreamsTagsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<Data<StreamTag>> response = await Internal.GetStreamsTagsAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<Data<StreamTag>>>
-            GetStreamsTagsAsync(string bearer_token, string client_id, string broadcaster_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                StreamsTagsParameters parameters = new StreamsTagsParameters();
-                parameters.broadcaster_id = broadcaster_id;
-
-                IHelixResponse<Data<StreamTag>> response = await Internal.GetStreamsTagsAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<Data<StreamTag>>>
-            GetStreamsTagsAsync(string bearer_token, string client_id, StreamsTagsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<Data<StreamTag>> response = await Internal.GetStreamsTagsAsync(info, parameters);
-
-                return response;
+                return await Internal.GetSetStreamTagsAsync(authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse>
-            SetStreamsTagsAsync(string bearer_token, SetStreamsTagsParameters parameters, HelixRequestSettings settings = default)
+            SetStreamsTagsAsync(HelixAuthorization authorization, SetStreamsTagsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse response = await Internal.SetStreamsTagsAsync(info, parameters);
-
-                return response;
+                return await Internal.SetStreamTagsAsync(authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse>
-            SetStreamsTagsAsync(string bearer_token, string client_id, SetStreamsTagsParameters parameters, HelixRequestSettings settings = default)
+            RemoveStreamsTagsAsync(HelixAuthorization authorization, string broadcaster_id, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse response = await Internal.SetStreamsTagsAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse>
-            RemoveStreamsTagsAsync(string bearer_token, SetStreamsTagsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse response = await Internal.RemoveStreamsTagsAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse>
-            RemoveStreamsTagsAsync(string bearer_token, string broadcaster_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
                 SetStreamsTagsParameters parameters = new SetStreamsTagsParameters();
                 parameters.broadcaster_id = broadcaster_id;
 
-                IHelixResponse response = await Internal.RemoveStreamsTagsAsync(info, parameters);
-
-                return response;
+                return await Internal.RemoveStreamTagsAsync(authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse>
-            RemoveStreamsTagsAsync(string bearer_token, string client_id, string broadcaster_id, HelixRequestSettings settings = default)
+            RemoveStreamsTagsAsync(HelixAuthorization authorization, SetStreamsTagsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                SetStreamsTagsParameters parameters = new SetStreamsTagsParameters();
-                parameters.broadcaster_id = broadcaster_id;
-
-                IHelixResponse response = await Internal.RemoveStreamsTagsAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse>
-            RemoveStreamsTagsAsync(string bearer_token, string client_id, SetStreamsTagsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse response = await Internal.RemoveStreamsTagsAsync(info, parameters);
-
-                return response;
+                return await Internal.RemoveStreamTagsAsync(authorization, parameters, settings);
             }
 
             #endregion
@@ -1246,95 +375,27 @@ TwitchNet.Rest.Helix
             #region /subscriptions
 
             public static async Task<IHelixResponse<DataPage<Subscription>>>
-            GetBroadcasterSubscribersPageAsync(string bearer_token, SubscriptionParameters parameters, HelixRequestSettings settings = default)
+            GetBroadcasterSubscribersPageAsync(HelixAuthorization authorization, SubscriptionParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<Subscription>> response = await Internal.GetBroadcasterSubscribersPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetBroadcasterSubscribersAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<Subscription>>>
-            GetBroadcasterSubscribersPageAsync(string bearer_token, string client_id, SubscriptionParameters parameters, HelixRequestSettings settings = default)
+            GetBroadcasterSubscribersAsync(HelixAuthorization authorization, SubscriptionParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<Subscription>> response = await Internal.GetBroadcasterSubscribersPageAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<Subscription>>>
-            GetBroadcasterSubscribersAsync(string bearer_token, SubscriptionParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<Subscription>> response = await Internal.GetBroadcasterSubscribersAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<Subscription>>>
-            GetBroadcasterSubscribersAsync(string bearer_token, string client_id, SubscriptionParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<Subscription>> response = await Internal.GetBroadcasterSubscribersAsync(info, parameters);
-
-                return response;
+                return await Internal.GetBroadcasterSubscribersAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<Data<Subscription>>>
-            GetSubscriptionRelationshipAsync(string bearer_token, SubscriptionRelationshipParameters parameters, HelixRequestSettings settings = default)
+            GetSubscriptionRelationshipAsync(HelixAuthorization authorization, SubscriptionRelationshipParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<Data<Subscription>> response = await Internal.GetSubscriptionRelationshipAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<Data<Subscription>>>
-            GetSubscriptionRelationshipAsync(string bearer_token, string client_id, SubscriptionRelationshipParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<Data<Subscription>> response = await Internal.GetSubscriptionRelationshipAsync(info, parameters);
-
-                return response;
+                return await Internal.GetSubscriptionRelationshipAsync(authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<bool>>
-            IsUserSubscribedAsync(string bearer_token, string broadcaster_id, string user_id, HelixRequestSettings settings = default)
+            IsUserSubscribedAsync(HelixAuthorization authorization, string broadcaster_id, string user_id, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<bool> response = await Internal.IsUserSubscribedAsync(info, broadcaster_id, user_id);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<bool>>
-            IsUserSubscribedAsync(string bearer_token, string client_id, string broadcaster_id, string user_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<bool> response = await Internal.IsUserSubscribedAsync(info, broadcaster_id, user_id);
-
-                return response;
+                return await Internal.IsUserSubscribedAsync(authorization, broadcaster_id, user_id, settings);
             }
 
             #endregion
@@ -1342,49 +403,15 @@ TwitchNet.Rest.Helix
             #region /subscriptions/events
 
             public static async Task<IHelixResponse<DataPage<SubscriptionEvent>>>
-            GetSubscriptionEventsPageAsync(string bearer_token, SubscriptionEventsParameters parameters, HelixRequestSettings settings = default)
+            GetSubscriptionEventsPageAsync(HelixAuthorization authorization, SubscriptionEventsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<SubscriptionEvent>> response = await Internal.GetSubscriptionEventsPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetSubscriptionEventsAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<SubscriptionEvent>>>
-            GetSubscriptionEventsPageAsync(string bearer_token, string client_id, SubscriptionEventsParameters parameters, HelixRequestSettings settings = default)
+            GetSubscriptionEventsAsync(HelixAuthorization authorization, SubscriptionEventsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<SubscriptionEvent>> response = await Internal.GetSubscriptionEventsPageAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<SubscriptionEvent>>>
-            GetSubscriptionEventsAsync(string bearer_token, SubscriptionEventsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<SubscriptionEvent>> response = await Internal.GetSubscriptionEventsAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<SubscriptionEvent>>>
-            GetSubscriptionEventsAsync(string bearer_token, string client_id, SubscriptionEventsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<SubscriptionEvent>> response = await Internal.GetSubscriptionEventsAsync(info, parameters);
-
-                return response;
+                return await Internal.GetSubscriptionEventsAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             #endregion
@@ -1392,95 +419,27 @@ TwitchNet.Rest.Helix
             #region /tags/streams
 
             public static async Task<IHelixResponse<DataPage<StreamTag>>>
-            GetStreamTagsPageAsync(string bearer_token, HelixRequestSettings settings = default)
+            GetStreamTagsPageAsync(HelixAuthorization authorization, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<StreamTag>> response = await Internal.GetStreamTagsPageAsync(info, default);
-
-                return response;
+                return await Internal.GetStreamTagsAsync(RequestedPages.Single, authorization, default, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<StreamTag>>>
-            GetStreamTagsPageAsync(string bearer_token, StreamTagsParameters parameters, HelixRequestSettings settings = default)
+            GetStreamTagsPageAsync(HelixAuthorization authorization, StreamTagsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<StreamTag>> response = await Internal.GetStreamTagsPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetStreamTagsAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<StreamTag>>>
-            GetStreamTagsPageAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
+            GetStreamTagsAsync(HelixAuthorization authorization, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<StreamTag>> response = await Internal.GetStreamTagsPageAsync(info, default);
-
-                return response;
+                return await Internal.GetStreamTagsAsync(RequestedPages.All, authorization, default, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<StreamTag>>>
-            GetStreamTagsPageAsync(string bearer_token, string client_id, StreamTagsParameters parameters, HelixRequestSettings settings = default)
+            GetStreamTagsAsync(HelixAuthorization authorization, StreamTagsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<StreamTag>> response = await Internal.GetStreamTagsPageAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<StreamTag>>>
-            GetStreamTagsAsync(string bearer_token, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<StreamTag>> response = await Internal.GetStreamTagsAsync(info, default);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<StreamTag>>>
-            GetStreamTagsAsync(string bearer_token, StreamTagsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<DataPage<StreamTag>> response = await Internal.GetStreamTagsAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<StreamTag>>>
-            GetStreamTagsAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<StreamTag>> response = await Internal.GetStreamTagsAsync(info, default);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<StreamTag>>>
-            GetStreamTagsAsync(string bearer_token, string client_id, StreamTagsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<DataPage<StreamTag>> response = await Internal.GetStreamTagsAsync(info, parameters);
-
-                return response;
+                return await Internal.GetStreamTagsAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             #endregion
@@ -1488,95 +447,27 @@ TwitchNet.Rest.Helix
             #region /users
 
             public static async Task<IHelixResponse<Data<User>>>
-            GetUserAsync(string bearer_token, HelixRequestSettings settings = default)
+            GetUserAsync(HelixAuthorization authorization, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<Data<User>> response = await Internal.GetUsersAsync(info, default);
-
-                return response;
+                return await Internal.GetUsersAsync(authorization, default, settings);
             }
 
             public static async Task<IHelixResponse<Data<User>>>
-            GetUserAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
+            GetUsersAsync(HelixAuthorization authorization, UsersParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<Data<User>> response = await Internal.GetUsersAsync(info, default);
-
-                return response;
+                return await Internal.GetUsersAsync(authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<Data<User>>>
-            GetUsersAsync(string bearer_token, UsersParameters parameters, HelixRequestSettings settings = default)
+            SetUserDescriptionAsync(HelixAuthorization authorization, string description, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);                
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<Data<User>> response = await Internal.GetUsersAsync(info, parameters);
-
-                return response;
+                return await Internal.SetUserDescriptionAsync(authorization, description, settings);
             }
 
             public static async Task<IHelixResponse<Data<User>>>
-            GetUsersAsync(string bearer_token, string client_id, UsersParameters parameters, HelixRequestSettings settings = default)
+            SetUserDescriptionAsync(HelixAuthorization authorization, DescriptionParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);                
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<Data<User>> response = await Internal.GetUsersAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<Data<User>>>
-            SetUserDescriptionAsync(string bearer_token, string description, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);                
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<Data<User>> response = await Internal.SetUserDescriptionAsync(info, description);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<Data<User>>>
-            SetUserDescriptionAsync(string bearer_token, string client_id, string description, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);                
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<Data<User>> response = await Internal.SetUserDescriptionAsync(info, description);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<Data<User>>>
-            SetUserDescriptionAsync(string bearer_token, DescriptionParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);                
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<Data<User>> response = await Internal.SetUserDescriptionAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<Data<User>>>
-            SetUserDescriptionAsync(string bearer_token, string client_id, DescriptionParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);                
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<Data<User>> response = await Internal.SetUserDescriptionAsync(info, parameters);
-
-                return response;
+                return await Internal.SetUserDescriptionAsync(authorization, parameters, settings);
             }
 
             #endregion
@@ -1584,72 +475,21 @@ TwitchNet.Rest.Helix
             #region /users/extensions
 
             public static async Task<IHelixResponse<ActiveExtensions>>
-            GetUserActiveExtensionsAsync(string bearer_token, HelixRequestSettings settings = default)
+            GetUserActiveExtensionsAsync(HelixAuthorization authorization, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<ActiveExtensions> response = await Internal.GetUserActiveExtensionsAsync(info, default);
-
-                return response;
+                return await Internal.GetUserActiveExtensionsAsync(authorization, default, settings);
             }
 
             public static async Task<IHelixResponse<ActiveExtensions>>
-            GetUserActiveExtensionsAsync(string bearer_token, ActiveExtensionsParameters parameters, HelixRequestSettings settings = default)
+            GetUserActiveExtensionsAsync(HelixAuthorization authorization, ActiveExtensionsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<ActiveExtensions> response = await Internal.GetUserActiveExtensionsAsync(info, parameters);
-
-                return response;
+                return await Internal.GetUserActiveExtensionsAsync(authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<ActiveExtensions>>
-            GetUserActiveExtensionsAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
+            UpdateUserActiveExtensionsAsync(HelixAuthorization authorization, UpdateExtensionsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<ActiveExtensions> response = await Internal.GetUserActiveExtensionsAsync(info, default);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<ActiveExtensions>>
-            GetUserActiveExtensionsAsync(string bearer_token, string client_id, ActiveExtensionsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<ActiveExtensions> response = await Internal.GetUserActiveExtensionsAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<ActiveExtensions>>
-            UpdateUserActiveExtensionsAsync(string bearer_token, UpdateExtensionsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<ActiveExtensions> response = await Internal.UpdateUserActiveExtensionsAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<ActiveExtensions>>
-            UpdateUserActiveExtensionsAsync(string bearer_token, string client_id, UpdateExtensionsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<ActiveExtensions> response = await Internal.UpdateUserActiveExtensionsAsync(info, parameters);
-
-                return response;
+                return await Internal.UpdateUserActiveExtensionsAsync(authorization, parameters, settings);
             }
 
             #endregion
@@ -1657,26 +497,9 @@ TwitchNet.Rest.Helix
             #region /users/extensions/list
 
             public static async Task<IHelixResponse<Data<Extension>>>
-            GetUserExtensionsAsync(string bearer_token, HelixRequestSettings settings = default)
+            GetUserExtensionsAsync(HelixAuthorization authorization, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<Data<Extension>> response = await Internal.GetUserExtensionsAsync(info);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<Data<Extension>>>
-            GetUserExtensionsAsync(string bearer_token, string client_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-                info.client_id      = client_id;
-
-                IHelixResponse<Data<Extension>> response = await Internal.GetUserExtensionsAsync(info);
-
-                return response;
+                return await Internal.GetUserExtensionsAsync(authorization, settings);
             }
 
             #endregion
@@ -1684,280 +507,81 @@ TwitchNet.Rest.Helix
             #region /users/follows
 
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowingPageAsync(string bearer_token, string from_id, HelixRequestSettings settings = default)
+            GetUserFollowingPageAsync(HelixAuthorization authorization, string from_id, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
                 FollowsParameters parameters = new FollowsParameters();
                 parameters.from_id = from_id;
 
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowingPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetUserFollowingAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowingPageAsync(string bearer_token, FollowsParameters parameters, HelixRequestSettings settings = default)
+            GetUserFollowingPageAsync(HelixAuthorization authorization, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowingPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetUserFollowingAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowingPageAsync(string bearer_token, string client_id, string from_id, HelixRequestSettings settings = default)
+            GetUserFollowingAsync(HelixAuthorization authorization, string from_id, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
                 FollowsParameters parameters = new FollowsParameters();
                 parameters.from_id = from_id;
 
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowingPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetUserFollowingAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowingPageAsync(string bearer_token, string client_id, FollowsParameters parameters, HelixRequestSettings settings = default)
+            GetUserFollowingAsync(HelixAuthorization authorization, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowingPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetUserFollowingAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowingAsync(string bearer_token, string from_id, HelixRequestSettings settings = default)
+            GetUserFollowersPageAsync(HelixAuthorization authorization, string to_id, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                FollowsParameters parameters = new FollowsParameters();
-                parameters.from_id = from_id;
-
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowingAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowingAsync(string bearer_token, FollowsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowingAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowingAsync(string bearer_token, string client_id, string from_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                FollowsParameters parameters = new FollowsParameters();
-                parameters.from_id = from_id;
-
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowingAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowingAsync(string bearer_token, string client_id, FollowsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowingAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowersPageAsync(string bearer_token, string to_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
                 FollowsParameters parameters = new FollowsParameters();
                 parameters.to_id = to_id;
 
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowersPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetUserFollowersAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowersPageAsync(string bearer_token, FollowsParameters parameters, HelixRequestSettings settings = default)
+            GetUserFollowersPageAsync(HelixAuthorization authorization, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowersPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetUserFollowersAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowersPageAsync(string bearer_token, string client_id, string to_id, HelixRequestSettings settings = default)
+            GetUserFollowersAsync(HelixAuthorization authorization, string to_id, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
                 FollowsParameters parameters = new FollowsParameters();
                 parameters.to_id = to_id;
 
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowersPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetUserFollowersAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowersPageAsync(string bearer_token, string client_id, FollowsParameters parameters, HelixRequestSettings settings = default)
+            GetUserFollowersAsync(HelixAuthorization authorization, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowersPageAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowersAsync(string bearer_token, string to_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                FollowsParameters parameters = new FollowsParameters();
-                parameters.to_id = to_id;
-
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowersAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowersAsync(string bearer_token, FollowsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowersAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowersAsync(string bearer_token, string client_id, string to_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                FollowsParameters parameters = new FollowsParameters();
-                parameters.to_id = to_id;
-
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowersAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowersAsync(string bearer_token, string client_id, FollowsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowersAsync(info, parameters);
-
-                return response;
+                return await Internal.GetUserFollowersAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<bool>>
-            IsUserFollowingAsync(string bearer_token, string from_id, string to_id, HelixRequestSettings settings = default)
+            IsUserFollowingAsync(HelixAuthorization authorization, string from_id, string to_id, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<bool> is_following = await Internal.IsUserFollowingAsync(info, from_id, to_id);
-
-                return is_following;
-            }
-
-            public static async Task<IHelixResponse<bool>>
-            IsUserFollowingAsync(string bearer_token, string client_id, string from_id, string to_id, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<bool> is_following = await Internal.IsUserFollowingAsync(info, from_id, to_id);
-
-                return is_following;
+                return await Internal.IsUserFollowingAsync(authorization, from_id, to_id, settings);
             }
 
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowsRelationshipPageAsync(string bearer_token, FollowsParameters parameters, HelixRequestSettings settings = default)
+            GetUserFollowsRelationshipPageAsync(HelixAuthorization authorization, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowsRelationshipPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetUserFollowsRelationshipAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowsRelationshipPageAsync(string bearer_token, string client_id, FollowsParameters parameters, HelixRequestSettings settings = default)
+            GetUserFollowsRelationshipAsync(HelixAuthorization authorization, FollowsParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowsRelationshipPageAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowsRelationshipAsync(string bearer_token, FollowsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowsRelationshipAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowsRelationshipAsync(string bearer_token, string client_id, FollowsParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = bearer_token;
-                info.client_id = client_id;
-
-                IHelixResponse<FollowsDataPage<Follow>> response = await Internal.GetUserFollowsRelationshipAsync(info, parameters);
-
-                return response;
+                return await Internal.GetUserFollowsRelationshipAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             #endregion
@@ -1965,49 +589,15 @@ TwitchNet.Rest.Helix
             #region /videos
 
             public static async Task<IHelixResponse<DataPage<Video>>>
-            GetVideosPageAsync(string bearer_token, VideosParameters parameters, HelixRequestSettings settings = default)
+            GetVideosPageAsync(HelixAuthorization authorization, VideosParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-
-                IHelixResponse<DataPage<Video>> response = await Internal.GetVideosPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetVideosAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<DataPage<Video>>>
-            GetVideosPageAsync(string bearer_token, string client_id, VideosParameters parameters, HelixRequestSettings settings = default)
+            GetVideosAsync(HelixAuthorization authorization, VideosParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-                info.client_id      = client_id;
-
-                IHelixResponse<DataPage<Video>> response = await Internal.GetVideosPageAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<Video>>>
-            GetVideosAsync(string bearer_token, VideosParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-
-                IHelixResponse<DataPage<Video>> response = await Internal.GetVideosAsync(info, parameters);
-
-                return response;
-            }
-
-            public static async Task<IHelixResponse<DataPage<Video>>>
-            GetVideosAsync(string bearer_token, string client_id, VideosParameters parameters, HelixRequestSettings settings = default)
-            {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token   = bearer_token;
-                info.client_id      = client_id;
-
-                IHelixResponse<DataPage<Video>> response = await Internal.GetVideosAsync(info, parameters);
-
-                return response;
+                return await Internal.GetVideosAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             #endregion
@@ -2015,51 +605,27 @@ TwitchNet.Rest.Helix
             #region /webhooks/subscriptions
 
             public static async Task<IHelixResponse<WebhookDataPage<WebhookSubscription>>>
-            GetWebhookSubscriptionsPageAsync(string app_access_token, string client_id, HelixRequestSettings settings = default)
+            GetWebhookSubscriptionsPageAsync(HelixAuthorization authorization, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = app_access_token;
-                info.client_id = client_id;
-
-                IHelixResponse<WebhookDataPage<WebhookSubscription>> response = await Internal.GetWebhookSubscriptionsPageAsync(info, default);
-
-                return response;
+                return await Internal.GetWebhookSubscriptionsAsync(RequestedPages.Single, authorization, default, settings);
             }
 
             public static async Task<IHelixResponse<WebhookDataPage<WebhookSubscription>>>
-            GetWebhookSubscriptionsPageAsync(string app_access_token, string client_id, PagingParameters parameters, HelixRequestSettings settings = default)
+            GetWebhookSubscriptionsPageAsync(HelixAuthorization authorization, PagingParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = app_access_token;
-                info.client_id = client_id;
-
-                IHelixResponse<WebhookDataPage<WebhookSubscription>> response = await Internal.GetWebhookSubscriptionsPageAsync(info, parameters);
-
-                return response;
+                return await Internal.GetWebhookSubscriptionsAsync(RequestedPages.Single, authorization, parameters, settings);
             }
 
             public static async Task<IHelixResponse<WebhookDataPage<WebhookSubscription>>>
-            GetWebhookSubscriptionsAsync(string app_access_token, string client_id, HelixRequestSettings settings = default)
+            GetWebhookSubscriptionsAsync(HelixAuthorization authorization, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = app_access_token;
-                info.client_id = client_id;
-
-                IHelixResponse<WebhookDataPage<WebhookSubscription>> response = await Internal.GetWebhookSubscriptionsAsync(info, default);
-
-                return response;
+                return await Internal.GetWebhookSubscriptionsAsync(RequestedPages.All, authorization, default, settings);
             }
 
             public static async Task<IHelixResponse<WebhookDataPage<WebhookSubscription>>>
-            GetWebhookSubscriptionsAsync(string app_access_token, string client_id, PagingParameters parameters, HelixRequestSettings settings = default)
+            GetWebhookSubscriptionsAsync(HelixAuthorization authorization, PagingParameters parameters, HelixRequestSettings settings = default)
             {
-                HelixInfo info = new HelixInfo(settings);
-                info.bearer_token = app_access_token;
-                info.client_id = client_id;
-
-                IHelixResponse<WebhookDataPage<WebhookSubscription>> response = await Internal.GetWebhookSubscriptionsAsync(info, parameters);
-
-                return response;
+                return await Internal.GetWebhookSubscriptionsAsync(RequestedPages.All, authorization, parameters, settings);
             }
 
             #endregion

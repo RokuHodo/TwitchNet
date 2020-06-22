@@ -3,6 +3,7 @@ using System;
 
 // project namespaces
 using TwitchNet.Clients.Irc;
+using TwitchNet.Rest.Helix;
 using TwitchNet.Extensions;
 using TwitchNet.Utilities;
 
@@ -40,17 +41,24 @@ TwitchNet.Helpers.Json
         {
             string name = reader.TokenType == JsonToken.Null ? string.Empty : reader.Value.ToString();
 
-            #if DEBUG
+            // TODO: EnumConverter.ReadJson(...) - Remove this hack for BroadcasterLanguage when this is eventuall fixed
+            // We don't want this triggering when there is a solution, even when it is a hack.
+            if (object_type == typeof(Language))
+            {
+                name = name.ToLower();
+            }
+
+#if DEBUG
 
             // It's okay if it crashes dureing testing, that's a good thing.
             // If it crashes in a release build, that would be a bad thing.
             object value = EnumUtil.Parse(object_type, name);
 
-            #else
+#else
 
             EnumUtil.TryParse(object_type, name, out object value);
 
-            #endif
+#endif
 
             return value;
         }

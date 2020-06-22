@@ -253,7 +253,7 @@ TwitchNet.Clients.Irc
         #region Connection and state handling
 
         /// <summary>
-        /// Establish a connection to a remote host using the <see cref="ProtocolType.Tcp"/> protocol and log into the IRC server.
+        /// Establishes a connection to a remote host using the <see cref="ProtocolType.Tcp"/> protocol and log into the IRC server.
         /// </summary>
         /// <exception cref="ArgumentException">Thrown if the host is null, empty, or contains only whitespace.</exception>
         /// <exception cref="ArgumentNullException">Thrown id the port is null or equal to zero.</exception>
@@ -275,7 +275,7 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// Asynchronously establish a connection to a rmeote host using the <see cref="ProtocolType.Tcp"/> protocol and log into the IRC server.
+        /// Asynchronouslyes establish a connection to a rmeote host using the <see cref="ProtocolType.Tcp"/> protocol and log into the IRC server.
         /// </summary>
         /// <exception cref="ArgumentException">Thrown if the host is null, empty, or contains whitespace.</exception>
         /// <exception cref="ArgumentNullException">Thrown id the port is null or equal to zero.</exception>
@@ -329,6 +329,8 @@ TwitchNet.Clients.Irc
             reader_thread = new Thread(new ThreadStart(ReadStream));
             reader_thread.Start();
 
+            // Make 100% sure we're reading so we don't miss any data.
+            // I'm sure costing the user an extra 1ms won't make them scream bloddy murder.
             do
             {
                 Thread.Sleep(1);
@@ -509,8 +511,9 @@ TwitchNet.Clients.Irc
         }
 
         /// <summary>
-        /// Force disconnects and frees all managed resources. The client will need to be re-instantiated to reconnect.
-        /// This method should only be calle dafter disconnecting from the IRC server.
+        /// Force disconnects and frees all managed resources.
+        /// The client will need to be re-instantiated to reconnect.
+        /// This method should only be called after disconnecting from the IRC server.
         /// </summary>
         public void
         Dispose()
@@ -880,7 +883,7 @@ TwitchNet.Clients.Irc
 
             byte[] bytes = encoding.GetBytes(message + "\r\n");
             await stream.WriteAsync(bytes, 0, bytes.Length);
-            stream.Flush();
+            await stream.FlushAsync();
 
             OnDataSent.Raise(this, new DataEventArgs(bytes, message));
 
@@ -892,7 +895,7 @@ TwitchNet.Clients.Irc
         /// </summary>
         /// <param name="message">The message to check.</param>
         /// <returns>
-        /// Returns false if the IRc client is disposed.
+        /// Returns false if the IRC client is disposed.
         /// Returns false if socket is not connected or is null.
         /// Returns false if the stream is null.
         /// Returns false if message length is more than 510 bytes, excluding the mandatory CR-LF (\r\n).
@@ -901,27 +904,25 @@ TwitchNet.Clients.Irc
         private bool
         CanSend(string message)
         {
-            bool result = true;
-
             if (disposed)
             {
-                result = false;
+                return false;
             }
             else if (!socket.Connected || socket.IsNull())
             {
-                result = false;
+                return false;
             }
             else if (stream.IsNull())
             {
-                result = false;
+                return false;
             }
             // 510 instead of 512 since two bytes are reserved for the \r\n appended to the message
             else if (message.Length > 510)
             {
-                result = false;
+                return false;
             }
 
-            return result;
+            return true;
         }
 
         #endregion

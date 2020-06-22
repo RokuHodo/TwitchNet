@@ -76,7 +76,6 @@
     <Compile Include="Rest\Helix\Moderation.cs" />
     <Compile Include="Rest\Helix\Subscriptions.cs" />
     <Compile Include="Rest\Helix\Tags.cs" />
-    <Compile Include="Rest\Helix\HelixApi.cs" />
     <Compile Include="Rest\Helix\HelixApi.OAuth.cs" />
     <Compile Include="Clients\Irc\IrcClient.Handlers.cs" />
     <Compile Include="Clients\Irc\IrcClient.cs" />
@@ -102,7 +101,7 @@
     <Compile Include="Rest\Exceptions.cs" />
     <Compile Include="Rest\OAuth\Token\RefreshTokenParameters.cs" />
     <Compile Include="SubscriptionTier.cs" />
-    <Compile Include="BroadcasterLanguage.cs" />
+    <Compile Include="Language.cs" />
     <Compile Include="Clients\Irc\TwitchIrcClient.EventArgs.cs" />
     <Compile Include="Extensions\EventExtensions.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />

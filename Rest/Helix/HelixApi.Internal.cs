@@ -14,7 +14,7 @@ TwitchNet.Rest.Helix
 {
     public static partial class
     HelixApi
-    {
+    {   
         internal static class
         Internal
         {
@@ -22,22 +22,21 @@ TwitchNet.Rest.Helix
 
             private static readonly string REGEX_PATTERN_ENTITLEMENT_CODE = "^[a-zA-Z0-9]{5}-?[a-zA-Z0-9]{5}-?[a-zA-Z0-9]{5}$";
 
-            #region /analytics/extensions
+            #region /analytics/extensions - DONE
 
             /// <summary>
-            /// <para>Asynchronously gets a specific extension analytic report, or a single page of extension analytic reports.</para>
+            /// <para>Asynchronously gets a specific extension analytic report, a single page, or a complete list of extension analytic reports.</para>
             /// <para>Required Scope: <see cref="HelixScopes.AnalyticsReadExtensions"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="pages">How many pages to request.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific extension analytic report, or the single page of extension analytic reports.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific extension analytic report, the single page, or the complete list of extension analytic reports.
             /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if the extension ID is empty or contains only white space, if provided.
             /// Thrown if the after cursor is empty or contains only white space, if provided.
@@ -49,12 +48,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
-            GetExtensionAnalyticsPageAsync(HelixInfo info, ExtensionAnalyticsParameters parameters)
+            GetExtensionAnalyticsAsync(RequestedPages pages, HelixAuthorization authorization, ExtensionAnalyticsParameters parameters, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.AnalyticsReadExtensions;
-
                 HelixResponse<DataPage<ExtensionAnalytics>> response = new HelixResponse<DataPage<ExtensionAnalytics>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.AnalyticsReadExtensions))
                 {
                     return response;
                 }
@@ -64,8 +61,8 @@ TwitchNet.Rest.Helix
                 {
                     parameters.first = parameters.first.Clamp(1, 100);
 
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.extension_id), parameters.extension_id, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.extension_id), parameters.extension_id, response, settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, settings))
                     {
                         return response;
                     }
@@ -77,13 +74,13 @@ TwitchNet.Rest.Helix
 
                     if (parameters.started_at.HasValue && !parameters.ended_at.HasValue)
                     {
-                        response.SetInputError(new QueryParameterException("ended_at must be provided if started_at is provided.", nameof(parameters.ended_at)), info.settings);
+                        response.SetInputError(new QueryParameterException("ended_at must be provided if started_at is provided.", nameof(parameters.ended_at)), settings);
 
                         return response;
                     }
                     else if (!parameters.started_at.HasValue && parameters.ended_at.HasValue)
                     {
-                        response.SetInputError(new QueryParameterException("started_at must be provided if ended_at is provided.", nameof(parameters.started_at)), info.settings);
+                        response.SetInputError(new QueryParameterException("started_at must be provided if ended_at is provided.", nameof(parameters.started_at)), settings);
 
                         return response;
                     }
@@ -102,111 +99,18 @@ TwitchNet.Rest.Helix
 
                     parameters.ended_at = parameters.ended_at?.ToUniversalTime();
 
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.ended_at), parameters.ended_at, DateTime.UtcNow, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, DateTime.UtcNow, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, parameters.ended_at, response, info.settings))
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.ended_at), parameters.ended_at, DateTime.UtcNow, response, settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, DateTime.UtcNow, response, settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, parameters.ended_at, response, settings))
                     {
                         return response;
                     }
                 }
 
-                RestRequest request = GetBaseRequest("analytics/extensions", Method.GET, info);
+                RestRequest request = GetBaseRequest("analytics/extensions", Method.GET, pages, authorization, settings);
                 request.AddParameters(parameters);
 
-                RestResponse<DataPage<ExtensionAnalytics>> _response = await client.ExecuteAsync<DataPage<ExtensionAnalytics>>(request, HandleResponse);
-                response = new HelixResponse<DataPage<ExtensionAnalytics>>(_response);
-
-                return response;
-            }
-
-            /// <summary>
-            /// <para>Asynchronously gets a specific extension analytic report, or a complete list of extension analytic reports.</para>
-            /// <para>Required Scope: <see cref="HelixScopes.AnalyticsReadExtensions"/>.</para>
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">A set of rest parameters.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific extension analytic report, or the complete list of extension analytic reports.
-            /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if the extension ID is empty or contains only white space, if provided.
-            /// Thrown if the after cursor is empty or contains only white space, if provided.
-            /// Thrown if started_at or ended at are provided without the other.
-            /// Thrown if started_at or ended_at is later than <see cref="DateTime.UtcNow"/>, or started_at is later than ended_at, if provided.
-            /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.AnalyticsReadExtensions"/> scope.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<DataPage<ExtensionAnalytics>>>
-            GetExtensionAnalyticsAsync(HelixInfo info, ExtensionAnalyticsParameters parameters)
-            {
-                info.required_scopes = HelixScopes.AnalyticsReadExtensions;
-
-                HelixResponse<DataPage<ExtensionAnalytics>> response = new HelixResponse<DataPage<ExtensionAnalytics>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }
-
-                // Optional parameter checks
-                if (!parameters.IsNull())
-                {
-                    parameters.first = parameters.first.Clamp(1, 100);
-
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.extension_id), parameters.extension_id, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
-                    {
-                        return response;
-                    }
-
-                    if (!parameters.extension_id.IsNull())
-                    {
-                        parameters.after = null;
-                    }
-
-                    if (parameters.started_at.HasValue && !parameters.ended_at.HasValue)
-                    {
-                        response.SetInputError(new QueryParameterException("ended_at must be provided if started_at is provided.", nameof(parameters.ended_at)), info.settings);
-
-                        return response;
-                    }
-                    else if (!parameters.started_at.HasValue && parameters.ended_at.HasValue)
-                    {
-                        response.SetInputError(new QueryParameterException("started_at must be provided if ended_at is provided.", nameof(parameters.started_at)), info.settings);
-
-                        return response;
-                    }
-
-                    if (parameters.started_at.HasValue)
-                    {
-                        parameters.started_at = parameters.started_at.Value.ToUniversalTime();
-                        parameters.started_at = new DateTime(parameters.started_at.Value.Year, parameters.started_at.Value.Month, parameters.started_at.Value.Day);
-                    }
-
-                    if (parameters.ended_at.HasValue)
-                    {
-                        parameters.ended_at = parameters.ended_at.Value.ToUniversalTime();
-                        parameters.ended_at = new DateTime(parameters.ended_at.Value.Year, parameters.ended_at.Value.Month, parameters.ended_at.Value.Day);
-                    }
-
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.ended_at), parameters.ended_at, DateTime.UtcNow, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, DateTime.UtcNow, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, parameters.ended_at, response, info.settings))
-                    {
-                        return response;
-                    }
-                }
-
-                RestRequest request = GetBaseRequest("analytics/extensions", Method.GET, info);
-                request.AddParameters(parameters);
-
-                RestResponse<DataPage<ExtensionAnalytics>> _response = await client.TraceExecuteAsync<ExtensionAnalytics, DataPage<ExtensionAnalytics>>(request, HandleResponse);
+                RestResponse<DataPage<ExtensionAnalytics>> _response = await client.GetPagesAsync<ExtensionAnalytics, DataPage<ExtensionAnalytics>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<ExtensionAnalytics>>(_response);
 
                 return response;
@@ -214,22 +118,21 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /analytics/games
+            #region /analytics/games - DONE
 
             /// <summary>
-            /// <para>Asynchronously gets a specific game analytic report, or a single page of game analytic reports.</para>
+            /// <para>Asynchronously gets a specific game analytic report, a single page, or a complete list of game analytic reports.</para>
             /// <para>Required Scope: <see cref="HelixScopes.AnalyticsReadGames"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="pages">How many pages to request.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific game analytic report, or the single page of game analytic reports.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific game analytic report, the single page, or the complete list of game analytic reports.
             /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if the game ID is empty or contains only white space, if provided.
             /// Thrown if the after cursor is empty or contains only white space, if provided.
@@ -241,12 +144,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
-            GetGameAnalyticsPageAsync(HelixInfo info, GameAnalyticsParameters parameters)
+            GetGameAnalyticsAsync(RequestedPages pages, HelixAuthorization authorization, GameAnalyticsParameters parameters, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.AnalyticsReadGames;
-
                 HelixResponse<DataPage<GameAnalytics>> response = new HelixResponse<DataPage<GameAnalytics>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.AnalyticsReadGames))
                 {
                     return response;
                 }
@@ -256,8 +157,8 @@ TwitchNet.Rest.Helix
                 {
                     parameters.first = parameters.first.Clamp(1, 100);
 
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.game_id), parameters.game_id, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.game_id), parameters.game_id, response, settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, settings))
                     {
                         return response;
                     }
@@ -269,13 +170,13 @@ TwitchNet.Rest.Helix
 
                     if (parameters.started_at.HasValue && !parameters.ended_at.HasValue)
                     {
-                        response.SetInputError(new QueryParameterException("ended_at must be provided if started_at is provided.", nameof(parameters.ended_at)), info.settings);
+                        response.SetInputError(new QueryParameterException("ended_at must be provided if started_at is provided.", nameof(parameters.ended_at)), settings);
 
                         return response;
                     }
                     else if (!parameters.started_at.HasValue && parameters.ended_at.HasValue)
                     {
-                        response.SetInputError(new QueryParameterException("started_at must be provided if ended_at is provided.", nameof(parameters.started_at)), info.settings);
+                        response.SetInputError(new QueryParameterException("started_at must be provided if ended_at is provided.", nameof(parameters.started_at)), settings);
 
                         return response;
                     }
@@ -292,111 +193,18 @@ TwitchNet.Rest.Helix
                         parameters.ended_at = new DateTime(parameters.ended_at.Value.Year, parameters.ended_at.Value.Month, parameters.ended_at.Value.Day);
                     }
 
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.ended_at), parameters.ended_at, DateTime.UtcNow, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, DateTime.UtcNow, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, parameters.ended_at, response, info.settings))
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.ended_at), parameters.ended_at, DateTime.UtcNow, response, settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, DateTime.UtcNow, response, settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, parameters.ended_at, response, settings))
                     {
                         return response;
                     }
                 }
 
-                RestRequest request = GetBaseRequest("analytics/games", Method.GET, info);
+                RestRequest request = GetBaseRequest("analytics/games", Method.GET, pages, authorization, settings);
                 request.AddParameters(parameters);
 
-                RestResponse<DataPage<GameAnalytics>> _response = await client.ExecuteAsync<DataPage<GameAnalytics>>(request, HandleResponse);
-                response = new HelixResponse<DataPage<GameAnalytics>>(_response);
-
-                return response;
-            }
-
-            /// <summary>
-            /// <para>Asynchronously gets a specific game analytic report, or a complete list of game analytic reports.</para>
-            /// <para>Required Scope: <see cref="HelixScopes.AnalyticsReadGames"/>.</para>
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">A set of rest parameters.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific game analytic report, or the complete list of game analytic reports.
-            /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if the game ID is empty or contains only white space, if provided.
-            /// Thrown if the after cursor is empty or contains only white space, if provided.
-            /// Thrown if started_at or ended at are provided without the other.
-            /// Thrown if started_at or ended_at is later than <see cref="DateTime.UtcNow"/>, or started_at is later than ended_at, if provided.
-            /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.AnalyticsReadGames"/> scope.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<DataPage<GameAnalytics>>>
-            GetGameAnalyticsAsync(HelixInfo info, GameAnalyticsParameters parameters)
-            {
-                info.required_scopes = HelixScopes.AnalyticsReadGames;
-
-                HelixResponse<DataPage<GameAnalytics>> response = new HelixResponse<DataPage<GameAnalytics>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }
-
-                // Optional parameter checks
-                if (!parameters.IsNull())
-                {
-                    parameters.first = parameters.first.Clamp(1, 100);
-
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.game_id), parameters.game_id, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
-                    {
-                        return response;
-                    }
-
-                    if (!parameters.game_id.IsNull())
-                    {
-                        parameters.after = null;
-                    }
-
-                    if (parameters.started_at.HasValue && !parameters.ended_at.HasValue)
-                    {
-                        response.SetInputError(new QueryParameterException("ended_at must be provided if started_at is provided.", nameof(parameters.ended_at)), info.settings);
-
-                        return response;
-                    }
-                    else if (!parameters.started_at.HasValue && parameters.ended_at.HasValue)
-                    {
-                        response.SetInputError(new QueryParameterException("started_at must be provided if ended_at is provided.", nameof(parameters.started_at)), info.settings);
-
-                        return response;
-                    }
-
-                    if (parameters.started_at.HasValue)
-                    {
-                        parameters.started_at = parameters.started_at.Value.ToUniversalTime();
-                        parameters.started_at = new DateTime(parameters.started_at.Value.Year, parameters.started_at.Value.Month, parameters.started_at.Value.Day);
-                    }
-
-                    if (parameters.ended_at.HasValue)
-                    {
-                        parameters.ended_at = parameters.ended_at.Value.ToUniversalTime();
-                        parameters.ended_at = new DateTime(parameters.ended_at.Value.Year, parameters.ended_at.Value.Month, parameters.ended_at.Value.Day);
-                    }
-
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.ended_at), parameters.ended_at, DateTime.UtcNow, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, DateTime.UtcNow, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, parameters.ended_at, response, info.settings))
-                    {
-                        return response;
-                    }
-                }
-
-                RestRequest request = GetBaseRequest("analytics/games", Method.GET, info);
-                request.AddParameters(parameters);
-
-                RestResponse<DataPage<GameAnalytics>> _response = await client.TraceExecuteAsync<GameAnalytics, DataPage<GameAnalytics>>(request, HandleResponse);
+                RestResponse<DataPage<GameAnalytics>> _response = await client.GetPagesAsync<GameAnalytics, DataPage<GameAnalytics>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<GameAnalytics>>(_response);
 
                 return response;
@@ -404,7 +212,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /bits/leaderboard
+            #region /bits/leaderboard - DONE
 
             /// <summary>
             /// <para>
@@ -413,16 +221,14 @@ TwitchNet.Rest.Helix
             /// </para>
             /// <para>Required Scope: <see cref="HelixScopes.BitsRead"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains ranked list of bits leaderboard information.
             /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if the user ID is empty or contains only white space, if provided.
             /// Thrown if started_at is later than <see cref="DateTime.Now"/>, if provided.
@@ -432,12 +238,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<BitsLeaderboardData<BitsUser>>>
-            GetBitsLeaderboardAsync(HelixInfo info, BitsLeaderboardParameters parameters)
+            GetBitsLeaderboardAsync(HelixAuthorization authorization, BitsLeaderboardParameters parameters, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.BitsRead;
-
                 HelixResponse<BitsLeaderboardData<BitsUser>> response = new HelixResponse<BitsLeaderboardData<BitsUser>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.BitsRead))
                 {
                     return response;
                 }
@@ -447,8 +251,8 @@ TwitchNet.Rest.Helix
                 {
                     parameters.count = parameters.count.Clamp(1, 100);
 
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.user_id), parameters.user_id, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, DateTime.Now, response, info.settings))
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.user_id), parameters.user_id, response, settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, DateTime.Now, response, settings))
                     {
                         return response;
                     }
@@ -459,7 +263,7 @@ TwitchNet.Rest.Helix
                     }
                 }
 
-                RestRequest request = GetBaseRequest("bits/leaderboard", Method.GET, info);
+                RestRequest request = GetBaseRequest("bits/leaderboard", Method.GET, authorization, settings);
                 request.AddParameters(parameters);
 
                 RestResponse<BitsLeaderboardData<BitsUser>> _response = await client.ExecuteAsync<BitsLeaderboardData<BitsUser>>(request, HandleResponse);
@@ -471,35 +275,31 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /clips
+            #region /clips - DONE
 
             /// <summary>
             /// <para>Asynchronously creates a clip.</para>
             /// <para>Required Scope: <see cref="HelixScopes.ClipsEdit"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the created clip ID and URL to edit the clip.
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ClipsEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<CreatedClip>>>
-            CreateClipAsync(HelixInfo info, CreateClipParameters parameters)
+            CreateClipAsync(HelixAuthorization authorization, CreateClipParameters parameters, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.ClipsEdit;
-
                 HelixResponse<Data<CreatedClip>> response = new HelixResponse<Data<CreatedClip>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.ClipsEdit))
                 {
                     return response;
                 }
@@ -507,17 +307,17 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
-                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
+                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, settings))
                 {
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("clips", Method.POST, info);
+                RestRequest request = GetBaseRequest("clips", Method.POST, authorization, settings);
                 request.AddParameters(parameters);
 
                 RestResponse<Data<CreatedClip>> _response = await client.ExecuteAsync<Data<CreatedClip>>(request, HandleResponse);
@@ -527,19 +327,18 @@ TwitchNet.Rest.Helix
             }
 
             /// <summary>
-            /// Asynchronously gets specific clips, or a single page of clips.
+            /// Asynchronously gets specific clips, a single page, or a complete list of clips.
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="pages">How many pages to request.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> containts the specific clips, or the single page of clips.
+            /// <see cref="IHelixResponse{result_type}.result"/> containts the specific clips, the single page, or the complete list  of clips.
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if no clip ID's, broadcaster ID, or game ID is provided.
             /// Thrown if any combination of clip ID's, broadcaster ID, or game ID is provided.            
@@ -554,10 +353,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Clip>>>
-            GetClipsPageAsync(HelixInfo info, ClipsParameters parameters)
+            GetClipsAsync(RequestedPages pages, HelixAuthorization authorization, ClipsParameters parameters, HelixRequestSettings settings)
             {
                 HelixResponse<DataPage<Clip>> response = new HelixResponse<DataPage<Clip>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
@@ -565,14 +364,14 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
                 if (!parameters.ids.IsValid() && parameters.broadcaster_id.IsNull() && parameters.game_id.IsNull())
                 {
-                    response.SetInputError(new QueryParameterException("At least one or more clip ID, one broadcaster ID, or one game ID must be provided."), info.settings);
+                    response.SetInputError(new QueryParameterException("At least one or more clip ID, one broadcaster ID, or one game ID must be provided."), settings);
 
                     return response;
                 }
@@ -580,7 +379,7 @@ TwitchNet.Rest.Helix
                 if ((parameters.ids.IsValid() && (!parameters.broadcaster_id.IsNull() || !parameters.game_id.IsNull())) ||
                    (!parameters.broadcaster_id.IsNull() && !parameters.game_id.IsNull()))
                 {
-                    response.SetInputError(new QueryParameterException("Only one or more clip ID's, one broadcaster ID, or one game ID can be provided."), info.settings);
+                    response.SetInputError(new QueryParameterException("Only one or more clip ID's, one broadcaster ID, or one game ID can be provided."), settings);
 
                     return response;
                 }
@@ -588,10 +387,10 @@ TwitchNet.Rest.Helix
                 // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
 
-                if (!ValidateOptionalQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.game_id), parameters.game_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                if (!ValidateOptionalQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.game_id), parameters.game_id, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, settings))
                 {
                     return response;
                 }
@@ -604,9 +403,9 @@ TwitchNet.Rest.Helix
                     parameters.started_at = null;
                 }                
 
-                if (!ValidateOptionalQueryParameter(nameof(parameters.ended_at), parameters.ended_at, DateTime.Now, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, DateTime.Now, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, parameters.ended_at, response, info.settings))
+                if (!ValidateOptionalQueryParameter(nameof(parameters.ended_at), parameters.ended_at, DateTime.Now, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, DateTime.Now, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, parameters.ended_at, response, settings))
                 {
                     return response;
                 }
@@ -617,110 +416,10 @@ TwitchNet.Rest.Helix
                     parameters.ended_at = null;
                 }
 
-                RestRequest request = GetBaseRequest("clips", Method.GET, info);
+                RestRequest request = GetBaseRequest("clips", Method.GET, pages, authorization, settings);
                 request.AddParameters(parameters);
 
-                RestResponse<DataPage<Clip>> _response = await client.ExecuteAsync<DataPage<Clip>>(request, HandleResponse);
-                response = new HelixResponse<DataPage<Clip>>(_response);
-
-                return response;
-            }
-
-            /// <summary>
-            /// Asynchronously gets specific clips, or a complete list of clips.
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">A set of rest parameters.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> containts the specific clips, or the single page of clips.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if no clip ID's, broadcaster ID, or game ID is provided.
-            /// Thrown if any combination of clip ID's, broadcaster ID, or game ID is provided.            
-            /// Thrown if the broadcaster ID or game ID is empty or contains only white space, if Provided.
-            /// Thrown if any clip ID is null, empty, or contains only white space or any duplicate clip ID's are found, if provided.
-            /// Thrown if the after or before cursors are empty or contain only white space, if provided.
-            /// Thrown if both after and before cursors are provided.
-            /// Thrown if started_at or ended_at is later than <see cref="DateTime.Now"/>, or started_at is later than ended_at, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterCountException">Thrown if more than 100 total clip ID's are provided.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<DataPage<Clip>>>
-            GetClipsAsync(HelixInfo info, ClipsParameters parameters)
-            {
-                HelixResponse<DataPage<Clip>> response = new HelixResponse<DataPage<Clip>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }
-
-                // Required parameter checks
-                if (parameters.IsNull())
-                {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
-
-                    return response;
-                }
-
-                if (!parameters.ids.IsValid() && parameters.broadcaster_id.IsNull() && parameters.game_id.IsNull())
-                {
-                    response.SetInputError(new QueryParameterException("At least one or more clip ID, one broadcaster ID, or one game ID must be provided."), info.settings);
-
-                    return response;
-                }
-
-                if ((parameters.ids.IsValid() && (!parameters.broadcaster_id.IsNull() || !parameters.game_id.IsNull())) ||
-                   (!parameters.broadcaster_id.IsNull() && !parameters.game_id.IsNull()))
-                {
-                    response.SetInputError(new QueryParameterException("Only one or more clip ID's, one broadcaster ID, or one game ID can be provided."), info.settings);
-
-                    return response;
-                }
-
-                // Optional parameter checks
-                parameters.first = parameters.first.Clamp(1, 100);
-
-                if (!ValidateOptionalQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.game_id), parameters.game_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
-                {
-                    return response;
-                }
-
-                if (parameters.ids.IsValid())
-                {
-                    parameters.after = null;
-                    parameters.first = null;
-                    parameters.ended_at = null;
-                    parameters.started_at = null;
-                }
-
-                if (!ValidateOptionalQueryParameter(nameof(parameters.ended_at), parameters.ended_at, DateTime.Now, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, DateTime.Now, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.started_at), parameters.started_at, parameters.ended_at, response, info.settings))
-                {
-                    return response;
-                }
-
-                // ended_at is ignored if no started_at is provided
-                if (!parameters.started_at.HasValue)
-                {
-                    parameters.ended_at = null;
-                }
-
-                RestRequest request = GetBaseRequest("clips", Method.GET, info);
-                request.AddParameters(parameters);
-
-                RestResponse<DataPage<Clip>> _response = await client.TraceExecuteAsync<Clip, DataPage<Clip>>(request, HandleResponse);
+                RestResponse<DataPage<Clip>> _response = await client.GetPagesAsync<Clip, DataPage<Clip>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<Clip>>(_response);
 
                 return response;
@@ -728,14 +427,15 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /entitlements/codes
+            #region /entitlements/codes - DONE
 
             /// <summary>
             /// <para>Asynchronously gets the status of one or more entitlement codes for the authenticated user.</para>
             /// <para>Required Authorization: App Access Token.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the statuses of the specified codes.
@@ -751,10 +451,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<CodeStatus>>>
-            GetEntitlementCodeStatusAsync(HelixInfo info, EntitlementsCodeParameters parameters)
+            GetEntitlementCodeStatusAsync(HelixAuthorization authorization, EntitlementsCodeParameters parameters, HelixRequestSettings settings)
             {
                 HelixResponse<Data<CodeStatus>> response = new HelixResponse<Data<CodeStatus>>();
-                if (!ValidateAuthorizatioHeaders(info, response, true))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
@@ -762,13 +462,13 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
-                if(!ValidateRequiredQueryParameter(nameof(parameters.user_id), parameters.user_id, response, info.settings) ||
-                   !ValidateRequiredQueryParameter(nameof(parameters.codes), parameters.codes, 20, response, info.settings))
+                if(!ValidateRequiredQueryParameter(nameof(parameters.user_id), parameters.user_id, response, settings) ||
+                   !ValidateRequiredQueryParameter(nameof(parameters.codes), parameters.codes, 20, response, settings))
                 {
                     return response;
                 }
@@ -794,12 +494,12 @@ TwitchNet.Rest.Helix
 
                     string message = "One or more codes were malformed. Each code must be a 15 character alpha-numeric string, with optional dashes after every 5th character. Example: ABCDE-12345-F6G7H" + Environment.NewLine + Environment.NewLine +
                                      "Codes: " + _codes;
-                    response.SetInputError(new QueryParameterException(message, nameof(parameters.codes), _codes, inner_exception), info.settings);
+                    response.SetInputError(new QueryParameterException(message, nameof(parameters.codes), _codes, inner_exception), settings);
 
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("entitlements/codes", Method.GET, info);
+                RestRequest request = GetBaseRequest("entitlements/codes", Method.GET, authorization, settings);
                 request.AddParameters(parameters);
 
                 RestResponse<Data<CodeStatus>> _response = await client.ExecuteAsync<Data<CodeStatus>>(request, HandleResponse);
@@ -812,8 +512,9 @@ TwitchNet.Rest.Helix
             /// <para>Asynchronously redeems one or more entitlement codes to the authenticated user.</para>
             /// <para>Required Authorization: App Access Token.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the statuses of the specified codes.
@@ -829,10 +530,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<CodeStatus>>>
-            RedeemEntitlementCodeStatusAsync(HelixInfo info, EntitlementsCodeParameters parameters)
+            RedeemEntitlementCodeStatusAsync(HelixAuthorization authorization, EntitlementsCodeParameters parameters, HelixRequestSettings settings)
             {
                 HelixResponse<Data<CodeStatus>> response = new HelixResponse<Data<CodeStatus>>();
-                if (!ValidateAuthorizatioHeaders(info, response, true))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
@@ -840,13 +541,13 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
-                if (!ValidateRequiredQueryParameter(nameof(parameters.user_id), parameters.user_id, response, info.settings) ||
-                   !ValidateRequiredQueryParameter(nameof(parameters.codes), parameters.codes, 20, response, info.settings))
+                if (!ValidateRequiredQueryParameter(nameof(parameters.user_id), parameters.user_id, response, settings) ||
+                   !ValidateRequiredQueryParameter(nameof(parameters.codes), parameters.codes, 20, response, settings))
                 {
                     return response;
                 }
@@ -872,12 +573,12 @@ TwitchNet.Rest.Helix
 
                     string message = "One or more codes were malformed. Each code must be a 15 character alpha-numeric string, with optional dashes after every 5th character. Example: ABCDE-12345-F6G7H" + Environment.NewLine + Environment.NewLine +
                                      "Codes: " + _codes;
-                    response.SetInputError(new QueryParameterException(message, nameof(parameters.codes), _codes, inner_exception), info.settings);
+                    response.SetInputError(new QueryParameterException(message, nameof(parameters.codes), _codes, inner_exception), settings);
 
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("entitlements/codes", Method.POST, info);
+                RestRequest request = GetBaseRequest("entitlements/codes", Method.POST, authorization, settings);
                 request.AddParameters(parameters);
 
                 RestResponse<Data<CodeStatus>> _response = await client.ExecuteAsync<Data<CodeStatus>>(request, HandleResponse);
@@ -888,14 +589,15 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /entitlements/upload
+            #region /entitlements/upload - DONE
 
             /// <summary>
             /// <para>Asynchronously creates a URL where you can upload a manifest file and notify users that they have an entitlement.</para>
             /// <para>Required Authorization: App Access Token.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the entitlement upload URL.
@@ -910,10 +612,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<EntitlementUploadUrl>>>
-            CreateEntitlementGrantsUploadUrlAsync(HelixInfo info, EntitlementsUploadParameters parameters)
+            CreateEntitlementGrantsUploadUrlAsync(HelixAuthorization authorization, EntitlementsUploadParameters parameters, HelixRequestSettings settings)
             {
                 HelixResponse<Data<EntitlementUploadUrl>> response = new HelixResponse<Data<EntitlementUploadUrl>>();
-                if (!ValidateAuthorizatioHeaders(info, response, true))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
@@ -921,24 +623,24 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
-                if(!ValidateRequiredQueryParameter(nameof(parameters.manifest_id), parameters.manifest_id, response, info.settings))
+                if(!ValidateRequiredQueryParameter(nameof(parameters.manifest_id), parameters.manifest_id, response, settings))
                 {
                     return response;
                 }
 
                 if (!parameters.manifest_id.Length.IsInRange(1, 64))
                 {
-                    response.SetInputError(new QueryParameterException("The manifest ID must be between 1 and 64 characters long, inclusive.", nameof(parameters.manifest_id)), info.settings);
+                    response.SetInputError(new QueryParameterException("The manifest ID must be between 1 and 64 characters long, inclusive.", nameof(parameters.manifest_id)), settings);
 
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("entitlements/upload", Method.POST, info);
+                RestRequest request = GetBaseRequest("entitlements/upload", Method.POST, authorization, settings);
                 request.AddParameters(parameters);
 
                 RestResponse<Data<EntitlementUploadUrl>> _response = await client.ExecuteAsync<Data<EntitlementUploadUrl>>(request, HandleResponse);
@@ -949,17 +651,19 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /extensions/transactions
+            #region /extensions/transactions - DONE
 
             /// <summary>
-            /// <para>Asynchronously gets specific extension transactions or a single page of extension transactions.</para>
+            /// <para>Asynchronously gets specific extension transactions, a single page, or a complete list of extension transactions.</para>
             /// <para>Required Authorization: App Access Token.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="pages">How many pages to request.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific extension transactions or the single page of extension transactions.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific extension transactions, the single page, or the complete list of extension transactions.
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
             /// <exception cref="HeaderParameterException">Thrown if the App Access token or Client ID is not provided, empty, or contains only white space.</exception>
@@ -973,10 +677,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<ExtensionTransaction>>>
-            GetExtensionTransactionsPageAsync(HelixInfo info, ExtensionTransactionsParameters parameters)
+            GetExtensionTransactionsAsync(RequestedPages pages, HelixAuthorization authorization, ExtensionTransactionsParameters parameters, HelixRequestSettings settings)
             {
                 HelixResponse<DataPage<ExtensionTransaction>> response = new HelixResponse<DataPage<ExtensionTransaction>>();
-                if (!ValidateAuthorizatioHeaders(info, response, true))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
@@ -984,12 +688,12 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
-                if(!ValidateRequiredQueryParameter(nameof(parameters.extension_id), parameters.extension_id, response, info.settings))
+                if(!ValidateRequiredQueryParameter(nameof(parameters.extension_id), parameters.extension_id, response, settings))
                 {
                     return response;
                 }
@@ -997,77 +701,16 @@ TwitchNet.Rest.Helix
                 // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
 
-                if (!ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                if (!ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, settings))
                 {
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("extensions/transactions", Method.GET, info);
+                RestRequest request = GetBaseRequest("extensions/transactions", Method.GET, pages, authorization, settings);
                 request.AddParameters(parameters);
 
-                RestResponse<DataPage<ExtensionTransaction>> _response = await client.ExecuteAsync<DataPage<ExtensionTransaction>>(request, HandleResponse);
-                response = new HelixResponse<DataPage<ExtensionTransaction>>(_response);
-
-                return response;
-            }
-
-            /// <summary>
-            /// <para>Asynchronously gets specific extension transactions or a complete list of extension transactions.</para>
-            /// <para>Required Authorization: App Access Token.</para>
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">A set of rest parameters.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific extension transactions or the complete list of extension transactions.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">Thrown if the App Access token or Client ID is not provided, empty, or contains only white space.</exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if the extension ID is not provided, empty, or contains only white space.
-            /// Thrown if any transaction ID is null, empty, or contains only white space, any duplicate codes are found, if provided.
-            /// Thrown if the after cursor is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterCountException">Thrown if more than 100 transaction ID's are provided.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<DataPage<ExtensionTransaction>>>
-            GetExtensionTransactionsAsync(HelixInfo info, ExtensionTransactionsParameters parameters)
-            {
-                HelixResponse<DataPage<ExtensionTransaction>> response = new HelixResponse<DataPage<ExtensionTransaction>>();
-                if (!ValidateAuthorizatioHeaders(info, response, true))
-                {
-                    return response;
-                }
-
-                // Required parameter checks
-                if (parameters.IsNull())
-                {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
-
-                    return response;
-                }
-
-                if (!ValidateRequiredQueryParameter(nameof(parameters.extension_id), parameters.extension_id, response, info.settings))
-                {
-                    return response;
-                }
-
-                // Optional parameter checks
-                parameters.first = parameters.first.Clamp(1, 100);
-
-                if (!ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
-                {
-                    return response;
-                }
-
-                RestRequest request = GetBaseRequest("extensions/transactions", Method.GET, info);
-                request.AddParameters(parameters);
-
-                RestResponse<DataPage<ExtensionTransaction>> _response = await client.TraceExecuteAsync<ExtensionTransaction, DataPage<ExtensionTransaction>>(request, HandleResponse);
+                RestResponse<DataPage<ExtensionTransaction>> _response = await client.GetPagesAsync<ExtensionTransaction, DataPage<ExtensionTransaction>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<ExtensionTransaction>>(_response);
 
                 return response;
@@ -1075,22 +718,20 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /games
+            #region /games - DONE
 
             /// <summary>
             /// Asynchronously gets a list of games.
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the list of games.
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if any game ID or game name is null, empty, or contains only white space.
             /// Thrown if any duplicate game ID's or game names are found.
@@ -1100,10 +741,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<Game>>>
-            GetGamesAsync(HelixInfo info, GamesParameters parameters)
+            GetGamesAsync(HelixAuthorization authorization, GamesParameters parameters, HelixRequestSettings settings)
             {
                 HelixResponse<Data<Game>> response = new HelixResponse<Data<Game>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
@@ -1111,14 +752,14 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
                 if (!parameters.ids.IsValid() && !parameters.names.IsValid())
                 {
-                    response.SetInputError(new QueryParameterCountException("At least one game ID or game name must be provided.", 100, 0), info.settings);
+                    response.SetInputError(new QueryParameterCountException("At least one game ID or game name must be provided.", 100, 0), settings);
 
                     return response;
                 }
@@ -1126,20 +767,20 @@ TwitchNet.Rest.Helix
                 int count = parameters.ids.Count + parameters.names.Count;
                 if (count > 100)
                 {
-                    response.SetInputError(new QueryParameterCountException("A maximum of 100 total game ID's and/or names can be provided at one time.", 100, count), info.settings);
+                    response.SetInputError(new QueryParameterCountException("A maximum of 100 total game ID's and/or names can be provided at one time.", 100, count), settings);
 
                     return response;
                 }
 
                 // This will perform count checks again, but they will never be triggered if we get this far.
                 // This is really for checking for duplicates and no content indicies.
-                if (!ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.names), parameters.names, 100, response, info.settings))
+                if (!ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.names), parameters.names, 100, response, settings))
                 {
                     return response;
                 }         
 
-                RestRequest request = GetBaseRequest("games", Method.GET, info);
+                RestRequest request = GetBaseRequest("games", Method.GET, authorization, settings);
                 request.AddParameters(parameters);
 
                 RestResponse<Data<Game>> _response = await client.ExecuteAsync<Data<Game>>(request, HandleResponse);
@@ -1150,73 +791,20 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /games/top
+            #region /games/top - DONE
 
             /// <summary>
-            /// Asynchronously gets a single page of top games, most popular first.
+            /// Asynchronously gets a single page or a complete list of top games, most popular first.
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="pages">How many pages to request.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of top videos.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page or the complete list of top videos.
             /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if the after or before cursors are empty or contain only white space, if provided.
-            /// Thrown if both after and before cursors are provided.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesPageAsync(HelixInfo info, TopGamesParameters parameters)
-            {
-                HelixResponse<DataPage<Game>> response = new HelixResponse<DataPage<Game>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }
-
-                // Optional parameter checks
-                if (!parameters.IsNull())
-                {
-                    parameters.first = parameters.first.Clamp(1, 100);
-
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, info.settings) ||
-                        !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out string direction))
-                    {
-                        return response;
-                    }
-                }
-
-                RestRequest request = GetBaseRequest("games/top", Method.GET, info);
-                request.AddParameters(parameters);
-
-                // TODO: GetTopGamesPageAsync(...) - Sanitize the list based on the game ID and return a distinct list.
-                RestResponse<DataPage<Game>> _response = await client.ExecuteAsync<DataPage<Game>>(request, HandleResponse);
-                response = new HelixResponse<DataPage<Game>>(_response);
-
-                return response;
-            }
-
-            /// <summary>
-            /// Asynchronously gets a complete list of top games, most popular first.
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">A set of rest parameters.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of top videos.
-            /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if the after or before cursors are empty or contain only white space, if provided.
             /// Thrown if both after and before cursors are provided.
@@ -1229,24 +817,24 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Game>>>
-            GetTopGamesAsync(HelixInfo info, TopGamesParameters parameters)
+            GetTopGamesAsync(RequestedPages pages, HelixAuthorization authorization, TopGamesParameters parameters, HelixRequestSettings settings)
             {
                 HelixResponse<DataPage<Game>> response = new HelixResponse<DataPage<Game>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
 
-                string direction = "after";
+                string direction = string.Empty;
 
                 // Optional parameter checks
                 if (!parameters.IsNull())
                 {
                     parameters.first = parameters.first.Clamp(1, 100);
 
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, info.settings) ||
-                        !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out direction))
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, settings) ||
+                        !ValidateCursorDiection(parameters.after, parameters.before, response, settings, out direction))
                     {
                         return response;
                     }
@@ -1254,17 +842,17 @@ TwitchNet.Rest.Helix
                     // TODO: GetTopGamesAsync(...) - Temporarily disabling using 'before' while requesting all pages until it works properly. Reimplement 'before' when it works propery.
                     if (parameters.before.IsValid())
                     {
-                        response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
+                        response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), settings);
 
                         return response;
                     }
                 }
 
-                RestRequest request = GetBaseRequest("games/top", Method.GET, info);
+                RestRequest request = GetBaseRequest("games/top", Method.GET, pages, authorization, settings);
                 request.AddParameters(parameters);
 
                 // TODO: GetTopGamesAsync(...) - Sanitize the list based on the game ID and return a distinct list.
-                RestResponse<DataPage<Game>> _response = await client.TraceExecuteAsync<Game, DataPage<Game>>(request, direction, HandleResponse);
+                RestResponse<DataPage<Game>> _response = await client.GetPagesAsync<Game, DataPage<Game>>(request, direction, HandleResponse);
                 response = new HelixResponse<DataPage<Game>>(_response);
 
                 return response;
@@ -1272,93 +860,22 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /moderation/banned
+            #region /moderation/banned - DONE
 
             /// <summary>
-            /// <para>Asynchronously gets specific banned users or a single page of banned users for a given broadcaster.</para>
+            /// <para>Asynchronously gets specific banned users, a single page, or a complete list of banned users for a given broadcaster.</para>
             /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="pages">How many pages to request.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific banned users or the single page of banned users for the given broadcaster.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific banned users, the single page, or the complete list of banned users for the given broadcaster.
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if the broadcaster ID is not provided, empty, or contains only white space.
-            /// Thrown if any user ID is null, empty, or contains only white space any duplicate user ID's are found, if provided.
-            /// Thrown if the after or before cursor is empty or contains only white space, if provided.
-            /// Thrown if both after and before cursors are provided.
-            /// </exception>
-            /// <exception cref="QueryParameterCountException">Thrown if more than 100 user ID's are provided.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ModerationRead"/> scope.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<DataPage<BannedUser>>>
-            GetBannedUsersPageAsync(HelixInfo info, BannedUsersParameters parameters)
-            {
-                info.required_scopes = HelixScopes.ModerationRead;
-
-                HelixResponse<DataPage<BannedUser>> response = new HelixResponse<DataPage<BannedUser>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }
-
-                if (parameters.IsNull())
-                {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
-
-                    return response;
-                }
-
-                // Required parameter checks
-                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
-                {
-                    return response;
-                }
-
-                // Optional parameter checks
-                parameters.first = parameters.first.Clamp(1, 100);
-
-                if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings) ||
-                    !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out string direction))
-                {
-                    return response;
-                }
-
-                RestRequest request = GetBaseRequest("moderation/banned", Method.GET, info);
-                request.AddParameters(parameters);
-
-                RestResponse<DataPage<BannedUser>> _response = await client.ExecuteAsync<DataPage<BannedUser>>(request, HandleResponse);
-                response = new HelixResponse<DataPage<BannedUser>>(_response);
-
-                return response;
-            }
-
-            /// <summary>
-            /// <para>Asynchronously gets specific banned users or a complete list of banned users for a given broadcaster.</para>
-            /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">A set of rest parameters.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific banned users or the complete list of banned users for the given broadcaster.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if the broadcaster ID is not provided, empty, or contains only white space.
             /// Thrown if any user ID is null, empty, or contains only white space any duplicate user ID's are found, if provided.
@@ -1375,36 +892,34 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<BannedUser>>>
-            GetBannedUsersAsync(HelixInfo info, BannedUsersParameters parameters)
+            GetBannedUsersAsync(RequestedPages pages, HelixAuthorization authorization, BannedUsersParameters parameters, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.ModerationRead;
-
                 HelixResponse<DataPage<BannedUser>> response = new HelixResponse<DataPage<BannedUser>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.ModerationRead))
                 {
                     return response;
                 }
 
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
                 // Required parameter checks
-                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
+                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, settings))
                 {
                     return response;
                 }
 
                 // Optional parameter checks
-                parameters.first = parameters.first.Clamp(1, 100);                
+                parameters.first = parameters.first.Clamp(1, 100);
 
-                if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings) ||
-                    !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out string direction))
+                if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, settings) ||
+                    !ValidateCursorDiection(parameters.after, parameters.before, response, settings, out string direction))
                 {
                     return response;
                 }
@@ -1412,15 +927,15 @@ TwitchNet.Rest.Helix
                 // TODO: GetBannedUsersAsync(...) - Temporarily disabling using 'before' while requesting all pages until it works properly. Reimplement 'before' when it works propery.
                 if (parameters.before.IsValid())
                 {
-                    response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
+                    response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), settings);
 
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("moderation/banned", Method.GET, info);
+                RestRequest request = GetBaseRequest("moderation/banned", Method.GET, pages, authorization, settings);
                 request.AddParameters(parameters);
 
-                RestResponse<DataPage<BannedUser>> _response = await client.TraceExecuteAsync<BannedUser, DataPage<BannedUser>>(request, direction, HandleResponse);
+                RestResponse<DataPage<BannedUser>> _response = await client.GetPagesAsync<BannedUser, DataPage<BannedUser>>(request, direction, HandleResponse);
                 response = new HelixResponse<DataPage<BannedUser>>(_response);
 
                 return response;
@@ -1430,32 +945,30 @@ TwitchNet.Rest.Helix
             /// <para>Asynchronously checks to see if a user is banned by a broadcaster.</para>
             /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="broadcaster_id">The ID of the broadcaster.</param>
             /// <param name="user_id">The ID of the user to check.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> is set true if the user is banned by the broadcaster, otherwise false.
             /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">Thrown if the broadcaster ID or user ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<bool>>
-            IsUserBannedAsync(HelixInfo info, string broadcaster_id, string user_id)
+            IsUserBannedAsync(HelixAuthorization authorization, string broadcaster_id, string user_id, HelixRequestSettings settings)
             {
                 HelixResponse<bool> response = new HelixResponse<bool>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.ModerationRead))
                 {
                     return response;
                 }
 
                 // Explicity check for this out here since it's optional in the underlying wrapper.
-                if (!ValidateRequiredQueryParameter(nameof(user_id), user_id, response, info.settings))
+                if (!ValidateRequiredQueryParameter(nameof(user_id), user_id, response, settings))
                 {
                     return response;
                 }
@@ -1464,7 +977,7 @@ TwitchNet.Rest.Helix
                 parameters.broadcaster_id = broadcaster_id;
                 parameters.user_ids.Add(user_id);
 
-                IHelixResponse<DataPage<BannedUser>> _response = await GetBannedUsersPageAsync(info, parameters);
+                IHelixResponse<DataPage<BannedUser>> _response = await GetBannedUsersAsync(RequestedPages.Single, authorization, parameters, settings);
 
                 bool result = _response.exception.IsNull() ? _response.result.data.IsValid() : false;
                 response = new HelixResponse<bool>(_response, result);
@@ -1474,26 +987,25 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /moderation/banned/events
+            #region /moderation/banned/events - DONE
 
             /// <summary>
             /// <para>
-            /// Asynchronously gets a specific banned event or a single page of banned events.
+            /// Asynchronously gets a specific banned event, a single page, or a complete list of banned events.
             /// A banned event occurs when a user is banned or unbanned.
             /// </para>
             /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="pages">How many pages to request.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific banned event or the single page of banned events.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific banned event, the single page, or the complete list of banned events.
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if neither broadcaster ID or event ID are provided or are provided at the same time.
             /// Thrown if the broadcaster ID is empty or contains only white space, if provided.
@@ -1507,19 +1019,17 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<BannedEvent>>>
-            GetBannedEventsPageAsync(HelixInfo info, BannedEventsParameters parameters)
+            GetBannedEventsAsync(RequestedPages pages, HelixAuthorization authorization, BannedEventsParameters parameters, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.ModerationRead;
-
                 HelixResponse<DataPage<BannedEvent>> response = new HelixResponse<DataPage<BannedEvent>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.ModerationRead))
                 {
                     return response;
                 }
 
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
@@ -1527,13 +1037,13 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.broadcaster_id.IsNull() && parameters.id.IsNull())
                 {
-                    response.SetInputError(new QueryParameterException("A boradcaster ID or event ID must be provided."), info.settings);
+                    response.SetInputError(new QueryParameterException("A boradcaster ID or event ID must be provided."), settings);
 
                     return response;
                 }
                 else if (!parameters.broadcaster_id.IsNull() && !parameters.id.IsNull())
                 {
-                    response.SetInputError(new QueryParameterException("Only a boradcaster ID or event ID can be provided at one time."), info.settings);
+                    response.SetInputError(new QueryParameterException("Only a boradcaster ID or event ID can be provided at one time."), settings);
 
                     return response;
                 }
@@ -1541,100 +1051,18 @@ TwitchNet.Rest.Helix
                 // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
 
-                if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.id), parameters.id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings))
+                if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.id), parameters.id, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, settings))
                 {
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("moderation/banned/events", Method.GET, info);
+                RestRequest request = GetBaseRequest("moderation/banned/events", Method.GET, pages, authorization, settings);
                 request.AddParameters(parameters);
 
-                RestResponse<DataPage<BannedEvent>> _response = await client.ExecuteAsync<DataPage<BannedEvent>>(request, HandleResponse);
-                response = new HelixResponse<DataPage<BannedEvent>>(_response);
-
-                return response;
-            }
-
-            /// <summary>
-            /// <para>
-            /// Asynchronously gets a specific banned event or complete list of banned events.
-            /// A banned event occurs when a user is banned or unbanned.
-            /// </para>
-            /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">A set of rest parameters.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific banned event or the complete list of banned events.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if neither broadcaster ID or event ID are provided or are provided at the same time.
-            /// Thrown if the broadcaster ID is empty or contains only white space, if provided.
-            /// Thrown if the event ID is empty or contains only white space, if provided.
-            /// Thrown if any user ID is null, empty, or contains only white space or any duplicate user ID's are found, if provided.
-            /// Thrown if the after cursor is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterCountException">Thrown if more than 100 user ID's are provided.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ModerationRead"/> scope.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<DataPage<BannedEvent>>>
-            GetBannedEventsAsync(HelixInfo info, BannedEventsParameters parameters)
-            {
-                info.required_scopes = HelixScopes.ModerationRead;
-
-                HelixResponse<DataPage<BannedEvent>> response = new HelixResponse<DataPage<BannedEvent>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }
-
-                if (parameters.IsNull())
-                {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
-
-                    return response;
-                }
-
-                // Required parameter checks
-                if (parameters.broadcaster_id.IsNull() && parameters.id.IsNull())
-                {
-                    response.SetInputError(new QueryParameterException("A boradcaster ID or event ID must be provided."), info.settings);
-
-                    return response;
-                }
-                else if (!parameters.broadcaster_id.IsNull() && !parameters.id.IsNull())
-                {
-                    response.SetInputError(new QueryParameterException("Only a boradcaster ID or event ID can be provided at one time."), info.settings);
-
-                    return response;
-                }
-
-                // Optional parameter checks
-                parameters.first = parameters.first.Clamp(1, 100);
-
-                if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.id), parameters.id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings))
-                {
-                    return response;
-                }
-
-                RestRequest request = GetBaseRequest("moderation/banned/events", Method.GET, info);
-                request.AddParameters(parameters);
-
-                RestResponse<DataPage<BannedEvent>> _response = await client.TraceExecuteAsync<BannedEvent, DataPage<BannedEvent>>(request, HandleResponse);
+                RestResponse<DataPage<BannedEvent>> _response = await client.GetPagesAsync<BannedEvent, DataPage<BannedEvent>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<BannedEvent>>(_response);
 
                 return response;
@@ -1642,23 +1070,21 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /moderation/enforcements/status
+            #region /moderation/enforcements/status - DONE
 
             /// <summary>
             /// <para>Asynchronously checks to see of a chat message meets the AutoMod requirements to be posted in chat.</para>
             /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the AutoMod status of each message on whether or not the message meets the requirements to be posted in chat.
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is not provided, empty, or contains only white space.</exception>            
             /// <exception cref="BodyParameterException">
             /// Thrown if data is not provided.
@@ -1673,55 +1099,52 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<AutoModMessageStatus>>>
-            CheckAutoModMessageStatus(HelixInfo info, AutoModMessageStatusParameters parameters)
+            CheckAutoModMessageStatus(HelixAuthorization authorization, AutoModMessageStatusParameters parameters, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.ModerationRead;
-
                 HelixResponse<Data<AutoModMessageStatus>> response = new HelixResponse<Data<AutoModMessageStatus>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.ModerationRead))
                 {
                     return response;
                 }
 
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
                 // Required parameter checks
-                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
+                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, settings))
                 {
                     return response;
                 }
 
-                // TODO: CheckAutoModMessageStatus(...) - See if the saved overhead by not making each check it's own function worth the bloat.
                 if (parameters.data.IsNull())
                 {
-                    response.SetInputError(new BodyParameterException("A required parameter is missing: " + nameof(parameters.data).WrapQuotes(), nameof(parameters.data)), info.settings);
+                    response.SetInputError(new BodyParameterException("A required parameter is missing: " + nameof(parameters.data).WrapQuotes(), nameof(parameters.data)), settings);
 
                     return response;
                 }
 
                 if (parameters.data.Count == 0)
                 {
-                    response.SetInputError(new BodyParameterCountException("At least one element must be provided for the parameter: " + nameof(parameters.data).WrapQuotes(), nameof(parameters.data), 100, parameters.data.Count), info.settings);
+                    response.SetInputError(new BodyParameterCountException("At least one element must be provided for the parameter: " + nameof(parameters.data).WrapQuotes(), nameof(parameters.data), 100, parameters.data.Count), settings);
 
                     return response;
                 }
 
                 if (parameters.data.Count > 100)
                 {
-                    response.SetInputError(new BodyParameterCountException("A maximum of " + 100 + " elements can be provided at one time for the parameter: " + nameof(parameters.data).WrapQuotes(), nameof(parameters.data), 100, parameters.data.Count), info.settings);
+                    response.SetInputError(new BodyParameterCountException("A maximum of " + 100 + " elements can be provided at one time for the parameter: " + nameof(parameters.data).WrapQuotes(), nameof(parameters.data), 100, parameters.data.Count), settings);
 
                     return response;
                 }                
 
-                List<int> indicies_null = new List<int>();
-                List<int> indicies_msg_ids_null = new List<int>();
-                List<int> indicies_msg_text_no_content = new List<int>();
-                List<int> indicies_user_ids_no_content = new List<int>();
+                List<int> indicies_null = new List<int>(parameters.data.Count);
+                List<int> indicies_msg_ids_null = new List<int>(parameters.data.Count);
+                List<int> indicies_msg_text_no_content = new List<int>(parameters.data.Count);
+                List<int> indicies_user_ids_no_content = new List<int>(parameters.data.Count);
 
                 HashSet<string> msg_ids_hash = new HashSet<string>();
                 HashSet<string> msg_ids_duplicates = new HashSet<string>();
@@ -1769,7 +1192,7 @@ TwitchNet.Rest.Helix
 
                     string message = "One or more AutoMod messages were null parameter: " + nameof(parameters.data).WrapQuotes() + Environment.NewLine + Environment.NewLine +
                                      "Indicies: " + _indicies;
-                    response.SetInputError(new BodyParameterException(message, nameof(parameters.data), _indicies), info.settings);
+                    response.SetInputError(new BodyParameterException(message, nameof(parameters.data), _indicies), settings);
 
                     return response;
                 }
@@ -1780,7 +1203,7 @@ TwitchNet.Rest.Helix
 
                     string message = "One or more AutoMod messages had a \"msg_id\" that was null." + Environment.NewLine + Environment.NewLine +
                                      "Indicies : " + _indicies;
-                    response.SetInputError(new BodyParameterException(message, "msg_id", _indicies), info.settings);
+                    response.SetInputError(new BodyParameterException(message, "msg_id", _indicies), settings);
 
                     return response;
                 }
@@ -1791,7 +1214,7 @@ TwitchNet.Rest.Helix
 
                     string message = "One or more AutoMod messages had a duplicate \"msg_id\"." + Environment.NewLine + Environment.NewLine +
                                      "Values : " + _duplicates;
-                    response.SetInputError(new BodyParameterException(message, "msg_id", _duplicates), info.settings);
+                    response.SetInputError(new BodyParameterException(message, "msg_id", _duplicates), settings);
 
                     return response;
                 }
@@ -1802,7 +1225,7 @@ TwitchNet.Rest.Helix
 
                     string message = "One or more AutoMod messages had a \"msg_txt\" that was null, empty, or contained only white space." + Environment.NewLine + Environment.NewLine +
                                      "Indicies : " + _indicies;
-                    response.SetInputError(new BodyParameterException(message, "msg_text", _indicies), info.settings);
+                    response.SetInputError(new BodyParameterException(message, "msg_text", _indicies), settings);
 
                     return response;
                 }
@@ -1813,12 +1236,12 @@ TwitchNet.Rest.Helix
 
                     string message = "One or more AutoMod messages had a \"user_id\" that was null, empty, or contained only white space." + Environment.NewLine + Environment.NewLine +
                                      "Indicies : " + _indicies;
-                    response.SetInputError(new BodyParameterException(message, "user_id", _indicies), info.settings);
+                    response.SetInputError(new BodyParameterException(message, "user_id", _indicies), settings);
 
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("moderation/enforcements/status", Method.POST, info);
+                RestRequest request = GetBaseRequest("moderation/enforcements/status", Method.POST, authorization, settings);
                 request.AddParameters(parameters);
 
                 RestResponse<Data<AutoModMessageStatus>> _response = await client.ExecuteAsync<Data<AutoModMessageStatus>>(request, HandleResponse);
@@ -1829,23 +1252,22 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /moderation/moderators
+            #region /moderation/moderators - DONE
 
             /// <summary>
-            /// <para>Asynchronously gets specific moderators or a single page of moderators users for a given broadcaster.</para>
+            /// <para>Asynchronously gets specific moderators, a single page, or a complete list of moderators users for a given broadcaster.</para>
             /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="pages">How many pages to request.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific moderators or the single page of moderators for the given broadcaster.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific moderators, the single page, or the complete list of moderators for the given broadcaster.
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if the broadcaster ID is not ptovided, empty, or contains only white space.
             /// Thrown if any user ID is null, empty, or contains only white space or any duplicate user ID's are found, if provided.
@@ -1857,25 +1279,23 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Moderator>>>
-            GetModeratorsPageAsync(HelixInfo info, ModeratorsParameters parameters)
+            GetModeratorsAsync(RequestedPages pages, HelixAuthorization authorization, ModeratorsParameters parameters, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.ModerationRead;
-
                 HelixResponse<DataPage<Moderator>> response = new HelixResponse<DataPage<Moderator>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.ModerationRead))
                 {
                     return response;
                 }
 
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
                 // Required parameter checks
-                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
+                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, settings))
                 {
                     return response;
                 }
@@ -1883,117 +1303,50 @@ TwitchNet.Rest.Helix
                 // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
 
-                if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings))
+                if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, settings))
                 {
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("moderation/moderators", Method.GET, info);
+                RestRequest request = GetBaseRequest("moderation/moderators", Method.GET, pages, authorization, settings);
                 request.AddParameters(parameters);
 
-                RestResponse<DataPage<Moderator>> _response = await client.ExecuteAsync<DataPage<Moderator>>(request, HandleResponse);
+                RestResponse<DataPage<Moderator>> _response = await client.GetPagesAsync<Moderator, DataPage<Moderator>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<Moderator>>(_response);
 
                 return response;
             }
 
             /// <summary>
-            /// <para>Asynchronously gets specific moderators or a complete list of moderators for a given broadcaster.</para>
+            /// <para>Asynchronously checks to see if a user is a moderator for a given broadcaster.</para>
             /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">A set of rest parameters.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific moderators or the complete list of moderators for the given broadcaster.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if the broadcaster ID is not provided, empty, or contains only white space.
-            /// Thrown if any user ID is null, empty, or contains only white space or any duplicate user ID's are found, if provided.
-            /// Thrown if the after or before cursor is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterCountException">Thrown if more than 100 user ID's are provided.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ModerationRead"/> scope.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<DataPage<Moderator>>>
-            GetModeratorsAsync(HelixInfo info, ModeratorsParameters parameters)
-            {
-                info.required_scopes = HelixScopes.ModerationRead;
-
-                HelixResponse<DataPage<Moderator>> response = new HelixResponse<DataPage<Moderator>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }
-
-                if (parameters.IsNull())
-                {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
-
-                    return response;
-                }
-
-                // Required parameter checks
-                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
-                {
-                    return response;
-                }
-
-                // Optional parameter checks
-                parameters.first = parameters.first.Clamp(1, 100);
-
-                if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings))
-                {
-                    return response;
-                }
-
-                RestRequest request = GetBaseRequest("moderation/moderators", Method.GET, info);
-                request.AddParameters(parameters);
-
-                RestResponse<DataPage<Moderator>> _response = await client.TraceExecuteAsync<Moderator, DataPage<Moderator>>(request, HandleResponse);
-                response = new HelixResponse<DataPage<Moderator>>(_response);
-
-                return response;
-            }
-
-            /// <summary>
-            /// Asynchronously checks to see if a user is a moderator for a given broadcaster.
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="broadcaster_id">The ID of the broadcaster.</param>
             /// <param name="user_id">The ID of the user to check.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> is set true if the user is a moderator for the given broadcaster, otherwise false.
             /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">Thrown if the broadcaster ID or user ID is not provided, empty, or contains only white space.</exception>
+            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ModerationRead"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<bool>>
-            IsUserModeratorAsync(HelixInfo info, string broadcaster_id, string user_id)
+            IsUserModeratorAsync(HelixAuthorization authorization, string broadcaster_id, string user_id, HelixRequestSettings settings)
             {
                 HelixResponse<bool> response = new HelixResponse<bool>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.ModerationRead))
                 {
                     return response;
                 }
 
                 // Explicity check for this out here since it's optional in the underlying wrapper.
-                if (!ValidateRequiredQueryParameter(nameof(user_id), user_id, response, info.settings))
+                if (!ValidateRequiredQueryParameter(nameof(user_id), user_id, response, settings))
                 {
                     return response;
                 }
@@ -2002,7 +1355,7 @@ TwitchNet.Rest.Helix
                 parameters.broadcaster_id = broadcaster_id;
                 parameters.user_ids.Add(user_id);
 
-                IHelixResponse<DataPage<Moderator>> _response = await GetModeratorsPageAsync(info, parameters);
+                IHelixResponse<DataPage<Moderator>> _response = await GetModeratorsAsync(RequestedPages.Single, authorization, parameters, settings);
 
                 bool result = _response.exception.IsNull() ? _response.result.data.IsValid() : false;
                 response = new HelixResponse<bool>(_response, result);
@@ -2012,26 +1365,25 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /moderation/moderators/events
+            #region /moderation/moderators/events - DONE
 
             /// <summary>
             /// <para>
-            /// Asynchronously gets a specific moderator event or a single page of moderator events.
+            /// Asynchronously gets a specific moderator event, a single page, or a complete list of moderator events.
             /// A modewrator event occurs when a user gains or loses moderator (OP) status.
             /// </para>
             /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="pages">How many pages to request.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific moderator event or the single page of moderator events.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific moderator event, the single page, or the complete list of moderator events.
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if neither broadcaster ID or event ID are provided or are provided at the same time.
             /// Thrown if the broadcaster ID is empty or contains only white space, if provided.
@@ -2045,19 +1397,17 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<ModeratorEvent>>>
-            GetModeratorEventsPageAsync(HelixInfo info, ModeratorEventsParameters parameters)
+            GetModeratorEventsAsync(RequestedPages pages, HelixAuthorization authorization, ModeratorEventsParameters parameters, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.ModerationRead;
-
                 HelixResponse<DataPage<ModeratorEvent>> response = new HelixResponse<DataPage<ModeratorEvent>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.ModerationRead))
                 {
                     return response;
                 }
 
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
@@ -2065,13 +1415,13 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.broadcaster_id.IsNull() && parameters.id.IsNull())
                 {
-                    response.SetInputError(new QueryParameterException("A boradcaster ID or event ID must be provided."), info.settings);
+                    response.SetInputError(new QueryParameterException("A boradcaster ID or event ID must be provided."), settings);
 
                     return response;
                 }
                 else if (!parameters.broadcaster_id.IsNull() && !parameters.id.IsNull())
                 {
-                    response.SetInputError(new QueryParameterException("Only a boradcaster ID or event ID can be provided at one time."), info.settings);
+                    response.SetInputError(new QueryParameterException("Only a boradcaster ID or event ID can be provided at one time."), settings);
 
                     return response;
                 }
@@ -2079,100 +1429,18 @@ TwitchNet.Rest.Helix
                 // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
 
-                if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.id), parameters.id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings))
+                if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.id), parameters.id, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, settings))
                 {
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("moderation/moderators/events", Method.GET, info);
+                RestRequest request = GetBaseRequest("moderation/moderators/events", Method.GET, pages, authorization, settings);
                 request.AddParameters(parameters);
 
-                RestResponse<DataPage<ModeratorEvent>> _response = await client.ExecuteAsync<DataPage<ModeratorEvent>>(request, HandleResponse);
-                response = new HelixResponse<DataPage<ModeratorEvent>>(_response);
-
-                return response;
-            }
-
-            /// <summary>
-            /// <para>
-            /// Asynchronously gets a specific moderator event or complete list of moderator events.
-            /// A modewrator event occurs when a user gains or loses moderator (OP) status.
-            /// </para>
-            /// <para>Required Scope: <see cref="HelixScopes.ModerationRead"/>.</para>
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">A set of rest parameters.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific moderator event or the complete list of moderator events.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if neither broadcaster ID or event ID are provided or are provided at the same time.
-            /// Thrown if the broadcaster ID is empty or contains only white space, if provided.
-            /// Thrown if the event ID is empty or contains only white space, if provided.
-            /// Thrown if any user ID is empty or contains only white space or any duplicate user ID's are found, if provided.
-            /// Thrown if the after cursor is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterCountException">Thrown if more than 100 user ID's are provided.</exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ModerationRead"/> scope.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<DataPage<ModeratorEvent>>>
-            GetModeratorEventsAsync(HelixInfo info, ModeratorEventsParameters parameters)
-            {
-                info.required_scopes = HelixScopes.ModerationRead;
-
-                HelixResponse<DataPage<ModeratorEvent>> response = new HelixResponse<DataPage<ModeratorEvent>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }
-
-                if (parameters.IsNull())
-                {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
-
-                    return response;
-                }
-
-                // Required parameter checks
-                if (parameters.broadcaster_id.IsNull() && parameters.id.IsNull())
-                {
-                    response.SetInputError(new QueryParameterException("A boradcaster ID or event ID must be provided."), info.settings);
-
-                    return response;
-                }
-                else if (!parameters.broadcaster_id.IsNull() && !parameters.id.IsNull())
-                {
-                    response.SetInputError(new QueryParameterException("Only a boradcaster ID or event ID can be provided at one time."), info.settings);
-
-                    return response;
-                }
-
-                // Optional parameter checks
-                parameters.first = parameters.first.Clamp(1, 100);
-
-                if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.id), parameters.id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings))
-                {
-                    return response;
-                }
-
-                RestRequest request = GetBaseRequest("moderation/moderators/events", Method.GET, info);
-                request.AddParameters(parameters);
-
-                RestResponse<DataPage<ModeratorEvent>> _response = await client.TraceExecuteAsync<ModeratorEvent, DataPage<ModeratorEvent>>(request, HandleResponse);
+                RestResponse<DataPage<ModeratorEvent>> _response = await client.GetPagesAsync<ModeratorEvent, DataPage<ModeratorEvent>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<ModeratorEvent>>(_response);
 
                 return response;
@@ -2180,84 +1448,20 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /streams
+            #region /streams - DONE
 
             /// <summary>
-            /// Asynchronously gets a single page of streams.
+            /// Asynchronously gets a single page or a complete list of streams.
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="pages">How many pages to request.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of streams.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page or the complete list of streams.
             /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if any game ID is null, empty, or contains only white space or any duplicate game ID's are found, if provided.
-            /// Thrown if any user ID is null, empty, or contains only white space or any duplicate user ID's are found, if provided.
-            /// Thrown if any user login is null, empty, or contains only white space or any duplicate user logins are found, if provided.
-            /// Thrown if the after or before cursors are empty or contain only white space, if provided.
-            /// Thrown if both after and before cursors are provided.
-            /// </exception>
-            /// <exception cref="QueryParameterCountException">
-            /// Thrown if more than 100 total game ID's are provided.
-            /// Thrown if more than 100 total user ID's are provided.
-            /// Thrown if more than 100 total user logins are provided.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<DataPage<Stream>>>
-            GetStreamsPageAsync(HelixInfo info, StreamsParameters parameters)
-            {
-                HelixResponse<DataPage<Stream>> response = new HelixResponse<DataPage<Stream>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }
-
-                // Optional parameter checks
-                if (!parameters.IsNull())
-                {
-                    parameters.first = parameters.first.Clamp(1, 100);
-
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.game_ids), parameters.game_ids, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.user_logins), parameters.user_logins, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, info.settings) ||
-                        !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out string direction))
-                    {
-                        return response;
-                    }
-                }
-
-                RestRequest request = GetBaseRequest("streams", Method.GET, info);
-                request.AddParameters(parameters);
-
-                // TODO: GetStreamsPageAsync(...) - Sanitize the list based on the stream ID and return a distinct list.
-                RestResponse<DataPage<Stream>> _response = await client.ExecuteAsync<DataPage<Stream>>(request, HandleResponse);
-                response = new HelixResponse<DataPage<Stream>>(_response);
-
-                return response;
-            }
-
-            /// <summary>
-            /// Asynchronously gets a complete list of streams.
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">A set of rest parameters.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of streams.
-            /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if any game ID is null, empty, or contains only white space or any duplicate game ID's are found, if provided.
             /// Thrown if any user ID is null, empty, or contains only white space or any duplicate user ID's are found, if provided.
@@ -2278,27 +1482,27 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Stream>>>
-            GetStreamsAsync(HelixInfo info, StreamsParameters parameters)
+            GetStreamsAsync(RequestedPages pages, HelixAuthorization authorization, StreamsParameters parameters, HelixRequestSettings settings)
             {
                 HelixResponse<DataPage<Stream>> response = new HelixResponse<DataPage<Stream>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
-                }   
+                }
 
-                string direction = "after";
+                string direction = string.Empty;
 
                 // Optional parameter checks
                 if (!parameters.IsNull())
                 {
                     parameters.first = parameters.first.Clamp(1, 100);
 
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.game_ids), parameters.game_ids, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.user_logins), parameters.user_logins, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, info.settings) ||
-                        !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out direction))
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.game_ids), parameters.game_ids, 100, response, settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.user_logins), parameters.user_logins, 100, response, settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, settings) ||
+                        !ValidateCursorDiection(parameters.after, parameters.before, response, settings, out direction))
                     {
                         return response;
                     }
@@ -2306,49 +1510,47 @@ TwitchNet.Rest.Helix
                     // TODO: /streams - GetStreamsAsync(...) - Temporarily disabling using 'before' while requesting all pages until it works properly. Reimplement 'before' when it works propery.
                     if (parameters.before.IsValid())
                     {
-                        response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
+                        response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), settings);
 
                         return response;
                     }
                 }
 
-                RestRequest request = GetBaseRequest("streams", Method.GET, info);
+                RestRequest request = GetBaseRequest("streams", Method.GET, pages, authorization, settings);
                 request.AddParameters(parameters);
 
                 // TODO: GetStreamsAsync(...) - Sanitize the list based on the stream ID and return a distinct list.
-                RestResponse<DataPage<Stream>> _response = await client.TraceExecuteAsync<Stream, DataPage<Stream>>(request, direction, HandleResponse);
+                RestResponse<DataPage<Stream>> _response = await client.GetPagesAsync<Stream, DataPage<Stream>>(request, direction, HandleResponse);
                 response = new HelixResponse<DataPage<Stream>>(_response);
 
                 return response;
             }
 
             /// <summary>
-            /// Asynchronously checks to see if a user is streaming.
+            /// Asynchronously checks to see if a user is streaming by their user ID.
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="user_id">The ID of the user to check.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> is set to true is the user is streaming, otherwise false.
             /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">Thrown if the user ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<bool>>
-            IsStreamLiveByUserIDAsync(HelixInfo info, string user_id)
+            IsStreamLiveAsync_UserID(HelixAuthorization authorization, string user_id, HelixRequestSettings settings)
             {
                 HelixResponse<bool> response = new HelixResponse<bool>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
 
-                if(!ValidateRequiredQueryParameter(nameof(user_id), user_id, response, info.settings))
+                if(!ValidateRequiredQueryParameter(nameof(user_id), user_id, response, settings))
                 {
                     return response;
                 }
@@ -2356,7 +1558,7 @@ TwitchNet.Rest.Helix
                 StreamsParameters parameters = new StreamsParameters();
                 parameters.user_ids.Add(user_id);
 
-                IHelixResponse<DataPage<Stream>> _response = await GetStreamsPageAsync(info, parameters);
+                IHelixResponse<DataPage<Stream>> _response = await GetStreamsAsync(RequestedPages.Single, authorization, parameters, settings);
 
                 bool result = _response.exception.IsNull() ? _response.result.data.IsValid() : false;
                 response = new HelixResponse<bool>(_response, result);
@@ -2365,32 +1567,30 @@ TwitchNet.Rest.Helix
             }
 
             /// <summary>
-            /// Asynchronously checks to see if a user is streaming.
+            /// Asynchronously checks to see if a user is streaming by their login.
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="user_login">The login of the user to check.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> is set to true is the user is streaming, otherwise false.
             /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">Thrown if the user login is not provided, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<bool>>
-            IsStreamLiveByUserLoginAsync(HelixInfo info, string user_login)
+            IsStreamLiveAsync_Login(HelixAuthorization authorization, string user_login, HelixRequestSettings settings)
             {
                 HelixResponse<bool> response = new HelixResponse<bool>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
 
-                if (!ValidateRequiredQueryParameter(nameof(user_login), user_login, response, info.settings))
+                if (!ValidateRequiredQueryParameter(nameof(user_login), user_login, response, settings))
                 {
                     return response;
                 }
@@ -2398,7 +1598,7 @@ TwitchNet.Rest.Helix
                 StreamsParameters parameters = new StreamsParameters();
                 parameters.user_logins.Add(user_login);
 
-                IHelixResponse<DataPage<Stream>> _response = await GetStreamsPageAsync(info, parameters);
+                IHelixResponse<DataPage<Stream>> _response = await GetStreamsAsync(RequestedPages.Single, authorization, parameters, settings);
 
                 bool result = _response.exception.IsNull() ? _response.result.data.IsValid() : false;
                 response = new HelixResponse<bool>(_response, result);
@@ -2408,7 +1608,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /streams/markers
+            #region /streams/markers - DONE
 
             /// <summary>
             /// <para>
@@ -2417,17 +1617,15 @@ TwitchNet.Rest.Helix
             /// </para>
             /// <para>Required Scope: <see cref="HelixScopes.UserEditBroadcast"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the contains stream marker.
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if the user ID not provided, empty, or contains only white space.
             /// Thrown if the description is empty or contains only white space, if provided.
@@ -2437,12 +1635,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<CreatedStreamMarker>>>
-            CreateStreamMarkerAsync(HelixInfo info, CreateStreamMarkerParameters parameters)
+            CreateStreamMarkerAsync(HelixAuthorization authorization, CreateStreamMarkerParameters parameters, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.UserEditBroadcast;
-
                 HelixResponse<DataPage<CreatedStreamMarker>> response = new HelixResponse<DataPage<CreatedStreamMarker>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.UserEditBroadcast))
                 {
                     return response;
                 }
@@ -2450,23 +1646,23 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
-                if (!ValidateRequiredBodyParameter(nameof(parameters.user_id), parameters.user_id, response, info.settings))
+                if (!ValidateRequiredBodyParameter(nameof(parameters.user_id), parameters.user_id, response, settings))
                 {
                     return response;
                 }
 
                 // Optional parameter checks
-                if (!ValidateOptionalBodyParameter(nameof(parameters.description), parameters.description, response, info.settings))
+                if (!ValidateOptionalBodyParameter(nameof(parameters.description), parameters.description, response, settings))
                 {
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("streams/markers", Method.POST, info);
+                RestRequest request = GetBaseRequest("streams/markers", Method.POST, authorization, settings);
                 request.AddParameters(parameters);
 
                 RestResponse<DataPage<CreatedStreamMarker>> _response = await client.ExecuteAsync<DataPage<CreatedStreamMarker>>(request, HandleResponse);
@@ -2476,20 +1672,19 @@ TwitchNet.Rest.Helix
             }
 
             /// <summary>
-            /// <para>Asynchronously gets a single page of stream markers (arbitray time spamps) for a user or a specific video.</para>
+            /// <para>Asynchronously gets a single page or a complete list of stream markers (arbitray time spamps) for a user or a specific video.</para>
             /// <para>Required Scope: <see cref="HelixScopes.UserReadBroadcast"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="pages">How many pages to request.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of stream markers for the user or specified video.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page or the complete list of stream markers for the user or specified video.
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if neither user ID or video ID are provided or are provided at the same time.
             /// Thrown if the user ID or video ID is empty or contains only white space, if provided.
@@ -2500,12 +1695,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<StreamMarkers>>>
-            GetStreamMarkersPageAsync(HelixInfo info, StreamMarkersParameters parameters)
+            GetStreamMarkersAsync(RequestedPages pages, HelixAuthorization authorization, StreamMarkersParameters parameters, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.UserReadBroadcast;
-
                 HelixResponse<DataPage<StreamMarkers>> response = new HelixResponse<DataPage<StreamMarkers>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.UserReadBroadcast))
                 {
                     return response;
                 }
@@ -2513,20 +1706,20 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
                 if (parameters.user_id.IsValid() && parameters.video_id.IsValid())
                 {
-                    response.SetInputError(new QueryParameterException("Only a user ID or a video ID can be provided."), info.settings);
+                    response.SetInputError(new QueryParameterException("Only a user ID or a video ID can be provided."), settings);
 
                     return response;
                 }
                 else if (!parameters.user_id.IsValid() && !parameters.video_id.IsValid())
                 {
-                    response.SetInputError(new QueryParameterException("A user ID or video ID must be provided."), info.settings);
+                    response.SetInputError(new QueryParameterException("A user ID or video ID must be provided."), settings);
 
                     return response;
                 }
@@ -2534,92 +1727,17 @@ TwitchNet.Rest.Helix
                 // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
 
-                if (!ValidateOptionalQueryParameter(nameof(parameters.user_id), parameters.user_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.video_id), parameters.video_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                if (!ValidateOptionalQueryParameter(nameof(parameters.user_id), parameters.user_id, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.video_id), parameters.video_id, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, settings))
                 {
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("streams/markers", Method.GET, info);
+                RestRequest request = GetBaseRequest("streams/markers", Method.GET, pages, authorization, settings);
                 request.AddParameters(parameters);
 
-                RestResponse<DataPage<StreamMarkers>> _response = await client.ExecuteAsync<DataPage<StreamMarkers>>(request, HandleResponse);
-                response = new HelixResponse<DataPage<StreamMarkers>>(_response);
-
-                return response;
-            }
-
-            /// <summary>
-            /// <para>Asynchronously gets a complete list of stream markers (arbitray time spamps) for a user or a specific video.</para>
-            /// <para>Required Scope: <see cref="HelixScopes.UserReadBroadcast"/>.</para>
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">A set of rest parameters.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of stream markers for the user or specified video.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if neither user ID or video ID are provided or are provided at the same time.
-            /// Thrown if the user ID or video ID is empty or contains only white space, if provided.
-            /// Thrown if the after cursor is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.UserReadBroadcast"/> scope.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<DataPage<StreamMarkers>>>
-            GetStreamMarkersAsync(HelixInfo info, StreamMarkersParameters parameters)
-            {
-                info.required_scopes = HelixScopes.UserReadBroadcast;
-
-                HelixResponse<DataPage<StreamMarkers>> response = new HelixResponse<DataPage<StreamMarkers>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }
-
-                // Required parameter checks
-                if (parameters.IsNull())
-                {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
-
-                    return response;
-                }
-
-                if (parameters.user_id.IsValid() && parameters.video_id.IsValid())
-                {
-                    response.SetInputError(new QueryParameterException("Only a user ID or a video ID can be provided."), info.settings);
-
-                    return response;
-                }
-                else if (!parameters.user_id.IsValid() && !parameters.video_id.IsValid())
-                {
-                    response.SetInputError(new QueryParameterException("A user ID or video ID must be provided."), info.settings);
-
-                    return response;
-                }
-
-                // Optional parameter checks
-                parameters.first = parameters.first.Clamp(1, 100);
-
-                if (!ValidateOptionalQueryParameter(nameof(parameters.user_id), parameters.user_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.video_id), parameters.video_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
-                {
-                    return response;
-                }
-
-                RestRequest request = GetBaseRequest("streams/markers", Method.GET, info);
-                request.AddParameters(parameters);
-
-                RestResponse<DataPage<StreamMarkers>> _response = await client.TraceExecuteAsync<StreamMarkers, DataPage<StreamMarkers>>(request, HandleResponse);
+                RestResponse<DataPage<StreamMarkers>> _response = await client.GetPagesAsync<StreamMarkers, DataPage<StreamMarkers>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<StreamMarkers>>(_response);
 
                 return response;
@@ -2627,173 +1745,29 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /streams/metadata
+            #region /streams/tags - DONE
 
             /// <summary>
-            /// Asynchronously gets a single page of streams metadata.
+            /// Asynchronously gets the tags set on a stream.
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of streams metadata.
-            /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if any game ID is null, empty, or contains only white space or any duplicate game ID's are found, if provided.
-            /// Thrown if any user ID is null, empty, or contains only white space or any duplicate user ID's are found, if provided.
-            /// Thrown if any user login is null, empty, or contains only white space or any duplicate user logins are found, if provided.
-            /// Thrown if the after or before cursors are empty or contain only white space, if provided.
-            /// Thrown if both after and before cursors are provided.
-            /// </exception>
-            /// <exception cref="QueryParameterCountException">
-            /// Thrown if more than 100 total game ID's are provided.
-            /// Thrown if more than 100 total user ID's are provided.
-            /// Thrown if more than 100 total user logins are provided.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
-            GetStreamsMetadataPageAsync(HelixInfo info, StreamsParameters parameters)
-            {
-                HelixResponse<DataPage<StreamMetadata>> response = new HelixResponse<DataPage<StreamMetadata>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }
-
-                // Optional parameter checks
-                if (!parameters.IsNull())
-                {
-                    parameters.first = parameters.first.Clamp(1, 100);
-
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.game_ids), parameters.game_ids, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.user_logins), parameters.user_logins, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, info.settings) ||
-                        !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out string direction))
-                    {
-                        return response;
-                    }
-                }
-
-                RestRequest request = GetBaseRequest("streams/metadata", Method.GET, info);
-                request.AddParameters(parameters);
-
-                RestResponse<DataPage<StreamMetadata>> _response = await client.ExecuteAsync<DataPage<StreamMetadata>>(request, HandleResponse);
-                response = new HelixResponse<DataPage<StreamMetadata>>(_response);
-
-                return response;
-            }
-
-            /// <summary>
-            /// Asynchronously gets a complete list of streams metadata.
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">A set of rest parameters.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of streams metadata.
-            /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if any game ID is null, empty, or contains only white space or any duplicate game ID's are found, if provided.
-            /// Thrown if any user ID is null, empty, or contains only white space or any duplicate user ID's are found, if provided.
-            /// Thrown if any user login is null, empty, or contains only white space or any duplicate user logins are found, if provided.
-            /// Thrown if the after or before cursors are empty or contain only white space, if provided.
-            /// Thrown if both after and before cursors are provided.
-            /// </exception>
-            /// <exception cref="QueryParameterCountException">
-            /// Thrown if more than 100 total game ID's are provided.
-            /// Thrown if more than 100 total user ID's are provided.
-            /// Thrown if more than 100 total user logins are provided.
-            /// </exception>
-            /// <exception cref="NotSupportedException">
-            /// Thrown if a before cursor is provided.
-            /// This is a temporary error and will be removed once Twitch fixes reverse pagination.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<DataPage<StreamMetadata>>>
-            GetStreamsMetadataAsync(HelixInfo info, StreamsParameters parameters)
-            {
-                HelixResponse<DataPage<StreamMetadata>> response = new HelixResponse<DataPage<StreamMetadata>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }
-
-                string direction = "after";
-
-                // Optional parameter checks
-                if (!parameters.IsNull())
-                {
-                    parameters.first = parameters.first.Clamp(1, 100);
-
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.game_ids), parameters.game_ids, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.user_logins), parameters.user_logins, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, info.settings) ||
-                        !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out direction))
-                    {
-                        return response;
-                    }
-
-                    // TODO: GetStreamsMetadataAsync(...) - Temporarily disabling using 'before' while requesting all pages until it works properly. Reimplement 'before' when it works propery.
-                    if (parameters.before.IsValid())
-                    {
-                        response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
-
-                        return response;
-                    }
-                }
-
-                RestRequest request = GetBaseRequest("streams/metadata", Method.GET, info);
-                request.AddParameters(parameters);
-                
-                RestResponse<DataPage<StreamMetadata>> _response = await client.TraceExecuteAsync<StreamMetadata, DataPage<StreamMetadata>>(request, direction, HandleResponse);
-                response = new HelixResponse<DataPage<StreamMetadata>>(_response);
-
-                return response;
-            }
-
-            #endregion
-
-            #region /streams/tags
-
-            /// <summary>
-            /// Asynchronously gets the stream tags a broadcaster has set.
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the stream tags the broadcaster has set.
             /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<StreamTag>>>
-            GetStreamsTagsAsync(HelixInfo info, StreamsTagsParameters parameters)
+            GetSetStreamTagsAsync(HelixAuthorization authorization, StreamsTagsParameters parameters, HelixRequestSettings settings)
             {
                 HelixResponse<Data<StreamTag>> response = new HelixResponse<Data<StreamTag>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
@@ -2801,17 +1775,17 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
-                if(!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
+                if(!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, settings))
                 {
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("streams/tags", Method.GET, info);
+                RestRequest request = GetBaseRequest("streams/tags", Method.GET, authorization, settings);
                 request.AddParameters(parameters);
 
                 RestResponse<Data<StreamTag>> _response = await client.ExecuteAsync<Data<StreamTag>>(request, HandleResponse);
@@ -2821,7 +1795,7 @@ TwitchNet.Rest.Helix
             }
 
             /// <summary>
-            /// <para>Asynchronously sets and overwrites a broadcaster's stream tags.</para>
+            /// <para>Asynchronously sets and overwrites a stream's tags.</para>
             /// <para>
             /// If no stream tags are specified, all stream tags are removed.
             /// The automatic tags that Twitch sets are not affected and cannot be added/removed.
@@ -2829,17 +1803,15 @@ TwitchNet.Rest.Helix
             /// </para>
             /// <para>Required scope: <see cref="HelixScopes.UserEditBroadcast"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the broadcaster's set stream tags.
             /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="BodyParameterException">Thrown if any tag ID is null, empty, or contains only white space or any duplicate tag ID's are found.</exception>
             /// <exception cref="BodyParameterCountException">Thrown if more than 5 total tag ID's are provided.</exception>
@@ -2848,12 +1820,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse>
-            SetStreamsTagsAsync(HelixInfo info, SetStreamsTagsParameters parameters)
+            SetStreamTagsAsync(HelixAuthorization authorization, SetStreamsTagsParameters parameters, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.UserEditBroadcast;
-
                 HelixResponse<Data<StreamTag>> response = new HelixResponse<Data<StreamTag>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.UserEditBroadcast))
                 {
                     return response;
                 }
@@ -2861,23 +1831,23 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
-                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
+                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, settings))
                 {
                     return response;
                 }
 
                 // Optional parameter checks
-                if(!ValidateOptionalBodyParameter(nameof(parameters.tag_ids), parameters.tag_ids, 5, response, info.settings))
+                if(!ValidateOptionalBodyParameter(nameof(parameters.tag_ids), parameters.tag_ids, 5, response, settings))
                 {
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("streams/tags", Method.PUT, info);
+                RestRequest request = GetBaseRequest("streams/tags", Method.PUT, authorization, settings);
                 request.AddParameters(parameters);
 
                 RestResponse<Data<StreamTag>> _response = await client.ExecuteAsync<Data<StreamTag>>(request, HandleResponse);
@@ -2887,38 +1857,32 @@ TwitchNet.Rest.Helix
             }
 
             /// <summary>
-            /// <para>Asynchronously removes the stream tags a broadcaster has set.</para>
-            /// <para>
-            /// The automatic tags that Twitch sets are not affected and cannot be removed.
-            /// </para>
+            /// <para>Asynchronously removes all tags set on a stream.</para>
+            /// <para>The automatic tags that Twitch sets are not affected and cannot be removed.</para>
             /// <para>Required scope: <see cref="HelixScopes.UserEditBroadcast"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">
             /// A set of rest parameters.
-            /// The tag ID's are ignored, if provided.
+            /// The tag ID's are ignored if provide.
             /// </param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the broadcaster's set stream tags.
             /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">Thrown if the broadcaster ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.UserEditBroadcast"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse>
-            RemoveStreamsTagsAsync(HelixInfo info, SetStreamsTagsParameters parameters)
+            RemoveStreamTagsAsync(HelixAuthorization authorization, SetStreamsTagsParameters parameters, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.UserEditBroadcast;
-
                 HelixResponse<Data<StreamTag>> response = new HelixResponse<Data<StreamTag>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.UserEditBroadcast))
                 {
                     return response;
                 }
@@ -2926,12 +1890,12 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
-                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
+                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, settings))
                 {
                     return response;
                 }
@@ -2939,7 +1903,7 @@ TwitchNet.Rest.Helix
                 // Optional parameter "checks"
                 parameters.tag_ids = null;
 
-                RestRequest request = GetBaseRequest("streams/tags", Method.PUT, info);
+                RestRequest request = GetBaseRequest("streams/tags", Method.PUT, authorization, settings);
                 request.AddParameters(parameters);
 
                 RestResponse<Data<StreamTag>> _response = await client.ExecuteAsync<Data<StreamTag>>(request, HandleResponse);
@@ -2950,23 +1914,22 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /subscriptions
+            #region /subscriptions - DONE
 
             /// <summary>
-            /// <para>Asynchronously gets a single page of a broadcaster's subscribers list.</para>
+            /// <para>Asynchronously gets a single page or a complete list of a broadcaster's subscribers list.</para>
             /// <para>Required Scope: <see cref="HelixScopes.ChannelReadSubscriptions"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="pages">How many pages to request.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of a broadcaster's subscribers list.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page or the complete list of a broadcaster's subscribers list.
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if the broadcaster ID is not provided, empty, or contains only white space.
             /// Thrown if the after cursor is empty or contains only white space, if provided.
@@ -2976,12 +1939,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Subscription>>>
-            GetBroadcasterSubscribersPageAsync(HelixInfo info, SubscriptionParameters parameters)
+            GetBroadcasterSubscribersAsync(RequestedPages pages, HelixAuthorization authorization, SubscriptionParameters parameters, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.ChannelReadSubscriptions;
-
                 HelixResponse<DataPage<Subscription>> response = new HelixResponse<DataPage<Subscription>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.ChannelReadSubscriptions))
                 {
                     return response;
                 }
@@ -2989,12 +1950,12 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
-                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
+                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, settings))
                 {
                     return response;
                 }
@@ -3002,79 +1963,15 @@ TwitchNet.Rest.Helix
                 // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
 
-                if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, settings))
                 {
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("subscriptions", Method.GET, info);
+                RestRequest request = GetBaseRequest("subscriptions", Method.GET, pages, authorization, settings);
                 request.AddParameters(parameters);
 
-                RestResponse<DataPage<Subscription>> _response = await client.ExecuteAsync<DataPage<Subscription>>(request, HandleResponse);
-                response = new HelixResponse<DataPage<Subscription>>(_response);
-
-                return response;
-            }
-
-            /// <summary>
-            /// <para>Asynchronously gets a broadcaster's complete subscriber list.</para>
-            /// <para>Required Scope: <see cref="HelixScopes.ChannelReadSubscriptions"/>.</para>
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">A set of rest parameters.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the broadcaster's complete subscriber list.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if the broadcaster ID is not provided, empty, or contains only white space.
-            /// Thrown if the after cursor is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ChannelReadSubscriptions"/> scope.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<DataPage<Subscription>>>
-            GetBroadcasterSubscribersAsync(HelixInfo info, SubscriptionParameters parameters)
-            {
-                info.required_scopes = HelixScopes.ChannelReadSubscriptions;
-
-                HelixResponse<DataPage<Subscription>> response = new HelixResponse<DataPage<Subscription>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }
-
-                // Required parameter checks
-                if (parameters.IsNull())
-                {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
-
-                    return response;
-                }
-
-                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings))
-                {
-                    return response;
-                }
-
-                // Optional parameter checks
-                parameters.first = parameters.first.Clamp(1, 100);
-
-                if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
-                {
-                    return response;
-                }
-
-                RestRequest request = GetBaseRequest("subscriptions", Method.GET, info);
-                request.AddParameters(parameters);
-
-                RestResponse<DataPage<Subscription>> _response = await client.TraceExecuteAsync<Subscription, DataPage<Subscription>>(request, HandleResponse);
+                RestResponse<DataPage<Subscription>> _response = await client.GetPagesAsync<Subscription, DataPage<Subscription>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<Subscription>>(_response);
 
                 return response;
@@ -3088,8 +1985,9 @@ TwitchNet.Rest.Helix
             /// </para>
             /// <para>Required Scope: <see cref="HelixScopes.ChannelReadSubscriptions"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// <para>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
@@ -3101,10 +1999,7 @@ TwitchNet.Rest.Helix
             /// </para>
             /// </returns>        
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if the broadcaster ID is not provided, empty, or contains only white space.
             /// Thrown if any user ID is null, empty, or contains only white space or any duplicate user ID's are found.
@@ -3115,12 +2010,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<Subscription>>>
-            GetSubscriptionRelationshipAsync(HelixInfo info, SubscriptionRelationshipParameters parameters)
+            GetSubscriptionRelationshipAsync(HelixAuthorization authorization, SubscriptionRelationshipParameters parameters, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.ChannelReadSubscriptions;
-
                 HelixResponse<Data<Subscription>> response = new HelixResponse<Data<Subscription>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.ChannelReadSubscriptions))
                 {
                     return response;
                 }
@@ -3128,18 +2021,18 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
-                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings) ||
-                    !ValidateRequiredQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, info.settings))
+                if (!ValidateRequiredQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, settings) ||
+                    !ValidateRequiredQueryParameter(nameof(parameters.user_ids), parameters.user_ids, 100, response, settings))
                 {
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("subscriptions", Method.GET, info);
+                RestRequest request = GetBaseRequest("subscriptions", Method.GET, authorization, settings);
                 request.AddParameters(parameters);
 
                 RestResponse<Data<Subscription>> _response = await client.ExecuteAsync<Data<Subscription>>(request, HandleResponse);
@@ -3152,26 +2045,24 @@ TwitchNet.Rest.Helix
             /// <para>Asynchronously checks to see if the from_id user is following the to_id user.</para>
             /// <para>Required Scope: <see cref="HelixScopes.ChannelReadSubscriptions"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="broadcaster_id">The user ID of the broadcaster.</param>
             /// <param name="user_id">The ID of the possibly subscribed user.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> is set true if from_id is following to_id, otherwise false.
             /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">Thrown if the broadcaster ID or user ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<bool>>
-            IsUserSubscribedAsync(HelixInfo info, string broadcaster_id, string user_id)
+            IsUserSubscribedAsync(HelixAuthorization authorization, string broadcaster_id, string user_id, HelixRequestSettings settings)
             {
                 HelixResponse<bool> response = new HelixResponse<bool>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.ChannelReadSubscriptions))
                 {
                     return response;
                 }
@@ -3179,7 +2070,7 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
 
                 // No need to check broadcaster ID here since it's checked later before the request is executed.
-                if (!ValidateRequiredQueryParameter(nameof(user_id), user_id, response, info.settings))
+                if (!ValidateRequiredQueryParameter(nameof(user_id), user_id, response, settings))
                 {
                     return response;
                 }
@@ -3188,7 +2079,7 @@ TwitchNet.Rest.Helix
                 parameters.broadcaster_id = broadcaster_id;
                 parameters.user_ids.Add(user_id);
 
-                IHelixResponse<Data<Subscription>> _response = await GetSubscriptionRelationshipAsync(info, parameters);
+                IHelixResponse<Data<Subscription>> _response = await GetSubscriptionRelationshipAsync(authorization, parameters, settings);
 
                 bool result = _response.exception.IsNull() ? _response.result.data.IsValid() : false;
                 response = new HelixResponse<bool>(_response, result);
@@ -3198,26 +2089,25 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /subscriptions/events
+            #region /subscriptions/events - DONE
 
             /// <summary>
             /// <para>
-            /// Asynchronously gets a specific subscription event or a single page of subscription events over the last 5 days.
+            /// Asynchronously gets a specific subscription event, a single page, or a complete list of subscription events over the last 5 days.
             /// A subscription event occurs when a user subscribed, unsubscribes, or send a notification message in chat.
             /// </para>
             /// <para>Required Scope: <see cref="HelixScopes.ChannelReadSubscriptions"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="pages">How many pages to request.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific subscription event or the single page of subscription events.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific subscription event, the single page, or the complete list of subscription events.
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if neither broadcaster ID or event ID are provided or are provided at the same time.
             /// Thrown if the broadcaster ID is empty or contains only white space, if provided.
@@ -3230,19 +2120,17 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<SubscriptionEvent>>>
-            GetSubscriptionEventsPageAsync(HelixInfo info, SubscriptionEventsParameters parameters)
+            GetSubscriptionEventsAsync(RequestedPages pages, HelixAuthorization authorization, SubscriptionEventsParameters parameters, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.ChannelReadSubscriptions;
-
                 HelixResponse<DataPage<SubscriptionEvent>> response = new HelixResponse<DataPage<SubscriptionEvent>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.ChannelReadSubscriptions))
                 {
                     return response;
                 }
 
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
@@ -3250,13 +2138,13 @@ TwitchNet.Rest.Helix
                 // Required parameter checks 
                 if (parameters.broadcaster_id.IsNull() && parameters.id.IsNull())
                 {
-                    response.SetInputError(new QueryParameterException("A boradcaster ID or event ID must be provided."), info.settings);
+                    response.SetInputError(new QueryParameterException("A boradcaster ID or event ID must be provided."), settings);
 
                     return response;
                 }
                 else if (!parameters.broadcaster_id.IsNull() && !parameters.id.IsNull())
                 {
-                    response.SetInputError(new QueryParameterException("Only a boradcaster ID or event ID can be provided at one time."), info.settings);
+                    response.SetInputError(new QueryParameterException("Only a boradcaster ID or event ID can be provided at one time."), settings);
 
                     return response;
                 }
@@ -3270,102 +2158,18 @@ TwitchNet.Rest.Helix
                     parameters.after = null;
                 }
 
-                if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.id), parameters.id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.user_id), parameters.user_id, response, info.settings))
+                if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.id), parameters.id, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.user_id), parameters.user_id, response, settings))
                 {
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("subscriptions/events", Method.GET, info);
+                RestRequest request = GetBaseRequest("subscriptions/events", Method.GET, pages, authorization, settings);
                 request.AddParameters(parameters);
 
-                RestResponse<DataPage<SubscriptionEvent>> _response = await client.ExecuteAsync<DataPage<SubscriptionEvent>>(request, HandleResponse);
-                response = new HelixResponse<DataPage<SubscriptionEvent>>(_response);
-
-                return response;
-            }
-
-            /// <summary>
-            /// <para>
-            /// Asynchronously gets a specific subscription event or a complete list of subscription events.
-            /// A subscription event occurs when a user subscribed, unsubscribes, or send a notification message in chat.
-            /// </para>
-            /// <para>Required Scope: <see cref="HelixScopes.ChannelReadSubscriptions"/>.</para>
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">A set of rest parameters.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the specific subscription event or the complete list of subscription events.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">Thrown if the Bearer token is null, empty, or contains only white space.</exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if neither broadcaster ID or event ID are provided or are provided at the same time.
-            /// Thrown if the broadcaster ID is empty or contains only white space, if provided.
-            /// Thrown if the event ID is empty or contains only white space, if provided.
-            /// Thrown if the user ID is empty or contains only white space, if provided.
-            /// Thrown if the after cursor is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.ChannelReadSubscriptions"/> scope.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<DataPage<SubscriptionEvent>>>
-            GetSubscriptionEventsAsync(HelixInfo info, SubscriptionEventsParameters parameters)
-            {
-                info.required_scopes = HelixScopes.ChannelReadSubscriptions;
-
-                HelixResponse<DataPage<SubscriptionEvent>> response = new HelixResponse<DataPage<SubscriptionEvent>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }
-
-                if (parameters.IsNull())
-                {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
-
-                    return response;
-                }
-
-                // Required parameter checks 
-                if (parameters.broadcaster_id.IsNull() && parameters.id.IsNull())
-                {
-                    response.SetInputError(new QueryParameterException("A boradcaster ID or event ID must be provided."), info.settings);
-
-                    return response;
-                }
-                else if (!parameters.broadcaster_id.IsNull() && !parameters.id.IsNull())
-                {
-                    response.SetInputError(new QueryParameterException("Only a boradcaster ID or event ID can be provided at one time."), info.settings);
-
-                    return response;
-                }
-
-                // Optional parameter checks
-                parameters.first = parameters.first.Clamp(1, 100);
-
-                if (parameters.user_id.HasContent())
-                {
-                    // Pagination is ignored if a user ID was provided.
-                    parameters.after = null;
-                }
-
-                if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.broadcaster_id), parameters.broadcaster_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.id), parameters.id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.user_id), parameters.user_id, response, info.settings))
-                {
-                    return response;
-                }
-
-                RestRequest request = GetBaseRequest("subscriptions/events", Method.GET, info);
-                request.AddParameters(parameters);
-
-                RestResponse<DataPage<SubscriptionEvent>> _response = await client.TraceExecuteAsync<SubscriptionEvent, DataPage<SubscriptionEvent>>(request, HandleResponse);
+                RestResponse<DataPage<SubscriptionEvent>> _response = await client.GetPagesAsync<SubscriptionEvent, DataPage<SubscriptionEvent>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<SubscriptionEvent>>(_response);
 
                 return response;
@@ -3373,21 +2177,20 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /tags/streams
+            #region /tags/streams - DONE
 
             /// <summary>
-            /// Asynchronously gets specific stream tags, or a single page of stream tags.
+            /// Asynchronously gets specific stream tags, a single page, or a complete list of available stream stream tags.
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="pages">How many pages to request.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> containts the specific stream tags, or the single page of stream tags.
+            /// <see cref="IHelixResponse{result_type}.result"/> containts the specific stream tags, the single page, or the complete list of available stream tags.
             /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if any tag ID is null, empty, or contains only white space or any duplicate tag ID's are found, if provided.
             /// Thrown if the after cursor is empty or contains only white space, if provided.
@@ -3397,10 +2200,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<StreamTag>>>
-            GetStreamTagsPageAsync(HelixInfo info, StreamTagsParameters parameters)
+            GetStreamTagsAsync(RequestedPages pages, HelixAuthorization authorization, StreamTagsParameters parameters, HelixRequestSettings settings)
             {
                 HelixResponse<DataPage<StreamTag>> response = new HelixResponse<DataPage<StreamTag>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
@@ -3409,8 +2212,8 @@ TwitchNet.Rest.Helix
                 if (!parameters.IsNull())
                 {
                     
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.tag_ids), parameters.tag_ids, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.tag_ids), parameters.tag_ids, 100, response, settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, settings))
                     {
                         return response;
                     }
@@ -3426,70 +2229,10 @@ TwitchNet.Rest.Helix
                     }
                 }                
 
-                RestRequest request = GetBaseRequest("tags/streams", Method.GET, info);
+                RestRequest request = GetBaseRequest("tags/streams", Method.GET, pages, authorization, settings);
                 request.AddParameters(parameters);
 
-                RestResponse<DataPage<StreamTag>> _response = await client.ExecuteAsync<DataPage<StreamTag>>(request, HandleResponse);
-                response = new HelixResponse<DataPage<StreamTag>>(_response);
-
-                return response;
-            }
-
-            /// <summary>
-            /// Asynchronously gets specific stream tags, or a complete list of stream tags.
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">A set of rest parameters.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> containts the specific stream tags, or the complete list of stream tags.
-            /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if any tag ID is null, empty, or contains only white space or any duplicate tag ID's are found, if provided.
-            /// Thrown if the after cursor is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterCountException">Thrown if more than 100 total tag ID's are provided.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<DataPage<StreamTag>>>
-            GetStreamTagsAsync(HelixInfo info, StreamTagsParameters parameters)
-            {
-                HelixResponse<DataPage<StreamTag>> response = new HelixResponse<DataPage<StreamTag>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }
-
-                // Optional parameter checks
-                if (!parameters.IsNull())
-                {
-
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.tag_ids), parameters.tag_ids, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
-                    {
-                        return response;
-                    }
-
-                    if (parameters.tag_ids.IsValid())
-                    {
-                        parameters.first = null;
-                        parameters.after = null;
-                    }
-                    else
-                    {
-                        parameters.first = parameters.first.Clamp(1, 100);
-                    }
-                }
-
-                RestRequest request = GetBaseRequest("tags/streams", Method.GET, info);
-                request.AddParameters(parameters);
-
-                RestResponse<DataPage<StreamTag>> _response = await client.TraceExecuteAsync<StreamTag, DataPage<StreamTag>>(request, HandleResponse);
+                RestResponse<DataPage<StreamTag>> _response = await client.GetPagesAsync<StreamTag, DataPage<StreamTag>>(request, HandleResponse);
                 response = new HelixResponse<DataPage<StreamTag>>(_response);
 
                 return response;
@@ -3497,7 +2240,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /users
+            #region /users - DONE
 
             /// <summary>
             /// <para>Asynchronously gets a list of users.</para>
@@ -3506,20 +2249,18 @@ TwitchNet.Rest.Helix
             /// If a Bearer token is provided provided, the email of the associated user is included in the response.
             /// </para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">
             /// A set of rest parameters.
             /// If parameters are not provided, the user is looked up by the specified bearer token.            
             /// </param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the list of users.
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null and no Bearer token is provided.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if any user ID or user login is null, empty, or contains only white space.
             /// Thrown if any duplicate user ID's or user names are found.
@@ -3529,18 +2270,18 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<User>>>
-            GetUsersAsync(HelixInfo info, UsersParameters parameters)
+            GetUsersAsync(HelixAuthorization authorization, UsersParameters parameters, HelixRequestSettings settings)
             {
                 HelixResponse<Data<User>> response = new HelixResponse<Data<User>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
 
                 // Required parameter checks
-                if (info.bearer_token.IsNull() && parameters.IsNull())
+                if (authorization.bearer_token.IsNull() && parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException("Parameters must be provided when no Bearer token is provided.", nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException("Parameters must be provided when no Bearer token is provided.", nameof(parameters)), settings);
 
                     return response;
                 }
@@ -3550,7 +2291,7 @@ TwitchNet.Rest.Helix
                 {
                     if (!parameters.ids.IsValid() && !parameters.logins.IsValid())
                     {
-                        response.SetInputError(new QueryParameterCountException("At least one user ID or user login must be provided.", 100, 0), info.settings);
+                        response.SetInputError(new QueryParameterCountException("At least one user ID or user login must be provided.", 100, 0), settings);
 
                         return response;
                     }
@@ -3558,21 +2299,21 @@ TwitchNet.Rest.Helix
                     int count = parameters.ids.Count + parameters.logins.Count;
                     if (count > 100)
                     {
-                        response.SetInputError(new QueryParameterCountException("A maximum of 100 total user ID's and/or logins can be provided at one time.", 100, count), info.settings);
+                        response.SetInputError(new QueryParameterCountException("A maximum of 100 total user ID's and/or logins can be provided at one time.", 100, count), settings);
 
                         return response;
                     }
 
                     // This will perform count checks again, but they will never be triggered if we get this far.
                     // This is really for checking for duplicates and no content indicies.
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, info.settings) ||
-                        !ValidateOptionalQueryParameter(nameof(parameters.logins), parameters.logins, 100, response, info.settings))
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, settings) ||
+                        !ValidateOptionalQueryParameter(nameof(parameters.logins), parameters.logins, 100, response, settings))
                     {
                         return response;
                     }
                 }                
 
-                RestRequest request = GetBaseRequest("users", Method.GET, info);
+                RestRequest request = GetBaseRequest("users", Method.GET, authorization, settings);
                 request.AddParameters(parameters);
 
                 RestResponse<Data<User>> _response = await client.ExecuteAsync<Data<User>>(request, HandleResponse);
@@ -3588,27 +2329,25 @@ TwitchNet.Rest.Helix
             /// </para>
             /// <para>Required scope: <see cref="HelixScopes.UserEdit"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="description">The text to set the user's description to.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains updated user information.
             /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.UserEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<User>>>
-            SetUserDescriptionAsync(HelixInfo info, string description)
+            SetUserDescriptionAsync(HelixAuthorization authorization, string description, HelixRequestSettings settings)
             {
                 DescriptionParameters parameters = new DescriptionParameters();
                 parameters.description = description;
 
-                IHelixResponse<Data<User>> response = await SetUserDescriptionAsync(info, parameters);
+                IHelixResponse<Data<User>> response = await SetUserDescriptionAsync(authorization, parameters, settings);
 
                 return response;
             }
@@ -3620,28 +2359,24 @@ TwitchNet.Rest.Helix
             /// </para>
             /// <para>Required scope: <see cref="HelixScopes.UserEdit"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains updated user information.
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.UserEdit"/> scope.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<User>>>
-            SetUserDescriptionAsync(HelixInfo info, DescriptionParameters parameters)
+            SetUserDescriptionAsync(HelixAuthorization authorization, DescriptionParameters parameters, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.UserEdit;
-
                 HelixResponse<Data<User>> response = new HelixResponse<Data<User>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.UserEdit))
                 {
                     return response;
                 }
@@ -3649,7 +2384,7 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
@@ -3660,7 +2395,7 @@ TwitchNet.Rest.Helix
                     parameters.description = string.Empty;
                 }
 
-                RestRequest request = GetBaseRequest("users", Method.PUT, info);
+                RestRequest request = GetBaseRequest("users", Method.PUT, authorization, settings);
                 request.AddParameters(parameters);
 
                 RestResponse<Data<User>> _response = await client.ExecuteAsync<Data<User>>(request, HandleResponse);
@@ -3671,7 +2406,7 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /users/extensions
+            #region /users/extensions - DONE
 
             /// <summary>
             /// <para>
@@ -3680,37 +2415,35 @@ TwitchNet.Rest.Helix
             /// </para>
             /// <para>Optional scopes: <see cref="HelixScopes.UserReadBroadcast"/> or <see cref="HelixScopes.UserEditBroadcast"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">
             /// A set of rest parameters.
             /// If no user ID is specified, the user is implicityly specified from the bearer token.
             /// </param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the list of extensions a user has active.
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null and no Bearer token is provided.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">Thrown if the user ID is empty or contains only white space, if provided.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<ActiveExtensions>>
-            GetUserActiveExtensionsAsync(HelixInfo info, ActiveExtensionsParameters parameters)
+            GetUserActiveExtensionsAsync(HelixAuthorization authorization, ActiveExtensionsParameters parameters, HelixRequestSettings settings)
             {
                 HelixResponse<ActiveExtensions> response = new HelixResponse<ActiveExtensions>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
 
                 // Required parameter checks
-                if (info.bearer_token.IsNull() && parameters.IsNull())
+                if (authorization.bearer_token.IsNull() && parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException("Parameters must be provided when no Bearer token is provided.", nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException("Parameters must be provided when no Bearer token is provided.", nameof(parameters)), settings);
 
                     return response;
                 }
@@ -3718,13 +2451,13 @@ TwitchNet.Rest.Helix
                 // Optional parameter checks
                 if (!parameters.IsNull())
                 {
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.user_id), parameters.user_id, response, info.settings))
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.user_id), parameters.user_id, response, settings))
                     {
                         return response;
                     }
                 }
 
-                RestRequest request = GetBaseRequest("users/extensions", Method.GET, info);
+                RestRequest request = GetBaseRequest("users/extensions", Method.GET, authorization, settings);
                 request.AddParameters(parameters);
 
                 RestResponse<ActiveExtensions> _response = await client.ExecuteAsync<ActiveExtensions>(request, HandleResponse);
@@ -3740,7 +2473,7 @@ TwitchNet.Rest.Helix
             /// </para>
             /// <para>Required scope: <see cref="HelixScopes.UserEditBroadcast"/>.</para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">
             /// <para>A set of rest parameters.</para>
             /// <para>
@@ -3748,15 +2481,13 @@ TwitchNet.Rest.Helix
             /// The supported extension slots for each type are specified under each <see cref="ActiveExtensionsData"/> member.
             /// </para>
             /// </param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the updated active extensions information.
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="BodyParameterException">
             /// Thrown if no supported extension slots are found across all extension types.
             /// Thrown if thwe parameters data is null.
@@ -3769,12 +2500,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<ActiveExtensions>>
-            UpdateUserActiveExtensionsAsync(HelixInfo info, UpdateExtensionsParameters parameters)
+            UpdateUserActiveExtensionsAsync(HelixAuthorization authorization, UpdateExtensionsParameters parameters, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.UserEditBroadcast;
-
                 HelixResponse<ActiveExtensions> response = new HelixResponse<ActiveExtensions>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.UserEditBroadcast))
                 {
                     return response;
                 }
@@ -3783,31 +2512,31 @@ TwitchNet.Rest.Helix
                 // It shouldn't be allowed. Don't allow any of this.
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
                 if (parameters.data.IsNull())
                 {
-                    response.SetInputError(new BodyParameterException("Value cannot be null", nameof(parameters.data), parameters.data), info.settings);
+                    response.SetInputError(new BodyParameterException("Value cannot be null", nameof(parameters.data), parameters.data), settings);
 
                     return response;
                 }
 
-                parameters.data.panel = ValidateExtensionSlots(parameters.data.panel, ExtensionType.Panel, response, info.settings);
+                parameters.data.panel = ValidateExtensionSlots(parameters.data.panel, ExtensionType.Panel, response, settings);
                 if (!response.exception.IsNull())
                 {
                     return response;
                 }
 
-                parameters.data.overlay = ValidateExtensionSlots(parameters.data.overlay, ExtensionType.Overlay, response, info.settings);
+                parameters.data.overlay = ValidateExtensionSlots(parameters.data.overlay, ExtensionType.Overlay, response, settings);
                 if (!response.exception.IsNull())
                 {
                     return response;
                 }
 
-                parameters.data.component = ValidateExtensionSlots(parameters.data.component, ExtensionType.Component, response, info.settings);
+                parameters.data.component = ValidateExtensionSlots(parameters.data.component, ExtensionType.Component, response, settings);
                 if (!response.exception.IsNull())
                 {
                     return response;
@@ -3815,17 +2544,17 @@ TwitchNet.Rest.Helix
 
                 if (!parameters.data.component.IsValid() && !parameters.data.panel.IsValid() && !parameters.data.overlay.IsValid())
                 {
-                    response.SetInputError(new BodyParameterException("No supported extension slots were provided, or all supported extension slots were null."), info.settings);
+                    response.SetInputError(new BodyParameterException("No supported extension slots were provided, or all supported extension slots were null."), settings);
 
                     return response;
                 }
 
-                if (!ValidateUniqueExtensionIDs(parameters.data, response, info.settings))
+                if (!ValidateUniqueExtensionIDs(parameters.data, response, settings))
                 {
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("users/extensions", Method.PUT, info);
+                RestRequest request = GetBaseRequest("users/extensions", Method.PUT, authorization, settings);
                 request.AddParameters(parameters);
 
                 RestResponse<ActiveExtensions> _response = await client.ExecuteAsync<ActiveExtensions>(request, HandleResponse);
@@ -4005,31 +2734,27 @@ TwitchNet.Rest.Helix
             /// </para>
             /// <para>Required Scope: <see cref="HelixScopes.UserReadBroadcast"/></para>
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of extensions the user has instlled, activated or deactivated..
             /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if the Bearer token is not provided, empty, or contains only white space.
-            /// Thrown if the Client ID is empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="AvailableScopesException">Thrown if the available scopes does not include the <see cref="HelixScopes.UserReadBroadcast"/> scope</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<Data<Extension>>>
-            GetUserExtensionsAsync(HelixInfo info)
+            GetUserExtensionsAsync(HelixAuthorization authorization, HelixRequestSettings settings)
             {
-                info.required_scopes = HelixScopes.UserReadBroadcast;
-
                 HelixResponse<Data<Extension>> response = new HelixResponse<Data<Extension>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response, HelixScopes.UserReadBroadcast))
                 {
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("users/extensions/list", Method.GET, info);
+                RestRequest request = GetBaseRequest("users/extensions/list", Method.GET, authorization, settings);
 
                 RestResponse<Data<Extension>> _response = await client.ExecuteAsync<Data<Extension>>(request, HandleResponse);
                 response = new HelixResponse<Data<Extension>>(_response);
@@ -4039,25 +2764,23 @@ TwitchNet.Rest.Helix
 
             #endregion
 
-            #region /users/follows
+            #region /users/follows - DONE
 
             /// <summary>
-            /// Asynchronously gets a single page of a user's following list.
+            /// Asynchronously gets a single page or the complete list of a user's following list.
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">
             /// A set of rest parameters.
             /// If provided, to_id is ignored.
             /// </param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of a user's following list.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page or the complete user's following list.
             /// </returns>
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if the from_id is not provided, empty, or contains only white space.
             /// Thrown if the after cursor is empty or contains only white space, if provided.
@@ -4066,10 +2789,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowingPageAsync(HelixInfo info, FollowsParameters parameters)
+            GetUserFollowingAsync(RequestedPages pages, HelixAuthorization authorization, FollowsParameters parameters, HelixRequestSettings settings)
             {
                 HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
@@ -4077,93 +2800,38 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
-                if(!ValidateRequiredQueryParameter(nameof(parameters.from_id), parameters.from_id, response, info.settings))
+                if(!ValidateRequiredQueryParameter(nameof(parameters.from_id), parameters.from_id, response, settings))
                 {
                     return response;
                 }
 
                 parameters.to_id = null;
 
-                response = await GetUserFollowsRelationshipPageAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
+                response = await GetUserFollowsRelationshipAsync(pages, authorization, parameters, settings) as HelixResponse<FollowsDataPage<Follow>>;
 
                 return response;
             }
 
             /// <summary>
-            /// Asynchronously gets a user's complete following list.
+            /// Asynchronously gets a single page or a complete list of a user's followers list.
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">
-            /// A set of rest parameters.
-            /// If provided, to_id is ignored.
-            /// </param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the user's complete following list.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if the from_id is not provided, empty, or contains only white space.
-            /// Thrown if the after cursor is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowingAsync(HelixInfo info, FollowsParameters parameters)
-            {
-                HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }
-
-                // Required parameter checks
-                if (parameters.IsNull())
-                {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
-
-                    return response;
-                }
-
-                if (!ValidateRequiredQueryParameter(nameof(parameters.from_id), parameters.from_id, response, info.settings))
-                {
-                    return response;
-                }
-
-                parameters.to_id = null;
-
-                response = await GetUserFollowsRelationshipAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
-
-                return response;
-            }
-
-            /// <summary>
-            /// Asynchronously gets a single page of a user's followers list.
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">
             /// A set of rest parameters.
             /// If provided, from_id is ignored.
             /// </param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of a user's followers list.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page or the complete user's followers list.
             /// </returns>        
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if the to_id is not provided, empty, or contains only white space.
             /// Thrown if the after cursor is empty or contains only white space, if provided.
@@ -4172,10 +2840,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowersPageAsync(HelixInfo info, FollowsParameters parameters)
+            GetUserFollowersAsync(RequestedPages pages, HelixAuthorization authorization, FollowsParameters parameters, HelixRequestSettings settings)
             {
                 HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
@@ -4183,72 +2851,19 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
-                if (!ValidateRequiredQueryParameter(nameof(parameters.to_id), parameters.to_id, response, info.settings))
+                if (!ValidateRequiredQueryParameter(nameof(parameters.to_id), parameters.to_id, response, settings))
                 {
                     return response;
                 }
 
                 parameters.from_id = null;
 
-                response = await GetUserFollowsRelationshipPageAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
-
-                return response;
-            }
-
-            /// <summary>
-            /// Asynchronously gets a user's complete follower list.
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">
-            /// A set of rest parameters.
-            /// If provided, from_id is ignored.
-            /// </param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the user's complete follower list.
-            /// </returns>  
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if the to_id is not provided, empty, or contains only white space.
-            /// Thrown if the after cursor is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowersAsync(HelixInfo info, FollowsParameters parameters)
-            {
-                HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }
-
-                // Required parameter checks
-                if (parameters.IsNull())
-                {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
-
-                    return response;
-                }
-
-                if (!ValidateRequiredQueryParameter(nameof(parameters.to_id), parameters.to_id, response, info.settings))
-                {
-                    return response;
-                }
-
-                parameters.from_id = null;
-
-                response = await GetUserFollowsRelationshipAsync(info, parameters) as HelixResponse<FollowsDataPage<Follow>>;
+                response = await GetUserFollowsRelationshipAsync(pages, authorization, parameters, settings) as HelixResponse<FollowsDataPage<Follow>>;
 
                 return response;
             }
@@ -4256,40 +2871,38 @@ TwitchNet.Rest.Helix
             /// <summary>
             /// Asynchronously checks to see if the from_id user is following the to_id user.
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="from_id">The ID of the following user.</param>
             /// <param name="to_id">The ID of the followed user.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
             /// <see cref="IHelixResponse{result_type}.result"/> is set true if from_id is following to_id, otherwise false.
             /// </returns>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">Thrown if from_id or to_id are not provided, empty, or contains only white space.</exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<bool>>
-            IsUserFollowingAsync(HelixInfo info, string from_id, string to_id)
+            IsUserFollowingAsync(HelixAuthorization authorization, string from_id, string to_id, HelixRequestSettings settings)
             {
                 HelixResponse<bool> response = new HelixResponse<bool>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
 
                 // Required parameter checks
-                if (!ValidateRequiredQueryParameter(nameof(to_id), to_id, response, info.settings) ||
-                    !ValidateRequiredQueryParameter(nameof(from_id), from_id, response, info.settings))
+                if (!ValidateRequiredQueryParameter(nameof(to_id), to_id, response, settings) ||
+                    !ValidateRequiredQueryParameter(nameof(from_id), from_id, response, settings))
                 {
                     return response;
                 }
 
                 FollowsParameters parameters = new FollowsParameters(from_id, to_id);
 
-                IHelixResponse<FollowsDataPage<Follow>> _response = await GetUserFollowsRelationshipPageAsync(info, parameters);
+                IHelixResponse<FollowsDataPage<Follow>> _response = await GetUserFollowsRelationshipAsync(RequestedPages.Single, authorization, parameters, settings);
 
                 bool result = _response.exception.IsNull() ? _response.result.data.IsValid() : false;
                 response = new HelixResponse<bool>(_response, result);
@@ -4298,22 +2911,21 @@ TwitchNet.Rest.Helix
             }
 
             /// <summary>
-            /// Asynchronously gets the follow relationship between two users, or a single page of a user's following/follower list.
+            /// Asynchronously gets the follow relationship between two users, a single page, or a complete list of a user's following/follower list.
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="pages">How many pages to request.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">
             /// <para>A set of rest parameters.</para>
             /// <para>At minimum, from_id or to_id must be provided.</para>
             /// </param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the user relationship page, or a single page of the following/follower list of one user.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the user relationship page, the single page, or the complete following/follower list of one user.
             /// </returns> 
             /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if neither from_id and to_id are provided.
             /// Thrown if from_id or to_id are empty or contains only white space, if provided.
@@ -4323,10 +2935,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowsRelationshipPageAsync(HelixInfo info, FollowsParameters parameters)
+            GetUserFollowsRelationshipAsync(RequestedPages pages, HelixAuthorization authorization, FollowsParameters parameters, HelixRequestSettings settings)
             {
                 HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
@@ -4334,14 +2946,14 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
                 if (!parameters.to_id.IsValid() && !parameters.from_id.IsValid())
                 {
-                    response.SetInputError(new QueryParameterException("At minimum, a from_id or to_id must be provided and cannot be empty or contain only white space."), info.settings);
+                    response.SetInputError(new QueryParameterException("At minimum, a from_id or to_id must be provided and cannot be empty or contain only white space."), settings);
 
                     return response;
                 }
@@ -4349,85 +2961,17 @@ TwitchNet.Rest.Helix
                 // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
 
-                if (!ValidateOptionalQueryParameter(nameof(parameters.to_id), parameters.to_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.from_id), parameters.from_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                if (!ValidateOptionalQueryParameter(nameof(parameters.to_id), parameters.to_id, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.from_id), parameters.from_id, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, settings))
                 {
                     return response;
                 }
 
-                RestRequest request = GetBaseRequest("users/follows", Method.GET, info);
+                RestRequest request = GetBaseRequest("users/follows", Method.GET, pages, authorization, settings);
                 request.AddParameters(parameters);
 
-                RestResponse<FollowsDataPage<Follow>> _response = await client.ExecuteAsync<FollowsDataPage<Follow>>(request, HandleResponse);
-                response = new HelixResponse<FollowsDataPage<Follow>>(_response);
-
-                return response;
-            }
-
-            /// <summary>
-            /// Asynchronously gets the follow relationship between two users, or a user's complete following/follower list.
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">
-            /// <para>A set of rest parameters.</para>
-            /// <para>At minimum, from_id or to_id must be provided.</para>
-            /// </param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the user relationship, or the complete following/follower list of one user.
-            /// </returns>        
-            /// <exception cref="ArgumentNullException">Thrown if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if neither from_id and to_id are provided.
-            /// Thrown if from_id or to_id are empty or contains only white space, if provided.
-            /// Thrown if the after cursor is empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<FollowsDataPage<Follow>>>
-            GetUserFollowsRelationshipAsync(HelixInfo info, FollowsParameters parameters)
-            {
-                HelixResponse<FollowsDataPage<Follow>> response = new HelixResponse<FollowsDataPage<Follow>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }
-
-                // Required parameter checks
-                if (parameters.IsNull())
-                {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
-
-                    return response;
-                }
-
-                if (!parameters.to_id.IsValid() && !parameters.from_id.IsValid())
-                {
-                    response.SetInputError(new QueryParameterException("At minimum, a from_id or to_id must be provided and cannot be empty or contain only white space."), info.settings);
-
-                    return response;
-                }
-
-                // Optional parameter checks
-                parameters.first = parameters.first.Clamp(1, 100);
-
-                if (!ValidateOptionalQueryParameter(nameof(parameters.to_id), parameters.to_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.from_id), parameters.from_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
-                {
-                    return response;
-                }
-
-                RestRequest request = GetBaseRequest("users/follows", Method.GET, info);
-                request.AddParameters(parameters);
-
-                RestResponse<FollowsDataPage<Follow>> _response = await client.TraceExecuteAsync<Follow, FollowsDataPage<Follow>>(request, HandleResponse);
+                RestResponse<FollowsDataPage<Follow>> _response = await client.GetPagesAsync<Follow, FollowsDataPage<Follow>>(request, HandleResponse);
                 response = new HelixResponse<FollowsDataPage<Follow>>(_response);
 
                 return response;
@@ -4438,19 +2982,18 @@ TwitchNet.Rest.Helix
             #region /videos
 
             /// <summary>
-            /// Asynchronously gets specific videos, or a single page of videos.
+            /// Asynchronously gets specific videos, a single page, or a complete list of videos.
             /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
+            /// <param name="pages">How many pages to request.</param>
+            /// <param name="authorization">Information used to authorize and/or authenticate the request.</param>
             /// <param name="parameters">A set of rest parameters.</param>
+            /// <param name="settings">Information used to detemrtine how to handle assembling the requst and process response.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> containts the specific videos, or the single page of videos.
+            /// <see cref="IHelixResponse{result_type}.result"/> containts the specific videos, the single page, or complete list of videos.
             /// </returns>
             /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
+            /// <exception cref="HeaderParameterException">Thrown if the Bearer token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">
             /// Thrown if after and before are provided.
             /// Thrown if no video ID's, game ID, or user ID are provided.
@@ -4463,14 +3006,18 @@ TwitchNet.Rest.Helix
             /// Thrown if more than 100 video ID's are provided.            
             /// </exception>
             /// <exception cref="RestParameterCountException">Thrown if more than 100 total video ID's are provided.</exception>
+            /// <exception cref="NotSupportedException">
+            /// Thrown if a before cursor is provided.
+            /// This is a temporary error and will be removed once Twitch fixes reverse pagination.
+            /// </exception>
             /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<DataPage<Video>>>
-            GetVideosPageAsync(HelixInfo info, VideosParameters parameters)
+            GetVideosAsync(RequestedPages pages, HelixAuthorization authorization, VideosParameters parameters, HelixRequestSettings settings)
             {
                 HelixResponse<DataPage<Video>> response = new HelixResponse<DataPage<Video>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
@@ -4478,14 +3025,14 @@ TwitchNet.Rest.Helix
                 // Required parameter checks
                 if (parameters.IsNull())
                 {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
+                    response.SetInputError(new ArgumentNullException(nameof(parameters)), settings);
 
                     return response;
                 }
 
                 if (!parameters.ids.IsValid() && parameters.user_id.IsNull() && parameters.game_id.IsNull())
                 {
-                    response.SetInputError(new QueryParameterException("At least one or more video ID, one user ID, or one game ID must be provided."), info.settings);
+                    response.SetInputError(new QueryParameterException("At least one or more video ID, one user ID, or one game ID must be provided."), settings);
 
                     return response;
                 }
@@ -4493,7 +3040,7 @@ TwitchNet.Rest.Helix
                 if ((parameters.ids.IsValid() && (!parameters.user_id.IsNull() || !parameters.game_id.IsNull())) ||
                    (!parameters.user_id.IsNull() && !parameters.game_id.IsNull()))
                 {
-                    response.SetInputError(new QueryParameterException("Only one or more video ID's, one user ID, or one game ID can be provided."), info.settings);
+                    response.SetInputError(new QueryParameterException("Only one or more video ID's, one user ID, or one game ID can be provided."), settings);
 
                     return response;
                 }
@@ -4501,12 +3048,14 @@ TwitchNet.Rest.Helix
                 // Optional parameter checks
                 parameters.first = parameters.first.Clamp(1, 100);
 
-                if (!ValidateOptionalQueryParameter(nameof(parameters.user_id), parameters.user_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.game_id), parameters.game_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, info.settings) ||
-                    !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out string direction))
+                string direction = string.Empty;
+
+                if (!ValidateOptionalQueryParameter(nameof(parameters.user_id), parameters.user_id, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.game_id), parameters.game_id, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, settings) ||
+                    !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, settings) ||
+                    !ValidateCursorDiection(parameters.after, parameters.before, response, settings, out direction))
                 {
                     return response;
                 }
@@ -4521,112 +3070,19 @@ TwitchNet.Rest.Helix
                     parameters.type     = null;
                 }
 
-                RestRequest request = GetBaseRequest("videos", Method.GET, info);
-                request.AddParameters(parameters);
-
-                // TODO: GetVideosPageAsync(...) - Resort the videos based on sort. Sometimes videos can be out of order.
-                RestResponse<DataPage<Video>> _response = await client.ExecuteAsync<DataPage<Video>>(request, HandleResponse);
-                response = new HelixResponse<DataPage<Video>>(_response);
-
-                return response;
-            }
-
-            /// <summary>
-            /// Asynchronously gets specific videos, or a complete list of videos.
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">A set of rest parameters.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> containts the specific videos, or the complete list of videos.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Throw if parameters is null.</exception>
-            /// <exception cref="HeaderParameterException">
-            /// Thrown if neither Bearer token or Client ID are provided.
-            /// Thrown if the Bearer token or Client ID are empty or contains only white space, if provided.
-            /// </exception>
-            /// <exception cref="QueryParameterException">
-            /// Thrown if after and before are provided.</exception>
-            /// Thrown if no video ID's, game ID, or user ID are provided.
-            /// Thrown if any multiple combination of video ID's, game ID, or user ID is provided.
-            /// Thrown if the user ID is null, empty, or contains only white space, if Provided.
-            /// Thrown if the game ID is null, empty, or contains only white space, if Provided.
-            /// <exception cref="QueryParameterCountException">            
-            /// Thrown if all video ID's are are null, empty, or contains only white space, if Provided.
-            /// Thrown if more than 100 video ID's are provided.            
-            /// </exception>
-            /// <exception cref="RestParameterCountException">Thrown if more than 100 total video ID's are provided.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<DataPage<Video>>>
-            GetVideosAsync(HelixInfo info, VideosParameters parameters)
-            {
-                HelixResponse<DataPage<Video>> response = new HelixResponse<DataPage<Video>>();
-                if (!ValidateAuthorizatioHeaders(info, response))
-                {
-                    return response;
-                }                
-
-                // Required parameter checks
-                if (parameters.IsNull())
-                {
-                    response.SetInputError(new ArgumentNullException(nameof(parameters)), info.settings);
-
-                    return response;
-                }
-
-                if (!parameters.ids.IsValid() && parameters.user_id.IsNull() && parameters.game_id.IsNull())
-                {
-                    response.SetInputError(new QueryParameterException("At least one or more video ID, one user ID, or one game ID must be provided."), info.settings);
-
-                    return response;
-                }
-
-                if ((parameters.ids.IsValid() && (!parameters.user_id.IsNull() || !parameters.game_id.IsNull())) ||
-                   (!parameters.user_id.IsNull() && !parameters.game_id.IsNull()))
-                {
-                    response.SetInputError(new QueryParameterException("Only one or more video ID's, one user ID, or one game ID can be provided."), info.settings);
-
-                    return response;
-                }
-
-                // Optional parameter checks
-                parameters.first = parameters.first.Clamp(1, 100);
-
-                if (!ValidateOptionalQueryParameter(nameof(parameters.user_id), parameters.user_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.game_id), parameters.game_id, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.ids), parameters.ids, 100, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings) ||
-                    !ValidateOptionalQueryParameter(nameof(parameters.before), parameters.before, response, info.settings) ||
-                    !ValidateCursorDiection(parameters.after, parameters.before, response, info.settings, out string direction))
-                {
-                    return response;
-                }
-
                 // TODO: GetVideosAsync(...) - Temporarily disabling using 'before' while requesting all pages until it works properly. Reimplement 'before' when it works propery.
                 if (parameters.before.IsValid())
                 {
-                    response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), info.settings);
+                    response.SetInputError(new NotSupportedException("The pagination direction 'before' is temporarily not supported. Following the cursor using 'before' returns incorrect results and does not work properly on Twitch's back end."), settings);
 
                     return response;
                 }
 
-                if (parameters.ids.IsValid())
-                {
-                    parameters.after = null;
-                    parameters.before = null;
-                    parameters.first = null;
-                    parameters.language = null;
-                    parameters.period = null;
-                    parameters.type = null;
-                }
-
-                RestRequest request = GetBaseRequest("videos", Method.GET, info);
+                RestRequest request = GetBaseRequest("videos", Method.GET, pages, authorization, settings);
                 request.AddParameters(parameters);
 
                 // TODO: GetVideosAsync(...) - Resort the videos based on sort. Sometimes videos can be out of order.
-                RestResponse<DataPage<Video>> _response = await client.TraceExecuteAsync<Video, DataPage<Video>>(request, direction, HandleResponse);
+                RestResponse<DataPage<Video>> _response = await client.GetPagesAsync<Video, DataPage<Video>>(request, direction, HandleResponse);
                 response = new HelixResponse<DataPage<Video>>(_response);
 
                 return response;
@@ -4640,14 +3096,14 @@ TwitchNet.Rest.Helix
             #region /webhooks/subscriptions
 
             /// <summary>
-            /// <para>Asynchronously gets a single page of webhook subscriptions.</para>
+            /// <para>Asynchronously gets a single page or a complete list of webhooks that a client is subscribed too.</para>
             /// <para>Required Authorization: App Access Token.</para>
             /// </summary>
             /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
             /// <param name="parameters">A set of rest parameters.</param>
             /// <returns>
             /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page of webhook subscriptions.
+            /// <see cref="IHelixResponse{result_type}.result"/> contains the single page or the complete list of webhooks that a client is subscribed too.
             /// </returns>
             /// <exception cref="HeaderParameterException">Thrown if the App Access token or Client ID is not provided, empty, or contains only white space.</exception>
             /// <exception cref="QueryParameterException">Thrown if the after cursor is empty or contains only white space, if provided.</exception>
@@ -4655,10 +3111,10 @@ TwitchNet.Rest.Helix
             /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
             /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
             public static async Task<IHelixResponse<WebhookDataPage<WebhookSubscription>>>
-            GetWebhookSubscriptionsPageAsync(HelixInfo info, PagingParameters parameters)
+            GetWebhookSubscriptionsAsync(RequestedPages pages, HelixAuthorization authorization, PagingParameters parameters, HelixRequestSettings settings)
             {
                 HelixResponse<WebhookDataPage<WebhookSubscription>> response = new HelixResponse<WebhookDataPage<WebhookSubscription>>();
-                if (!ValidateAuthorizatioHeaders(info, response, true))
+                if (!ValidateAuthorizatioHeaders(authorization, ref settings, response))
                 {
                     return response;
                 }
@@ -4668,60 +3124,16 @@ TwitchNet.Rest.Helix
                 {
                     parameters.first = parameters.first.Clamp(1, 100);
 
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
+                    if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, settings))
                     {
                         return response;
                     }
                 }
 
-                RestRequest request = GetBaseRequest("webhooks/subscriptions", Method.GET, info);
+                RestRequest request = GetBaseRequest("webhooks/subscriptions", Method.GET, pages, authorization, settings);
                 request.AddParameters(parameters);
 
-                RestResponse<WebhookDataPage<WebhookSubscription>> _response = await client.ExecuteAsync<WebhookDataPage<WebhookSubscription>>(request, HandleResponse);
-                response = new HelixResponse<WebhookDataPage<WebhookSubscription>>(_response);
-
-                return response;
-            }
-
-            /// <summary>
-            /// <para>Asynchronously gets a complete list of webhook subscriptions.</para>
-            /// <para>Required Authorization: App Access Token.</para>
-            /// </summary>
-            /// <param name="info">Information used to authorize and/or authenticate the request, and how to handle assembling the requst and process response.</param>
-            /// <param name="parameters">A set of rest parameters.</param>
-            /// <returns>
-            /// Returns data that adheres to the <see cref="IHelixResponse{result_type}"/> interface.
-            /// <see cref="IHelixResponse{result_type}.result"/> contains the complete list of webhook subscriptions.
-            /// </returns>
-            /// <exception cref="HeaderParameterException">Thrown if the App Access token or Client ID is not provided, empty, or contains only white space.</exception>
-            /// <exception cref="QueryParameterException">Thrown if the after cursor is empty or contains only white space, if provided.</exception>
-            /// <exception cref="HelixException">Thrown if an error was returned by Twitch after executing the request.</exception>
-            /// <exception cref="RetryLimitReachedException">Thrown if the retry limit was reached.</exception>
-            /// <exception cref="HttpRequestException">Thrown if an underlying network error occurred.</exception>
-            public static async Task<IHelixResponse<WebhookDataPage<WebhookSubscription>>>
-            GetWebhookSubscriptionsAsync(HelixInfo info, PagingParameters parameters)
-            {
-                HelixResponse<WebhookDataPage<WebhookSubscription>> response = new HelixResponse<WebhookDataPage<WebhookSubscription>>();
-                if (!ValidateAuthorizatioHeaders(info, response, true))
-                {
-                    return response;
-                }
-
-                // Optional parameter checks
-                if (!parameters.IsNull())
-                {
-                    parameters.first = parameters.first.Clamp(1, 100);
-
-                    if (!ValidateOptionalQueryParameter(nameof(parameters.after), parameters.after, response, info.settings))
-                    {
-                        return response;
-                    }
-                }
-
-                RestRequest request = GetBaseRequest("webhooks/subscriptions", Method.GET, info);
-                request.AddParameters(parameters);
-
-                RestResponse<WebhookDataPage<WebhookSubscription>> _response = await client.TraceExecuteAsync<WebhookSubscription, WebhookDataPage<WebhookSubscription>>(request, HandleResponse);
+                RestResponse<WebhookDataPage<WebhookSubscription>> _response = await client.GetPagesAsync<WebhookSubscription, WebhookDataPage<WebhookSubscription>>(request, HandleResponse);
                 response = new HelixResponse<WebhookDataPage<WebhookSubscription>>(_response);
 
                 return response;
@@ -4740,12 +3152,24 @@ TwitchNet.Rest.Helix
             }
 
             internal static RestRequest
-            GetBaseRequest(string endpoint, Method method, HelixInfo info)
+            GetBaseRequest(string endpoint, Method method, HelixAuthorization authorization, HelixRequestSettings settings)
             {
                 RestRequest request = new RestRequest(endpoint, method);
-                request.AddHeader("Authorization", "Bearer " + info.bearer_token);
-                request.AddHeader("Client-ID", info.client_id);
-                request.settings = info.settings;
+                request.AddHeader("Authorization", "Bearer " + authorization.bearer_token);
+                request.AddHeader("Client-ID", authorization.client_id);
+                request.settings = settings;
+
+                return request;
+            }
+
+            internal static RestRequest
+            GetBaseRequest(string endpoint, Method method, RequestedPages pages, HelixAuthorization authorization, HelixRequestSettings settings)
+            {
+                RestRequest request = new RestRequest(endpoint, method);
+                request.AddHeader("Authorization", "Bearer " + authorization.bearer_token);
+                request.AddHeader("Client-ID", authorization.client_id);
+                request.pages = pages;
+                request.settings = settings;
 
                 return request;
             }
@@ -4755,84 +3179,63 @@ TwitchNet.Rest.Helix
             #region Helpers - Request Validation 
 
             internal static bool
-            ValidateAuthorizatioHeaders(HelixInfo info, HelixResponse response, bool app_access_required = false)
+            ValidateAuthorizatioHeaders(HelixAuthorization authorization, ref HelixRequestSettings settings, HelixResponse response, HelixScopes required_scopes = default)
             {
-                bool is_null_bearer = info.bearer_token.IsNull();
-                bool is_null_client_id = info.client_id.IsNull();
-
-                if(!is_null_bearer && info.bearer_token.IsEmptyOrWhiteSpace())
+                if (settings.IsNull())
                 {
-                    response.SetInputError(new HeaderParameterException("Value cannot be empty or contain only whitespace.", nameof(info.bearer_token), info.bearer_token), info.settings);
+                    settings = new HelixRequestSettings();
+                }
+
+                // The most we can do is see if something was provided.
+                // To be complete we would need to validate the OAuth token to see if the extarcted Clinet ID matches the provided Client ID
+                // This is possible, but this would be adding an extra request and make it *significantly* more expensive.
+                if (authorization.bearer_token.IsNull() || authorization.bearer_token.IsEmptyOrWhiteSpace())
+                {
+                    response.SetInputError(new HeaderParameterException("Value cannot be null, empty, or contain only whitespace.", nameof(authorization.bearer_token), authorization.bearer_token), settings);
 
                     return false;
                 }
 
-                if (!is_null_client_id && info.client_id.IsEmptyOrWhiteSpace())
+                if (authorization.client_id.IsNull() && authorization.client_id.IsEmptyOrWhiteSpace())
                 {
-                    response.SetInputError(new HeaderParameterException("Value cannot be empty or contain only whitespace.", nameof(info.client_id), info.client_id), info.settings);
+                    response.SetInputError(new HeaderParameterException("Value cannot be empty or contain only whitespace.", nameof(authorization.client_id), authorization.client_id), settings);
 
                     return false;
                 }
 
-                // An App Access Token is required.
-                if (app_access_required)
-                {
-                    if (is_null_bearer)
-                    {
-                        response.SetInputError(new HeaderParameterException("An App Access Token must be provided to authenticate the request.", nameof(info.bearer_token)), info.settings);
-
-                        return false;
-                    }
-
-                    if (is_null_client_id)
-                    {
-                        response.SetInputError(new HeaderParameterException("A Client ID must be provided when an App Access Token is required.", nameof(info.client_id)), info.settings);
-
-                        return false;
-                    }
-                }
-
-                // Some level of authorization is required.
-                if (info.required_scopes != 0)
+                // At least one scope is required to authorize the requets.
+                if (required_scopes != 0)
                 {
                     // Bearer token was not provided.
-                    if (is_null_bearer)
+                    if (authorization.bearer_token.IsNull())
                     {
-                        HelixScopes[] missing_scopes = EnumUtil.GetFlagValues<HelixScopes>(info.required_scopes);
-                        AvailableScopesException inner_exception = new AvailableScopesException("One or more scopes are required for authentication.", missing_scopes);
+                        HelixScopes[] missing_scopes = EnumUtil.GetFlagValues<HelixScopes>(required_scopes);
+                        AvailableScopesException inner_exception = new AvailableScopesException("One or more scopes are required to authorize the request.", missing_scopes);
 
-                        response.SetInputError(new HeaderParameterException("A Bearer token must be provided to authenticate the request. See the inner exception for the list of required scopes.", nameof(info.bearer_token), inner_exception), info.settings);
+                        response.SetInputError(new HeaderParameterException("A Bearer token must be provided to authenticate the request. See the inner exception for the list of required scopes.", nameof(authorization.bearer_token), inner_exception), settings);
 
                         return false;
                     }
                     // Available scopes have been specified.
-                    else if (info.settings.available_scopes != HelixScopes.Other)
+                    else if (authorization.available_scopes != HelixScopes.Other)
                     {
-                        HelixScopes[] available_scopes = EnumUtil.GetFlagValues<HelixScopes>(info.settings.available_scopes);
+                        HelixScopes[] available_scopes = EnumUtil.GetFlagValues<HelixScopes>(authorization.available_scopes);
                         foreach (HelixScopes scope in available_scopes)
                         {
-                            if ((scope & info.required_scopes) == scope)
+                            if ((scope & required_scopes) == scope)
                             {
-                                info.required_scopes ^= scope;
+                                required_scopes ^= scope;
                             }
                         }
 
-                        if (info.required_scopes != 0)
+                        if (required_scopes != 0)
                         {
-                            HelixScopes[] missing_scopes = EnumUtil.GetFlagValues<HelixScopes>(info.required_scopes);
-                            response.SetScopesError(new AvailableScopesException("One or more scopes are missing from the provided available scopes associated with the Bearer token.", missing_scopes), info.settings);
+                            HelixScopes[] missing_scopes = EnumUtil.GetFlagValues<HelixScopes>(required_scopes);
+                            response.SetScopesError(new AvailableScopesException("One or more scopes are missing from the provided available scopes associated with the Bearer token.", missing_scopes), settings);
 
                             return false;
                         }
                     }
-                }
-                // No authorixation is required so only a and only a Client ID is needed.
-                // We don't care if a Bearer token is null.
-                else if (is_null_bearer && is_null_client_id)
-                {
-                    response.SetInputError(new HeaderParameterException("A Client ID or Bearer token must be provided to authenticate the request."), info.settings);
-
-                    return false;
                 }
 
                 return true;
@@ -5152,40 +3555,40 @@ TwitchNet.Rest.Helix
                     switch (response.request.settings.status_error[code].handling)
                     {
                         case StatusHandling.Error:
-                            {
-                                throw response.exception;
-                            };
+                        {
+                            throw response.exception;
+                        };
 
                         case StatusHandling.Retry:
+                        {
+                            StatusCodeSetting status_setting = response.request.settings.status_error[code];
+
+                            ++status_setting.retry_count;
+                            if (status_setting.retry_count > status_setting.retry_limit && status_setting.retry_limit != -1)
                             {
-                                StatusCodeSetting status_setting = response.request.settings.status_error[code];
+                                response.exception = new RetryLimitReachedException("The retry limit " + status_setting.retry_limit + " has been reached for status code " + code + ".", status_setting.retry_limit, response.exception);
 
-                                ++status_setting.retry_count;
-                                if (status_setting.retry_count > status_setting.retry_limit && status_setting.retry_limit != -1)
-                                {
-                                    response.exception = new RetryLimitReachedException("The retry limit " + status_setting.retry_limit + " has been reached for status code " + code + ".", status_setting.retry_limit, response.exception);
+                                return await HandleResponse(response);
+                            }
 
-                                    return await HandleResponse(response);
-                                }
+                            RateLimit rate_limit = new RateLimit(response.headers);
+                            TimeSpan difference = rate_limit.reset_time - DateTime.Now;
+                            if (rate_limit.remaining == 0 && difference.TotalMilliseconds > 0)
+                            {
+                                await Task.Delay(difference);
+                            }
 
-                                RateLimit rate_limit = new RateLimit(response.headers);
-                                TimeSpan difference = rate_limit.reset_time - DateTime.Now;
-                                if (rate_limit.remaining == 0 && difference.TotalMilliseconds > 0)
-                                {
-                                    await Task.Delay(difference);
-                                }
-
-                                // Clone the message to a new instance because the same instance can't be sent twice.
-                                response.request.CloneMessage();
-                                response = await client.ExecuteAsync<data_type>(response.request, HandleResponse);
-                            };
-                            break;
+                            // Clone the message to a new instance because the same instance can't be sent twice.
+                            response.request.CloneMessage();
+                            response = await client.ExecuteAsync<data_type>(response.request, HandleResponse);
+                        };
+                        break;
 
                         case StatusHandling.Return:
                         default:
-                            {
-                                return response;
-                            }
+                        {
+                            return response;
+                        }
                     }
                 }
                 else
@@ -5209,15 +3612,15 @@ TwitchNet.Rest.Helix
                     switch (handling)
                     {
                         case ErrorHandling.Error:
-                            {
-                                throw response.exception;
-                            }
+                        {
+                            throw response.exception;
+                        }
 
                         case ErrorHandling.Return:
                         default:
-                            {
-                                return response;
-                            }
+                        {
+                            return response;
+                        }
                     }
                 }
 

@@ -101,12 +101,13 @@ TwitchNet.Clients.PubSub
                 }
             }
 
-            frames[0].payload.close_status_code = (CloseStatusCode)status_code;
+            frames[0].payload.close_status_code = (WebSocketStatusCode)status_code;
             frames[0].payload.close_reason = reason;
 
             OnWebsocketFrameClose.Raise(this, new FrameCloseEventArgs(time, URI, frames[0], id));
 
-            Close(FrameSource.Server, true, frames[0]);
+            // TODO: Change to CloseAsync(...)?
+            Close(FrameSource.Server, ref frames[0]);
         }
 
         private void

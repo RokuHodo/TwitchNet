@@ -821,19 +821,19 @@ TwitchNet.Utilities
         RunBenchmarks()
         {
             BenchmarkRun run1 = new BenchmarkRun();
-            run1.action = Benchmark_FromStreamLanguage_Single;
+            run1.action = Benchmark_FromBroadcasterLanguage_Single;
             run1.iterations = 1_000_000;
-            run1.name = "Benchmark_FromStreamLanguage_Single";
+            run1.name = "Benchmark_FromBroadcasterLanguage_Single";
 
             BenchmarkRun run2 = new BenchmarkRun();
-            run2.action = Benchmark_FromStreamLanguage_Flags;
+            run2.action = Benchmark_FromBroadcasterLanguage_Flags;
             run2.iterations = 1_000_000;
-            run2.name = "Benchmark_FromStreamLanguage_Flags";
+            run2.name = "Benchmark_FromBroadcasterLanguage_Flags";
 
             BenchmarkRun run3 = new BenchmarkRun();
-            run3.action = Benchmark_ToStreamLanguage_Single;
+            run3.action = Benchmark_ToBroadcasterLanguage_Single;
             run3.iterations = 1_000_000;
-            run3.name = "Benchmark_ToStreamLanguage_Single";
+            run3.name = "Benchmark_ToBroadcasterLanguage_Single";
 
             Benchmark benchmark = new Benchmark();
             benchmark.Add(run1);
@@ -843,31 +843,31 @@ TwitchNet.Utilities
         }
 
         private static void
-        Benchmark_FromStreamLanguage_Single()
+        Benchmark_FromBroadcasterLanguage_Single()
         {
-            StreamLanguage language = StreamLanguage.EnGb;
-            EnumTypeCache cache = CACHE.GetOrAdd(typeof(StreamLanguage), CreateCache);
+            Language language = Language.En;
+            EnumTypeCache cache = CACHE.GetOrAdd(typeof(Language), CreateCache);
 
             cache.TryGetName(language, out string name);
         }
 
         private static void
-        Benchmark_FromStreamLanguage_Flags()
+        Benchmark_FromBroadcasterLanguage_Flags()
         {
-            StreamLanguage language = StreamLanguage.EnGb | StreamLanguage.Ar | StreamLanguage.ZhTw | (StreamLanguage)(1 << 58);
-            EnumTypeCache cache = CACHE.GetOrAdd(typeof(StreamLanguage), CreateCache);
+            Language language = Language.En | Language.Ar | Language.Zh | (Language)(1 << 58);
+            EnumTypeCache cache = CACHE.GetOrAdd(typeof(Language), CreateCache);
 
             cache.TryGetName(language, out string name);
         }
 
         private static void
-        Benchmark_ToStreamLanguage_Single()
+        Benchmark_ToBroadcasterLanguage_Single()
         {
-            string name = "en-gb";
-            EnumTypeCache cache = CACHE.GetOrAdd(typeof(StreamLanguage), CreateCache);
+            string name = "zh-hk";
+            EnumTypeCache cache = CACHE.GetOrAdd(typeof(Language), CreateCache);
 
             cache.TryParse(name, out object value);
-            StreamLanguage language = (StreamLanguage)value;
+            Language language = (Language)value;
         }
 
         #endregion

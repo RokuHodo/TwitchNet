@@ -162,7 +162,7 @@ TwitchNet.Rest.Helix
         /// The language of the stream when clip was created.
         /// </summary>
         [JsonProperty("language")]
-        public StreamLanguage language { get; protected set; }
+        public Language language { get; protected set; }
 
         /// <summary>
         /// The title of the clip.

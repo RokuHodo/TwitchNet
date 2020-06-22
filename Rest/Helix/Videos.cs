@@ -49,10 +49,9 @@ TwitchNet.Rest.Helix
 
         /// <summary>
         /// The language of the video.
-        /// This is the language selected in the Twitch dashboard or in the video information editor, not the language selected at the home page.
         /// </summary>
         [QueryParameter("language")]
-        public virtual BroadcasterLanguage? language    { get; set; }
+        public virtual Language?            language    { get; set; }
 
         /// <summary>
         /// The period when the video was created.
@@ -150,10 +149,9 @@ TwitchNet.Rest.Helix
 
         /// <summary>
         /// The language of the video.
-        /// This is the language selected in the Twitch dashboard or in the video information editor, not the language selected at the home page.
         /// </summary>
         [JsonProperty("language")]
-        public BroadcasterLanguage language { get; protected set; }
+        public Language language { get; protected set; }
 
         /// <summary>
         /// The type of the video.

@@ -172,7 +172,7 @@ namespace TwitchNet.Rest
                     content = await _response.Content.ReadAsStringAsync();
                 }
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 // InvalidOperationException or HttpRequestException.
                 response = new RestResponse<data_type>(request, _response, content, exception);
@@ -183,12 +183,12 @@ namespace TwitchNet.Rest
             StatusException status_exception = default;
             if (!_response.IsSuccessStatusCode)
             {
-                status_exception = new StatusException((int)_response.StatusCode + " - " + _response.ReasonPhrase, _response.StatusCode, _response.ReasonPhrase);                
+                status_exception = new StatusException((int)_response.StatusCode + " - " + _response.ReasonPhrase, _response.StatusCode, _response.ReasonPhrase);
             }
             else if (content.IsValid() && content_handlers.TryGetValue(_response.Content.Headers.ContentType.MediaType, out IDeserializer deserializer))
             {
                 data = deserializer.Deserialize<data_type>(content);
-            }                
+            }
 
             response = new RestResponse<data_type>(request, _response, content, data, status_exception);
             if (!CustomResponseHandler.IsNull())
@@ -204,15 +204,45 @@ namespace TwitchNet.Rest
         }
 
         public async Task<RestResponse<result_type>>
-        TraceExecuteAsync<data_type, result_type>(RestRequest request, Func<RestResponse<result_type>, Task<RestResponse<result_type>>> CustomResponseHandler = default)
+        GetPagesAsync<data_type, result_type>(RestRequest request, Func<RestResponse<result_type>, Task<RestResponse<result_type>>> CustomResponseHandler = default)
         where result_type : DataPage<data_type>, IDataPage<data_type>
         {
-            return await TraceExecuteAsync<data_type, result_type>(request, "after", CustomResponseHandler);
+            return await GetPagesAsync<data_type, result_type>(request, "after", CustomResponseHandler);
+        }
+
+        public async Task<RestResponse<result_type>>
+        GetPagesAsync<data_type, result_type>(RestRequest request, string direction, Func<RestResponse<result_type>, Task<RestResponse<result_type>>> CustomResponseHandler = default)
+        where result_type : DataPage<data_type>, IDataPage<data_type>
+        {
+
+#if DEBUG
+            // Nothing will actually happen if the request methos isn't GET
+            // The requast will still be executed successfully 
+            // But leave this here *juse* in case I have a blonde moment and type the wrong thing.
+            if (request.method != Method.GET)
+            {
+                throw new Exception("The request method is not GET.");
+            }
+#endif
+
+            if (request.pages == RequestedPages.Single)
+            {
+                return await ExecuteAsync(request, CustomResponseHandler);
+            }
+
+            return await GetAllPagesAsync<data_type, result_type>(request, direction, CustomResponseHandler);
+        }
+
+        public async Task<RestResponse<result_type>>
+        GetAllPagesAsync<data_type, result_type>(RestRequest request, Func<RestResponse<result_type>, Task<RestResponse<result_type>>> CustomResponseHandler = default)
+        where result_type : DataPage<data_type>, IDataPage<data_type>
+        {
+            return await GetAllPagesAsync<data_type, result_type>(request, "after", CustomResponseHandler);
         }
 
         // TODO: Move inside of TwitchApi.Internal since this is specific only to that API?
         public async Task<RestResponse<result_type>>
-        TraceExecuteAsync<data_type, result_type>(RestRequest request, string direction, Func<RestResponse<result_type>, Task<RestResponse<result_type>>> CustomResponseHandler = default)
+        GetAllPagesAsync<data_type, result_type>(RestRequest request, string direction, Func<RestResponse<result_type>, Task<RestResponse<result_type>>> CustomResponseHandler = default)
         where result_type : DataPage<data_type>, IDataPage<data_type>
         {
             RestResponse<result_type> response = new RestResponse<result_type>();
@@ -244,15 +274,15 @@ namespace TwitchNet.Rest
                     last_valid_cursor = page.data.pagination.cursor;
                 }
 
-                //string encoded = last_valid_cursor;
-                //int mod = encoded.Length % 4;
-                //if (mod != 0)
-                //{
-                //    encoded += new string('=', 4 - mod);
-                //}
+                string encoded = last_valid_cursor;
+                int mod = encoded.Length % 4;
+                if (mod != 0)
+                {
+                    encoded += new string('=', 4 - mod);
+                }
 
-                //byte[] bytes = Convert.FromBase64String(encoded);
-                //string decoded = Encoding.UTF8.GetString(bytes);
+                byte[] bytes = Convert.FromBase64String(encoded);
+                string decoded = Encoding.UTF8.GetString(bytes);
 
                 // TODO: Change how we detemrine whether or not we are done requesting. This works fine for 'after' but not 'before'. Decode the cursor, and check if b==null?
                 //       Not sure if this is the best practice since cursors are never meant to be decoded by the user and meant to be used as is.

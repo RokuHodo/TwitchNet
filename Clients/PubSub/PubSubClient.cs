@@ -25,10 +25,17 @@ TwitchNet.Clients.PubSub
 
         private Random timer_ping_jitter;
 
+        /// <summary>
+        /// Information used to detemrtine how to handle errors, connection retry attempts, etc.
+        /// </summary>
         public new PubSubSettings settings { get; set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="PubSubClient"/> class.
+        /// </summary>
+        /// <param name="id">A unique ID set by the user in order to differentiate one client from each other if multiple WebSocket clients use the same event callback functions.</param>
         public
-        PubSubClient() : base()
+        PubSubClient(string id = "") : base(id)
         {
             URI = new Uri("wss://pubsub-edge.twitch.tv");
 
@@ -697,7 +704,18 @@ TwitchNet.Clients.PubSub
         public
         PubSubSettings()
         {
+            // Copy paste from Reset() to avoid duplicate instantiation when derived classes instantiated.
+            // Keep these synchronized at all times!
+
             handling_pubsub_client_error = ErrorHandling.Error;
+        }
+
+        public override void
+        Reset()
+        {
+            handling_pubsub_client_error = ErrorHandling.Error;
+
+            base.Reset();
         }
     }
 

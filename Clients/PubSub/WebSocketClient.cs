@@ -5,6 +5,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Net.Security;
+using System.Runtime.CompilerServices;
 using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -16,6 +17,7 @@ using System.Net.WebSockets;
 // project namespaces
 using TwitchNet.Debugger;
 using TwitchNet.Extensions;
+using TwitchNet.Utilities;
 
 namespace
 TwitchNet.Clients.PubSub
@@ -30,7 +32,11 @@ TwitchNet.Clients.PubSub
         protected bool disposing;
         protected bool disposed;
 
-        private readonly string UUID;
+        /// <summary>
+        /// <para>The constant and universal UUID used in the handshake process to validate the "Sec-WebSocket-Accept" header.</para>
+        /// <para>See https://tools.ietf.org/html/rfc6455#section-1.3 for more information.</para>
+        /// </summary>
+        public readonly string UUID;
 
         private Stream stream;
         private Socket socket;
@@ -39,14 +45,30 @@ TwitchNet.Clients.PubSub
 
         private Thread reader_thread;
 
-        protected Uri URI;
+        /// <summary>
+        /// The WebSocket URI.
+        /// </summary>
+        public Uri URI;
 
+        /// <summary>
+        /// A unique ID set by the user in order to differentiate one client from each other if multiple WebSocket clients use the same event callback functions.
+        /// </summary>
         public string id { get; set; }
 
+        /// <summary>
+        /// The current state of the WebSocket client.
+        /// </summary>
         public WebSocketState state { get; private set; }
 
+        /// <summary>
+        /// Information used to detemrtine how to handle errors, connection retry attempts, etc.
+        /// </summary>
         public WebSocketSettings settings { get; set; }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="WebSocketClient"/> class.
+        /// </summary>
+        /// <param name="id">A unique ID set by the user in order to differentiate one client from each other if multiple WebSocket clients use the same event callback functions.</param>
         public
         WebSocketClient(string id = "")
         {
@@ -71,6 +93,11 @@ TwitchNet.Clients.PubSub
             ResetWebSocketHandlers();
         }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="WebSocketClient"/> class.
+        /// </summary>
+        /// <param name="uri">The WebSocket URI.</param>
+        /// <param name="id">A unique ID set by the user in order to differentiate one client from each other if multiple WebSocket clients use the same event callback functions.</param>
         public
         WebSocketClient(Uri uri, string id = "") : this(id)
         {
@@ -79,6 +106,23 @@ TwitchNet.Clients.PubSub
 
         #region Connection and Connection Validation
 
+        /// <summary>
+        /// Establishes a connection to the WebSocket.
+        /// </summary>
+        /// <exception cref="WebSocketException">
+        /// Thrown if an error was encountered with the WebSocket URI, the handshake request, the handshake response, or if the connection retry limit was reached.
+        /// Potential errors are:
+        /// <see cref="WebSocketError.Handshake_Open_Uri"/>,
+        /// <see cref="WebSocketError.Handshake_Open_UriPort"/>,
+        /// <see cref="WebSocketError.Handshake_Open_UriHost"/>,
+        /// <see cref="WebSocketError.Handshake_Open_RequestProtocolVersion"/>,
+        /// <see cref="WebSocketError.Handshake_Open_RequestHeader"/>,
+        /// <see cref="WebSocketError.Handshake_Open_ResponseStatusCode"/>.
+        /// <see cref="WebSocketError.Handshake_Open_ResponseProtocolVersion"/>,
+        /// <see cref="WebSocketError.Handshake_Open_ResponseHeader"/>, and
+        /// <see cref="WebSocketError.Handshake_Open_RetryLimitReached"/>.
+        /// See each error description for more informatrion.
+        /// </exception>
         public void
         Connect()
         {
@@ -89,6 +133,18 @@ TwitchNet.Clients.PubSub
 
             if (!SetState(WebSocketState.Connecting, true))
             {
+                return;
+            }
+
+            WebSocketException exception;
+
+            if (!ValidateURI(URI, out exception))
+            {
+                // No sense in retrying to connect since it will be guaranteed to fail 100% if any of these are true.
+                // Just let the user know they fucked up and move on.
+                SetState(WebSocketState.Connecting, false);
+                RaiseAndMaybeThrowError(exception);
+
                 return;
             }
 
@@ -103,8 +159,6 @@ TwitchNet.Clients.PubSub
 
                 stream = ssl_stream;
             }
-
-            WebSocketNetworkException exception;
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URI);
             if (!ValidateHandShakeRequest(request, out exception))
@@ -137,6 +191,23 @@ TwitchNet.Clients.PubSub
             OnOpened.Raise(this, new WebSocketEventArgs(DateTime.Now, URI, id));
         }
 
+        /// <summary>
+        /// Asynchronouslyes establishes a connection to the WebSocket.
+        /// </summary>
+        /// <exception cref="WebSocketException">
+        /// Thrown if an error was encountered with the WebSocket URI, the handshake request, the handshake response, or if the connection retry limit was reached.
+        /// Potential errors are:
+        /// <see cref="WebSocketError.Handshake_Open_Uri"/>,
+        /// <see cref="WebSocketError.Handshake_Open_UriPort"/>,
+        /// <see cref="WebSocketError.Handshake_Open_UriHost"/>,
+        /// <see cref="WebSocketError.Handshake_Open_RequestProtocolVersion"/>,
+        /// <see cref="WebSocketError.Handshake_Open_RequestHeader"/>,
+        /// <see cref="WebSocketError.Handshake_Open_ResponseStatusCode"/>.
+        /// <see cref="WebSocketError.Handshake_Open_ResponseProtocolVersion"/>,
+        /// <see cref="WebSocketError.Handshake_Open_ResponseHeader"/>, and
+        /// <see cref="WebSocketError.Handshake_Open_RetryLimitReached"/>.
+        /// See each error description for more informatrion.
+        /// </exception>
         public void
         ConnectAsync()
         {
@@ -147,6 +218,16 @@ TwitchNet.Clients.PubSub
 
             if (!SetState(WebSocketState.Connecting, true))
             {
+                return;
+            }
+
+            if (!ValidateURI(URI, out WebSocketException exception))
+            {
+                // No sense in retrying to connect since it will be guaranteed to fail 100% if any of these are true.
+                // Just let the user know they fucked up and move on.
+                SetState(WebSocketState.Connecting, false);
+                RaiseAndMaybeThrowError(exception);
+
                 return;
             }
 
@@ -168,7 +249,7 @@ TwitchNet.Clients.PubSub
                 stream = ssl_stream;
             }
 
-            WebSocketNetworkException exception;
+            WebSocketException exception;
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URI);
             if (!ValidateHandShakeRequest(request, out exception))
@@ -204,46 +285,27 @@ TwitchNet.Clients.PubSub
         }
 
         private bool
-        ValidateHandShakeRequest(HttpWebRequest request, out WebSocketNetworkException exception)
+        ValidateURI(Uri uri, out WebSocketException exception)
         {
             exception = default;
 
-            // These checks really shouldn't be needed, but just double check to make sure Microsoft didn't mess up.
-            if (request.ProtocolVersion.Major < 1 || request.ProtocolVersion.Minor < 1)
+            if (URI.IsNull())
             {
-                exception = new WebSocketNetworkException(WebSocketNetworkError.Hanshake_RequestProtocolVersion, "The handshake request protocol version must be at least HTTP 1.1.");
+                exception = new WebSocketException(WebSocketStatusCode.TlsHandshakeFailure, WebSocketError.Handshake_Open_Uri, "The WebSocket URI cannot be null or default.");
 
                 return false;
             }
 
-            string header_upgrade = request.Headers["Upgrade"];
-            if (!header_upgrade.HasContent() || header_upgrade != "websocket")
+            if (URI.Host.IsNull())
             {
-                exception = new WebSocketNetworkException(WebSocketNetworkError.Hanshake_RequestHeader, "The handshake request did not contain the header \"Upgrade\", or the header was not set to \"websocket\".");
+                exception = new WebSocketException(WebSocketStatusCode.TlsHandshakeFailure, WebSocketError.Handshake_Open_UriHost, "The WebSocket URI host cannot be null.");
 
                 return false;
             }
 
-            string header_connection = request.Headers["Connection"];
-            if (!header_connection.HasContent() || header_connection != "Upgrade")
+            if (URI.Port < IPEndPoint.MinPort || URI.Port > IPEndPoint.MaxPort)
             {
-                exception = new WebSocketNetworkException(WebSocketNetworkError.Hanshake_RequestHeader, "The handshake request did not contain the header \"Connection\", or the header was not set to \"Upgrade\".");
-
-                return false;
-            }
-
-            string header_web_socket_key = request.Headers["Sec-WebSocket-Key"];
-            if (!header_web_socket_key.HasContent())
-            {
-                exception = new WebSocketNetworkException(WebSocketNetworkError.Hanshake_RequestHeader, "The handshake request did not contain the header \"Sec-WebSocket-Key\", or the header was empty or contianed only white space.");
-
-                return false;
-            }
-
-            string header_web_socket_version = request.Headers["Sec-WebSocket-Version"];
-            if (!header_web_socket_version.HasContent() || header_web_socket_version != "13")
-            {
-                exception = new WebSocketNetworkException(WebSocketNetworkError.Hanshake_RequestHeader, "The handshake request did not contain the header \"Sec-WebSocket-Version\", or the header was not set to \"13\".");
+                exception = new WebSocketException(WebSocketStatusCode.TlsHandshakeFailure, WebSocketError.Handshake_Open_UriHost, "The WebSocket URI port must be between " + IPEndPoint.MinPort + " and " + IPEndPoint.MaxPort + ", inclusive.");
 
                 return false;
             }
@@ -252,20 +314,68 @@ TwitchNet.Clients.PubSub
         }
 
         private bool
-        ValidateHandShakeResponse(HttpWebRequest request, HttpWebResponse response, string uuid, out WebSocketNetworkException exception)
+        ValidateHandShakeRequest(HttpWebRequest request, out WebSocketException exception)
+        {
+            exception = default;
+
+            // These checks really shouldn't be needed, but just double check to make sure Microsoft didn't mess up.
+            if (request.ProtocolVersion.Major < 1 && request.ProtocolVersion.Minor < 1)
+            {
+                exception = new WebSocketException(WebSocketStatusCode.TlsHandshakeFailure, WebSocketError.Handshake_Open_RequestProtocolVersion, "The handshake request protocol version must be at least HTTP 1.1.");
+
+                return false;
+            }
+
+            string header_upgrade = request.Headers["Upgrade"];
+            if (!header_upgrade.HasContent() || header_upgrade != "websocket")
+            {
+                exception = new WebSocketException(WebSocketStatusCode.TlsHandshakeFailure, WebSocketError.Handshake_Open_RequestHeader, "The handshake request did not contain the header \"Upgrade\", or the header was not set to \"websocket\".");
+
+                return false;
+            }
+
+            string header_connection = request.Headers["Connection"];
+            if (!header_connection.HasContent() || header_connection != "Upgrade")
+            {
+                exception = new WebSocketException(WebSocketStatusCode.TlsHandshakeFailure, WebSocketError.Handshake_Open_RequestHeader, "The handshake request did not contain the header \"Connection\", or the header was not set to \"Upgrade\".");
+
+                return false;
+            }
+
+            string header_web_socket_key = request.Headers["Sec-WebSocket-Key"];
+            if (!header_web_socket_key.HasContent())
+            {
+                exception = new WebSocketException(WebSocketStatusCode.TlsHandshakeFailure, WebSocketError.Handshake_Open_RequestHeader, "The handshake request did not contain the header \"Sec-WebSocket-Key\", or the header was empty or contianed only white space.");
+
+                return false;
+            }
+
+            string header_web_socket_version = request.Headers["Sec-WebSocket-Version"];
+            if (!header_web_socket_version.HasContent() || header_web_socket_version != "13")
+            {
+                exception = new WebSocketException(WebSocketStatusCode.TlsHandshakeFailure, WebSocketError.Handshake_Open_RequestHeader, "The handshake request did not contain the header \"Sec-WebSocket-Version\", or the header was not set to \"13\".");
+
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool
+        ValidateHandShakeResponse(HttpWebRequest request, HttpWebResponse response, string uuid, out WebSocketException exception)
         {
             exception = default;
 
             if (response.StatusCode != HttpStatusCode.SwitchingProtocols)
             {
-                exception = new WebSocketNetworkException(WebSocketNetworkError.Hanshake_ResponseStatusCode, "The handshake response status code from " + URI.Host + " was not equal to \"101 - Switching Protocols\".");
+                exception = new WebSocketException(WebSocketStatusCode.TlsHandshakeFailure, WebSocketError.Handshake_Open_ResponseStatusCode, "The handshake response status code from " + URI.Host + " was not equal to \"101 - Switching Protocols\".");
 
                 return false;
             }
 
-            if (response.ProtocolVersion.Major < 1 || response.ProtocolVersion.Minor < 1)
+            if (response.ProtocolVersion.Major < 1 && response.ProtocolVersion.Minor < 1)
             {
-                exception = new WebSocketNetworkException(WebSocketNetworkError.Hanshake_ResponseProtocolVersion, "The handshake response protocol version must be at least HTTP 1.1.");
+                exception = new WebSocketException(WebSocketStatusCode.TlsHandshakeFailure, WebSocketError.Handshake_Open_ResponseProtocolVersion, "The handshake response protocol version must be at least HTTP 1.1.");
 
                 return false;
             }
@@ -273,7 +383,7 @@ TwitchNet.Clients.PubSub
             string server_key = response.Headers["Sec-WebSocket-Accept"];
             if (!server_key.HasContent())
             {
-                exception = new WebSocketNetworkException(WebSocketNetworkError.Hanshake_ResponseHeader, "The handshake response from " + URI.Host + " did not contain the header \"Sec-WebSocket-Accept\", or the header was empty or contianed only white space.");
+                exception = new WebSocketException(WebSocketStatusCode.TlsHandshakeFailure, WebSocketError.Handshake_Open_ResponseHeader, "The handshake response from " + URI.Host + " did not contain the header \"Sec-WebSocket-Accept\", or the header was empty or contianed only white space.");
 
                 return false;
             }
@@ -282,7 +392,7 @@ TwitchNet.Clients.PubSub
             string server_key_expected = CreateServerResponseKey(client_key, uuid);
             if (server_key != server_key_expected)
             {
-                exception = new WebSocketNetworkException(WebSocketNetworkError.Hanshake_ResponseHeader, "The handshake response header \"Sec-WebSocket-Accept\" did not matach the expected value: " + server_key_expected);
+                exception = new WebSocketException(WebSocketStatusCode.TlsHandshakeFailure, WebSocketError.Handshake_Open_ResponseHeader, "The handshake response header \"Sec-WebSocket-Accept\" did not matach the expected value: " + server_key_expected);
 
                 return false;
             }
@@ -290,7 +400,7 @@ TwitchNet.Clients.PubSub
             string header_web_socket_version = response.Headers["Sec-WebSocket-Version"];
             if (!header_web_socket_version.IsNull() &&(!header_web_socket_version.HasContent() || header_web_socket_version != "13"))
             {
-                exception = new WebSocketNetworkException(WebSocketNetworkError.Hanshake_ResponseHeader, "The handshake response from " + URI.Host + " included the header \"Sec-WebSocket-Version\" and was not set to \"13\".");
+                exception = new WebSocketException(WebSocketStatusCode.TlsHandshakeFailure, WebSocketError.Handshake_Open_ResponseHeader, "The handshake response from " + URI.Host + " included the header \"Sec-WebSocket-Version\" and was not set to \"13\".");
 
                 return false;
             }
@@ -325,8 +435,11 @@ TwitchNet.Clients.PubSub
         }
 
         private void
-        CallBack_FailedToConnect(WebSocketNetworkException exception)
+        CallBack_FailedToConnect(WebSocketException exception)
         {
+            WebSocketFrame frame = WebSocketFrame.CreateCloseFrame(WebSocketStatusCode.ProtocolError);
+            Send(frame.EncodeFrame());
+
             stream.Close();
             stream.Dispose();
             stream = null;
@@ -346,7 +459,7 @@ TwitchNet.Clients.PubSub
                     // No further clean up needed since all other managed resources have been freed (except the state mutex).
                     OverrideState(WebSocketState.Closed);
 
-                    SetNetworkError(new WebSocketNetworkException(WebSocketNetworkError.RetryConnectLimitReached, "The maximum amount of failed connection attempts has been reached. Limit: " + settings.connect_retry_count_limit, exception));
+                    RaiseAndMaybeThrowError(new WebSocketException(WebSocketStatusCode.TlsHandshakeFailure, WebSocketError.Handshake_Open_RetryLimitReached, "The maximum amount of failed connection attempts has been reached. Limit: " + settings.connect_retry_count_limit, exception));
                 }
                 else
                 {
@@ -358,14 +471,15 @@ TwitchNet.Clients.PubSub
             {
                 OverrideState(WebSocketState.Closed);
 
-                SetNetworkError(exception);
+                RaiseAndMaybeThrowError(exception);
             }
         }
 
         private async void
         CallBack_FailedToConnectAsync(IAsyncResult result)
         {
-            WebSocketNetworkException exception = (WebSocketNetworkException)result.AsyncState;
+            WebSocketFrame frame = WebSocketFrame.CreateCloseFrame(WebSocketStatusCode.ProtocolError);
+            await SendAsync(frame.EncodeFrame());
 
             stream.Close();
             stream.Dispose();
@@ -377,6 +491,7 @@ TwitchNet.Clients.PubSub
 
             SetState(WebSocketState.Connecting, false);
 
+            WebSocketException exception = (WebSocketException)result.AsyncState;
             if (settings.handling_failed_to_connect == RetryHandling.Retry)
             {
                 ++settings.connect_retry_count;
@@ -385,7 +500,7 @@ TwitchNet.Clients.PubSub
                     // No further clean up needed since all other managed resources have been freed (except the state mutex).
                     OverrideState(WebSocketState.Closed);
 
-                    SetNetworkError(new WebSocketNetworkException(WebSocketNetworkError.RetryConnectLimitReached, "The maximum amount of failed connection attempts has been reached. Limit: " + settings.connect_retry_count_limit, exception));
+                    RaiseAndMaybeThrowError(new WebSocketException(WebSocketStatusCode.TlsHandshakeFailure, WebSocketError.Handshake_Open_RetryLimitReached, "The maximum amount of failed connection attempts has been reached. Limit: " + settings.connect_retry_count_limit, exception));
                 }
                 else
                 {
@@ -397,24 +512,73 @@ TwitchNet.Clients.PubSub
             {
                 OverrideState(WebSocketState.Closed);
 
-                SetNetworkError(exception);
+                RaiseAndMaybeThrowError(exception);
             }
         }
 
-        public void
-        ForceClose()
-        {
-            Close(true);
-        }
-
+        /// <summary>
+        /// Closes the underlying stream and disconnects from the WebSocket.
+        /// </summary>
+        /// <param name="force_disconnect">Whether or not to disconnect regardless of the current state.</param>
         public void
         Close(bool force_disconnect = false)
         {
-            Close(FrameSource.Client, true);
+            Close(WebSocketStatusCode.NoStatusReceieved, true);
         }
 
-        private void
-        Close(FrameSource source, bool force_disconnect, WebSocketFrame frame = default)
+        /// <summary>
+        /// Closes the underlying stream and disconnects from the WebSocket.
+        /// </summary>
+        /// <param name="code">The satus code to include in the closing frame.</param>
+        /// <param name="force_disconnect">Whether or not to disconnect regardless of the current state.</param>
+        /// <exception cref="WebSocketException">
+        /// Thrown if any of the following status codes are provided in the closing frame:
+        /// <see cref="WebSocketStatusCode.Reserved"/>, 
+        /// <see cref="WebSocketStatusCode.AbnormalClosure"/>, or 
+        /// <see cref="WebSocketStatusCode.TlsHandshakeFailure"/>.
+        /// </exception>
+        public void
+        Close(WebSocketStatusCode code, bool force_disconnect = false)
+        {
+            Close(code, string.Empty, force_disconnect);
+        }
+
+        /// <summary>
+        /// Closes the underlying stream and disconnects from the WebSocket.
+        /// </summary>
+        /// <param name="code">The satus code to include in the closing frame.</param>
+        /// <param name="reason">The reason for the closure.</param>
+        /// <param name="force_disconnect">Whether or not to disconnect regardless of the current state.</param>
+        /// <exception cref="WebSocketException">
+        /// Thrown if any of the following status codes are provided in the closing frame:
+        /// <see cref="WebSocketStatusCode.Reserved"/>, 
+        /// <see cref="WebSocketStatusCode.AbnormalClosure"/>, or 
+        /// <see cref="WebSocketStatusCode.TlsHandshakeFailure"/>.
+        /// </exception>
+        public void
+        Close(WebSocketStatusCode code, string reason, bool force_disconnect = false)
+        {
+            WebSocketFrame frame;
+            if(code == WebSocketStatusCode.NoStatusReceieved)
+            {
+                frame = WebSocketFrame.CreateCloseFrame();
+            }
+            else if (!ValidateCloseStatusCode(code, out WebSocketException exception))
+            {
+                RaiseAndMaybeThrowError(exception);
+
+                return;
+            }
+            else
+            {
+                frame = WebSocketFrame.CreateCloseFrame(code, reason);
+            }
+
+            Close(FrameSource.Client, ref frame, force_disconnect);
+        }
+
+        internal void
+        Close(FrameSource source, ref WebSocketFrame frame, bool force_disconnect = false)
         {
             if (!SetState(WebSocketState.Closing, force_disconnect))
             {
@@ -423,7 +587,6 @@ TwitchNet.Clients.PubSub
 
             if (source == FrameSource.Client)
             {
-                frame = WebSocketFrame.CreateCloseFrame();
                 Send(frame.EncodeFrame());
             }
 
@@ -446,20 +609,69 @@ TwitchNet.Clients.PubSub
             OnClosed.Raise(this, new CloseEventArgs(DateTime.Now, URI, frame, source, id));
         }
 
-        public void
-        ForceCloseAsync()
-        {
-            CloseAsync(true);
-        }
-
-        public void
+        /// <summary>
+        /// Asynchronously closes the underlying stream and disconnects from the WebSocket.
+        /// </summary>
+        /// <param name="force_disconnect">Whether or not to disconnect regardless of the current state.</param>
+        public async Task
         CloseAsync(bool force_disconnect = false)
         {
-            Close(FrameSource.Client, true);
+            await CloseAsync(WebSocketStatusCode.NoStatusReceieved, true);
         }
 
-        private async void
-        CloseAsync(FrameSource source, bool force_disconnect, WebSocketFrame frame = default)
+        /// <summary>
+        /// Asynchronously closes the underlying stream and disconnects from the WebSocket.
+        /// </summary>
+        /// <param name="code">The satus code to include in the closing frame.</param>
+        /// <param name="force_disconnect">Whether or not to disconnect regardless of the current state.</param>
+        /// <exception cref="WebSocketException">
+        /// Thrown if any of the following status codes are provided in the closing frame:
+        /// <see cref="WebSocketStatusCode.Reserved"/>, 
+        /// <see cref="WebSocketStatusCode.AbnormalClosure"/>, or 
+        /// <see cref="WebSocketStatusCode.TlsHandshakeFailure"/>.
+        /// </exception>
+        public async Task 
+        CloseAsync(WebSocketStatusCode code, bool force_disconnect = false)
+        {
+            await CloseAsync(code, string.Empty, force_disconnect);
+        }
+
+        /// <summary>
+        /// Asynchronously closes the underlying stream and disconnects from the WebSocket.
+        /// </summary>
+        /// <param name="code">The satus code to include in the closing frame.</param>
+        /// <param name="reason">The reason for the closure.</param>
+        /// <param name="force_disconnect">Whether or not to disconnect regardless of the current state.</param>
+        /// <exception cref="WebSocketException">
+        /// Thrown if any of the following status codes are provided in the closing frame:
+        /// <see cref="WebSocketStatusCode.Reserved"/>, 
+        /// <see cref="WebSocketStatusCode.AbnormalClosure"/>, or 
+        /// <see cref="WebSocketStatusCode.TlsHandshakeFailure"/>.
+        /// </exception>
+        public async Task
+        CloseAsync(WebSocketStatusCode code, string reason, bool force_disconnect = false)
+        {
+            WebSocketFrame frame;
+            if (code == WebSocketStatusCode.NoStatusReceieved)
+            {
+                frame = WebSocketFrame.CreateCloseFrame();
+            }
+            else if (!ValidateCloseStatusCode(code, out WebSocketException exception))
+            {
+                RaiseAndMaybeThrowError(exception);
+
+                return;
+            }
+            else
+            {
+                frame = WebSocketFrame.CreateCloseFrame(code, reason);
+            }
+
+            await CloseAsync(FrameSource.Client, frame, force_disconnect);
+        }
+
+        internal async Task
+        CloseAsync(FrameSource source, WebSocketFrame frame, bool force_disconnect = false)
         {
             if (!SetState(WebSocketState.Closing, force_disconnect))
             {
@@ -468,7 +680,6 @@ TwitchNet.Clients.PubSub
 
             if (source == FrameSource.Client)
             {
-                frame = WebSocketFrame.CreateCloseFrame();
                 await SendAsync(frame.EncodeFrame());
             }
 
@@ -487,7 +698,7 @@ TwitchNet.Clients.PubSub
         Callback_OnBeginDisconnect(IAsyncResult result)
         {
             Tuple<FrameSource, bool, WebSocketFrame> _result = (Tuple<FrameSource, bool, WebSocketFrame>)result.AsyncState;
-            
+
             stream.Dispose();
             stream = null;
 
@@ -499,6 +710,32 @@ TwitchNet.Clients.PubSub
             OnClosed.Raise(this, new CloseEventArgs(DateTime.Now, URI, _result.Item3, _result.Item1, id));
         }
 
+        private bool
+        ValidateCloseStatusCode(WebSocketStatusCode code, out WebSocketException exception)
+        {
+            exception = default;
+
+            switch (code)
+            {
+                case WebSocketStatusCode.Reserved:
+                case WebSocketStatusCode.AbnormalClosure:
+                case WebSocketStatusCode.NoStatusReceieved:
+                case WebSocketStatusCode.TlsHandshakeFailure:
+                {
+                    exception = new WebSocketException(WebSocketStatusCode.ProtocolError, WebSocketError.Handshake_Close_StatusCode, "The closing status code cannot be set to: " + EnumUtil.GetName(code) + ".");
+
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Force closes and frees all managed resources.
+        /// The client will need to be re-instantiated to reconnect.
+        /// This method should only be called after disconnecting from the WebSocket.
+        /// </summary>
         public virtual void
         Dispose()
         {
@@ -506,7 +743,7 @@ TwitchNet.Clients.PubSub
         }
 
         protected void
-        Dispose(bool dispose, Action intenral_callback = null)
+        Dispose(bool dispose, Action callback = null)
         {
             if (disposing || !dispose || disposed)
             {
@@ -519,7 +756,9 @@ TwitchNet.Clients.PubSub
 
             Debug.WriteLine("Disposing");
 
-            ForceClose();
+            // If we're disposing we're closing, period. Make sure this is always true.
+            // If the client is already in the process of closing, this will effectively do nothing.
+            Close(true);
 
             if (!state_mutex.IsNull())
             {
@@ -529,9 +768,9 @@ TwitchNet.Clients.PubSub
 
             disposed = true;
 
-            if (!intenral_callback.IsNull())
+            if (!callback.IsNull())
             {
-                intenral_callback();
+                callback();
             }
 
             Debug.WriteLine("Disposed");
@@ -597,22 +836,22 @@ TwitchNet.Clients.PubSub
 
             state_mutex.WaitOne();
 
-            bool success = false;
+            bool change_state = false;
 
             if (!override_state)
             {
                 switch (transition_state)
                 {
-                    case WebSocketState.Connecting: success = CanConnect();                         break;
-                    case WebSocketState.Closing:    success = CanDisconnect();                      break;
-                    case WebSocketState.Open:       success = state == WebSocketState.Connecting;   break;
-                    case WebSocketState.Closed:     success = state == WebSocketState.Closing;      break;
+                    case WebSocketState.Connecting: change_state = CanConnect();                         break;
+                    case WebSocketState.Closing:    change_state = CanDisconnect();                      break;
+                    case WebSocketState.Open:       change_state = state == WebSocketState.Connecting;   break;
+                    case WebSocketState.Closed:     change_state = state == WebSocketState.Closing;      break;
                 }
             }
 
             this.handshake_initiated = handshake_initiated;
 
-            if (success)
+            if (change_state)
             {
                 state = transition_state;
                 if (state == WebSocketState.Connecting)
@@ -628,7 +867,7 @@ TwitchNet.Clients.PubSub
 
             state_mutex.ReleaseMutex();
 
-            return success;
+            return change_state;
         }
 
         /// <summary>
@@ -676,27 +915,79 @@ TwitchNet.Clients.PubSub
 
         #region Writing
 
+        /// <summary>
+        /// Sends a message to the WebSocket.
+        /// </summary>
+        /// <param name="format">
+        /// The string to send to the WebSocket.
+        /// This can be a normal string and does not need to include variable formats.
+        /// </param>
+        /// <param name="arguments">Optional format arugments.</param>
+        /// <returns>
+        /// Returns true if the message was successfully sent to the WebSocket.
+        /// Returns false otherwise.
+        /// </returns>
         public bool
-        Send(string message)
+        Send(string format, params object[] arguments)
         {
-            message = message.Trim();
+            string message = !arguments.IsValid() ? format : string.Format(format, arguments);
+            if (!CanSend(ref message))
+            {
+                return false;
+            }
+
             byte[] bytes = Encoding.UTF8.GetBytes(message);
 
             return Send(Opcode.Text, new MemoryStream(bytes));;
         }
 
+        /// <summary>
+        ///  sends a message to the WebSocket.
+        /// </summary>
+        /// <param name="format">
+        /// The string to send to the WebSocket.
+        /// This can be a normal string and does not need to include variable formats.
+        /// </param>
+        /// <param name="arguments">Optional format arugments.</param>
+        /// <returns>
+        /// Returns true if the message was successfully sent to the WebSocket.
+        /// Returns false otherwise.
+        /// </returns>
         public async Task<bool>
-        SendAsync(string message)
+        SendAsync(string format, params object[] arguments)
         {
-            message = message.Trim();
+            string message = !arguments.IsValid() ? format : string.Format(format, arguments);
+            if (!CanSend(ref message))
+            {
+                return false;
+            }
+
             byte[] bytes = Encoding.UTF8.GetBytes(message);
 
             return await SendAsync(Opcode.Text, new MemoryStream(bytes));
         }
 
+        /// <summary>
+        /// Sends a stream of byte data to the WebSocket.
+        /// The data should not an encoded Websocket frame.
+        /// </summary>
+        /// <param name="opcode">The type of frame being sent.</param>
+        /// <param name="data">
+        /// The stream of data to be sent to the WebSocket.
+        /// The data should not be en encoded WebSocket frame and should just be the raw byte data to be included in the WebSocket frame.
+        /// </param>
+        /// </summary>
+        /// Returns true if the buffer was successfully sent to the WebSocket.
+        /// Returns false otherwise.
+        /// </returns>
         public bool
         Send(Opcode opcode, Stream stream)
         {
+            if (!CanSend(stream))
+            {
+                return false;
+            }
+
             ulong buffer_length = (ulong)stream.Length;
             if (buffer_length == 0)
             {
@@ -755,9 +1046,27 @@ TwitchNet.Clients.PubSub
             return true;
         }
 
+        /// <summary>
+        /// Asynchronously sends a stream of byte data to the WebSocket.
+        /// The data should not an encoded Websocket frame.
+        /// </summary>
+        /// <param name="opcode">The type of frame being sent.</param>
+        /// <param name="data">
+        /// The stream of data to be sent to the WebSocket.
+        /// The data should not be en encoded WebSocket frame and should just be the raw byte data to be included in the WebSocket frame.
+        /// </param>
+        /// </summary>
+        /// Returns true if the buffer was successfully sent to the WebSocket.
+        /// Returns false otherwise.
+        /// </returns>
         public async Task<bool>
         SendAsync(Opcode opcode, Stream stream)
         {
+            if (!CanSend(stream))
+            {
+                return false;
+            }
+
             ulong buffer_length = (ulong)stream.Length;
             if (buffer_length == 0)
             {
@@ -816,34 +1125,62 @@ TwitchNet.Clients.PubSub
             return true;
         }
 
+        /// <summary>
+        /// Sends byte data to the WebSocket.
+        /// The data should not an encoded Websocket frame.
+        /// </summary>
+        /// <param name="fin">Whether or not this is ihe final gragment being sent.</param>
+        /// <param name="opcode">The type of frame being sent.</param>
+        /// <param name="data">
+        /// The data to be sent to the WebSocket.
+        /// The data should not be en encoded WebSocket frame and should just be the raw byte data to be included in the WebSocket frame.
+        /// </param>
+        /// </summary>
+        /// Returns true if the buffer was successfully sent to the WebSocket.
+        /// Returns false otherwise.
+        /// </returns>
         public bool
         Send(Fin fin, Opcode opcode, byte[] data)
         {
-            if (state != WebSocketState.Open)
-            {
-                return false;
-            }
-
             PayloadData payload = new PayloadData(data);
             WebSocketFrame frame = new WebSocketFrame(fin, opcode, payload);
 
             return Send(frame.encoded);
         }
 
+        /// <summary>
+        /// Asynchronously sends byte data to the WebSocket.
+        /// The data should not an encoded Websocket frame.
+        /// </summary>
+        /// <param name="fin">Whether or not this is ihe final gragment being sent.</param>
+        /// <param name="opcode">The type of frame being sent.</param>
+        /// <param name="data">
+        /// The data to be sent to the WebSocket.
+        /// The data should not be en encoded WebSocket frame and should just be the raw byte data to be included in the WebSocket frame.
+        /// </param>
+        /// </summary>
+        /// Returns true if the buffer was successfully sent to the WebSocket.
+        /// Returns false otherwise.
+        /// </returns>
         public async Task<bool>
         SendAsync(Fin fin, Opcode opcode, byte[] data)
         {
-            if (state != WebSocketState.Open)
-            {
-                return false;
-            }
-
             PayloadData payload = new PayloadData(data);
             WebSocketFrame frame = new WebSocketFrame(fin, opcode, payload);
 
             return await SendAsync(frame.encoded);
         }
 
+        /// <summary>
+        /// Sends a byte buffer to the WebSocket.
+        /// </summary>
+        /// <param name="buffer">
+        /// The buffer to be sent to the WebSocket.
+        /// Thebuffer needs to be a properly encoded Websocket frame.
+        /// </param>
+        /// Returns true if the buffer was successfully sent to the WebSocket.
+        /// Returns false otherwise.
+        /// </returns>
         public bool
         Send(byte[] buffer)
         {
@@ -858,6 +1195,13 @@ TwitchNet.Clients.PubSub
             return true;
         }
 
+        /// <summary>
+        /// Asynchronously sends a byte buffer to the WebSocket.
+        /// The buffer needs to be a properly encoded Websocket frame.
+        /// </summary>
+        /// Returns true if the buffer was successfully sent to the WebSocket.
+        /// Returns false otherwise.
+        /// </returns>
         public async Task<bool>
         SendAsync(byte[] buffer)
         {
@@ -867,35 +1211,45 @@ TwitchNet.Clients.PubSub
             }
 
             await stream.WriteAsync(buffer, 0, buffer.Length);
-            stream.Flush();
+            await stream.FlushAsync();
 
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool
+        IsAlive()
+        {
+            return state == WebSocketState.Open && !socket.IsNull() && socket.Connected && !stream.IsNull();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool
+        CanSend(ref string message)
+        {
+            // We don't want to explicitly check for an empty string
+            // It is legal to send a an empty frame, which may be the desired behavior by the user.
+            // The required frame header will automatically be added later down the pipe.
+            return IsAlive() && !message.IsNull();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool
+        CanSend(Stream stream)
+        {
+            // We don't want to explicitly check for an empty stream/buffer.
+            // It is legal to send a an empty frame, which may be the desired behavior by the user.
+            // The required frame header will automatically be added later down the pipe.
+            return IsAlive() && !stream.IsNull() && !stream.IsNull();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool
         CanSend(in byte[] data)
         {
-            if (state != WebSocketState.Open)
-            {
-                return false;
-            }
-
-            if (socket.IsNull() || !socket.Connected)
-            {
-                return false;
-            }
-
-            if (stream.IsNull())
-            {
-                return false;
-            }
-
-            if (data.IsNull() || data.Length < 2)
-            {
-                return false;
-            }
-
-            return true;
+            // Now is where we need to check against the minimum required buffer length.
+            // Even an empty frame at a minimum is requried to have a header which is 2 bytes long.
+            return IsAlive() && !data.IsNull() && data.Length >= 2;
         }
 
         #endregion
@@ -926,28 +1280,15 @@ TwitchNet.Clients.PubSub
                 result = await ReadFrameAsync(stream, buffer_frame_header);
                 if (!result.Item1)
                 {
-                    continue;
+                    await CloseAsync(WebSocketStatusCode.ProtocolError, true);
+
+                    break;
                 }
 
                 time = DateTime.Now;
 
                 frame = result.Item2;
                 OnWebSocketFrame.Raise(this, new FrameEventArgs(time, URI, frame, id));
-
-                // A control frame was either sent by itself or injected in the middle of a fragment.
-                // Process the control frame *immediately*.
-                if (frame.is_control)
-                {
-                    if (frame.fin != Fin.Final)
-                    {
-                        SetError(new WebSocketException(WebSocketError.ControlFrame_Fragment, frame, "A control frame was sent as a fragment."));
-                    }
-
-                    // Even if a fragmented control frame is sent, pass it on so frame can still be processed.
-                    RunMessageHandler(frame.opcode, time, new WebSocketFrame[] { frame }, frame.payload.data);
-
-                    continue;
-                }
 
                 frames.Add(frame);
 
@@ -973,20 +1314,27 @@ TwitchNet.Clients.PubSub
         private async Task<Tuple<bool, WebSocketFrame>>
         ReadFrameAsync(Stream stream, byte[] buffer_header)
         {
-            bool result_read = false;
             Tuple<bool, WebSocketFrame> result_frame_fail = Tuple.Create(false, default(WebSocketFrame));
 
             WebSocketFrame frame = new WebSocketFrame();
 
-            // ---------------------------------------------
-            // Header Decoding
-            // ---------------------------------------------
+            // *********************************************
+            // *                                           *
+            // *             Header Decoding               *
+            // *                                           *
+            // *********************************************
 
-            result_read = await ReadStreamAsync(stream, buffer_header);
-            if (!result_read)
+            if (!await ReadStreamAsync(stream, buffer_header))
             {
                 return result_frame_fail;
             }
+
+            // Hex  |  Binary   | Shift
+            // -----|-----------|---------
+            // 0x80 | 1000 0000 | (1 << 7)
+            // 0x40 | 0100 0000 | (1 << 6)
+            // 0x20 | 0010 0000 | (1 << 5)
+            // 0x10 | 0001 0000 | (1 << 4)
 
             frame.fin = (buffer_header[0] & 0x80) == 0x80 ? Fin.Final : Fin.Fragment;
 
@@ -998,32 +1346,42 @@ TwitchNet.Clients.PubSub
 
             frame.mask = (buffer_header[1] & 0x80) == 0x80 ? Mask.On : Mask.Off;
 
-            frame.length_payload = (byte)(buffer_header[1] & 0x7f);
+            // Hex  |  Binary   | Decimal
+            // -----|-----------|---------
+            // 0x7F | 0111 1111 | 127
+            frame.length_payload = (byte)(buffer_header[1] & 0x7F);
 
-            // ---------------------------------------------
-            // Extended Payload Length Decoding
-            // ---------------------------------------------
+            // *********************************************
+            // *                                           *
+            // *     Extended Payload Length Decoding      *
+            // *                                           *
+            // *********************************************
 
+            // If the payload data < 126, this is the size of the payload
             if (frame.length_payload < 126)
             {
                 frame.length_payload_extended = new byte[0];
             }
+            // Otherside, the real size of the payload is stored in either the next 2 or 8 bytes depending on length_payload's value
             else
             {
                 int length_payload_extended_count = frame.length_payload == 126 ? 2 : 8;
-                frame.length_payload_extended = new byte[length_payload_extended_count];
 
-                result_read = await ReadStreamAsync(stream, frame.length_payload_extended);
-                if (!result_read)
+                frame.length_payload_extended = new byte[length_payload_extended_count];
+                if (!await ReadStreamAsync(stream, frame.length_payload_extended))
                 {
                     return result_frame_fail;
                 }
             }
 
-            // ---------------------------------------------
-            // Mask Key Decoding
-            // ---------------------------------------------
+            // *********************************************
+            // *                                           *
+            // *            Mask Key Decoding              *
+            // *                                           *
+            // *********************************************
 
+            // Because we are a lways a client, the payload data should *NEVER* be masked
+            // But still handle both cases just in case
             if (frame.mask == Mask.Off)
             {
                 frame.mask_key = new byte[0];
@@ -1032,30 +1390,25 @@ TwitchNet.Clients.PubSub
             {
                 frame.mask_key = new byte[4];
 
-                result_read = await ReadStreamAsync(stream, frame.mask_key);
-                if (!result_read)
+                if (!await ReadStreamAsync(stream, frame.mask_key))
                 {
                     return result_frame_fail;
                 }
             }
 
-            // ---------------------------------------------
-            // Data Decoding
-            // ---------------------------------------------
+            // *********************************************
+            // *                                           *
+            // *             Payload Decoding              *
+            // *                                           *
+            // *********************************************
 
             PayloadData payload = new PayloadData();
 
-            if (frame.length_payload < 126)
+            switch(frame.length_payload)
             {
-                payload.length = frame.length_payload;
-            }
-            else if (frame.length_payload == 126)
-            {
-                payload.length = frame.length_payload_extended.ToUint16FromBigEndian();
-            }
-            else
-            {
-                payload.length = frame.length_payload_extended.ToUint64FromBigEndian();
+                case 126:   payload.length = frame.length_payload_extended.ToUint16FromBigEndian(); break;
+                case 127:   payload.length = frame.length_payload_extended.ToUint64FromBigEndian(); break;
+                default:    payload.length = frame.length_payload;                                  break;
             }
 
             // Not an error, just an empty frame
@@ -1068,19 +1421,24 @@ TwitchNet.Clients.PubSub
 
             payload.data = new byte[payload.length];
 
-            int fragment_length = settings.frame_fragment_length_read;
-            if (payload.length <= (ulong)fragment_length)
+            int fragment_length_read = settings.frame_fragment_length_read;
+
+            // The entire payload can be read in one go
+            if (payload.length <= (ulong)fragment_length_read)
             {
-                result_read = await ReadStreamAsync(stream, payload.data);
-                if (!result_read)
+                if (!await ReadStreamAsync(stream, payload.data))
                 {
                     return result_frame_fail;
                 }
             }
+            // We need to read multple times to get the entire payload 
             else
             {
-                ulong fragments_count = (payload.length / (ulong)fragment_length);
-                if (payload.length % (ulong)fragment_length > 0)
+                ulong fragments_count = payload.length / (ulong)fragment_length_read;
+
+                // The above calc essentially acts as a Floor()
+                // We need to see if there are any remaining bytes to be read
+                if (payload.length % (ulong)fragment_length_read > 0)
                 {
                     ++fragments_count;
                 }
@@ -1088,28 +1446,74 @@ TwitchNet.Clients.PubSub
                 int offset = 0;
                 for (ulong index = 0; index < fragments_count; ++index)
                 {
-                    result_read = await ReadStreamAsync(stream, payload.data, offset, fragment_length);
-                    if (!result_read)
+                    if (!await ReadStreamAsync(stream, payload.data, offset, fragment_length_read))
                     {
                         return result_frame_fail;
                     }
 
-                    offset += fragment_length;
+                    offset += fragment_length_read;
 
-                    int temp = payload.data.Length - offset;
-                    fragment_length = temp < fragment_length ? temp : fragment_length;
+                    int bytes_remaining = payload.data.Length - offset;
+                    fragment_length_read = bytes_remaining < fragment_length_read ? bytes_remaining : fragment_length_read;
                 }
-            }
-
-            // TODO: Since this is a client, it should *never* receieve masked data from the server. Throw an error and disconnect if this is ever true.
-            if (frame.mask == Mask.On)
-            {
-                payload.Mask(frame.mask_key);
             }
 
             frame.payload = payload;
 
+            if (frame.mask == Mask.On)
+            {
+                frame.payload.Mask(frame.mask_key);
+            }
+
+            if (!ValidateReceivedFrame(frame, out WebSocketException exception))
+            {
+                RaiseError(exception);
+
+                return result_frame_fail;
+            }
+
             return Tuple.Create(true, frame);
+        }
+
+        private bool
+        ValidateReceivedFrame(in WebSocketFrame frame, out WebSocketException exception)
+        {
+            exception = default;
+
+            if (frame.mask == Mask.On)
+            {
+                exception = new WebSocketException(WebSocketStatusCode.ProtocolError, WebSocketError.Protocol_FrameMask, frame, "A masked frame was recieved from the WebSocket server.");
+
+                return false;
+            }
+
+            // TODO: (ValidateReceivedFrame) - Look into the handshake process a little more and see how this can be confirmed and not just assumed.
+            // This is fine for now since Twitch doesn't negotiate any extensions, but just for the sake of completion.
+            if (frame.rsv_1 == RSV.On || frame.rsv_2 == RSV.On || frame.rsv_2 == RSV.On)
+            {
+                exception = new WebSocketException(WebSocketStatusCode.ProtocolError, WebSocketError.Protocol_FrameRSV, frame, "One of the RSV header bits was set to a non-zero value where such no such behavior was negotiated during the handshake process.");
+
+                return false;
+            }
+
+            if (frame.is_control)
+            {
+                if (frame.fin != Fin.Final)
+                {
+                    exception = new WebSocketException(WebSocketStatusCode.ProtocolError, WebSocketError.Protocol_FrameControl, frame, "A control frame was sent as a gragment.");
+
+                    return false;
+                }
+
+                if (frame.length_payload >= 126)
+                {
+                    exception = new WebSocketException(WebSocketStatusCode.ProtocolError, WebSocketError.Protocol_FrameControl, frame, "A control frame was with a payload length of " + frame.length_payload + ". The maximum size of a control frame can be is 125 bytes.");
+
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private async Task<bool>
@@ -1131,15 +1535,18 @@ TwitchNet.Clients.PubSub
             {
                 if (state != WebSocketState.Closing)
                 {
-                    SetNetworkError(new WebSocketNetworkException(WebSocketNetworkError.Stream_Disposed, "The stream was disposed while attempting to read data.", exception));
+                    RaiseError(new WebSocketException(WebSocketStatusCode.PolicyViolation, WebSocketError.Stream_Disposed, "The stream was disposed while attempting to read from it.", exception));
                 }
 
                 return false;
             }
 
+            // Usually this means that the underlying stream/socket has been disconnected without prior warning.
+            // If we were disconnected without prior notice, i.e., we never received a Close control frame, this is technially violating protocal.
+            // Which, suprise, Twitch does quite frequently.
             if (buffer_bytes_read_count == 0) 
             {
-                SetNetworkError(new WebSocketNetworkException(WebSocketNetworkError.Stream_ZeroBytesRead, "Zero bytes were ready from the buffer instead of the expected " + buffer.Length + " bytes. It is highly recommended to reconnect to the web socket."));
+                RaiseError(new WebSocketException(WebSocketStatusCode.ProtocolError, WebSocketError.Stream_BytesReadCount, "Zero bytes were read from the stream instead of the expected " + count + " bytes."));
 
                 return false;
             }
@@ -1147,7 +1554,7 @@ TwitchNet.Clients.PubSub
             // This normally isn't inherantly an error, but for a web socket it's bad if the correct number of bytes isn't read.
             if (buffer_bytes_read_count != count)
             {
-                SetNetworkError(new WebSocketNetworkException(WebSocketNetworkError.Stream_BytesReadCount, buffer_bytes_read_count + " bytes were ready from the buffer instead of the expected " + buffer.Length + " bytes."));
+                RaiseError(new WebSocketException(WebSocketStatusCode.ProtocolError, WebSocketError.Stream_BytesReadCount, buffer_bytes_read_count + " bytes were ready from the stream instead of the expected " + count + " bytes."));
 
                 return false;
             }
@@ -1160,24 +1567,17 @@ TwitchNet.Clients.PubSub
         #region Error Handling
 
         private void
-        SetError(WebSocketException exception)
+        RaiseError(WebSocketException exception)
+        {
+            OnWebSocketError.Raise(this, new WebSocketErrorEventArgs(DateTime.Now, URI, exception, id));
+        }
+
+        private void
+        RaiseAndMaybeThrowError(WebSocketException exception)
         {
             OnWebSocketError.Raise(this, new WebSocketErrorEventArgs(DateTime.Now, URI, exception, id));
 
             if (settings.handling_error == ErrorHandling.Return)
-            {
-                return;
-            }
-
-            throw exception;
-        }
-
-        private void
-        SetNetworkError(WebSocketNetworkException exception)
-        {
-            OnNetworkError.Raise(this, new WebSocketNetworkErrorEventArgs(DateTime.Now, URI, exception, id));
-
-            if (settings.handling_network_error == ErrorHandling.Return)
             {
                 return;
             }
@@ -1216,6 +1616,7 @@ TwitchNet.Clients.PubSub
         {
             get
             {
+                // Don't encode the frame over and over again if we don't have to.
                 return _encoded.Length == 0 ? EncodeFrame() : _encoded;
             }
         }
@@ -1289,13 +1690,8 @@ TwitchNet.Clients.PubSub
         }
 
         public static WebSocketFrame
-        CreateCloseFrame(CloseStatusCode status_code, string reason = "")
+        CreateCloseFrame(WebSocketStatusCode status_code, string reason = "")
         {
-            if (status_code == CloseStatusCode.Other || status_code == CloseStatusCode.None || status_code == CloseStatusCode.Abnormal)
-            {
-                return CreateCloseFrame();
-            }
-
             PayloadData payload = new PayloadData(status_code, reason);
             return new WebSocketFrame(Fin.Final, Opcode.Close, payload);
         }
@@ -1380,7 +1776,7 @@ TwitchNet.Clients.PubSub
     {
         public static readonly PayloadData Empty;
 
-        public CloseStatusCode close_status_code;
+        public WebSocketStatusCode close_status_code;
 
         public string close_reason;
 
@@ -1397,7 +1793,7 @@ TwitchNet.Clients.PubSub
         public
         PayloadData(byte[] data)
         {
-            close_status_code = CloseStatusCode.Other;
+            close_status_code = 0;
             close_reason = string.Empty;
 
             this.data = data;
@@ -1406,9 +1802,9 @@ TwitchNet.Clients.PubSub
         }
 
         public
-        PayloadData(CloseStatusCode status_code, string reason)
+        PayloadData(WebSocketStatusCode status_code, string reason)
         {
-            close_status_code = CloseStatusCode.Other;
+            close_status_code = 0;
             close_reason = reason;
 
             data = new byte[2];
@@ -1511,34 +1907,99 @@ TwitchNet.Clients.PubSub
     }
 
     public enum
-    CloseStatusCode : ushort
+    WebSocketStatusCode : ushort
     {
-        Other = 0,
+        /// <summary>
+        /// <para>Code: 1000</para>
+        /// <para>The WebSoket connection has been closed normally and the purpose of the connection was fulfilled.</para>
+        /// </summary>
+        NormalClosure = 1000,
 
-        Normal = 1000,
+        /// <summary>
+        /// <para>Code: 1001</para>
+        /// <para>Indicates that the WebSoket endpoint is going away, i.e. the WebSocket is shutting down, a browser navigated away from a page, etc.</para>
+        /// </summary>
+        GoingAway = 1001,
 
-        Away = 1001,
-
+        /// <summary>
+        /// <para>Code: 1002</para>
+        /// <para>Indicates that the WebSoket endpoint, client or server, is terminating the connection due to a protocol error/violation.</para>
+        /// </summary>
         ProtocolError = 1002,
 
+        /// <summary>
+        /// <para>Code: 1003</para>
+        /// <para>Indicates that the WebSoket endpoint, client or server, is terminating the connection because it receieved a type of data it was not expecting or cannot support.</para>
+        /// </summary>
         UnsupportedData = 1003,
 
+        /// <summary>
+        /// <para>Code: 1004</para>
+        /// <para>This status code is reserved and has no meaning.</para>
+        /// </summary>
         Reserved = 1004,
 
-        None = 1005,
+        /// <summary>
+        /// <para>Code: 1005</para>
+        /// <para>
+        /// The status code is reserved and must not be used in a Close control frame by either WebSocket endpoint, client or server.
+        /// Indicates that status a code is expected but no status code is actually present.
+        /// </para>
+        /// </summary>
+        NoStatusReceieved = 1005,
 
-        Abnormal = 1006,
+        /// <summary>
+        /// <para>Code: 1006</para>
+        /// <para>
+        /// The status code is reserved and must not be used in a close control frame by either WebSocket endpoint, client or server.
+        /// Indicates that the connection was closed abnormally, i.e., no Close control frame was received.
+        /// </para>
+        /// </summary>
+        AbnormalClosure = 1006,
 
-        InvalidData = 1007,
+        /// <summary>
+        /// <para>Code: 1007</para>
+        /// <para>
+        /// Indicates that the WebSoket endpoint, client or server, is terminating the connection because it receieved a message whose data type is not consistent with the decalred data type.
+        /// ,i.e, non-UTF8 encoded data being provided with a Text message.
+        /// </para>
+        /// </summary>
+        InvalidPayloadData = 1007,
 
+        /// <summary>
+        /// <para>Code: 1008</para>
+        /// <para>
+        /// Indicates that the WebSoket endpoint, client or server, is terminating the connection because it receieved a message that violates its own policy.
+        /// This is a generic status code that is used when a more specific one does not apply or when there is a need to hide specific details about the policy.
+        /// </para>
+        /// </summary>
         PolicyViolation = 1008,
 
-        TooBig = 1009,
+        /// <summary>
+        /// <para>Code: 1009</para>
+        /// <para>Indicates that the WebSoket endpoint, client or server, is terminating the connection because it receieved a message that is too big for it process.</para>
+        /// </summary>
+        MessageTooBig = 1009,
 
+        /// <summary>
+        /// <para>Code: 1010</para>
+        /// <para>Indicates that the WebSoket client endpoint is terminating the connection because it expected the server to negotiate one or more extension, but were never returned during the handshake.</para>
+        /// </summary>
         ExtensionsExpected = 1010,
 
-        UnexpectedError = 1011,
+        /// <summary>
+        /// <para>Code: 1011</para>
+        /// <para>Indicates that the WebSoket server endpoint is terminating the connection because they encountered an unexpected error that prevented from fulfilling the connecion reuest.</para>
+        /// </summary>
+        InternalServerError = 1011,
 
+        /// <summary>
+        /// <para>Code: 1015</para>
+        /// <para>
+        /// The status code is reserved and must not be used in a Close control frame by either WebSocket endpoint, client or server.
+        /// Indicates that the connection was closed due to a TLS handhake failure.
+        /// </para>
+        /// </summary>
         TlsHandshakeFailure = 1015
     }
 
@@ -1551,15 +2012,12 @@ TwitchNet.Clients.PubSub
         int connect_retry_count_limit { get; set; }
 
         RetryHandling handling_failed_to_connect { get; set; }
-        ErrorHandling handling_network_error { get; set; }
         ErrorHandling handling_error { get; set; }
     }
 
     public class
     WebSocketSettings : IWebSocketSettings
     {
-        private int[] connect_retry_delay_seconds;
-
         internal int connect_retry_count;
         public int connect_retry_count_limit { get; set; }
 
@@ -1567,25 +2025,37 @@ TwitchNet.Clients.PubSub
         public int frame_fragment_length_write { get; set; }
 
         public RetryHandling handling_failed_to_connect { get; set; }
-        public ErrorHandling handling_network_error { get; set; }
         public ErrorHandling handling_error { get; set; }
 
         public WebSocketSettings()
         {
+            // Copy paste from Reset() to avoid duplicate instantiation when derived classes instantiated.
+            // Keep these synchronized at all times!
+
             frame_fragment_length_read = 1024;
             frame_fragment_length_write = 1024;
 
-            connect_retry_delay_seconds = new int[] { 1, 2, 4, 8, 16, 32, 64, 120 };
-
             connect_retry_count = 0;
-            connect_retry_count_limit = connect_retry_delay_seconds.Length;
+            connect_retry_count_limit = 5;
 
             handling_failed_to_connect = RetryHandling.Retry;
-            handling_network_error = ErrorHandling.Error;
             handling_error = ErrorHandling.Error;
         }
 
-        public void
+        public virtual void
+        Reset()
+        {
+            frame_fragment_length_read = 1024;
+            frame_fragment_length_write = 1024;
+
+            connect_retry_count = 0;
+            connect_retry_count_limit = 5;
+
+            handling_failed_to_connect = RetryHandling.Retry;
+            handling_error = ErrorHandling.Error;
+        }
+
+        internal void
         WaitConnectionDelay()
         {
             if (connect_retry_count < 1)
@@ -1595,10 +2065,12 @@ TwitchNet.Clients.PubSub
 
             connect_retry_count = connect_retry_count.ClampMax(connect_retry_count_limit);
 
-            Thread.Sleep(connect_retry_delay_seconds[connect_retry_count - 1] * 1000);
+            // If this actually overflows to where we need to clamp the value, the hell is the user doing?
+            int time = ((int)Math.Pow(2, (connect_retry_count - 1) * 1000)).Clamp(1000, Int32.MaxValue);
+            Thread.Sleep(time);
         }
 
-        public async Task
+        internal async Task
         WaitConnectionDelayAsync()
         {
             if (connect_retry_count < 1)
@@ -1606,9 +2078,9 @@ TwitchNet.Clients.PubSub
                 return;
             }
 
-            connect_retry_count = connect_retry_count.ClampMax(connect_retry_count_limit);
-
-            await Task.Delay(connect_retry_delay_seconds[connect_retry_count - 1] * 1000);
+            // If this actually overflows to where we need to clamp the value, the hell is the user doing?
+            int time = ((int)Math.Pow(2, (connect_retry_count - 1) * 1000)).Clamp(1000, Int32.MaxValue);
+            await Task.Delay(time);
         }
     }
 
@@ -1637,68 +2109,132 @@ TwitchNet.Clients.PubSub
     {
         None = 0,
 
-        ControlFrame_Fragment,
-    }
+        /// <summary>
+        /// The WebSocket URI was null.
+        /// </summary>
+        Handshake_Open_Uri,
 
-    public enum
-    WebSocketNetworkError
-    {
-        None = 0,
+        /// <summary>
+        /// The WebSocket URI host was null.
+        /// </summary>
+        Handshake_Open_UriHost,
 
+        /// <summary>
+        /// The WebSocket URI port out of the expected range, 0 to 65535.
+        /// </summary>
+        Handshake_Open_UriPort,
+
+        /// <summary>
+        /// The handshake request protocol version was older than HTTP 1.1.
+        /// </summary>
+        Handshake_Open_RequestProtocolVersion,
+
+        /// <summary>
+        /// <para>One of the following handshake request header errors was encountered:</para
+        /// <para>The handshake request did not contain the header \"Upgrade\", or the header was not set to \"websocket\".</para>
+        /// <para>The handshake request did not contain the header \"Connection\", or the header was not set to \"Upgrade\".</para>
+        /// <para>The handshake request did not contain the header \"Sec-WebSocket-Key\", or the header was empty or contianed only white space.</para>
+        /// <para>The handshake request did not contain the header \"Sec-WebSocket-Version\", or the header was not set to \"13\".</para>
+        /// </summary>
+        Handshake_Open_RequestHeader,
+
+        /// <summary>
+        /// The handshake response status code was not equal to "101 - Switching Protocols".
+        /// </summary>
+        Handshake_Open_ResponseStatusCode,
+
+        /// <summary>
+        /// The handshake response protocol version must be at least HTTP 1.1.
+        /// </summary>
+        Handshake_Open_ResponseProtocolVersion,
+
+        /// <summary>
+        /// <para>One of the following handshake response header errors was encountered:</para>
+        /// <para>The handshake response did not contain the header "Sec-WebSocket-Accept", or the header was empty or contianed only white space.</para>
+        /// <para>The handshake response header "Sec-WebSocket-Accept" did not matach the expected value.</para>
+        /// <para>The handshake response included the header "Sec-WebSocket-Version" and was not set to "13".</para>
+        /// </summary>
+        Handshake_Open_ResponseHeader,
+
+        /// <summary>
+        /// The maximum number of connection retry attempts was exceeded.
+        /// </summary>
+        Handshake_Open_RetryLimitReached,
+
+        /// <summary>
+        /// The provided status code during the closing handshake was one of the following:
+        /// <para><see cref="WebSocketStatusCode.Reserved"/></para>
+        /// <para><see cref="WebSocketStatusCode.AbnormalClosure"/></para>
+        /// <para><see cref="WebSocketStatusCode.TlsHandshakeFailure"/></para>
+        /// </summary>
+        Handshake_Close_StatusCode,
+
+        /// <summary>
+        /// A server sent a masked frame to a client and can never do so.
+        /// </summary>
+        Protocol_FrameMask,
+
+        /// <summary>
+        /// One of the RSV header bits was set to a non-zero value where such no such behavior was negotiated during the handshake process.
+        /// </summary>
+        Protocol_FrameRSV,
+
+        /// <summary>
+        /// <para>a control frame was received and one of the following errors was encountered:</para>
+        /// <para>The frame was sent as a fragment.</para>
+        /// <para>The frame payload length was greater than or equal to 126 bytes.</para>
+        /// </summary>
+        Protocol_FrameControl,
+
+        /// <summary>
+        /// The stream was disposed while attempting to read data from the WebSocket.
+        /// </summary>
         Stream_Disposed,
 
-        Stream_ZeroBytesRead,
-
+        /// <summary>
+        /// <para>One of the following errors was encountered while attempting to read from the stream:</para>
+        /// <para>Zero bytes were read from the WebSocket buffer instead of the expected number of bytes.</para>
+        /// <para>The number of bytes that were read from the WebSocket buffer was not equal to the expected number of bytes.</para>
+        /// </summary>
         Stream_BytesReadCount,
-
-        Hanshake_RequestProtocolVersion,
-
-        Hanshake_RequestHeader,
-
-        Hanshake_ResponseStatusCode,
-
-        Hanshake_ResponseProtocolVersion,
-
-        Hanshake_ResponseHeader,
-
-        RetryConnectLimitReached
     }
 
     public class
     WebSocketException : Exception
     {
+        public WebSocketStatusCode status_code;
+
         public WebSocketError error;
 
         public WebSocketFrame frame;
 
-        public WebSocketException(WebSocketError error, WebSocketFrame frame, string message) : base(message)
+        public WebSocketException(WebSocketStatusCode status_code, WebSocketError error, string message) : base(message)
         {
+            this.status_code = status_code;
+            this.error = error;
+        }
+
+        public WebSocketException(WebSocketStatusCode status_code, WebSocketError error, WebSocketFrame frame, string message) : base(message)
+        {
+            this.status_code = status_code;
             this.error = error;
             this.frame = frame;
         }
 
-        public WebSocketException(WebSocketError error, WebSocketFrame frame, string message, Exception inner_exception) : base(message, inner_exception)
+        public WebSocketException(WebSocketStatusCode status_code, WebSocketError error, string message, Exception inner_exception) : base(message, inner_exception)
         {
+            this.status_code = status_code;
+            this.error = error;
+        }
+
+        public WebSocketException(WebSocketStatusCode status_code, WebSocketError error, WebSocketFrame frame, string message, Exception inner_exception) : base(message, inner_exception)
+        {
+            this.status_code = status_code;
             this.error = error;
             this.frame = frame;
-        }
-    }
-
-    public class
-    WebSocketNetworkException : Exception
-    {
-        public WebSocketNetworkError error;
-
-        public WebSocketNetworkException(WebSocketNetworkError error, string message) : base(message)
-        {
-            this.error = error;
-        }
-
-        public WebSocketNetworkException(WebSocketNetworkError error, string message, Exception inner_exception) : base(message, inner_exception)
-        {
-            this.error = error;
         }
     }
 
     #endregion
 }
+ 
